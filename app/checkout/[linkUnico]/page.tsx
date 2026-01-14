@@ -1,5 +1,5 @@
 'use client';
-
+export const dynamic = 'force-dynamic';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Check } from 'lucide-react';
@@ -286,7 +286,7 @@ const finalizarPedido = async () => {
               {etapa === 1 && (
                 <div className="space-y-4">
                   <h2 className="text-2xl font-bold text-gray-900 mb-6">📋 Dados Pessoais</h2>
-                  <input type="text" placeholder="Nome Completo *" value={formData.nome} onChange={(e) => setFormData({...formData, nome: e.target.value})} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 outline-none text-gray-900" style={{ focusRingColor: corPrimaria }} />
+                  <input type="text" placeholder="Nome Completo *" value={formData.nome} onChange={(e) => setFormData({...formData, nome: e.target.value})} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 outline-none text-gray-900" />
                   <input type="email" placeholder="Email *" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 outline-none text-gray-900" />
                   <input type="text" placeholder="Telefone *" value={formData.telefone} onChange={(e) => setFormData({...formData, telefone: formatarTelefone(e.target.value)})} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 outline-none text-gray-900" />
                   {plano.checkoutCpfObrigatorio && (
@@ -390,3 +390,8 @@ const finalizarPedido = async () => {
     </div>
   );
 }
+
+
+
+
+

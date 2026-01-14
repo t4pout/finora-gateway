@@ -2,127 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 
-async function processarSplitPagamento(
-  vendaId: string,
-  valorTotal: number,
-  metodoPagamento: string,
-  vendedorId: string,
-  afiliacaoId?: string
-) {
-  try {
-    // Buscar plano de taxa do vendedor
-    const vendedor = await prisma.user.findUnique({
-      where: { id: vendedorId },
-      include: { planoTaxa: true }
-    });
+const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'seu-secret-super-seguro';
 
-    let taxaPercentual = 0;
-    let taxaFixa = 0;
-    let prazoDias = 0;
-
-    if (vendedor?.planoTaxa) {
-      const plano = vendedor.planoTaxa;
-      
-      // Definir taxas baseadas no método de pagamento
-      if (metodoPagamento === 'PIX') {
-        taxaPercentual = plano.pixPercentual;
-        taxaFixa = plano.pixFixo;
-        prazoDias = plano.prazoPixDias;
-      } else if (metodoPagamento === 'CARTAO') {
-        taxaPercentual = plano.cartaoPercentual;
-        taxaFixa = plano.cartaoFixo;
-        prazoDias = plano.prazoCartaoDias;
-      } else if (metodoPagamento === 'BOLETO') {
-        taxaPercentual = plano.boletoPercentual;
-        taxaFixa = plano.boletoFixo;
-        prazoDias = plano.prazoBoletoDias;
-      }
-    } else {
-      // Taxas padrão caso não tenha plano
-      if (metodoPagamento === 'PIX') {
-        taxaPercentual = 2;
-        taxaFixa = 0;
-        prazoDias = 3;
-      } else if (metodoPagamento === 'CARTAO') {
-        taxaPercentual = 5;
-        taxaFixa = 0.50;
-        prazoDias = 30;
-      } else {
-        taxaPercentual = 3;
-        taxaFixa = 2;
-        prazoDias = 7;
-      }
-    }
-
-    // Calcular taxa total
-    const taxaValor = (valorTotal * taxaPercentual / 100) + taxaFixa;
-    
-    // Calcular valor líquido do vendedor
-    let valorVendedor = valorTotal - taxaValor;
-
-    // Se tem afiliado, calcular comissão
-    let valorAfiliado = 0;
-    if (afiliacaoId) {
-      const afiliacao = await prisma.afiliacao.findUnique({
-        where: { id: afiliacaoId }
-      });
-
-      if (afiliacao) {
-        valorAfiliado = valorTotal * afiliacao.comissao / 100;
-        valorVendedor -= valorAfiliado;
-
-        // Criar transação para afiliado
-        const dataLiberacaoAfiliado = new Date();
-        dataLiberacaoAfiliado.setDate(dataLiberacaoAfiliado.getDate() + prazoDias);
-
-        await prisma.transacao.create({
-          data: {
-            userId: afiliacao.afiliadoId,
-            vendaId,
-            tipo: 'COMISSAO',
-            valor: valorAfiliado,
-            status: 'PENDENTE',
-            descricao: `Comissão de ${afiliacao.comissao}% - Venda #${vendaId.substring(0, 8)}`,
-            dataLiberacao: dataLiberacaoAfiliado
-          }
-        });
-      }
-    }
-
-    // Criar transação para vendedor
-    const dataLiberacaoVendedor = new Date();
-    dataLiberacaoVendedor.setDate(dataLiberacaoVendedor.getDate() + prazoDias);
-
-    await prisma.transacao.create({
-      data: {
-        userId: vendedorId,
-        vendaId,
-        tipo: 'VENDA',
-        valor: valorVendedor,
-        status: 'PENDENTE',
-        descricao: `Venda #${vendaId.substring(0, 8)} - ${metodoPagamento} (Taxa: R$ ${taxaValor.toFixed(2)})`,
-        dataLiberacao: dataLiberacaoVendedor
-      }
-    });
-
-    console.log('✅ Split processado:', {
-      valorTotal,
-      taxaValor: taxaValor.toFixed(2),
-      valorVendedor: valorVendedor.toFixed(2),
-      valorAfiliado: valorAfiliado.toFixed(2),
-      prazoDias
-    });
-
-  } catch (error) {
-    console.error('❌ Erro ao processar split:', error);
-  }
-}
-
-const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'sua-chave-secreta-super-segura';
-
-function verificarToken(request: NextRequest) {
+function verificarToken(request: NextRequest): string | null {
   const authHeader = request.headers.get('authorization');
-  if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
+  if (!authHeader?.startsWith('Bearer ')) return null;
+  
   const token = authHeader.substring(7);
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
@@ -132,41 +17,77 @@ function verificarToken(request: NextRequest) {
   }
 }
 
-
-
-export async function GET(request: NextRequest) {
+async function processarSplitPagamento(
+  vendaId: string,
+  valor: number,
+  metodoPagamento: string,
+  vendedorId: string,
+  afiliacaoId?: string
+) {
   try {
-    const userId = verificarToken(request);
-    if (!userId) {
-      // Processar split de pagamento se venda for aprovada
-    if (status === 'APROVADO') {
-      await processarSplitPagamento(venda.id, parseFloat(valor), metodoPagamento, vendedorId, afiliacaoId);
+    // Taxas padrão caso não tenha plano personalizado
+    let taxaPercentual = 0;
+    if (metodoPagamento === 'PIX') {
+      taxaPercentual = 3.99;
+    } else if (metodoPagamento === 'CARTAO') {
+      taxaPercentual = 4.99;
+    } else if (metodoPagamento === 'BOLETO') {
+      taxaPercentual = 3.49;
     }
 
-    return NextResponse.json({ error: 'NÃ£o autorizado' }, { status: 401 });
-    }
+    const valorTaxa = (valor * taxaPercentual) / 100;
+    let valorVendedor = valor - valorTaxa;
+    let valorAfiliado = 0;
 
-    const vendas = await prisma.venda.findMany({
-      where: { vendedorId: userId },
-      include: {
-        produto: {
-          select: {
-            nome: true
+    if (afiliacaoId) {
+      const afiliacao = await prisma.afiliacao.findUnique({
+        where: { id: afiliacaoId }
+      });
+
+      if (afiliacao) {
+        valorAfiliado = (valor * afiliacao.comissao) / 100;
+        valorVendedor -= valorAfiliado;
+
+        await prisma.transacao.create({
+          data: {
+            tipo: 'COMISSAO',
+            valor: valorAfiliado,
+            status: 'PENDENTE',
+            userId: afiliacao.afiliadoId,
+            vendaId
           }
-        }
-      },
-      orderBy: { createdAt: 'desc' }
+        });
+      }
+    }
+
+    await prisma.transacao.create({
+      data: {
+        tipo: 'VENDA',
+        valor: valorVendedor,
+        status: 'PENDENTE',
+        userId: vendedorId,
+        vendaId
+      }
     });
 
-    return NextResponse.json({ success: true, vendas });
+    await prisma.transacao.create({
+      data: {
+        tipo: 'TAXA',
+        valor: valorTaxa,
+        status: 'APROVADO',
+        userId: vendedorId,
+        vendaId
+      }
+    });
+
   } catch (error) {
-    console.error('Erro ao buscar vendas:', error);
-    return NextResponse.json({ error: 'Erro ao buscar vendas' }, { status: 500 });
+    console.error('Erro ao processar split:', error);
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
+    const body = await request.json();
     const {
       produtoId,
       valor,
@@ -182,22 +103,28 @@ export async function POST(request: NextRequest) {
       bairro,
       cidade,
       estado,
-      refCode
-    } = await request.json();
-
-    if (!produtoId || !valor || !metodoPagamento || !compradorNome || !compradorEmail) {
-      return NextResponse.json(
-        { error: 'Dados incompletos' },
-        { status: 400 }
-      );
-    }
+      status = 'PENDENTE'
+    } = body;
 
     const produto = await prisma.produto.findUnique({
       where: { id: produtoId }
     });
 
     if (!produto) {
-      return NextResponse.json({ error: 'Produto nÃ£o encontrado' }, { status: 404 });
+      return NextResponse.json({ error: 'Produto não encontrado' }, { status: 404 });
+    }
+
+    let afiliacaoId: string | undefined;
+    const refCode = request.cookies.get('ref_code')?.value;
+    
+    if (refCode) {
+      const afiliacao = await prisma.afiliacao.findUnique({
+        where: { codigo: refCode }
+      });
+      
+      if (afiliacao && afiliacao.status === 'ATIVO') {
+        afiliacaoId = afiliacao.id;
+      }
     }
 
     const venda = await prisma.venda.create({
@@ -217,16 +144,14 @@ export async function POST(request: NextRequest) {
         bairro,
         cidade,
         estado,
-        status: 'PENDENTE'
+        status
       }
     });
 
-    // Processar split de pagamento se venda for aprovada
     if (status === 'APROVADO') {
-      await processarSplitPagamento(venda.id, parseFloat(valor), metodoPagamento, vendedorId, afiliacaoId);
+      await processarSplitPagamento(venda.id, parseFloat(valor), metodoPagamento, produto.userId, afiliacaoId);
     }
 
-    // Rastrear conversão de campanha (se houver)
     const campanhaCode = request.cookies.get('campanha_code')?.value;
     if (campanhaCode) {
       try {
@@ -247,7 +172,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Rastrear conversão de afiliado (se houver)
     const afiliadoCode = request.cookies.get('afiliado_code')?.value;
     if (afiliadoCode) {
       try {
@@ -260,7 +184,6 @@ export async function POST(request: NextRequest) {
           }
         });
 
-        // Criar comissão para o afiliado
         const valorComissao = venda.valor * (afiliacao.comissao / 100);
         await prisma.comissao.create({
           data: {
@@ -276,13 +199,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    
-
     if (refCode) {
       const afiliacao = await prisma.afiliacao.findUnique({
         where: { codigo: refCode }
       });
-
+      
       if (afiliacao && afiliacao.status === 'ATIVO') {
         await prisma.afiliacao.update({
           where: { codigo: refCode },
@@ -291,12 +212,10 @@ export async function POST(request: NextRequest) {
               increment: 1
             }
           }
-        
-
-});
+        });
 
         const valorComissao = (parseFloat(valor) * afiliacao.comissao) / 100;
-
+        
         await prisma.comissao.create({
           data: {
             vendaId: venda.id,
@@ -309,15 +228,36 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({
-      success: true,
-      message: 'Venda registrada!',
-      venda
-    });
+    return NextResponse.json({ venda, message: 'Venda criada!' });
+
   } catch (error) {
     console.error('Erro ao criar venda:', error);
-    return NextResponse.json({ error: 'Erro ao criar venda' }, { status: 500 }
+    return NextResponse.json({ error: 'Erro ao criar venda' }, { status: 500 });
+  }
+}
 
-    );
+export async function GET(request: NextRequest) {
+  try {
+    const userId = verificarToken(request);
+    if (!userId) {
+      return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+    }
+
+    const vendas = await prisma.venda.findMany({
+      where: { vendedorId: userId },
+      include: {
+        produto: {
+          select: {
+            nome: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    return NextResponse.json({ success: true, vendas });
+  } catch (error) {
+    console.error('Erro ao buscar vendas:', error);
+    return NextResponse.json({ error: 'Erro ao buscar vendas' }, { status: 500 });
   }
 }

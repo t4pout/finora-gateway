@@ -1,6 +1,7 @@
 'use client';
-
+export const dynamic = 'force-dynamic';
 import { useEffect, useState } from 'react';
+import { Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ArrowLeft, ArrowRight, Check, Package, MapPin, CreditCard, Loader } from 'lucide-react';
 
@@ -12,7 +13,7 @@ interface Produto {
   descricao: string;
 }
 
-export default function CheckoutPage() {
+function CheckoutPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const produtoId = searchParams.get('produto');
@@ -102,7 +103,7 @@ export default function CheckoutPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           produtoId,
-          vendedorId: produto?.userId || produtoId,
+          vendedorId: (produto as any)?.userId || produtoId,
           valor: produto?.preco.toString(),
           metodoPagamento,
           compradorNome: nome,
@@ -534,3 +535,17 @@ export default function CheckoutPage() {
     </div>
   );
 }
+
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="text-purple-600 text-xl">Carregando...</div></div>}>
+      <CheckoutPageContent />
+    </Suspense>
+  );
+}
+
+
+
+
+

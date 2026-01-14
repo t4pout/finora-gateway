@@ -114,8 +114,7 @@ export async function POST(request: NextRequest) {
     const venda = await prisma.venda.findUnique({
       where: { id: vendaId },
       include: {
-        produto: true,
-        cliente: true
+        produto: true
       }
     });
 
@@ -138,8 +137,8 @@ export async function POST(request: NextRequest) {
 
       if (campanha) {
         const eventoData = {
-          email: venda.cliente?.email,
-          telefone: venda.cliente?.telefone,
+          email: venda.compradorEmail,
+          telefone: venda.compradorTel,
           valor: venda.valor,
           produtoId: venda.produtoId,
           produtoNome: venda.produto.nome,

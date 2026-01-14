@@ -1,7 +1,8 @@
 'use client';
+export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 function HomeContent() {
@@ -185,6 +186,8 @@ function HomeContent() {
 
 export default function Home() {
   return (
-    <HomeContent />
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="text-purple-600 text-xl">Carregando...</div></div>}>
+      <HomeContent />
+    </Suspense>
   );
 }

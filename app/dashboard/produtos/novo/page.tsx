@@ -1,9 +1,8 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import UploadThingUpload from '@/components/UploadThingUpload';
 import { ArrowLeft } from 'lucide-react';
 
 export default function NovoProdutoPage() {
@@ -93,7 +92,7 @@ export default function NovoProdutoPage() {
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Imagem do Produto
               </label>
-              <UploadThingUpload
+              <null /* Upload removido */
                 currentImage={formData.imagem}
                 onUpload={(url) => setFormData({...formData, imagem: url})}
               />
@@ -239,6 +238,8 @@ export default function NovoProdutoPage() {
     </div>
   );
 }
+
+
 
 
 

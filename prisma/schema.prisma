@@ -8,264 +8,252 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  nome      String
-  email     String   @unique
-  senha     String
-  telefone  String?
-  cpf       String?  @unique
-  tipo      String   @default("VENDEDOR")
-  status    String   @default("ATIVO")
-  avatar    String?
-  role      String   @default("VENDEDOR")
-  verificado       Boolean  @default(false)
-  statusVerificacao String  @default("PENDENTE")
-  planoTaxaId      String?
-  planoTaxa        PlanoTaxa? @relation(fields: [planoTaxaId], references: [id])
-  contasBancarias ContaBancaria[]
-  transacoes      Transacao[]
-  saques          Saque[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  produtos    Produto[]
-  vendas      Venda[]     @relation("VendedorVendas")
-  afiliacoes  Afiliacao[]
-  comissoes   Comissao[]
-  campanhas   Campanha[]
-  documentos  Documento[]
+  id                    String                 @id @default(cuid())
+  nome                  String
+  email                 String                 @unique
+  senha                 String
+  telefone              String?
+  cpf                   String?                @unique
+  tipo                  String                 @default("VENDEDOR")
+  status                String                 @default("ATIVO")
+  avatar                String?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  role                  String                 @default("VENDEDOR")
+  statusVerificacao     String                 @default("PENDENTE")
+  verificado            Boolean                @default(false)
+  planoTaxaId           String?
+  afiliacoes            Afiliacao[]
+  campanhas             Campanha[]
+  comissoes             Comissao[]
+  contasBancarias       ContaBancaria[]
+  documentos            Documento[]
+  produtos              Produto[]
+  saques                Saque[]
   solicitacoesAfiliacao SolicitacaoAfiliacao[] @relation("AfiliadoSolicitacoes")
+  transacoes            Transacao[]
+  planoTaxa             PlanoTaxa?             @relation(fields: [planoTaxaId], references: [id])
+  vendas                Venda[]                @relation("VendedorVendas")
+
+  @@map("User")
 }
 
 model Documento {
-  id           String   @id @default(cuid())
-  tipo         String
-  arquivo      String
-  status       String   @default("PENDENTE")
+  id             String   @id @default(cuid())
+  tipo           String
+  arquivo        String
+  status         String   @default("PENDENTE")
   motivoRejeicao String?
-  userId       String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  userId         String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("Documento")
 }
 
 model PlanoTaxa {
-  id          String   @id @default(cuid())
-  nome        String
-  descricao   String?
-  
-  pixPercentual  Float   @default(0)
-  pixFixo        Float   @default(0)
-  
-  cartaoPercentual  Float   @default(0)
-  cartaoFixo        Float   @default(0)
-  
-  boletoPercentual  Float   @default(0)
-  boletoFixo        Float   @default(0)
-  
-  prazoPixDias      Int      @default(3)
-  prazoCartaoDias   Int      @default(30)
-  prazoBoletoDias   Int      @default(7)
-  
-  ativo       Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  users       User[]
+  id               String   @id @default(cuid())
+  nome             String
+  descricao        String?
+  pixPercentual    Float    @default(0)
+  pixFixo          Float    @default(0)
+  cartaoPercentual Float    @default(0)
+  cartaoFixo       Float    @default(0)
+  boletoPercentual Float    @default(0)
+  boletoFixo       Float    @default(0)
+  ativo            Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  prazoBoletoDias  Int      @default(7)
+  prazoCartaoDias  Int      @default(30)
+  prazoPixDias     Int      @default(3)
+  users            User[]
+
+  @@map("PlanoTaxa")
 }
 
 model ContaBancaria {
-  id              String   @id @default(cuid())
-  userId          String
-  tipo            String
-  banco           String?
-  agencia         String?
-  conta           String?
-  tipoConta       String?
-  chavePix        String?
-  tipoChavePix    String?
-  titular         String
-  cpfCnpj         String
-  principal       Boolean  @default(false)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  saques          Saque[]
+  id           String   @id @default(cuid())
+  userId       String
+  tipo         String
+  banco        String?
+  agencia      String?
+  conta        String?
+  tipoConta    String?
+  chavePix     String?
+  tipoChavePix String?
+  titular      String
+  cpfCnpj      String
+  principal    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  saques       Saque[]
+
+  @@map("ContaBancaria")
 }
 
 model Transacao {
-  id              String   @id @default(cuid())
-  userId          String
-  vendaId         String?
-  tipo            String
-  valor           Float
-  status          String
-  descricao       String?
-  dataLiberacao   DateTime?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  venda           Venda?   @relation(fields: [vendaId], references: [id])
+  id            String    @id @default(cuid())
+  userId        String
+  vendaId       String?
+  tipo          String
+  valor         Float
+  status        String
+  descricao     String?
+  dataLiberacao DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  venda         Venda?    @relation(fields: [vendaId], references: [id])
+
+  @@map("Transacao")
 }
 
 model Saque {
-  id              String         @id @default(cuid())
+  id              String        @id @default(cuid())
   userId          String
   contaBancariaId String
   valor           Float
-  status          String         @default("PENDENTE")
+  status          String        @default("PENDENTE")
   comprovante     String?
   motivoRejeicao  String?
   dataAprovacao   DateTime?
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-  
-  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  contaBancaria   ContaBancaria  @relation(fields: [contaBancariaId], references: [id])
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  contaBancaria   ContaBancaria @relation(fields: [contaBancariaId], references: [id])
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("Saque")
 }
 
 model Produto {
-  id          String   @id @default(cuid())
-  nome        String
-  descricao   String?
-  tipo        String
-  preco       Float
-  comissao    Float    @default(0)
-  status      String   @default("ATIVO")
-  estoque     Int?
-  arquivoUrl  String?
-  imagem      String?
-  publicoParaAfiliados Boolean @default(true)
-  
-  aceitaAfiliados       Boolean  @default(true)
-  aprovacaoAutomatica   Boolean  @default(false)
-  comissaoPadrao        Float    @default(30)
-  detalhesAfiliacao     String?  @db.Text
-  regrasAfiliacao       String?  @db.Text
-  linkConvite           String?  @unique
- 
+  id                         String                 @id @default(cuid())
+  nome                       String
+  descricao                  String?
+  tipo                       String
+  preco                      Float
+  comissao                   Float                  @default(0)
+  status                     String                 @default("ATIVO")
+  estoque                    Int?
+  arquivoUrl                 String?
+  imagem                     String?
+  publicoParaAfiliados       Boolean                @default(true)
+  userId                     String
+  createdAt                  DateTime               @default(now())
+  updatedAt                  DateTime               @updatedAt
+  aceitaAfiliados            Boolean                @default(true)
+  aprovacaoAutomatica        Boolean                @default(false)
+  comissaoPadrao             Float                  @default(30)
+  detalhesAfiliacao          String?
+  linkConvite                String?                @unique
+  regrasAfiliacao            String?
+  checkoutAceitaBoleto       Boolean                @default(true)
+  checkoutAceitaCartao       Boolean                @default(true)
+  checkoutAceitaPix          Boolean                @default(true)
+  checkoutBanner             String?
+  checkoutCorPrimaria        String?                @default("#9333ea")
+  checkoutCorSecundaria      String?                @default("#a855f7")
+  checkoutCpfObrigatorio     Boolean                @default(true)
+  checkoutCronometro         Boolean                @default(false)
+  checkoutIntervaloPop       Int?                   @default(8)
+  checkoutMensagemUrgencia   String?
+  checkoutMetodoPreferencial String?                @default("PIX")
+  checkoutPedirEndereco      Boolean                @default(true)
+  checkoutProvaSocial        Boolean                @default(false)
+  checkoutTelObrigatorio     Boolean                @default(true)
+  checkoutTempoMinutos       Int?                   @default(15)
+  checkoutLogoInferior       String?
+  checkoutLogoSuperior       String?
+  campanhas                  Campanha[]
+  paginasOfertas             PaginaOferta[]
+  planos                     PlanoOferta[]
+  user                       User                   @relation(fields: [userId], references: [id])
+  solicitacoes               SolicitacaoAfiliacao[] @relation("ProdutoSolicitacoes")
+  vendas                     Venda[]
 
-// Personalização do Checkout
-  checkoutBanner          String?
-  checkoutLogoSuperior    String?
-  checkoutLogoInferior    String?
-  checkoutCorPrimaria     String?  @default("#9333ea")
-  checkoutCorSecundaria   String?  @default("#a855f7")
-  
-  // Cronômetro
-  checkoutCronometro      Boolean  @default(false)
-  checkoutTempoMinutos    Int?     @default(15)
-  checkoutMensagemUrgencia String?
-  
-  // Prova Social
-  checkoutProvaSocial     Boolean  @default(false)
-  checkoutIntervaloPop    Int?     @default(8)
-  
-  // Métodos de Pagamento
-  checkoutAceitaPix       Boolean  @default(true)
-  checkoutAceitaCartao    Boolean  @default(true)
-  checkoutAceitaBoleto    Boolean  @default(true)
-  checkoutMetodoPreferencial String? @default("PIX")
-  
-  // Campos Opcionais
-  checkoutCpfObrigatorio  Boolean  @default(true)
-  checkoutTelObrigatorio  Boolean  @default(true)
-  checkoutPedirEndereco   Boolean  @default(true)
-  
-  userId      String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  user   User    @relation(fields: [userId], references: [id])
-  vendas Venda[]
-  campanhas Campanha[]
-  paginasOfertas PaginaOferta[]
-  solicitacoes    SolicitacaoAfiliacao[] @relation("ProdutoSolicitacoes")
-  planos      PlanoOferta[]
+  @@map("Produto")
 }
 
 model PlanoOferta {
-  id          String   @id @default(cuid())
-  nome        String
-  descricao   String?
-  preco       Float
-  linkUnico   String   @unique
-  ativo       Boolean  @default(true)
-  
-  checkoutBanner          String?
-  checkoutLogoSuperior    String?
-  checkoutLogoInferior    String?
-  checkoutCorPrimaria     String?  @default("#9333ea")
-  checkoutCorSecundaria   String?  @default("#a855f7")
-  checkoutCronometro      Boolean  @default(false)
-  checkoutTempoMinutos    Int?     @default(15)
-  checkoutMensagemUrgencia String?
-  checkoutProvaSocial     Boolean  @default(false)
-  checkoutIntervaloPop    Int?     @default(8)
-  checkoutAceitaPix       Boolean  @default(true)
-  checkoutAceitaCartao    Boolean  @default(true)
-  checkoutAceitaBoleto    Boolean  @default(true)
-  checkoutMetodoPreferencial String? @default("PIX")
-  checkoutCpfObrigatorio  Boolean  @default(true)
-  checkoutTelObrigatorio  Boolean  @default(true)
-  checkoutPedirEndereco   Boolean  @default(true)
-  checkoutProvaSocialGenero String?  @default("AMBOS")  // HOMENS, MULHERES, AMBOS
-  
-  produtoId   String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  produto     Produto  @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  id                         String   @id @default(cuid())
+  nome                       String
+  descricao                  String?
+  preco                      Float
+  linkUnico                  String   @unique
+  ativo                      Boolean  @default(true)
+  checkoutBanner             String?
+  checkoutLogoSuperior       String?
+  checkoutLogoInferior       String?
+  checkoutCorPrimaria        String?  @default("#9333ea")
+  checkoutCorSecundaria      String?  @default("#a855f7")
+  checkoutCronometro         Boolean  @default(false)
+  checkoutTempoMinutos       Int?     @default(15)
+  checkoutMensagemUrgencia   String?
+  checkoutProvaSocial        Boolean  @default(false)
+  checkoutIntervaloPop       Int?     @default(8)
+  checkoutAceitaPix          Boolean  @default(true)
+  checkoutAceitaCartao       Boolean  @default(true)
+  checkoutAceitaBoleto       Boolean  @default(true)
+  checkoutMetodoPreferencial String?  @default("PIX")
+  checkoutCpfObrigatorio     Boolean  @default(true)
+  checkoutTelObrigatorio     Boolean  @default(true)
+  checkoutPedirEndereco      Boolean  @default(true)
+  produtoId                  String
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+  checkoutProvaSocialGenero  String?  @default("AMBOS")
+  produto                    Produto  @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+
+  @@map("PlanoOferta")
 }
 
 model Venda {
-  id               String   @id @default(cuid())
-  valor            Float
-  status           String   @default("PENDENTE")
-  metodoPagamento  String
-  pixQrCode        String?
-  pixCopiaECola    String?
-  pixId            String?
-  compradorNome    String
-  compradorEmail   String
-  compradorCpf     String?
-  compradorTel     String?
-  cep              String?
-  rua              String?
-  numero           String?
-  complemento      String?
-  bairro           String?
-  cidade           String?
-  estado           String?
-  produtoId        String
-  vendedorId       String
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  
-  
-  produto          Produto      @relation(fields: [produtoId], references: [id])
-  vendedor         User         @relation("VendedorVendas", fields: [vendedorId], references: [id])
-  comissoes        Comissao[]
-  transacoes       Transacao[]
-  
+  id              String      @id @default(cuid())
+  valor           Float
+  status          String      @default("PENDENTE")
+  metodoPagamento String
+  pixQrCode       String?
+  pixCopiaECola   String?
+  compradorNome   String
+  compradorEmail  String
+  compradorCpf    String?
+  compradorTel    String?
+  cep             String?
+  rua             String?
+  numero          String?
+  complemento     String?
+  bairro          String?
+  cidade          String?
+  estado          String?
+  produtoId       String
+  vendedorId      String
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  pixId           String?
+  comissoes       Comissao[]
+  transacoes      Transacao[]
+  produto         Produto     @relation(fields: [produtoId], references: [id])
+  vendedor        User        @relation("VendedorVendas", fields: [vendedorId], references: [id])
+
   @@map("vendas")
 }
 
 model Comissao {
-  id             String    @id @default(cuid())
-  valor          Float
-  percentual     Float
-  status         String    @default("PENDENTE")
-  dataPagamento  DateTime?
-  vendaId        String
-  afiliadoId     String
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  id            String    @id @default(cuid())
+  valor         Float
+  percentual    Float
+  status        String    @default("PENDENTE")
+  dataPagamento DateTime?
+  vendaId       String
+  afiliadoId    String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  afiliado      User      @relation(fields: [afiliadoId], references: [id])
+  venda         Venda     @relation(fields: [vendaId], references: [id])
 
-  venda    Venda @relation(fields: [vendaId], references: [id])
-  afiliado User  @relation(fields: [afiliadoId], references: [id])
+  @@map("Comissao")
 }
 
 model Afiliacao {
@@ -278,67 +266,70 @@ model Afiliacao {
   afiliadoId String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  afiliado   User     @relation(fields: [afiliadoId], references: [id])
 
-  afiliado User @relation(fields: [afiliadoId], references: [id])
+  @@map("Afiliacao")
 }
 
 model SolicitacaoAfiliacao {
-  id              String   @id @default(cuid())
-  status          String   @default("PENDENTE")
-  mensagem        String?
-  motivoRejeicao  String?
-  produtoId       String
-  afiliadoId      String
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  produto         Produto  @relation("ProdutoSolicitacoes", fields: [produtoId], references: [id], onDelete: Cascade)
-  afiliado        User     @relation("AfiliadoSolicitacoes", fields: [afiliadoId], references: [id], onDelete: Cascade)
-  
+  id             String   @id @default(cuid())
+  status         String   @default("PENDENTE")
+  mensagem       String?
+  motivoRejeicao String?
+  produtoId      String
+  afiliadoId     String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  afiliado       User     @relation("AfiliadoSolicitacoes", fields: [afiliadoId], references: [id], onDelete: Cascade)
+  produto        Produto  @relation("ProdutoSolicitacoes", fields: [produtoId], references: [id], onDelete: Cascade)
+
   @@unique([produtoId, afiliadoId])
+  @@map("SolicitacaoAfiliacao")
 }
 
 model PaginaOferta {
-  id        String   @id @default(cuid())
-  nome      String
-  link      String
-  produtoId String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  produto   Produto    @relation(fields: [produtoId], references: [id], onDelete: Cascade)
-  campanhas Campanha[]
+  id                    String     @id @default(cuid())
+  nome                  String
+  link                  String
+  produtoId             String
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+  conversoes            Int        @default(0)
+  distribuicao          Int        @default(50)
+  testeAB               Boolean    @default(false)
+  versaoOriginal        String?
+  visualizacoes         Int        @default(0)
   campanhasAlternativas Campanha[] @relation("PaginaAlternativa")
-  testeAB       Boolean  @default(false)
-  versaoOriginal String?
-  distribuicao  Int      @default(50)
-  visualizacoes Int      @default(0)
-  conversoes    Int      @default(0)
+  campanhas             Campanha[]
+  produto               Produto    @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+
+  @@map("PaginaOferta")
 }
 
 model Campanha {
-  id               String   @id @default(cuid())
-  nome             String
-  produtoId        String
-  plataforma       String
-  pixelId          String?
-  accessToken      String?
-  eventToken       String?
-  conversionId     String?
-  linkCampanha     String
-  status           String   @default("ATIVO")
-  cliques          Int      @default(0)
-  conversoes       Int      @default(0)
-  userId           String
-  paginaOfertaId   String?
-  testeAB             Boolean  @default(false)
+  id                  String        @id @default(cuid())
+  nome                String
+  produtoId           String
+  plataforma          String
+  pixelId             String?
+  accessToken         String?
+  eventToken          String?
+  conversionId        String?
+  linkCampanha        String
+  status              String        @default("ATIVO")
+  cliques             Int           @default(0)
+  conversoes          Int           @default(0)
+  userId              String
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  paginaOfertaId      String?
+  distribuicao        Int           @default(50)
   paginaAlternativaId String?
-  distribuicao        Int      @default(50)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  testeAB             Boolean       @default(false)
+  paginaAlternativa   PaginaOferta? @relation("PaginaAlternativa", fields: [paginaAlternativaId], references: [id])
+  paginaOferta        PaginaOferta? @relation(fields: [paginaOfertaId], references: [id])
+  produto             Produto       @relation(fields: [produtoId], references: [id])
+  user                User          @relation(fields: [userId], references: [id])
 
-  user         User           @relation(fields: [userId], references: [id])
-  produto      Produto        @relation(fields: [produtoId], references: [id])
-  paginaOferta PaginaOferta?  @relation(fields: [paginaOfertaId], references: [id])
-  paginaAlternativa PaginaOferta? @relation("PaginaAlternativa", fields: [paginaAlternativaId], references: [id])
+  @@map("Campanha")
 }
