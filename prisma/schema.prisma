@@ -17,12 +17,12 @@ model User {
   tipo                  String                 @default("VENDEDOR")
   status                String                 @default("ATIVO")
   avatar                String?
+  role                  String                 @default("VENDEDOR")
+  verificado            Boolean                @default(false)
+  statusVerificacao     String                 @default("PENDENTE")
+  planoTaxaId           String?
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
-  role                  String                 @default("VENDEDOR")
-  statusVerificacao     String                 @default("PENDENTE")
-  verificado            Boolean                @default(false)
-  planoTaxaId           String?
   afiliacoes            Afiliacao[]
   campanhas             Campanha[]
   comissoes             Comissao[]
@@ -62,12 +62,12 @@ model PlanoTaxa {
   cartaoFixo       Float    @default(0)
   boletoPercentual Float    @default(0)
   boletoFixo       Float    @default(0)
+  prazoPixDias     Int      @default(3)
+  prazoCartaoDias  Int      @default(30)
+  prazoBoletoDias  Int      @default(7)
   ativo            Boolean  @default(true)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
-  prazoBoletoDias  Int      @default(7)
-  prazoCartaoDias  Int      @default(30)
-  prazoPixDias     Int      @default(3)
   users            User[]
 
   @@map("PlanoTaxa")
@@ -140,32 +140,32 @@ model Produto {
   arquivoUrl                 String?
   imagem                     String?
   publicoParaAfiliados       Boolean                @default(true)
-  userId                     String
-  createdAt                  DateTime               @default(now())
-  updatedAt                  DateTime               @updatedAt
   aceitaAfiliados            Boolean                @default(true)
   aprovacaoAutomatica        Boolean                @default(false)
   comissaoPadrao             Float                  @default(30)
   detalhesAfiliacao          String?
-  linkConvite                String?                @unique
   regrasAfiliacao            String?
-  checkoutAceitaBoleto       Boolean                @default(true)
-  checkoutAceitaCartao       Boolean                @default(true)
-  checkoutAceitaPix          Boolean                @default(true)
+  linkConvite                String?                @unique
   checkoutBanner             String?
+  checkoutLogoSuperior       String?
+  checkoutLogoInferior       String?
   checkoutCorPrimaria        String?                @default("#9333ea")
   checkoutCorSecundaria      String?                @default("#a855f7")
-  checkoutCpfObrigatorio     Boolean                @default(true)
   checkoutCronometro         Boolean                @default(false)
-  checkoutIntervaloPop       Int?                   @default(8)
-  checkoutMensagemUrgencia   String?
-  checkoutMetodoPreferencial String?                @default("PIX")
-  checkoutPedirEndereco      Boolean                @default(true)
-  checkoutProvaSocial        Boolean                @default(false)
-  checkoutTelObrigatorio     Boolean                @default(true)
   checkoutTempoMinutos       Int?                   @default(15)
-  checkoutLogoInferior       String?
-  checkoutLogoSuperior       String?
+  checkoutMensagemUrgencia   String?
+  checkoutProvaSocial        Boolean                @default(false)
+  checkoutIntervaloPop       Int?                   @default(8)
+  checkoutAceitaPix          Boolean                @default(true)
+  checkoutAceitaCartao       Boolean                @default(true)
+  checkoutAceitaBoleto       Boolean                @default(true)
+  checkoutMetodoPreferencial String?                @default("PIX")
+  checkoutCpfObrigatorio     Boolean                @default(true)
+  checkoutTelObrigatorio     Boolean                @default(true)
+  checkoutPedirEndereco      Boolean                @default(true)
+  userId                     String
+  createdAt                  DateTime               @default(now())
+  updatedAt                  DateTime               @updatedAt
   campanhas                  Campanha[]
   paginasOfertas             PaginaOferta[]
   planos                     PlanoOferta[]
@@ -200,10 +200,10 @@ model PlanoOferta {
   checkoutCpfObrigatorio     Boolean  @default(true)
   checkoutTelObrigatorio     Boolean  @default(true)
   checkoutPedirEndereco      Boolean  @default(true)
+  checkoutProvaSocialGenero  String?  @default("AMBOS")
   produtoId                  String
   createdAt                  DateTime @default(now())
   updatedAt                  DateTime @updatedAt
-  checkoutProvaSocialGenero  String?  @default("AMBOS")
   produto                    Produto  @relation(fields: [produtoId], references: [id], onDelete: Cascade)
 
   @@map("PlanoOferta")
@@ -216,6 +216,7 @@ model Venda {
   metodoPagamento String
   pixQrCode       String?
   pixCopiaECola   String?
+  pixId           String?
   compradorNome   String
   compradorEmail  String
   compradorCpf    String?
@@ -231,7 +232,6 @@ model Venda {
   vendedorId      String
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
-  pixId           String?
   comissoes       Comissao[]
   transacoes      Transacao[]
   produto         Produto     @relation(fields: [produtoId], references: [id])
@@ -294,11 +294,11 @@ model PaginaOferta {
   produtoId             String
   createdAt             DateTime   @default(now())
   updatedAt             DateTime   @updatedAt
-  conversoes            Int        @default(0)
-  distribuicao          Int        @default(50)
   testeAB               Boolean    @default(false)
   versaoOriginal        String?
+  distribuicao          Int        @default(50)
   visualizacoes         Int        @default(0)
+  conversoes            Int        @default(0)
   campanhasAlternativas Campanha[] @relation("PaginaAlternativa")
   campanhas             Campanha[]
   produto               Produto    @relation(fields: [produtoId], references: [id], onDelete: Cascade)
@@ -320,12 +320,12 @@ model Campanha {
   cliques             Int           @default(0)
   conversoes          Int           @default(0)
   userId              String
+  paginaOfertaId      String?
+  testeAB             Boolean       @default(false)
+  paginaAlternativaId String?
+  distribuicao        Int           @default(50)
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
-  paginaOfertaId      String?
-  distribuicao        Int           @default(50)
-  paginaAlternativaId String?
-  testeAB             Boolean       @default(false)
   paginaAlternativa   PaginaOferta? @relation("PaginaAlternativa", fields: [paginaAlternativaId], references: [id])
   paginaOferta        PaginaOferta? @relation(fields: [paginaOfertaId], references: [id])
   produto             Produto       @relation(fields: [produtoId], references: [id])
