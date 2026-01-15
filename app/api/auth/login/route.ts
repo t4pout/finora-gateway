@@ -6,25 +6,27 @@ import jwt from 'jsonwebtoken';
 const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'sua-chave-secreta-super-segura';
 
 export async function POST(request: NextRequest) {
+  console.log('🔍 DATABASE_URL exists:', !!process.env.DATABASE_URL);
+  console.log('🔍 DATABASE_URL preview:', process.env.DATABASE_URL?.substring(0, 50));
   try {
     const { email, senha } = await request.json();
 
-    // Validações
+    // ValidaÃ§Ãµes
     if (!email || !senha) {
       return NextResponse.json(
-        { error: 'Email e senha são obrigatórios' },
+        { error: 'Email e senha sÃ£o obrigatÃ³rios' },
         { status: 400 }
       );
     }
 
-    // Buscar usuário
+    // Buscar usuÃ¡rio
     const user = await prisma.user.findUnique({
       where: { email }
     });
 
     if (!user) {
       return NextResponse.json(
-        { error: 'Email ou senha inválidos' },
+        { error: 'Email ou senha invÃ¡lidos' },
         { status: 401 }
       );
     }
@@ -34,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     if (!senhaValida) {
       return NextResponse.json(
-        { error: 'Email ou senha inválidos' },
+        { error: 'Email ou senha invÃ¡lidos' },
         { status: 401 }
       );
     }
@@ -58,7 +60,7 @@ export async function POST(request: NextRequest) {
       { expiresIn: '7d' }
     );
 
-    // Retornar dados do usuário (sem senha)
+    // Retornar dados do usuÃ¡rio (sem senha)
     const userData = {
       id: user.id,
       nome: user.nome,
@@ -84,3 +86,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
