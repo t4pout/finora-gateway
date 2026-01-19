@@ -31,24 +31,27 @@ export default function PedidoPage({ params }: { params: Promise<{ id: string }>
   }, [pedidoId]);
 
   const carregarPedido = async () => {
-    try {
-      const res = await fetch(`/api/pedido/${pedidoId}`);
-      if (res.ok) {
-        const data = await res.json();
-        setVenda(data.venda);
-        
-        if (data.venda.status === 'PAGO' || data.venda.status === 'APROVADO') {
-          clearInterval(interval);
-        }
-      } else {
-        alert('Pedido não encontrado');
-        router.push('/');
+  try {
+    const res = await fetch(`/api/pedido/${pedidoId}`);
+    if (res.ok) {
+      const data = await res.json();
+      
+      // Se já estiver pago, redireciona imediatamente
+      if (data.venda.status === 'PAGO' || data.venda.status === 'APROVADO') {
+        router.push(`/pagamento/sucesso?pedido=${pedidoId}`);
+        return;
       }
-    } catch (error) {
-      console.error('Erro:', error);
+      
+      setVenda(data.venda);
+    } else {
+      alert('Pedido não encontrado');
+      router.push('/');
     }
-    setLoading(false);
-  };
+  } catch (error) {
+    console.error('Erro:', error);
+  }
+  setLoading(false);
+};
 
   const verificarPagamento = async () => {
   if (verificando || !pedidoId) return;
@@ -94,9 +97,7 @@ export default function PedidoPage({ params }: { params: Promise<{ id: string }>
     );
   }
 
-  const isPago = venda.status === 'PAGO' || venda.status === 'APROVADO';
-
-  return (
+   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
