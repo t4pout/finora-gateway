@@ -1,11 +1,11 @@
-{
+﻿{
     "name":  "frontend",
     "version":  "0.1.0",
     "private":  true,
     "scripts":  {
                     "dev":  "next dev",
                     "build":  "prisma generate \u0026\u0026 next build",
-                    "start":  "next start",
+                    "start":  "next start -p ${PORT:-3000}",
                     "lint":  "next lint",
                     "postinstall":  "prisma generate"
                 },
