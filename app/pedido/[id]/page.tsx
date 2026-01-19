@@ -209,7 +209,7 @@ export default function PedidoPage({ params }: { params: Promise<{ id: string }>
             <div className="border-t pt-3 flex justify-between">
               <span className="text-gray-900 font-bold">Total:</span>
               <span className="text-2xl font-bold text-purple-600">
-                R$ {venda.valor.toFixed(2).replace('.', ',')}
+                R$ {venda?.valor?.toFixed(2).replace('.', ',') || '0,00'}
               </span>
             </div>
           </div>
