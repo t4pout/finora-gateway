@@ -51,23 +51,24 @@ export default function PedidoPage({ params }: { params: Promise<{ id: string }>
   };
 
   const verificarPagamento = async () => {
-    if (verificando || !pedidoId) return;
-    setVerificando(true);
-    
-    try {
-      const res = await fetch(`/api/pedido/${pedidoId}/verificar`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.status === 'PAGO' || data.status === 'APROVADO') {
-          setVenda({ ...venda, status: data.status });
-        }
+  if (verificando || !pedidoId) return;
+  setVerificando(true);
+  
+  try {
+    const res = await fetch(`/api/pedido/${pedidoId}/verificar`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.status === 'PAGO') {
+        // Redirecionar para página de sucesso
+        router.push(`/pagamento/sucesso?pedido=${pedidoId}`);
       }
-    } catch (error) {
-      console.error('Erro:', error);
     }
-    
-    setVerificando(false);
-  };
+  } catch (error) {
+    console.error('Erro:', error);
+  }
+  
+  setVerificando(false);
+};
 
   const copiarPix = () => {
     if (venda?.pixCopiaECola) {
