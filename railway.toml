@@ -1,2 +1,4 @@
 ﻿[build]
 builder = "NIXPACKS"
+
+# Force rebuild
