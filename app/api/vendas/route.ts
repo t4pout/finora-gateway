@@ -243,8 +243,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
+    // Buscar usuário para verificar se é admin
+    const user = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+
+    // Se for admin, retorna todas as vendas
+    // Se for usuário normal, retorna apenas suas vendas
     const vendas = await prisma.venda.findMany({
-      where: { vendedorId: userId },
+      where: user?.role === 'ADMIN' ? {} : { vendedorId: userId },
       include: {
         produto: {
           select: {
