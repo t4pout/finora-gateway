@@ -111,7 +111,7 @@ export default function PedidoPage({ params }: { params: Promise<{ id: string }>
             {isPago ? '✅ Pagamento Confirmado!' : '⏳ Aguardando Pagamento'}
           </h1>
           <p className="text-gray-600">
-            Pedido #{venda.id.substring(0, 8)}
+            Pedido #{venda?.id?.substring(0, 8) || 'Carregando...'}
           </p>
         </div>
 
