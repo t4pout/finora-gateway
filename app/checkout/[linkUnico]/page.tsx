@@ -209,7 +209,7 @@ const finalizarPedido = async () => {
       
       if (res.ok) {
         const data = await res.json();
-        router.push(/pagamento/sucesso?pedido=${data.vendaId});
+        router.push(`/pagamento/sucesso?pedido=${data.vendaId}`);
       } else {
         const error = await res.json();
         alert(`❌ Erro: ${error.error || 'Erro ao finalizar pedido'}`);
