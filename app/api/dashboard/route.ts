@@ -1,19 +1,21 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { cookies } from 'next/headers';
-import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'finora-secret-super-seguro-2026-production';
-
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('token')?.value;
-
-    if (!token) {
+    // Ler token do header Authorization
+    const authHeader = request.headers.get('Authorization');
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
+    const token = authHeader.replace('Bearer ', '');
+    
+    // Decodificar o token
+    const jwt = require('jsonwebtoken');
+    const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'finora-secret-super-seguro-2026-production';
+    
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
 
     // Buscar vendas PAGAS do usuário
@@ -81,7 +83,7 @@ export async function GET() {
   } catch (error) {
     console.error('Erro ao buscar dashboard:', error);
     return NextResponse.json(
-      { error: 'Erro ao buscar dados' },
+      { error: 'Erro ao buscar dados', details: String(error) },
       { status: 500 }
     );
   }
