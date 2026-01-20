@@ -19,12 +19,34 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Plano não encontrado ou inativo' }, { status: 404 });
     }
 
-    // Criar cobrança no PaggPix
+    // PRIMEIRO: Criar venda no banco (SEM pixId ainda)
+    const venda = await prisma.venda.create({
+      data: {
+        valor: plano.preco,
+        status: 'PENDENTE',
+        metodoPagamento: 'PIX',
+        compradorNome,
+        compradorEmail,
+        compradorCpf,
+        compradorTel,
+        cep,
+        rua,
+        numero,
+        complemento,
+        bairro,
+        cidade,
+        estado,
+        produtoId: plano.produtoId,
+        vendedorId: plano.produto.userId
+      }
+    });
+
+    // SEGUNDO: Criar cobrança no PaggPix usando o ID da venda como external_id
     const paggpixData = {
       cnpj: "35254464000109",
       value: plano.preco.toFixed(2),
       description: `${plano.nome} - ${plano.produto.nome}`,
-      external_id: plano.id
+      external_id: venda.id  // USAR ID DA VENDA (único)
     };
 
     console.log('Enviando para PaggPix:', paggpixData);
@@ -51,28 +73,13 @@ export async function POST(request: NextRequest) {
 
     const paggpixResult = JSON.parse(responseText);
 
-    // Criar venda no banco
-    const venda = await prisma.venda.create({
+    // TERCEIRO: Atualizar venda com dados do PIX
+    await prisma.venda.update({
+      where: { id: venda.id },
       data: {
-        valor: plano.preco,
-        status: 'PENDENTE',
-        metodoPagamento: 'PIX',
         pixId: paggpixResult.pix_id,
         pixQrCode: paggpixResult.qrcode_image,
-        pixCopiaECola: paggpixResult.pix_code,
-        compradorNome,
-        compradorEmail,
-        compradorCpf,
-        compradorTel,
-        cep,
-        rua,
-        numero,
-        complemento,
-        bairro,
-        cidade,
-        estado,
-        produtoId: plano.produtoId,
-        vendedorId: plano.produto.userId
+        pixCopiaECola: paggpixResult.pix_code
       }
     });
 
@@ -83,7 +90,6 @@ export async function POST(request: NextRequest) {
       copiaECola: paggpixResult.pix_code,
       valor: plano.preco
     });
-
   } catch (error: any) {
     console.error('Erro ao criar pagamento:', error);
     return NextResponse.json({ 
