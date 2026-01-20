@@ -88,25 +88,7 @@ export default function DashboardPage() {
       console.error('Erro:', error);
     }
   };
- const carregarVerificacao = async () => {
-  try {
-    const token = localStorage.getItem('token');
-    const response = await fetch('/api/auth/me', {
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
-    if (response.ok) {
-      const data = await response.json();
-      setUserVerificacao({
-        verificado: data.user.verificado,
-        statusVerificacao: data.user.statusVerificacao
-      });
-    }
-  } catch (error) {
-    console.error('Erro:', error);
-  }
-};
 
-// ADICIONE ESTA FUNÇÃO AQUI 👇
 const carregarEstatisticas = async () => {
   try {
     const token = localStorage.getItem('token');
