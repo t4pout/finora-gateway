@@ -198,7 +198,7 @@ const carregarEstatisticas = async () => {
                   <ShoppingCart size={20} />
                 </div>
               </div>
-              <div className="text-3xl font-bold text-gray-900 mb-1">{stats.totalVendas}</div>
+              <div className="text-3xl font-bold text-gray-900 mb-1">0</div>
               <div className="text-sm text-gray-500">Vendas este período</div>
             </div>
 
