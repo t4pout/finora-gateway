@@ -35,6 +35,7 @@ model User {
   transacoes            Transacao[]
   planoTaxa             PlanoTaxa?             @relation(fields: [planoTaxaId], references: [id])
   vendas                Venda[]                @relation("VendedorVendas")
+  carteiras   Carteira[]  @relation("CarteiraUsuario")
 
   @@map("User")
 }
@@ -210,6 +211,22 @@ model PlanoOferta {
   @@map("PlanoOferta")
 }
 
+model Carteira {
+  id          String   @id @default(cuid())
+  usuarioId   String
+  vendaId     String?
+  tipo        String
+  valor       Float
+  descricao   String?
+  status      String   @default("PENDENTE")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  usuario     User     @relation("CarteiraUsuario", fields: [usuarioId], references: [id])
+  venda       Venda?   @relation(fields: [vendaId], references: [id])
+
+  @@map("Carteira")
+}
+
 model Venda {
   id              String      @id @default(cuid())
   valor           Float
@@ -235,6 +252,7 @@ model Venda {
   updatedAt       DateTime    @updatedAt
   comissoes       Comissao[]
   transacoes      Transacao[]
+  carteiras       Carteira[]
   produto         Produto     @relation(fields: [produtoId], references: [id])
   vendedor        User        @relation("VendedorVendas", fields: [vendedorId], references: [id])
 
