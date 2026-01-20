@@ -3,70 +3,91 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function processarVendasAntigas() {
-  console.log('🔄 Buscando vendas pagas sem processamento financeiro...');
-  
-  const vendasPagas = await prisma.venda.findMany({
+  console.log('🔄 Processando vendas antigas...\n');
+
+  // Buscar todas as vendas PAGAS que NÃO têm registro na carteira
+  const vendas = await prisma.venda.findMany({
     where: {
-      status: 'PAGO'
+      status: 'PAGO',
+      carteiras: {
+        none: {} // vendas que não têm nenhum registro na carteira
+      }
     },
-    include: {
-      produto: true
+    orderBy: {
+      createdAt: 'asc'
     }
   });
 
-  console.log(`📊 Encontradas ${vendasPagas.length} vendas PAGAS`);
+  console.log(`📊 Encontradas ${vendas.length} vendas sem registro na carteira\n`);
 
-  // Filtrar apenas vendas sem registro na carteira
-  const vendasSemCarteira = [];
-  
-  for (const venda of vendasPagas) {
-    const carteiraExiste = await prisma.carteira.findFirst({
-      where: { vendaId: venda.id }
-    });
-    
-    if (!carteiraExiste) {
-      vendasSemCarteira.push(venda);
+  let processadas = 0;
+
+  for (const venda of vendas) {
+    console.log(`\n💳 Processando venda ${venda.id.substring(0, 8)}...`);
+    console.log(`   Valor: R$ ${venda.valor.toFixed(2)}`);
+    console.log(`   Vendedor: ${venda.vendedorId.substring(0, 8)}`);
+
+    // Calcular taxa (5%)
+    const taxa = venda.valor * 0.05;
+    const valorLiquido = venda.valor - taxa;
+
+    try {
+      // Criar registros na carteira
+      await prisma.carteira.createMany({
+        data: [
+          {
+            usuarioId: venda.vendedorId,
+            vendaId: venda.id,
+            tipo: 'TAXA_PLATAFORMA',
+            valor: -taxa,
+            status: 'APROVADO',
+            descricao: `Taxa de plataforma (5%) - Venda #${venda.id.substring(0, 8)}`
+          },
+          {
+            usuarioId: venda.vendedorId,
+            vendaId: venda.id,
+            tipo: 'VENDA',
+            valor: valorLiquido,
+            status: 'APROVADO',
+            descricao: `Venda - ${venda.compradorNome}`
+          }
+        ]
+      });
+
+      processadas++;
+      console.log(`   ✅ Taxa: -R$ ${taxa.toFixed(2)}`);
+      console.log(`   ✅ Líquido: +R$ ${valorLiquido.toFixed(2)}`);
+
+    } catch (error) {
+      console.error(`   ❌ Erro ao processar venda: ${error}`);
     }
   }
 
-  console.log(`💰 ${vendasSemCarteira.length} vendas precisam ser processadas`);
+  console.log(`\n\n🎉 ${processadas} vendas processadas com sucesso!`);
 
-  for (const venda of vendasSemCarteira) {
-    console.log(`\n💰 Processando venda ${venda.id.substring(0,8)}...`);
-    
-    const valorTotal = venda.valor;
-    const taxaPlataforma = 5; // Taxa padrão
-    const valorTaxa = (valorTotal * taxaPlataforma) / 100;
-    const valorLiquido = valorTotal - valorTaxa;
+  // Mostrar resumo do saldo por usuário
+  console.log('\n📊 RESUMO DE SALDOS:\n');
 
-    // Registrar taxa
-    await prisma.carteira.create({
-      data: {
-        usuarioId: venda.vendedorId,
-        vendaId: venda.id,
-        tipo: 'TAXA_PLATAFORMA',
-        valor: -valorTaxa,
-        descricao: `Taxa de ${taxaPlataforma}% sobre venda #${venda.id.substring(0,8)}`,
-        status: 'CONFIRMADO'
+  const usuarios = await prisma.user.findMany({
+    where: {
+      carteiras: {
+        some: {}
       }
-    });
-    console.log(`  💳 Taxa: -R$ ${valorTaxa.toFixed(2)}`);
-
-    // Registrar valor líquido
-    await prisma.carteira.create({
-      data: {
-        usuarioId: venda.vendedorId,
-        vendaId: venda.id,
-        tipo: 'VENDA',
-        valor: valorLiquido,
-        descricao: `Venda #${venda.id.substring(0,8)} - ${venda.produto.nome}`,
-        status: 'CONFIRMADO'
+    },
+    include: {
+      carteiras: {
+        where: { status: 'APROVADO' }
       }
-    });
-    console.log(`  ✅ Líquido: +R$ ${valorLiquido.toFixed(2)}`);
+    }
+  });
+
+  for (const usuario of usuarios) {
+    const saldo = usuario.carteiras.reduce((acc, c) => acc + c.valor, 0);
+    console.log(`👤 ${usuario.nome}`);
+    console.log(`   Saldo: R$ ${saldo.toFixed(2)}`);
+    console.log(`   Transações: ${usuario.carteiras.length}\n`);
   }
 
-  console.log(`\n🎉 ${vendasSemCarteira.length} vendas processadas!`);
   await prisma.$disconnect();
 }
 
