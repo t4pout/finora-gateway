@@ -88,6 +88,7 @@ export default function DetalhesProdutoPage({ params }: { params: Promise<{ id: 
     checkoutMensagemUrgencia: '',
     checkoutProvaSocial: false,
     checkoutIntervaloPop: 8,
+    checkoutProvaSocialGenero: 'AMBOS',
     checkoutAceitaPix: true,
     checkoutAceitaCartao: true,
     checkoutAceitaBoleto: true,

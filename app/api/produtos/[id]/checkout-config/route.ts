@@ -41,6 +41,7 @@ export async function GET(
         checkoutMensagemUrgencia: true,
         checkoutProvaSocial: true,
         checkoutIntervaloPop: true,
+        checkoutProvaSocialGenero: true,
         checkoutAceitaPix: true,
         checkoutAceitaCartao: true,
         checkoutAceitaBoleto: true,
@@ -92,7 +93,9 @@ export async function PATCH(
         checkoutTempoMinutos: body.checkoutTempoMinutos ? parseInt(body.checkoutTempoMinutos) : null,
         checkoutMensagemUrgencia: body.checkoutMensagemUrgencia,
         checkoutProvaSocial: body.checkoutProvaSocial,
-        checkoutIntervaloPop: body.checkoutIntervaloPop ? parseInt(body.checkoutIntervaloPop) : null,
+        checkoutProvaSocialGenero: body.checkoutProvaSocialGenero,
+        checkoutIntervaloPop: body.checkoutIntervaloPop ? 
+ parseInt(body.checkoutIntervaloPop) : null,
         checkoutAceitaPix: body.checkoutAceitaPix,
         checkoutAceitaCartao: body.checkoutAceitaCartao,
         checkoutAceitaBoleto: body.checkoutAceitaBoleto,
