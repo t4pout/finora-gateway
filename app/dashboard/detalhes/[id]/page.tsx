@@ -521,6 +521,8 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
     if (!modalConfig.planoId) return;
     
     try {
+      console.log('🔍 Salvando configPlano:', configPlano);
+console.log('🔍 Gênero selecionado:', configPlano.checkoutProvaSocialGenero);
       const token = localStorage.getItem('token');
       await fetch(`/api/planos/${modalConfig.planoId}`, {
         method: 'PATCH',
