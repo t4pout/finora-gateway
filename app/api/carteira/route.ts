@@ -23,32 +23,30 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
-    // Buscar transações do usuário
-    const transacoes = await prisma.transacao.findMany({
-      where: { userId },
-      include: {
-        venda: {
-          select: {
-            id: true,
-            valor: true,
-            compradorNome: true,
-            metodoPagamento: true
-          }
-        }
-      },
-      orderBy: { createdAt: 'desc' }
-    });
+    // Buscar transações da Carteira
+const transacoes = await prisma.carteira.findMany({
+  where: { usuarioId: userId },
+  include: {
+    venda: {
+      select: {
+        id: true,
+        valor: true,
+        compradorNome: true,
+        metodoPagamento: true
+      }
+    }
+  },
+  orderBy: { createdAt: 'desc' }
+});
 
-    // Calcular saldos
-    const agora = new Date();
-    
-    const saldoLiberado = transacoes
-      .filter(t => (t.status === 'LIBERADO' || t.status === 'APROVADO') && (!t.dataLiberacao || t.dataLiberacao <= agora))
-      .reduce((acc, t) => acc + t.valor, 0);
+// Calcular saldos
+const saldoLiberado = transacoes
+  .filter(t => (t.status === 'LIBERADO' || t.status === 'APROVADO'))
+  .reduce((acc, t) => acc + t.valor, 0);
 
-    const saldoPendente = transacoes
-      .filter(t => t.status === 'PENDENTE' || (t.dataLiberacao && t.dataLiberacao > agora))
-      .reduce((acc, t) => acc + t.valor, 0);
+const saldoPendente = transacoes
+  .filter(t => t.status === 'PENDENTE')
+  .reduce((acc, t) => acc + t.valor, 0);
 
     // Buscar saques aprovados para descontar
     const saques = await prisma.saque.findMany({
