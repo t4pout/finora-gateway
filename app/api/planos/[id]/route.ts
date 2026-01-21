@@ -53,6 +53,8 @@ export async function PATCH(
 
     const { id } = await params;
     const body = await request.json();
+    console.log('🔍 API recebeu body:', body);
+    console.log('🔍 Gênero recebido na API:', body.checkoutProvaSocialGenero);
 
     // Verificar permissão
     const plano = await prisma.planoOferta.findUnique({
@@ -86,6 +88,7 @@ export async function PATCH(
         checkoutMensagemUrgencia: body.checkoutMensagemUrgencia,
         checkoutProvaSocial: body.checkoutProvaSocial,
         checkoutIntervaloPop: body.checkoutIntervaloPop ? parseInt(body.checkoutIntervaloPop) : undefined,
+        checkoutProvaSocialGenero: body.checkoutProvaSocialGenero,
         checkoutAceitaPix: body.checkoutAceitaPix,
         checkoutAceitaCartao: body.checkoutAceitaCartao,
         checkoutAceitaBoleto: body.checkoutAceitaBoleto,
