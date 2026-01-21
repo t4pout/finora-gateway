@@ -247,7 +247,7 @@ const finalizarPedido = async () => {
 
       {plano.checkoutBanner && (
         <div className="w-full h-40 md:h-56 lg:h-64 overflow-hidden bg-gray-100">
-          <img src={plano.checkoutBanner} alt="Banner" className="w-full h-full object-cover" />
+          <img src={plano.checkoutBanner} alt="Banner" className="w-full h-full object-contain" />
         </div>
       )}
 
