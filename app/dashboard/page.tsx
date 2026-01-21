@@ -50,8 +50,8 @@ export default function DashboardPage() {
   },
   taxasAprovacao: {
     cartao: 0,
-    pix: 0,
-    boleto: 0
+    Pix: {stats.formasPagamento.pix.count},
+    Boleto: {stats.formasPagamento.boleto.count}
   }
 });
 
@@ -223,11 +223,11 @@ const carregarEstatisticas = async () => {
                       <CreditCard size={16} />
                     </div>
                     <span className="text-sm font-medium text-gray-700">
-                      Cartão: 0
+                      Cartão: {stats.formasPagamento.cartao.count}
                     </span>
                   </div>
                   <span className="text-sm font-bold text-gray-900">
-                    R$ 0,00
+                    R$ {stats.formasPagamento.cartao.total.toFixed(2)}
                   </span>
                 </div>
 
@@ -237,11 +237,11 @@ const carregarEstatisticas = async () => {
                       <Smartphone size={16} />
                     </div>
                     <span className="text-sm font-medium text-gray-700">
-                      Pix: 0
+                      Pix: {stats.formasPagamento.pix.count}
                     </span>
                   </div>
                   <span className="text-sm font-bold text-gray-900">
-                    R$ 0,00
+                    R$ {stats.formasPagamento.pix.total.toFixed(2)}
                   </span>
                 </div>
 
@@ -251,11 +251,11 @@ const carregarEstatisticas = async () => {
                       <FileText size={16} />
                     </div>
                     <span className="text-sm font-medium text-gray-700">
-                      Boleto: 0
+                      Boleto: {stats.formasPagamento.boleto.count}
                     </span>
                   </div>
                   <span className="text-sm font-bold text-gray-900">
-                    R$ 0,00
+                    R$ {stats.formasPagamento.boleto.total.toFixed(2)}
                   </span>
                 </div>
               </div>
@@ -340,5 +340,6 @@ const carregarEstatisticas = async () => {
     </div>
   );
 }
+
 
 
