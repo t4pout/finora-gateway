@@ -92,10 +92,39 @@ export default function NovoProdutoPage() {
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Imagem do Produto
               </label>
-              <null /* Upload removido */
-                currentImage={formData.imagem}
-                onUpload={(url) => setFormData({...formData, imagem: url})}
-              />
+              <div className="space-y-2">
+  <input 
+    type="file" 
+    accept="image/*" 
+    onChange={async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      
+      const formDataUpload = new FormData();
+      formDataUpload.append('file', file);
+      
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formDataUpload
+        });
+        const data = await res.json();
+        if (data.url) {
+          setFormData({...formData, imagem: data.url});
+          alert('✅ Imagem enviada com sucesso!');
+        }
+      } catch (error) {
+        alert('❌ Erro ao enviar imagem');
+      }
+    }}
+    className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-purple-400 transition"
+  />
+  {formData.imagem && (
+    <div className="mt-2">
+      <img src={formData.imagem} alt="Preview" className="h-32 w-32 object-cover rounded-lg border-2 border-gray-200" />
+    </div>
+  )}
+</div>
             </div>
 
             <div>

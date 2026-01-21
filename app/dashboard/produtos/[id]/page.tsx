@@ -19,6 +19,7 @@ export default function EditarProdutoPage() {
     comissao: '',
     estoque: '',
     arquivoUrl: '',
+    imagem: ''
     status: 'ATIVO'
   });
 
@@ -43,6 +44,7 @@ export default function EditarProdutoPage() {
           comissao: data.produto.comissao.toString(),
           estoque: data.produto.estoque?.toString() || '',
           arquivoUrl: data.produto.arquivoUrl || '',
+          imagem: data.produto.imagem || '',
           status: data.produto.status
         });
       }
@@ -158,6 +160,44 @@ export default function EditarProdutoPage() {
                 className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900"
               />
             </div>
+           <div>
+  <label className="block text-sm font-semibold mb-2">
+    Imagem do Produto
+  </label>
+  <div className="space-y-2">
+    <input 
+      type="file" 
+      accept="image/*" 
+      onChange={async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        
+        const formDataUpload = new FormData();
+        formDataUpload.append('file', file);
+        
+        try {
+          const res = await fetch('/api/upload', {
+            method: 'POST',
+            body: formDataUpload
+          });
+          const data = await res.json();
+          if (data.url) {
+            setFormData({...formData, imagem: data.url});
+            alert('✅ Imagem enviada com sucesso!');
+          }
+        } catch (error) {
+          alert('❌ Erro ao enviar imagem');
+        }
+      }}
+      className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-purple-400 transition"
+    />
+    {formData.imagem && (
+      <div className="mt-2">
+        <img src={formData.imagem} alt="Preview" className="h-32 w-32 object-cover rounded-lg border-2 border-gray-200" />
+      </div>
+    )}
+  </div>
+</div>
 
             <div className="grid md:grid-cols-2 gap-6">
               <div>
