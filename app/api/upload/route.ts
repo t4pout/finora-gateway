@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile } from 'fs/promises';
-import { join } from 'path';
+import { put } from '@vercel/blob';
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,25 +20,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Arquivo muito grande (max 5MB)' }, { status: 400 });
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
     // Gerar nome único
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(7);
     const extension = file.name.split('.').pop();
-    const filename = `${timestamp}-${randomString}.${extension}`;
+    const filename = `uploads/${timestamp}-${randomString}.${extension}`;
 
-    // Salvar na pasta public/uploads
-    const path = join(process.cwd(), 'public', 'uploads', filename);
-    await writeFile(path, buffer);
+    // Upload para Vercel Blob
+    const blob = await put(filename, file, {
+      access: 'public',
+      token: process.env.BLOB_READ_WRITE_TOKEN
+    });
 
-    // Retornar URL pública
-    const url = `/uploads/${filename}`;
-    
-    return NextResponse.json({ success: true, url });
+    console.log('✅ Upload realizado com sucesso:', blob.url);
+
+    return NextResponse.json({ 
+      success: true, 
+      url: blob.url 
+    });
+
   } catch (error) {
-    console.error('Erro ao fazer upload:', error);
-    return NextResponse.json({ error: 'Erro ao fazer upload' }, { status: 500 });
+    console.error('❌ Erro ao fazer upload:', error);
+    return NextResponse.json({ 
+      error: 'Erro ao fazer upload',
+      details: String(error)
+    }, { status: 500 });
   }
 }
