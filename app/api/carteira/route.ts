@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     const agora = new Date();
     
     const saldoLiberado = transacoes
-      .filter(t => t.status === 'LIBERADO' && (!t.dataLiberacao || t.dataLiberacao <= agora))
+      .filter(t => (t.status === 'LIBERADO' || t.status === 'APROVADO') && (!t.dataLiberacao || t.dataLiberacao <= agora))
       .reduce((acc, t) => acc + t.valor, 0);
 
     const saldoPendente = transacoes
