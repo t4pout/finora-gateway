@@ -69,7 +69,7 @@ export default function DashboardPage() {
   setLoading(false);
   carregarVerificacao();
   carregarEstatisticas(); // ← ADICIONE ESTA LINHA
-}, [router]);
+}, [router, periodo]);
 
   const carregarVerificacao = async () => {
     try {
@@ -92,7 +92,7 @@ export default function DashboardPage() {
 const carregarEstatisticas = async () => {
   try {
     const token = localStorage.getItem('token');
-    const response = await fetch('/api/dashboard', {
+    const response = await fetch(`/api/dashboard?periodo=${periodo}`, {
       headers: { 'Authorization': 'Bearer ' + token }
     });
     if (response.ok) {

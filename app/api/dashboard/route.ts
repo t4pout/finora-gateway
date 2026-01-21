@@ -17,14 +17,31 @@ export async function GET(request: Request) {
     const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'finora-secret-super-seguro-2026-production';
     
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
+    // Calcular data inicial baseada no período
+const { searchParams } = new URL(request.url);
+const periodo = searchParams.get('periodo') || 'hoje';
+
+let dataInicio = new Date();
+if (periodo === 'hoje') {
+  dataInicio.setHours(0, 0, 0, 0);
+} else if (periodo === '7d') {
+  dataInicio.setDate(dataInicio.getDate() - 7);
+} else if (periodo === '14d') {
+  dataInicio.setDate(dataInicio.getDate() - 14);
+} else if (periodo === '30d') {
+  dataInicio.setDate(dataInicio.getDate() - 30);
+}
 
     // Buscar vendas PAGAS do usuário
     const vendas = await prisma.venda.findMany({
-      where: {
-        vendedorId: decoded.userId,
-        status: 'PAGO'
-      }
-    });
+  where: {
+    vendedorId: decoded.userId,
+    status: 'PAGO',
+    createdAt: {
+      gte: dataInicio
+    }
+  }
+});
 
     // Buscar produtos ativos
     const produtosAtivos = await prisma.produto.count({
