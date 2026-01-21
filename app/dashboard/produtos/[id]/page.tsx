@@ -19,7 +19,7 @@ export default function EditarProdutoPage() {
     comissao: '',
     estoque: '',
     arquivoUrl: '',
-    imagem: ''
+    imagem: '', 
     status: 'ATIVO'
   });
 
