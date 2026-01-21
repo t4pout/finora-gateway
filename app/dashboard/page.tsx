@@ -50,8 +50,8 @@ export default function DashboardPage() {
   },
   taxasAprovacao: {
     cartao: 0,
-    Pix: {stats.formasPagamento.pix.count},
-    Boleto: {stats.formasPagamento.boleto.count}
+    pix: 0,
+    boleto: 0
   }
 });
 
