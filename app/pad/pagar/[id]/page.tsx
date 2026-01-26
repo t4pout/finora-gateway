@@ -12,6 +12,7 @@ export default function CheckoutPagamentoPADPage() {
   const [pedido, setPedido] = useState<any>(null);
   const [erro, setErro] = useState('');
   const [metodoPagamento, setMetodoPagamento] = useState('PIX');
+  const [pixGerado, setPixGerado] = useState(false);
 
   // Dados do cartão
   const [dadosCartao, setDadosCartao] = useState({
@@ -73,10 +74,12 @@ export default function CheckoutPagamentoPADPage() {
       }
 
       // Sucesso!
-      if (metodoPagamento === 'PIX') {
-        // Redirecionar para página de PIX gerado
-        router.push(`/pad/pagar/${params.id}?pix=gerado`);
-      } else if (metodoPagamento === 'CARTAO') {
+if (metodoPagamento === 'PIX') {
+  // Atualizar pedido com dados do PIX e mostrar QR Code
+  setPixGerado(true);
+  setPedido({...pedido, ...data.pedido});
+}
+        else if (metodoPagamento === 'CARTAO') {
         if (data.status === 'APROVADO') {
           alert('✅ Pagamento aprovado com sucesso!');
           router.push(`/pad/detalhes/${params.id}`);
@@ -304,6 +307,41 @@ export default function CheckoutPagamentoPADPage() {
                 <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
                   {erro}
                 </div>
+              {/* QR Code PIX */}
+{pixGerado && pedido.pixQrCode && (
+  <div className="mt-6 p-6 bg-green-50 border border-green-200 rounded-lg">
+    <h4 className="font-bold text-green-800 mb-4 text-center">✅ PIX Gerado com Sucesso!</h4>
+    <div className="flex flex-col items-center space-y-4">
+      <img 
+        src={`data:image/png;base64,${pedido.pixQrCode}`}
+        alt="QR Code PIX" 
+        className="w-64 h-64"
+      />
+      <div className="w-full">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Ou copie o código PIX:
+        </label>
+        <div className="flex space-x-2">
+          <input
+            type="text"
+            value={pedido.pixCopiaECola || ''}
+            readOnly
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm"
+          />
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(pedido.pixCopiaECola);
+              alert('✅ Código PIX copiado!');
+            }}
+            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
+          >
+            Copiar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
               )}
 
               <button

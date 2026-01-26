@@ -1,4 +1,4 @@
-'use client';
+	'use client';
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -225,7 +225,7 @@ export default function DetalhesPedidoPage() {
 
         {(pedido.status === 'APROVADO' || pedido.status === 'ENVIADO') && (
           <a 
-            href={`/pad/pagar/${pedido.id}`}
+            href={`/pad/pagar/${pedido.hash}`}
             className="block w-full py-4 bg-gradient-to-r from-green-500 to-green-600 text-white text-center rounded-lg font-bold text-lg hover:from-green-600 hover:to-green-700 transition shadow-lg"
           >
             <CreditCard className="inline-block w-6 h-6 mr-2" />

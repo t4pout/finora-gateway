@@ -30,9 +30,17 @@ export default function BuscarPedidoPage() {
       const data = await response.json();
 
       if (response.ok) {
-        setPedidos(data.pedidos || []);
-        setBuscaRealizada(true);
-      } else {
+  setPedidos(data.pedidos || []);
+  setBuscaRealizada(true);
+  
+  // Scroll suave para os resultados
+  setTimeout(() => {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth'
+    });
+  }, 100);
+} else {
         setErro(data.error || 'Erro ao buscar pedidos');
       }
     } catch (error) {
