@@ -221,7 +221,7 @@ export default function BuscarPedidoPage() {
       Ver detalhes
     </a>
     <a 
-      href={`/pad/pagar/${pedido.id}`}
+      href={`/pad/pagar/${pedido.hash}`}
       className="block py-3 bg-gradient-to-r from-green-500 to-green-600 text-white text-center rounded-lg font-bold hover:from-green-600 hover:to-green-700 transition"
     >
       <CreditCard className="inline-block w-5 h-5 mr-2" />
