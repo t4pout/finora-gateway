@@ -36,7 +36,8 @@ export async function GET(
         status: true,
         publicoParaAfiliados: true,
         estoque: true,
-        userId: true  // <- ADICIONE ESTA LINHA
+        userId: true,
+        padHabilitado: true
       }
     });
 
