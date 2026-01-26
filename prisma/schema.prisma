@@ -36,7 +36,7 @@ model User {
   planoTaxa             PlanoTaxa?             @relation(fields: [planoTaxaId], references: [id])
   vendas                Venda[]                @relation("VendedorVendas")
   carteiras   Carteira[]  @relation("CarteiraUsuario")
-
+  pedidosPAD            PedidoPAD[]
   @@map("User")
 }
 
@@ -165,6 +165,8 @@ model Produto {
   checkoutCpfObrigatorio     Boolean                @default(true)
   checkoutTelObrigatorio     Boolean                @default(true)
   checkoutPedirEndereco      Boolean                @default(true)
+  padHabilitado              Boolean                @default(false)
+  checkoutProvaSocialGenero  String?                @default("AMBOS")
   userId                     String
   createdAt                  DateTime               @default(now())
   updatedAt                  DateTime               @updatedAt
@@ -174,7 +176,8 @@ model Produto {
   user                       User                   @relation(fields: [userId], references: [id])
   solicitacoes               SolicitacaoAfiliacao[] @relation("ProdutoSolicitacoes")
   vendas                     Venda[]
-
+  pedidosPAD                 PedidoPAD[]
+  pixels                     PixelConversao[]
   @@map("Produto")
 }
 
@@ -351,4 +354,79 @@ model Campanha {
   user                User          @relation(fields: [userId], references: [id])
 
   @@map("Campanha")
+}
+ 
+ model PedidoPAD {
+  id                String   @id @default(cuid())
+  hash              String   @unique
+  
+  clienteNome       String
+  clienteCpfCnpj    String
+  clienteTelefone   String
+  clienteEmail      String?
+  
+  cep               String
+  rua               String
+  numero            String
+  complemento       String?
+  bairro            String
+  cidade            String
+  estado            String
+  
+  produtoId         String
+  produtoNome       String
+  produtoImagem     String?
+  valor             Float
+  quantidade        Int      @default(1)
+  
+  status            String   @default("EM_ANALISE")
+  
+  codigoRastreio    String?
+  dataEnvio         DateTime?
+  dataEntrega       DateTime?
+  
+  pixQrCode         String?
+  pixCopiaECola     String?
+  pixId             String?
+  dataPagamento     DateTime?
+  
+  vendedorId        String
+  observacoes       String?
+  motivoCancelamento String?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  produto           Produto  @relation(fields: [produtoId], references: [id])
+  vendedor          User     @relation(fields: [vendedorId], references: [id])
+  
+  @@map("PedidoPAD")
+}
+
+model PixelConversao {
+  id                String   @id @default(cuid())
+  produtoId         String
+  
+  titulo            String
+  plataforma        String
+  pixelId           String
+  tokenAPI          String?
+  
+  eventoCheckout    Boolean  @default(false)
+  eventoCompra      Boolean  @default(false)
+  eventoPAD         Boolean  @default(false)
+  
+  condicaoPix       Boolean  @default(false)
+  condicaoBoleto    Boolean  @default(false)
+  condicaoPAD       Boolean  @default(false)
+  condicaoPagamentoAprovado Boolean @default(false)
+  
+  status            String   @default("ATIVO")
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  produto           Produto  @relation(fields: [produtoId], references: [id])
+  
+  @@map("PixelConversao")
 }
