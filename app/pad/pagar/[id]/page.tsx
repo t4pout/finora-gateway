@@ -2,19 +2,25 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Package, CreditCard, Copy, CheckCircle, Clock, ArrowLeft } from 'lucide-react';
-import QRCode from 'qrcode';
+import { Package, CreditCard, Smartphone, FileText, Lock } from 'lucide-react';
 
-export default function PagarPedidoPage() {
+export default function CheckoutPagamentoPADPage() {
   const params = useParams();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [gerandoPix, setGerandoPix] = useState(false);
+  const [processando, setProcessando] = useState(false);
   const [pedido, setPedido] = useState<any>(null);
-  const [pixGerado, setPixGerado] = useState(false);
-  const [qrCodeUrl, setQrCodeUrl] = useState('');
-  const [copiado, setCopiado] = useState(false);
   const [erro, setErro] = useState('');
+  const [metodoPagamento, setMetodoPagamento] = useState('PIX');
+
+  // Dados do cartão
+  const [dadosCartao, setDadosCartao] = useState({
+    numero: '',
+    nome: '',
+    validade: '',
+    cvv: '',
+    parcelas: '1'
+  });
 
   useEffect(() => {
     carregarPedido();
@@ -27,13 +33,12 @@ export default function PagarPedidoPage() {
       if (response.ok) {
         const data = await response.json();
         
-        if (data.pedido.pixQrCode && data.pedido.pixCopiaECola) {
-          setPedido(data.pedido);
-          setPixGerado(true);
-          gerarQRCode(data.pedido.pixQrCode);
-        } else {
-          setPedido(data.pedido);
+        if (data.pedido.status === 'PAGO') {
+          router.push(`/pad/detalhes/${params.id}`);
+          return;
         }
+        
+        setPedido(data.pedido);
       } else {
         setErro('Pedido não encontrado');
       }
@@ -44,52 +49,29 @@ export default function PagarPedidoPage() {
     }
   };
 
-  const gerarQRCode = async (pixCode: string) => {
-    try {
-      const url = await QRCode.toDataURL(pixCode, {
-        width: 300,
-        margin: 1,
-        color: {
-          dark: '#000000',
-          light: '#FFFFFF'
-        }
-      });
-      setQrCodeUrl(url);
-    } catch (error) {
-      console.error('Erro ao gerar QR Code:', error);
-    }
-  };
-
-  const gerarPix = async () => {
-    setGerandoPix(true);
+  const finalizarPagamento = async () => {
+    setProcessando(true);
     setErro('');
 
     try {
-      const response = await fetch(`/api/pad/${params.id}/gerar-pix`, {
-        method: 'POST'
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setPedido(data.pedido);
-        setPixGerado(true);
-        gerarQRCode(data.pedido.pixQrCode);
-      } else {
-        setErro(data.error || 'Erro ao gerar PIX');
+      // Aqui você vai chamar a API de pagamento
+      // Por enquanto vou deixar um placeholder
+      
+      if (metodoPagamento === 'PIX') {
+        // Gerar PIX
+        alert('🚧 Integração PIX em desenvolvimento');
+      } else if (metodoPagamento === 'CARTAO') {
+        // Processar cartão via Mercado Pago
+        alert('🚧 Integração Cartão (Mercado Pago) em desenvolvimento');
+      } else if (metodoPagamento === 'BOLETO') {
+        // Gerar boleto via Mercado Pago
+        alert('🚧 Integração Boleto (Mercado Pago) em desenvolvimento');
       }
+      
     } catch (error) {
-      setErro('Erro ao conectar com servidor');
+      setErro('Erro ao processar pagamento');
     } finally {
-      setGerandoPix(false);
-    }
-  };
-
-  const copiarCodigo = () => {
-    if (pedido?.pixCopiaECola) {
-      navigator.clipboard.writeText(pedido.pixCopiaECola);
-      setCopiado(true);
-      setTimeout(() => setCopiado(false), 3000);
+      setProcessando(false);
     }
   };
 
@@ -117,161 +99,204 @@ export default function PagarPedidoPage() {
     );
   }
 
-  if (pedido.status === 'PAGO') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-        <div className="max-w-md w-full bg-white rounded-2xl p-8 shadow-lg text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle className="w-8 h-8 text-green-600" />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            Pagamento Confirmado!
-          </h1>
-          <p className="text-gray-600 mb-6">
-            Seu pagamento foi aprovado com sucesso.
-          </p>
-          <button
-            onClick={() => router.push('/pad/buscar')}
-            className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-          >
-            Ver meus pedidos
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (pedido.status !== 'APROVADO' && pedido.status !== 'ENVIADO') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-        <div className="max-w-md w-full bg-white rounded-2xl p-8 shadow-lg text-center">
-          <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Clock className="w-8 h-8 text-yellow-600" />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            Pedido em Análise
-          </h1>
-          <p className="text-gray-600 mb-6">
-            Seu pedido ainda está sendo analisado. Você receberá um contato em breve.
-          </p>
-          <button
-            onClick={() => router.push('/pad/buscar')}
-            className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-          >
-            Voltar
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50 py-12">
-      <div className="container mx-auto px-4 max-w-4xl">
-        <div className="mb-6">
-          <button
-            onClick={() => router.back()}
-            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 mb-4"
-          >
-            <ArrowLeft size={20} />
-            <span>Voltar</span>
-          </button>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="container mx-auto px-4 max-w-6xl">
+        <div className="bg-green-600 text-white py-3 px-6 rounded-t-2xl text-center font-bold">
+          💳 PAGAMENTO 100% SEGURO
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl shadow-lg p-8">
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                💳 Pagamento via PIX
-              </h1>
-              <p className="text-gray-600 mb-8">
-                Escaneie o QR Code ou copie o código para pagar
-              </p>
-
-              {!pixGerado ? (
-                <div className="text-center py-12">
-                  {erro && (
-                    <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-                      {erro}
-                    </div>
-                  )}
-                  
-                  <button
-                    onClick={gerarPix}
-                    disabled={gerandoPix}
-                    className="px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg font-bold text-lg hover:from-green-600 hover:to-green-700 disabled:from-gray-400 disabled:to-gray-500 transition shadow-lg"
-                  >
-                    {gerandoPix ? 'GERANDO PIX...' : 'GERAR PIX PARA PAGAMENTO'}
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  <div className="flex flex-col items-center">
-                    {qrCodeUrl && (
-                      <img 
-                        src={qrCodeUrl} 
-                        alt="QR Code PIX"
-                        className="w-72 h-72 border-4 border-gray-200 rounded-lg shadow-lg"
-                      />
-                    )}
-                    <p className="text-sm text-gray-600 mt-4">
-                      Escaneie o QR Code com o app do seu banco
-                    </p>
-                  </div>
-
+        <div className="grid lg:grid-cols-3 gap-6 mt-6">
+          {/* Formulário */}
+          <div className="lg:col-span-2 space-y-6">
+            
+            {/* Dados do Cliente */}
+            <div className="bg-white rounded-xl p-6 shadow-sm border">
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold">1</div>
+                <h3 className="text-lg font-bold text-gray-900">Identificação</h3>
+              </div>
+              
+              <div className="space-y-3 text-sm">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Ou copie o código PIX:
-                    </label>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={pedido.pixCopiaECola}
-                        readOnly
-                        className="flex-1 px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-sm font-mono text-gray-900"
-                      />
-                      <button
-                        onClick={copiarCodigo}
-                        className={`px-6 py-3 rounded-lg font-semibold transition ${
-                          copiado 
-                            ? 'bg-green-100 text-green-700' 
-                            : 'bg-purple-600 text-white hover:bg-purple-700'
-                        }`}
-                      >
-                        {copiado ? (
-                          <>
-                            <CheckCircle className="inline w-5 h-5 mr-2" />
-                            Copiado!
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="inline w-5 h-5 mr-2" />
-                            Copiar
-                          </>
-                        )}
-                      </button>
-                    </div>
+                    <span className="text-gray-600">Nome Completo</span>
+                    <p className="font-medium text-gray-900">{pedido.clienteNome}</p>
                   </div>
+                  <div>
+                    <span className="text-gray-600">CPF/CNPJ</span>
+                    <p className="font-medium text-gray-900">{pedido.clienteCpfCnpj}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <span className="text-gray-600">Telefone</span>
+                    <p className="font-medium text-gray-900">{pedido.clienteTelefone}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Email</span>
+                    <p className="font-medium text-gray-900">{pedido.clienteEmail || '-'}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <p className="text-sm text-blue-800">
-                      <strong>Instruções:</strong>
-                    </p>
-                    <ol className="list-decimal ml-5 mt-2 text-sm text-blue-700 space-y-1">
-                      <li>Abra o app do seu banco</li>
-                      <li>Escolha pagar com PIX</li>
-                      <li>Escaneie o QR Code ou cole o código</li>
-                      <li>Confirme o pagamento</li>
-                    </ol>
+            {/* Endereço */}
+            <div className="bg-white rounded-xl p-6 shadow-sm border">
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold">2</div>
+                <h3 className="text-lg font-bold text-gray-900">Endereço</h3>
+              </div>
+              
+              <div className="text-sm text-gray-700">
+                <p>{pedido.rua}, {pedido.numero}{pedido.complemento && ` - ${pedido.complemento}`}</p>
+                <p>{pedido.bairro}</p>
+                <p>{pedido.cidade}/{pedido.estado}</p>
+                <p>CEP: {pedido.cep}</p>
+              </div>
+            </div>
+
+            {/* Pagamento */}
+            <div className="bg-white rounded-xl p-6 shadow-sm border">
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold">3</div>
+                <h3 className="text-lg font-bold text-gray-900">Pagamento</h3>
+              </div>
+
+              <p className="text-sm text-gray-600 mb-4">Escolha o seu método de pagamento preferido:</p>
+
+              {/* Métodos de Pagamento */}
+              <div className="space-y-3 mb-6">
+                <button
+                  onClick={() => setMetodoPagamento('PIX')}
+                  className={`w-full p-4 rounded-lg border-2 transition flex items-center space-x-3 ${
+                    metodoPagamento === 'PIX' 
+                      ? 'border-purple-600 bg-purple-50' 
+                      : 'border-gray-200 hover:border-purple-300'
+                  }`}
+                >
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                    metodoPagamento === 'PIX' ? 'border-purple-600' : 'border-gray-300'
+                  }`}>
+                    {metodoPagamento === 'PIX' && <div className="w-3 h-3 bg-purple-600 rounded-full" />}
+                  </div>
+                  <Smartphone className="w-6 h-6 text-purple-600" />
+                  <span className="font-semibold text-gray-900">PIX</span>
+                </button>
+
+                <button
+                  onClick={() => setMetodoPagamento('CARTAO')}
+                  className={`w-full p-4 rounded-lg border-2 transition flex items-center space-x-3 ${
+                    metodoPagamento === 'CARTAO' 
+                      ? 'border-purple-600 bg-purple-50' 
+                      : 'border-gray-200 hover:border-purple-300'
+                  }`}
+                >
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                    metodoPagamento === 'CARTAO' ? 'border-purple-600' : 'border-gray-300'
+                  }`}>
+                    {metodoPagamento === 'CARTAO' && <div className="w-3 h-3 bg-purple-600 rounded-full" />}
+                  </div>
+                  <CreditCard className="w-6 h-6 text-purple-600" />
+                  <span className="font-semibold text-gray-900">Cartão de Crédito</span>
+                </button>
+
+                <button
+                  onClick={() => setMetodoPagamento('BOLETO')}
+                  className={`w-full p-4 rounded-lg border-2 transition flex items-center space-x-3 ${
+                    metodoPagamento === 'BOLETO' 
+                      ? 'border-purple-600 bg-purple-50' 
+                      : 'border-gray-200 hover:border-purple-300'
+                  }`}
+                >
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                    metodoPagamento === 'BOLETO' ? 'border-purple-600' : 'border-gray-300'
+                  }`}>
+                    {metodoPagamento === 'BOLETO' && <div className="w-3 h-3 bg-purple-600 rounded-full" />}
+                  </div>
+                  <FileText className="w-6 h-6 text-purple-600" />
+                  <span className="font-semibold text-gray-900">Boleto Bancário</span>
+                </button>
+              </div>
+
+              {/* Formulário de Cartão */}
+              {metodoPagamento === 'CARTAO' && (
+                <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+                  <input
+                    type="text"
+                    placeholder="Número do cartão"
+                    value={dadosCartao.numero}
+                    onChange={(e) => setDadosCartao({...dadosCartao, numero: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900"
+                    maxLength={19}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Nome no Titular do cartão"
+                    value={dadosCartao.nome}
+                    onChange={(e) => setDadosCartao({...dadosCartao, nome: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900"
+                  />
+                  <div className="grid grid-cols-3 gap-4">
+                    <input
+                      type="text"
+                      placeholder="MM/AA"
+                      value={dadosCartao.validade}
+                      onChange={(e) => setDadosCartao({...dadosCartao, validade: e.target.value})}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900"
+                      maxLength={5}
+                    />
+                    <input
+                      type="text"
+                      placeholder="CVV"
+                      value={dadosCartao.cvv}
+                      onChange={(e) => setDadosCartao({...dadosCartao, cvv: e.target.value})}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900"
+                      maxLength={4}
+                    />
+                    <select
+                      value={dadosCartao.parcelas}
+                      onChange={(e) => setDadosCartao({...dadosCartao, parcelas: e.target.value})}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900"
+                    >
+                      <option value="1">1x</option>
+                      <option value="2">2x</option>
+                      <option value="3">3x</option>
+                      <option value="4">4x</option>
+                      <option value="5">5x</option>
+                      <option value="6">6x</option>
+                      <option value="7">7x</option>
+                      <option value="8">8x</option>
+                      <option value="9">9x</option>
+                      <option value="10">10x</option>
+                      <option value="11">11x</option>
+                      <option value="12">12x</option>
+                    </select>
                   </div>
                 </div>
               )}
+
+              {erro && (
+                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                  {erro}
+                </div>
+              )}
+
+              <button
+                onClick={finalizarPagamento}
+                disabled={processando}
+                className="w-full mt-6 py-4 bg-green-600 text-white rounded-lg font-bold text-lg hover:bg-green-700 disabled:bg-gray-400 transition flex items-center justify-center space-x-2"
+              >
+                <Lock size={20} />
+                <span>{processando ? 'PROCESSANDO...' : 'CONFIRMAR PEDIDO'}</span>
+              </button>
             </div>
           </div>
 
+          {/* Resumo */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-lg p-6 sticky top-4">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">📦 Resumo do Pedido</h3>
+            <div className="bg-white rounded-xl p-6 shadow-sm border sticky top-4">
+              <h3 className="font-bold text-gray-900 mb-4">📦 Resumo do Pedido</h3>
               
               {pedido.produtoImagem && (
                 <img 
@@ -284,7 +309,14 @@ export default function PagarPedidoPage() {
               <div className="space-y-3">
                 <div>
                   <div className="font-semibold text-gray-900">{pedido.produtoNome}</div>
-                  <div className="text-sm text-gray-600">Pedido #{pedido.hash}</div>
+                  <div className="text-sm text-gray-600">Quantidade: {pedido.quantidade}</div>
+                </div>
+                
+                <div className="border-t pt-3">
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="text-gray-600">Subtotal:</span>
+                    <span className="text-gray-900">R$ {pedido.valor.toFixed(2)}</span>
+                  </div>
                 </div>
                 
                 <div className="border-t pt-3">
@@ -293,11 +325,15 @@ export default function PagarPedidoPage() {
                     <span className="text-green-600">R$ {pedido.valor.toFixed(2)}</span>
                   </div>
                 </div>
+              </div>
 
-                <div className="text-xs text-gray-500">
-                  <strong>Endereço:</strong><br />
-                  {pedido.rua}, {pedido.numero}<br />
-                  {pedido.cidade}/{pedido.estado}
+              <div className="mt-6 p-3 bg-green-50 border border-green-200 rounded-lg text-sm">
+                <div className="flex items-start space-x-2">
+                  <div className="text-green-600">✓</div>
+                  <div className="text-green-800">
+                    <strong>Pagamento Após Entrega</strong>
+                    <p className="text-xs mt-1">Produto já foi enviado para você!</p>
+                  </div>
                 </div>
               </div>
             </div>
