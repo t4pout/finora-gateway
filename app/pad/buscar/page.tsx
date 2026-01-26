@@ -213,14 +213,22 @@ export default function BuscarPedidoPage() {
                       </div>
 
                       {(pedido.status === 'APROVADO' || pedido.status === 'ENVIADO') && (
-                        <a 
-                          href={`/pad/pagar/${pedido.hash}`}
-                          className="block w-full py-3 bg-gradient-to-r from-green-500 to-green-600 text-white text-center rounded-lg font-bold hover:from-green-600 hover:to-green-700 transition"
-                        >
-                          <CreditCard className="inline-block w-5 h-5 mr-2" />
-                          PAGAR AGORA
-                        </a>
-                      )}
+  <div className="grid grid-cols-2 gap-3">
+    <a 
+      href={`/pad/detalhes/${pedido.hash}`}
+      className="block py-3 bg-gray-100 text-gray-700 text-center rounded-lg font-bold hover:bg-gray-200 transition"
+    >
+      Ver detalhes
+    </a>
+    <a 
+      href={`/pad/pagar/${pedido.hash}`}
+      className="block py-3 bg-gradient-to-r from-green-500 to-green-600 text-white text-center rounded-lg font-bold hover:from-green-600 hover:to-green-700 transition"
+    >
+      <CreditCard className="inline-block w-5 h-5 mr-2" />
+      Pagar agora
+    </a>
+  </div>
+)}
 
                       {pedido.status === 'PAGO' && (
                         <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-center">
