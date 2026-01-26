@@ -17,7 +17,7 @@ export default function DetalhesPedidoPage() {
 
   const carregarPedido = async () => {
     try {
-      const response = await fetch(`/api/pad/${params.hash}`);
+      const response = await fetch(`/api/pad/${params.id}`);
       
       if (response.ok) {
         const data = await response.json();
@@ -81,7 +81,6 @@ export default function DetalhesPedidoPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="container mx-auto px-4 max-w-4xl">
-        {/* Header */}
         <div className="mb-6">
           <button
             onClick={() => router.back()}
@@ -92,7 +91,6 @@ export default function DetalhesPedidoPage() {
           </button>
         </div>
 
-        {/* Status do Pedido */}
         <div className="bg-white rounded-2xl shadow-lg p-8 mb-6">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-2xl font-bold text-gray-900">Status do Pedido</h1>
@@ -102,7 +100,6 @@ export default function DetalhesPedidoPage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
-            {/* Informações do Pagamento */}
             <div>
               <h3 className="text-sm font-semibold text-gray-600 mb-3">Informações do Pagamento</h3>
               <div className="space-y-2">
@@ -117,7 +114,6 @@ export default function DetalhesPedidoPage() {
               </div>
             </div>
 
-            {/* Informações do Pedido */}
             <div>
               <h3 className="text-sm font-semibold text-gray-600 mb-3">Informações do Pedido</h3>
               <div className="space-y-2">
@@ -136,7 +132,6 @@ export default function DetalhesPedidoPage() {
           </div>
         </div>
 
-        {/* Informações do Cliente */}
         <div className="bg-white rounded-2xl shadow-lg p-8 mb-6">
           <div className="flex items-center space-x-3 mb-6">
             <User className="w-6 h-6 text-purple-600" />
@@ -167,7 +162,6 @@ export default function DetalhesPedidoPage() {
           </div>
         </div>
 
-        {/* Informações do Produto */}
         <div className="bg-white rounded-2xl shadow-lg p-8 mb-6">
           <div className="flex items-center space-x-3 mb-6">
             <Package className="w-6 h-6 text-purple-600" />
@@ -194,7 +188,6 @@ export default function DetalhesPedidoPage() {
           </div>
         </div>
 
-        {/* Informações de Envio */}
         <div className="bg-white rounded-2xl shadow-lg p-8 mb-6">
           <div className="flex items-center space-x-3 mb-6">
             <MapPin className="w-6 h-6 text-purple-600" />
@@ -230,10 +223,9 @@ export default function DetalhesPedidoPage() {
           </div>
         </div>
 
-        {/* Botão Pagar */}
         {(pedido.status === 'APROVADO' || pedido.status === 'ENVIADO') && (
           <a 
-            href={`/pad/pagar/${pedido.hash}`}
+            href={`/pad/pagar/${pedido.id}`}
             className="block w-full py-4 bg-gradient-to-r from-green-500 to-green-600 text-white text-center rounded-lg font-bold text-lg hover:from-green-600 hover:to-green-700 transition shadow-lg"
           >
             <CreditCard className="inline-block w-6 h-6 mr-2" />

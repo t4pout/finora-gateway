@@ -22,12 +22,11 @@ export default function PagarPedidoPage() {
 
   const carregarPedido = async () => {
     try {
-      const response = await fetch(`/api/pad/${params.hash}`);
+      const response = await fetch(`/api/pad/${params.id}`);
       
       if (response.ok) {
         const data = await response.json();
         
-        // Verificar se já tem PIX gerado
         if (data.pedido.pixQrCode && data.pedido.pixCopiaECola) {
           setPedido(data.pedido);
           setPixGerado(true);
@@ -66,7 +65,7 @@ export default function PagarPedidoPage() {
     setErro('');
 
     try {
-      const response = await fetch(`/api/pad/${params.hash}/gerar-pix`, {
+      const response = await fetch(`/api/pad/${params.id}/gerar-pix`, {
         method: 'POST'
       });
 
@@ -169,7 +168,6 @@ export default function PagarPedidoPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50 py-12">
       <div className="container mx-auto px-4 max-w-4xl">
-        {/* Header */}
         <div className="mb-6">
           <button
             onClick={() => router.back()}
@@ -181,7 +179,6 @@ export default function PagarPedidoPage() {
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
-          {/* Área de Pagamento */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-2xl shadow-lg p-8">
               <h1 className="text-2xl font-bold text-gray-900 mb-2">
@@ -209,7 +206,6 @@ export default function PagarPedidoPage() {
                 </div>
               ) : (
                 <div className="space-y-6">
-                  {/* QR Code */}
                   <div className="flex flex-col items-center">
                     {qrCodeUrl && (
                       <img 
@@ -223,7 +219,6 @@ export default function PagarPedidoPage() {
                     </p>
                   </div>
 
-                  {/* Código Copia e Cola */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Ou copie o código PIX:
@@ -258,7 +253,6 @@ export default function PagarPedidoPage() {
                     </div>
                   </div>
 
-                  {/* Instruções */}
                   <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <p className="text-sm text-blue-800">
                       <strong>Instruções:</strong>
@@ -275,7 +269,6 @@ export default function PagarPedidoPage() {
             </div>
           </div>
 
-          {/* Resumo do Pedido */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl shadow-lg p-6 sticky top-4">
               <h3 className="text-lg font-bold text-gray-900 mb-4">📦 Resumo do Pedido</h3>
