@@ -212,7 +212,7 @@ export default function BuscarPedidoPage() {
                         )}
                       </div>
 
-                      {pedido.status === 'ENVIADO' && (
+                      {(pedido.status === 'APROVADO' || pedido.status === 'ENVIADO') && (
                         <a 
                           href={`/pad/pagar/${pedido.hash}`}
                           className="block w-full py-3 bg-gradient-to-r from-green-500 to-green-600 text-white text-center rounded-lg font-bold hover:from-green-600 hover:to-green-700 transition"
