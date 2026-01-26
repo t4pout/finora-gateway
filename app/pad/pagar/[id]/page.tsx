@@ -307,7 +307,8 @@ if (metodoPagamento === 'PIX') {
                 <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
                   {erro}
                 </div>
-              {/* QR Code PIX */}
+              )}
+{/* QR Code PIX */}
 {pixGerado && pedido.pixQrCode && (
   <div className="mt-6 p-6 bg-green-50 border border-green-200 rounded-lg">
     <h4 className="font-bold text-green-800 mb-4 text-center">✅ PIX Gerado com Sucesso!</h4>
@@ -342,7 +343,6 @@ if (metodoPagamento === 'PIX') {
     </div>
   </div>
 )}
-              )}
 
               <button
                 onClick={finalizarPagamento}
