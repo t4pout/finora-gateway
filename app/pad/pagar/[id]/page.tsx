@@ -54,21 +54,45 @@ export default function CheckoutPagamentoPADPage() {
     setErro('');
 
     try {
-      // Aqui você vai chamar a API de pagamento
-      // Por enquanto vou deixar um placeholder
-      
+      const response = await fetch(`/api/pad/${params.id}/processar-pagamento`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          metodoPagamento,
+          dadosCartao: metodoPagamento === 'CARTAO' ? dadosCartao : null
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setErro(data.error || 'Erro ao processar pagamento');
+        return;
+      }
+
+      // Sucesso!
       if (metodoPagamento === 'PIX') {
-        // Gerar PIX
-        alert('🚧 Integração PIX em desenvolvimento');
+        // Redirecionar para página de PIX gerado
+        router.push(`/pad/pagar/${params.id}?pix=gerado`);
       } else if (metodoPagamento === 'CARTAO') {
-        // Processar cartão via Mercado Pago
-        alert('🚧 Integração Cartão (Mercado Pago) em desenvolvimento');
+        if (data.status === 'APROVADO') {
+          alert('✅ Pagamento aprovado com sucesso!');
+          router.push(`/pad/detalhes/${params.id}`);
+        } else {
+          setErro('Pagamento não aprovado. Verifique os dados do cartão.');
+        }
       } else if (metodoPagamento === 'BOLETO') {
-        // Gerar boleto via Mercado Pago
-        alert('🚧 Integração Boleto (Mercado Pago) em desenvolvimento');
+        // Abrir boleto em nova aba
+        if (data.boletoUrl) {
+          window.open(data.boletoUrl, '_blank');
+          alert('✅ Boleto gerado! Uma nova aba foi aberta.');
+        }
       }
       
     } catch (error) {
+      console.error('Erro:', error);
       setErro('Erro ao processar pagamento');
     } finally {
       setProcessando(false);
