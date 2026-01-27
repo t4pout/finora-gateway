@@ -1,8 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 
-// Criar instância global do Prisma
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
@@ -21,39 +20,29 @@ export async function GET(
 ) {
   try {
     console.log('🔍 Iniciando busca de plano...');
-    console.log('📦 Prisma está definido?', !!prisma);
-    console.log('📦 Prisma.planoOferta está definido?', !!prisma?.planoOferta);
-    
     const params = await context.params;
     const planoId = params.id;
-    console.log('🔑 Plano ID:', planoId);
-
+    
     if (!prisma || !prisma.planoOferta) {
-      console.error('❌ Prisma ou prisma.plano está undefined!');
       return NextResponse.json(
         { error: 'Erro de configuração do banco de dados' },
         { status: 500 }
       );
     }
-
+    
     const plano = await prisma.planoOferta.findUnique({
       where: { id: planoId },
-      include: {
-        produto: true
-      }
+      include: { produto: true }
     });
-
-    console.log('✅ Plano encontrado:', !!plano);
-
+    
     if (!plano) {
       return NextResponse.json(
         { error: 'Plano não encontrado' },
         { status: 404 }
       );
     }
-
+    
     return NextResponse.json({ plano });
-
   } catch (error: any) {
     console.error('❌ ERRO:', error.message);
     return NextResponse.json(
@@ -72,23 +61,76 @@ export async function PATCH(
     if (!token) {
       return NextResponse.json({ error: 'Token não fornecido' }, { status: 401 });
     }
-
+    
     jwt.verify(token, process.env.JWT_SECRET!);
     
     const { id: planoId } = await context.params;
     const body = await request.json();
 
+    console.log('📝 Atualizando plano:', planoId);
+
     const plano = await prisma.planoOferta.update({
       where: { id: planoId },
-      data: body
+      data: {
+        nome: body.nome,
+        descricao: body.descricao,
+        preco: body.preco,
+        ativo: body.ativo,
+        checkoutBanner: body.checkoutBanner,
+        checkoutLogoSuperior: body.checkoutLogoSuperior,
+        checkoutLogoInferior: body.checkoutLogoInferior,
+        checkoutCorPrimaria: body.checkoutCorPrimaria,
+        checkoutCorSecundaria: body.checkoutCorSecundaria,
+        checkoutCronometro: body.checkoutCronometro,
+        checkoutTempoMinutos: body.checkoutTempoMinutos,
+        checkoutMensagemUrgencia: body.checkoutMensagemUrgencia,
+        checkoutProvaSocial: body.checkoutProvaSocial,
+        checkoutIntervaloPop: body.checkoutIntervaloPop,
+        checkoutProvaSocialGenero: body.checkoutProvaSocialGenero,
+        checkoutAceitaPix: body.checkoutAceitaPix,
+        checkoutAceitaCartao: body.checkoutAceitaCartao,
+        checkoutAceitaBoleto: body.checkoutAceitaBoleto,
+        checkoutMetodoPreferencial: body.checkoutMetodoPreferencial,
+        checkoutCpfObrigatorio: body.checkoutCpfObrigatorio,
+        checkoutTelObrigatorio: body.checkoutTelObrigatorio,
+        checkoutPedirEndereco: body.checkoutPedirEndereco,
+      }
     });
 
-    return NextResponse.json({ plano });
-
+    console.log('✅ Plano atualizado com sucesso');
+    return NextResponse.json({ success: true, plano });
   } catch (error: any) {
-    console.error('Erro ao atualizar plano:', error);
+    console.error('❌ Erro ao atualizar plano:', error);
     return NextResponse.json(
       { error: 'Erro ao atualizar plano', details: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  try {
+    const token = request.headers.get('authorization')?.replace('Bearer ', '');
+    if (!token) {
+      return NextResponse.json({ error: 'Token não fornecido' }, { status: 401 });
+    }
+    
+    jwt.verify(token, process.env.JWT_SECRET!);
+    
+    const { id: planoId } = await context.params;
+    await prisma.planoOferta.delete({ where: { id: planoId } });
+
+    return NextResponse.json({ 
+      success: true,
+      message: 'Plano deletado com sucesso'
+    });
+  } catch (error: any) {
+    console.error('Erro ao deletar plano:', error);
+    return NextResponse.json(
+      { error: 'Erro ao deletar plano', details: error.message },
       { status: 500 }
     );
   }
