@@ -7,7 +7,14 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: planoId } = await context.params;
+    console.log('🔍 Buscando plano...');
+    console.log('📦 Context recebido:', context);
+    
+    const params = await context.params;
+    console.log('📦 Params resolvidos:', params);
+    
+    const planoId = params.id;
+    console.log('🔑 Plano ID:', planoId);
 
     const plano = await prisma.plano.findUnique({
       where: { id: planoId },
@@ -16,7 +23,10 @@ export async function GET(
       }
     });
 
+    console.log('✅ Plano encontrado:', plano);
+
     if (!plano) {
+      console.log('❌ Plano não existe no banco');
       return NextResponse.json(
         { error: 'Plano não encontrado' },
         { status: 404 }
@@ -25,10 +35,12 @@ export async function GET(
 
     return NextResponse.json({ plano });
 
-  } catch (error) {
-    console.error('Erro ao buscar plano:', error);
+  } catch (error: any) {
+    console.error('❌ ERRO COMPLETO:', error);
+    console.error('❌ ERRO MESSAGE:', error.message);
+    console.error('❌ ERRO STACK:', error.stack);
     return NextResponse.json(
-      { error: 'Erro ao buscar plano' },
+      { error: 'Erro ao buscar plano', details: error.message },
       { status: 500 }
     );
   }
