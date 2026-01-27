@@ -2,21 +2,39 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 
-const prisma = new PrismaClient();
+// Criar instância global do Prisma
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined
+}
+
+const prisma = globalForPrisma.prisma ?? new PrismaClient({
+  log: ['query', 'error', 'warn'],
+})
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = prisma
+}
 
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    console.log('🔍 Buscando plano...');
-    console.log('📦 Context recebido:', context);
+    console.log('🔍 Iniciando busca de plano...');
+    console.log('📦 Prisma está definido?', !!prisma);
+    console.log('📦 Prisma.plano está definido?', !!prisma?.plano);
     
     const params = await context.params;
-    console.log('📦 Params resolvidos:', params);
-    
     const planoId = params.id;
     console.log('🔑 Plano ID:', planoId);
+
+    if (!prisma || !prisma.plano) {
+      console.error('❌ Prisma ou prisma.plano está undefined!');
+      return NextResponse.json(
+        { error: 'Erro de configuração do banco de dados' },
+        { status: 500 }
+      );
+    }
 
     const plano = await prisma.plano.findUnique({
       where: { id: planoId },
@@ -25,10 +43,9 @@ export async function GET(
       }
     });
 
-    console.log('✅ Plano encontrado:', plano);
+    console.log('✅ Plano encontrado:', !!plano);
 
     if (!plano) {
-      console.log('❌ Plano não existe no banco');
       return NextResponse.json(
         { error: 'Plano não encontrado' },
         { status: 404 }
@@ -38,9 +55,7 @@ export async function GET(
     return NextResponse.json({ plano });
 
   } catch (error: any) {
-    console.error('❌ ERRO COMPLETO:', error);
-    console.error('❌ ERRO MESSAGE:', error.message);
-    console.error('❌ ERRO STACK:', error.stack);
+    console.error('❌ ERRO:', error.message);
     return NextResponse.json(
       { error: 'Erro ao buscar plano', details: error.message },
       { status: 500 }
@@ -70,10 +85,10 @@ export async function PATCH(
 
     return NextResponse.json({ plano });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erro ao atualizar plano:', error);
     return NextResponse.json(
-      { error: 'Erro ao atualizar plano' },
+      { error: 'Erro ao atualizar plano', details: error.message },
       { status: 500 }
     );
   }
