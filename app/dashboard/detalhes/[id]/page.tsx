@@ -905,11 +905,16 @@ console.log('🔍 Gênero selecionado:', configPlano.checkoutProvaSocialGenero);
     </button>
   </div>
   <button 
-    onClick={() => router.push(`/checkout/pad/${produtoId}`)} 
-    className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-semibold"
-  >
-    💳 Checkout PAD
-  </button>
+  onClick={() => {
+    // Criar link do checkout PAD para este plano específico
+    const link = `${window.location.origin}/pad/checkout-plano/${plano.id}`;
+    navigator.clipboard.writeText(link);
+    alert(`✅ Link do Checkout PAD copiado!\n\n${link}\n\nVocê pode usar este link para criar pedidos PAD com o valor de R$ ${plano.preco.toFixed(2)}`);
+  }} 
+  className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-semibold"
+>
+  💳 Copiar Link Checkout PAD
+</button>
 </div>
                       </div>
                     ))}
