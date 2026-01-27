@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
 
@@ -9,13 +8,6 @@ export async function PATCH(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const token = request.headers.get('authorization')?.replace('Bearer ', '');
-    if (!token) {
-      return NextResponse.json({ error: 'Token não fornecido' }, { status: 401 });
-    }
-
-    jwt.verify(token, process.env.JWT_SECRET!);
-
     const { id: pixelId } = await context.params;
     const body = await request.json();
 
@@ -52,13 +44,6 @@ export async function DELETE(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const token = request.headers.get('authorization')?.replace('Bearer ', '');
-    if (!token) {
-      return NextResponse.json({ error: 'Token não fornecido' }, { status: 401 });
-    }
-
-    jwt.verify(token, process.env.JWT_SECRET!);
-
     const { id: pixelId } = await context.params;
 
     await prisma.pixelConversao.delete({
