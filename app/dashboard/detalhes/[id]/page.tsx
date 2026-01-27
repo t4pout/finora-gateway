@@ -928,9 +928,27 @@ console.log('🔍 Gênero selecionado:', configPlano.checkoutProvaSocialGenero);
     <button onClick={() => setModalConfig({ aberto: true, planoId: plano.id })} className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm font-semibold">
       ⚙️ Configurar
     </button>
-    <button onClick={() => setModalPlano({ aberto: true, plano })} className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
-      <Edit size={16} />
-    </button>
+    <button 
+  onClick={() => {
+    setFormPixel({
+      titulo: pixel.titulo,
+      plataforma: pixel.plataforma,
+      pixelId: pixel.pixelId,
+      tokenAPI: pixel.tokenAPI || '',
+      eventoCheckout: pixel.eventoCheckout,
+      eventoCompra: pixel.eventoCompra,
+      eventoPAD: pixel.eventoPAD,
+      condicaoPix: pixel.condicaoPix,
+      condicaoBoleto: pixel.condicaoBoleto,
+      condicaoPAD: pixel.condicaoPAD,
+      condicaoPagamentoAprovado: pixel.condicaoPagamentoAprovado
+    });
+    setModalPixel({ aberto: true, pixel });
+  }} 
+  className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+>
+  <Edit size={16} />
+</button>
     <button onClick={() => handleExcluirPlano(plano.id)} className="px-4 py-2 border-2 border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition">
       <Trash2 size={16} />
     </button>
