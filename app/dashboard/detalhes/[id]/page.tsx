@@ -98,8 +98,37 @@ export default function DetalhesProdutoPage({ params }: { params: Promise<{ id: 
     checkoutPedirEndereco: true
   });
 const [planos, setPlanos] = useState<any[]>([]);
+const [pixels, setPixels] = useState<any[]>([]);
+const [modalPixel, setModalPixel] = useState<{ aberto: boolean; pixel: any }>({ aberto: false, pixel: null });
+const [formPixel, setFormPixel] = useState({
+  titulo: '',
+  plataforma: 'FACEBOOK',
+  pixelId: '',
+  tokenAPI: '',
+  eventoCheckout: false,
+  eventoCompra: false,
+  eventoPAD: false,
+  condicaoPix: false,
+  condicaoBoleto: false,
+  condicaoPAD: false,
+  condicaoPagamentoAprovado: false
+});
   const [modalPlano, setModalPlano] = useState<{ aberto: boolean; plano: any }>({ aberto: false, plano: null });
   const [modalConfig, setModalConfig] = useState<{ aberto: boolean; planoId: string | null }>({ aberto: false, planoId: null });
+  const carregarPixels = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`/api/pixels?produtoId=${produtoId}`, {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (response.ok) {
+      const data = await response.json();
+      setPixels(data.pixels || []);
+    }
+  } catch (error) {
+    console.error('Erro ao carregar pixels:', error);
+  }
+};
   const [configPlano, setConfigPlano] = useState({
     checkoutBanner: '',
     checkoutLogoSuperior: '',
@@ -148,6 +177,7 @@ const [planos, setPlanos] = useState<any[]>([]);
     carregarConfigAfiliacao();
     carregarConfigCheckout();
     carregarPlanos();
+    carregarPixels();
   }, [produtoId, router]);
 
   const carregarDados = async () => {
@@ -608,6 +638,7 @@ console.log('🔍 Gênero selecionado:', configPlano.checkoutProvaSocialGenero);
               <button onClick={() => setAbaSelecionada('paginas')} className={`py-4 px-2 border-b-2 font-semibold transition ${abaSelecionada === 'paginas' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>📄 Páginas</button>
               <button onClick={() => setAbaSelecionada('campanhas')} className={`py-4 px-2 border-b-2 font-semibold transition ${abaSelecionada === 'campanhas' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>📢 Campanhas</button>
               <button onClick={() => setAbaSelecionada('checkout')} className={`py-4 px-2 border-b-2 font-semibold transition ${abaSelecionada === 'checkout' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>🎨 Checkout</button>
+               <button onClick={() => setAbaSelecionada('pixels')} className={`py-4 px-2 border-b-2 font-semibold transition ${abaSelecionada === 'pixels' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>📊 Pixels</button>
             </div>
           </div>
         </div>
@@ -1080,6 +1111,308 @@ console.log('🔍 Gênero selecionado:', configPlano.checkoutProvaSocialGenero);
               )}
             </div>
           )}
+          {abaSelecionada === 'pixels' && (
+  <div className="max-w-6xl mx-auto">
+    <div className="bg-white rounded-xl border border-gray-200 p-8">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">📊 Pixels de Conversão</h2>
+          <p className="text-gray-600">Configure os pixels para rastrear conversões</p>
+        </div>
+        <button 
+          onClick={() => setModalPixel({ aberto: true, pixel: null })} 
+          className="px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold hover:bg-yellow-600 transition flex items-center space-x-2"
+        >
+          <Plus size={20} />
+          <span>Novo Pixel</span>
+        </button>
+      </div>
+
+      {pixels.length === 0 ? (
+        <div className="text-center py-16 bg-gray-50 rounded-xl">
+          <BarChart3 size={64} className="mx-auto text-gray-300 mb-4" />
+          <h3 className="text-xl font-bold text-gray-900 mb-2">Nenhum pixel configurado</h3>
+          <p className="text-gray-600 mb-6">Adicione pixels para rastrear conversões do Facebook, Google, TikTok e Kwai</p>
+          <button 
+            onClick={() => setModalPixel({ aberto: true, pixel: null })} 
+            className="px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold hover:bg-yellow-600 transition"
+          >
+            Adicionar Primeiro Pixel
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {pixels.map((pixel: any) => (
+            <div key={pixel.id} className="border-2 border-gray-200 rounded-xl p-6 hover:border-yellow-400 transition">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                  <div className="flex items-center space-x-3 mb-2">
+                    <h3 className="text-lg font-bold text-gray-900">{pixel.titulo}</h3>
+                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
+                      {pixel.plataforma}
+                    </span>
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                      pixel.status === 'ATIVO' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                    }`}>
+                      {pixel.status}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-600">Pixel ID: {pixel.pixelId}</p>
+                </div>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => setModalPixel({ aberto: true, pixel })} 
+                    className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+                  >
+                    <Edit size={16} />
+                  </button>
+                  <button 
+                    onClick={async () => {
+                      if (!confirm('Excluir este pixel?')) return;
+                      try {
+                        const token = localStorage.getItem('token');
+                        await fetch(`/api/pixels/${pixel.id}`, {
+                          method: 'DELETE',
+                          headers: { 'Authorization': 'Bearer ' + token }
+                        });
+                        alert('Pixel excluído!');
+                        carregarPixels();
+                      } catch (error) {
+                        alert('Erro ao excluir pixel');
+                      }
+                    }}
+                    className="px-4 py-2 border-2 border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4 text-sm">
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-gray-900">🎯 Eventos de Ativação</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {pixel.eventoCheckout && <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs">InitiateCheckout</span>}
+                    {pixel.eventoCompra && <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Purchase</span>}
+                    {pixel.eventoPAD && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Pedido PAD</span>}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-gray-900">✅ Condições para Ativação</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {pixel.condicaoPix && <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">Pix</span>}
+                    {pixel.condicaoBoleto && <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs">Boleto</span>}
+                    {pixel.condicaoPAD && <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">PAD</span>}
+                    {pixel.condicaoPagamentoAprovado && <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Pagamento Aprovado</span>}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+)}
+{/* MODAL CRIAR/EDITAR PIXEL */}
+{modalPixel.aberto && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto" onClick={() => setModalPixel({ aberto: false, pixel: null })}>
+    <div className="bg-white rounded-2xl p-8 max-w-2xl w-full my-8" onClick={(e) => e.stopPropagation()}>
+      <h3 className="text-2xl font-bold text-gray-900 mb-6">
+        {modalPixel.pixel ? 'Editar Pixel' : 'Adicionar Novo Pixel'}
+      </h3>
+
+      <form onSubmit={async (e) => {
+        e.preventDefault();
+        try {
+          const token = localStorage.getItem('token');
+          const url = modalPixel.pixel ? `/api/pixels/${modalPixel.pixel.id}` : '/api/pixels';
+          const method = modalPixel.pixel ? 'PATCH' : 'POST';
+          
+          await fetch(url, {
+            method,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ ...formPixel, produtoId })
+          });
+          
+          alert(modalPixel.pixel ? 'Pixel atualizado!' : 'Pixel criado!');
+          setModalPixel({ aberto: false, pixel: null });
+          setFormPixel({
+            titulo: '',
+            plataforma: 'FACEBOOK',
+            pixelId: '',
+            tokenAPI: '',
+            eventoCheckout: false,
+            eventoCompra: false,
+            eventoPAD: false,
+            condicaoPix: false,
+            condicaoBoleto: false,
+            condicaoPAD: false,
+            condicaoPagamentoAprovado: false
+          });
+          carregarPixels();
+        } catch (error) {
+          alert('Erro ao salvar pixel');
+        }
+      }} className="space-y-6">
+        
+        <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">Título do Pixel *</label>
+            <input
+              type="text"
+              value={formPixel.titulo}
+              onChange={(e) => setFormPixel({...formPixel, titulo: e.target.value})}
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none"
+              placeholder="Ex: Pixel Facebook Principal"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">Plataforma *</label>
+            <select
+              value={formPixel.plataforma}
+              onChange={(e) => setFormPixel({...formPixel, plataforma: e.target.value})}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none"
+            >
+              <option value="FACEBOOK">Facebook Ads</option>
+              <option value="GOOGLE">Google Analytics</option>
+              <option value="TIKTOK">TikTok Ads</option>
+              <option value="KWAI">Kwai</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">ID do Pixel *</label>
+            <input
+              type="text"
+              value={formPixel.pixelId}
+              onChange={(e) => setFormPixel({...formPixel, pixelId: e.target.value})}
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none"
+              placeholder="Ex: 123456789"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">Token da API de Conversão</label>
+            <input
+              type="text"
+              value={formPixel.tokenAPI}
+              onChange={(e) => setFormPixel({...formPixel, tokenAPI: e.target.value})}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none"
+              placeholder="Opcional"
+            />
+          </div>
+        </div>
+
+        <div className="border-t pt-4">
+          <h4 className="font-bold text-gray-900 mb-3">🎯 Ambientes de Ativação</h4>
+          <div className="space-y-2">
+            <label className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
+              <input
+                type="checkbox"
+                checked={formPixel.eventoCheckout}
+                onChange={(e) => setFormPixel({...formPixel, eventoCheckout: e.target.checked})}
+                className="w-5 h-5"
+              />
+              <div>
+                <div className="font-medium text-gray-900">InitiateCheckout</div>
+                <div className="text-xs text-gray-600">Dispara quando o cliente acessa a página de checkout</div>
+              </div>
+            </label>
+            <label className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
+              <input
+                type="checkbox"
+                checked={formPixel.eventoCompra}
+                onChange={(e) => setFormPixel({...formPixel, eventoCompra: e.target.checked})}
+                className="w-5 h-5"
+              />
+              <div>
+                <div className="font-medium text-gray-900">Ao realizar uma compra</div>
+                <div className="text-xs text-gray-600">Dispara quando o pagamento é aprovado</div>
+              </div>
+            </label>
+            <label className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
+              <input
+                type="checkbox"
+                checked={formPixel.eventoPAD}
+                onChange={(e) => setFormPixel({...formPixel, eventoPAD: e.target.checked})}
+                className="w-5 h-5"
+              />
+              <div>
+                <div className="font-medium text-gray-900">Pedido Gerado (PAD)</div>
+                <div className="text-xs text-gray-600">Dispara quando um pedido PAD é criado</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div className="border-t pt-4">
+          <h4 className="font-bold text-gray-900 mb-3">✅ Condições para ativação</h4>
+          <div className="grid md:grid-cols-2 gap-2">
+            <label className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
+              <input
+                type="checkbox"
+                checked={formPixel.condicaoPix}
+                onChange={(e) => setFormPixel({...formPixel, condicaoPix: e.target.checked})}
+                className="w-4 h-4"
+              />
+              <span className="text-sm font-medium">Pix Gerado</span>
+            </label>
+            <label className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
+              <input
+                type="checkbox"
+                checked={formPixel.condicaoBoleto}
+                onChange={(e) => setFormPixel({...formPixel, condicaoBoleto: e.target.checked})}
+                className="w-4 h-4"
+              />
+              <span className="text-sm font-medium">Boleto Gerado</span>
+            </label>
+            <label className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
+              <input
+                type="checkbox"
+                checked={formPixel.condicaoPAD}
+                onChange={(e) => setFormPixel({...formPixel, condicaoPAD: e.target.checked})}
+                className="w-4 h-4"
+              />
+              <span className="text-sm font-medium">Pedido Gerado (PAD)</span>
+            </label>
+            <label className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
+              <input
+                type="checkbox"
+                checked={formPixel.condicaoPagamentoAprovado}
+                onChange={(e) => setFormPixel({...formPixel, condicaoPagamentoAprovado: e.target.checked})}
+                className="w-4 h-4"
+              />
+              <span className="text-sm font-medium">Pagamentos aprovados</span>
+            </label>
+          </div>
+        </div>
+
+        <div className="flex gap-3 pt-4">
+          <button
+            type="button"
+            onClick={() => setModalPixel({ aberto: false, pixel: null })}
+            className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            className="flex-1 px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold hover:bg-yellow-600 transition"
+          >
+            {modalPixel.pixel ? 'Salvar Alterações' : 'Adicionar Pixel'}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
         </div>
       </main>
     </div>
