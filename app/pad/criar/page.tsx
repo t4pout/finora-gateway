@@ -51,7 +51,8 @@ function CriarPedidoPADForm() {
       const data = await response.json();
 
       if (response.ok) {
-        router.push(`/pad/pagar/${data.pedido.hash}`);
+        // Redirecionar para a página de aguardando aprovação
+        router.push(`/pad/aguardando/${data.pedido.hash}`);
       } else {
         setErro(data.error || 'Erro ao criar pedido');
       }
@@ -199,7 +200,7 @@ function CriarPedidoPADForm() {
               disabled={loading}
               className="w-full py-4 bg-green-600 text-white rounded-lg font-bold text-lg hover:bg-green-700 disabled:bg-gray-400 transition"
             >
-              {loading ? 'PROCESSANDO...' : 'CONTINUAR PARA PAGAMENTO'}
+              {loading ? 'PROCESSANDO...' : 'CONFIRMAR PEDIDO'}
             </button>
           </form>
         </div>
