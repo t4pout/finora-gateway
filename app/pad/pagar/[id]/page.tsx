@@ -4,6 +4,13 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Package, CreditCard, Smartphone, FileText, Lock } from 'lucide-react';
 
+// Declaração do MercadoPago
+declare global {
+  interface Window {
+    MercadoPago: any;
+  }
+}
+
 export default function CheckoutPagamentoPADPage() {
   const params = useParams();
   const router = useRouter();
@@ -14,6 +21,7 @@ export default function CheckoutPagamentoPADPage() {
   const [metodoPagamento, setMetodoPagamento] = useState('PIX');
   const [pixGerado, setPixGerado] = useState(false);
   const [pagamentoAprovado, setPagamentoAprovado] = useState(false);
+  const [mp, setMp] = useState<any>(null);
 
   // Dados do cartão
   const [dadosCartao, setDadosCartao] = useState({
@@ -26,6 +34,24 @@ export default function CheckoutPagamentoPADPage() {
 
   useEffect(() => {
     carregarPedido();
+  }, []);
+
+  useEffect(() => {
+    // Carregar SDK do Mercado Pago
+    const script = document.createElement('script');
+    script.src = 'https://sdk.mercadopago.com/js/v2';
+    script.async = true;
+    script.onload = () => {
+      const mercadopago = new window.MercadoPago('APP_USR-50f096ed-d7cf-4ade-999d-c1f4dfb6bf23');
+      setMp(mercadopago);
+    };
+    document.body.appendChild(script);
+
+    return () => {
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+    };
   }, []);
 
   const carregarPedido = async () => {
@@ -56,8 +82,14 @@ export default function CheckoutPagamentoPADPage() {
     setErro('');
 
     try {
-      // Validar cartão se for o método escolhido
+      // Gerar token do cartão via Mercado Pago SDK
       if (metodoPagamento === 'CARTAO') {
+        if (!mp) {
+          setErro('SDK do Mercado Pago ainda não carregado. Tente novamente.');
+          setProcessando(false);
+          return;
+        }
+
         if (!dadosCartao.numero || dadosCartao.numero.length < 13) {
           setErro('Número do cartão inválido');
           setProcessando(false);
@@ -75,6 +107,36 @@ export default function CheckoutPagamentoPADPage() {
         }
         if (!dadosCartao.cvv || dadosCartao.cvv.length < 3) {
           setErro('CVV inválido');
+          setProcessando(false);
+          return;
+        }
+
+        // Criar token do cartão
+        try {
+          const [mes, ano] = dadosCartao.validade.split('/');
+          
+          const cardToken = await mp.createCardToken({
+            cardNumber: dadosCartao.numero.replace(/\s/g, ''),
+            cardholderName: dadosCartao.nome,
+            cardExpirationMonth: mes,
+            cardExpirationYear: '20' + ano,
+            securityCode: dadosCartao.cvv,
+            identificationType: 'CPF',
+            identificationNumber: pedido.clienteCpfCnpj
+          });
+
+          if (cardToken.error) {
+            setErro('Erro ao processar cartão: ' + (cardToken.error.message || 'Dados inválidos'));
+            setProcessando(false);
+            return;
+          }
+
+          // Atualizar dadosCartao com o token
+          dadosCartao.token = cardToken.id;
+          dadosCartao.paymentMethodId = cardToken.payment_method_id;
+          
+        } catch (error: any) {
+          setErro('Erro ao validar cartão: ' + (error.message || 'Verifique os dados'));
           setProcessando(false);
           return;
         }
@@ -286,7 +348,7 @@ export default function CheckoutPagamentoPADPage() {
                   />
                   <input
                     type="text"
-                    placeholder="Nome no Titular do cartão"
+                    placeholder="Nome do Titular do cartão"
                     value={dadosCartao.nome}
                     onChange={(e) => setDadosCartao({...dadosCartao, nome: e.target.value})}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900"
