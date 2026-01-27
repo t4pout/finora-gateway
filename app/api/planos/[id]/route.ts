@@ -4,11 +4,10 @@ import jwt from 'jsonwebtoken';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const resolvedParams = await params;
-    const planoId = resolvedParams.id;
+    const { id: planoId } = await context.params;
 
     const plano = await prisma.plano.findUnique({
       where: { id: planoId },
@@ -37,7 +36,7 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const token = request.headers.get('authorization')?.replace('Bearer ', '');
@@ -45,10 +44,9 @@ export async function PATCH(
       return NextResponse.json({ error: 'Token não fornecido' }, { status: 401 });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
+    jwt.verify(token, process.env.JWT_SECRET!);
     
-    const resolvedParams = await params;
-    const planoId = resolvedParams.id;
+    const { id: planoId } = await context.params;
     const body = await request.json();
 
     const plano = await prisma.plano.update({
