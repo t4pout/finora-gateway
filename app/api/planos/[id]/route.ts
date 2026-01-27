@@ -22,13 +22,13 @@ export async function GET(
   try {
     console.log('🔍 Iniciando busca de plano...');
     console.log('📦 Prisma está definido?', !!prisma);
-    console.log('📦 Prisma.plano está definido?', !!prisma?.plano);
+    console.log('📦 Prisma.planoOferta está definido?', !!prisma?.planoOferta);
     
     const params = await context.params;
     const planoId = params.id;
     console.log('🔑 Plano ID:', planoId);
 
-    if (!prisma || !prisma.plano) {
+    if (!prisma || !prisma.planoOferta) {
       console.error('❌ Prisma ou prisma.plano está undefined!');
       return NextResponse.json(
         { error: 'Erro de configuração do banco de dados' },
@@ -36,7 +36,7 @@ export async function GET(
       );
     }
 
-    const plano = await prisma.plano.findUnique({
+    const plano = await prisma.planoOferta.findUnique({
       where: { id: planoId },
       include: {
         produto: true
@@ -78,7 +78,7 @@ export async function PATCH(
     const { id: planoId } = await context.params;
     const body = await request.json();
 
-    const plano = await prisma.plano.update({
+    const plano = await prisma.planoOferta.update({
       where: { id: planoId },
       data: body
     });
