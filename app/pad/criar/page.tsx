@@ -8,6 +8,7 @@ function CriarPedidoPADForm() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState('');
+  const [buscandoCep, setBuscandoCep] = useState(false);
 
   const planoId = searchParams.get('planoId');
   const produtoId = searchParams.get('produtoId');
@@ -27,6 +28,38 @@ function CriarPedidoPADForm() {
     estado: '',
     cep: ''
   });
+
+  const buscarCEP = async (cep: string) => {
+    // Remove caracteres não numéricos
+    const cepLimpo = cep.replace(/\D/g, '');
+    
+    // Verifica se tem 8 dígitos
+    if (cepLimpo.length !== 8) return;
+    
+    setBuscandoCep(true);
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+      const data = await response.json();
+      
+      if (!data.erro) {
+        setFormData({
+          ...formData,
+          cep: cepLimpo,
+          rua: data.logradouro || '',
+          bairro: data.bairro || '',
+          cidade: data.localidade || '',
+          estado: data.uf || ''
+        });
+      } else {
+        alert('CEP não encontrado');
+      }
+    } catch (error) {
+      console.error('Erro ao buscar CEP:', error);
+      alert('Erro ao buscar CEP. Tente novamente.');
+    } finally {
+      setBuscandoCep(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -132,14 +165,28 @@ function CriarPedidoPADForm() {
             <div>
               <h3 className="font-bold text-gray-900 mb-4">📍 Endereço de Entrega</h3>
               <div className="space-y-4">
-                <input
-                  type="text"
-                  placeholder="CEP *"
-                  value={formData.cep}
-                  onChange={(e) => setFormData({...formData, cep: e.target.value})}
-                  required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="CEP * (digite 8 números)"
+                    value={formData.cep}
+                    onChange={(e) => {
+                      const valor = e.target.value.replace(/\D/g, '');
+                      setFormData({...formData, cep: valor});
+                      if (valor.length === 8) {
+                        buscarCEP(valor);
+                      }
+                    }}
+                    maxLength={8}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none"
+                  />
+                  {buscandoCep && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-600"></div>
+                    </div>
+                  )}
+                </div>
                 <div className="grid md:grid-cols-3 gap-4">
                   <input
                     type="text"
