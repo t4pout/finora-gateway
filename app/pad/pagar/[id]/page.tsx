@@ -13,6 +13,7 @@ export default function CheckoutPagamentoPADPage() {
   const [erro, setErro] = useState('');
   const [metodoPagamento, setMetodoPagamento] = useState('PIX');
   const [pixGerado, setPixGerado] = useState(false);
+  const [pagamentoAprovado, setPagamentoAprovado] = useState(false);
 
   // Dados do cartão
   const [dadosCartao, setDadosCartao] = useState({
@@ -51,20 +52,83 @@ export default function CheckoutPagamentoPADPage() {
   };
 
   const finalizarPagamento = async () => {
-    setProcessando(true);
-    setErro('');
+  setProcessando(true);
+  setErro('');
 
-    try {
-      const response = await fetch(`/api/pad/${params.id}/processar-pagamento`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          metodoPagamento,
-          dadosCartao: metodoPagamento === 'CARTAO' ? dadosCartao : null
-        })
-      });
+  try {
+    // Validar cartão se for o método escolhido
+    if (metodoPagamento === 'CARTAO') {
+      if (!dadosCartao.numero || dadosCartao.numero.length < 13) {
+        setErro('Número do cartão inválido');
+        setProcessando(false);
+        return;
+      }
+      if (!dadosCartao.nome || dadosCartao.nome.length < 3) {
+        setErro('Nome do titular inválido');
+        setProcessando(false);
+        return;
+      }
+      if (!dadosCartao.validade || dadosCartao.validade.length < 5) {
+        setErro('Validade inválida (use MM/AA)');
+        setProcessando(false);
+        return;
+      }
+      if (!dadosCartao.cvv || dadosCartao.cvv.length < 3) {
+        setErro('CVV inválido');
+        setProcessando(false);
+        return;
+      }
+    }
+
+    const response = await fetch(`/api/pad/${params.id}/processar-pagamento`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        metodoPagamento,
+        dadosCartao: metodoPagamento === 'CARTAO' ? dadosCartao : null
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      setErro(data.error || 'Erro ao processar pagamento');
+      return;
+    }
+
+    // Sucesso!
+    if (metodoPagamento === 'PIX') {
+      // Atualizar pedido com dados do PIX e mostrar QR Code
+      setPixGerado(true);
+      setPedido({...pedido, ...data.pedido});
+    } else if (metodoPagamento === 'CARTAO') {
+      if (data.status === 'APROVADO') {
+        setPagamentoAprovado(true);
+        setTimeout(() => {
+          router.push(`/pad/confirmacao/${params.id}`);
+        }, 2000);
+      } else {
+        setErro('Pagamento não aprovado. Verifique os dados do cartão.');
+      }
+    } else if (metodoPagamento === 'BOLETO') {
+      if (data.boletoUrl) {
+        window.open(data.boletoUrl, '_blank');
+        setPagamentoAprovado(true);
+        setTimeout(() => {
+          router.push(`/pad/confirmacao/${params.id}`);
+        }, 2000);
+      }
+    }
+    
+  } catch (error) {
+    console.error('Erro:', error);
+    setErro('Erro ao processar pagamento');
+  } finally {
+    setProcessando(false);
+  }
+};
 
       const data = await response.json();
 
@@ -269,7 +333,13 @@ if (metodoPagamento === 'PIX') {
                       type="text"
                       placeholder="MM/AA"
                       value={dadosCartao.validade}
-                      onChange={(e) => setDadosCartao({...dadosCartao, validade: e.target.value})}
+onChange={(e) => {
+  let valor = e.target.value.replace(/\D/g, ''); // Remove não-numéricos
+  if (valor.length >= 2) {
+    valor = valor.slice(0, 2) + '/' + valor.slice(2, 4); // Adiciona /
+  }
+  setDadosCartao({...dadosCartao, validade: valor});
+}}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900"
                       maxLength={5}
                     />
@@ -344,8 +414,31 @@ if (metodoPagamento === 'PIX') {
   </div>
 )}
 
-              <button
-                onClick={finalizarPagamento}
+{/* Botão Já Paguei PIX */}
+{pixGerado && (
+  <button
+    onClick={() => {
+      setPagamentoAprovado(true);
+      setTimeout(() => {
+        router.push(`/pad/confirmacao/${params.id}`);
+      }, 1000);
+    }}
+    className="w-full mt-4 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700"
+  >
+    ✅ Já realizei o pagamento
+  </button>
+)}
+
+{/* Mensagem de sucesso */}
+{pagamentoAprovado && (
+  <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 text-center">
+    ✅ Pagamento processado! Redirecionando...
+  </div>
+)}
+
+<button
+  onClick={finalizarPagamento}
+  disabled={processando || pixGerado}
                 disabled={processando}
                 className="w-full mt-6 py-4 bg-green-600 text-white rounded-lg font-bold text-lg hover:bg-green-700 disabled:bg-gray-400 transition flex items-center justify-center space-x-2"
               >
