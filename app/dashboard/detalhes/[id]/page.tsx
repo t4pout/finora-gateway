@@ -892,17 +892,25 @@ console.log('🔍 Gênero selecionado:', configPlano.checkoutProvaSocialGenero);
                           </div>
                         </div>
 
-                        <div className="flex gap-2">
-                          <button onClick={() => setModalConfig({ aberto: true, planoId: plano.id })} className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm font-semibold">
-                            ⚙️ Configurar
-                          </button>
-                          <button onClick={() => setModalPlano({ aberto: true, plano })} className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
-                            <Edit size={16} />
-                          </button>
-                          <button onClick={() => handleExcluirPlano(plano.id)} className="px-4 py-2 border-2 border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition">
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
+                        <div className="space-y-2">
+  <div className="flex gap-2">
+    <button onClick={() => setModalConfig({ aberto: true, planoId: plano.id })} className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm font-semibold">
+      ⚙️ Configurar
+    </button>
+    <button onClick={() => setModalPlano({ aberto: true, plano })} className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+      <Edit size={16} />
+    </button>
+    <button onClick={() => handleExcluirPlano(plano.id)} className="px-4 py-2 border-2 border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition">
+      <Trash2 size={16} />
+    </button>
+  </div>
+  <button 
+    onClick={() => router.push(`/checkout/pad/${produtoId}`)} 
+    className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-semibold"
+  >
+    💳 Checkout PAD
+  </button>
+</div>
                       </div>
                     ))}
                   </div>
