@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function CriarPedidoPADPage() {
+function CriarPedidoPADForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
@@ -51,7 +51,6 @@ export default function CriarPedidoPADPage() {
       const data = await response.json();
 
       if (response.ok) {
-        // Redirecionar para a página de pagamento
         router.push(`/pad/pagar/${data.pedido.hash}`);
       } else {
         setErro(data.error || 'Erro ao criar pedido');
@@ -71,7 +70,6 @@ export default function CriarPedidoPADPage() {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Finalizar Pedido</h1>
           <p className="text-gray-600 mb-6">Preencha seus dados para continuar</p>
 
-          {/* Resumo do Plano */}
           <div className="mb-6 p-4 bg-purple-50 border border-purple-200 rounded-lg">
             <div className="flex justify-between items-center">
               <div>
@@ -91,7 +89,6 @@ export default function CriarPedidoPADPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Dados Pessoais */}
             <div>
               <h3 className="font-bold text-gray-900 mb-4">📋 Dados Pessoais</h3>
               <div className="space-y-4">
@@ -131,7 +128,6 @@ export default function CriarPedidoPADPage() {
               </div>
             </div>
 
-            {/* Endereço */}
             <div>
               <h3 className="font-bold text-gray-900 mb-4">📍 Endereço de Entrega</h3>
               <div className="space-y-4">
@@ -209,5 +205,17 @@ export default function CriarPedidoPADPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CriarPedidoPADPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-purple-600 text-xl">Carregando...</div>
+      </div>
+    }>
+      <CriarPedidoPADForm />
+    </Suspense>
   );
 }
