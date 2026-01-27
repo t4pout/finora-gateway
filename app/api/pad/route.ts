@@ -110,7 +110,7 @@ try {
   const { dispararPixelsProduto } = await import('@/lib/pixels');
   await dispararPixelsProduto(
     produtoId,
-    'PAD',
+    'COMPRA',
     'PAD',
     {
       email: clienteEmail || undefined,
