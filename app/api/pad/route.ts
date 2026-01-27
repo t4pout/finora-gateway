@@ -81,39 +81,62 @@ export async function POST(request: NextRequest) {
     }
 
     // Criar pedido PAD
-    const pedido = await prisma.pedidoPAD.create({
-      data: {
-        hash,
-        clienteNome,
-        clienteCpfCnpj,
-        clienteTelefone,
-        clienteEmail: clienteEmail || null,
-        cep,
-        rua,
-        numero,
-        complemento: complemento || null,
-        bairro,
-        cidade,
-        estado,
-        produtoId,
-        produtoNome,
-        produtoImagem: produto.imagem || null,
-        valor,
-        quantidade,
-        status: 'EM_ANALISE',
-        vendedorId: produto.userId
-      }
-    });
+const pedido = await prisma.pedidoPAD.create({
+  data: {
+    hash,
+    clienteNome,
+    clienteCpfCnpj,
+    clienteTelefone,
+    clienteEmail: clienteEmail || null,
+    cep,
+    rua,
+    numero,
+    complemento: complemento || null,
+    bairro,
+    cidade,
+    estado,
+    produtoId,
+    produtoNome,
+    produtoImagem: produto.imagem || null,
+    valor,
+    quantidade,
+    status: 'EM_ANALISE',
+    vendedorId: produto.userId
+  }
+});
 
-    return NextResponse.json({
-      success: true,
-      pedido: {
-        id: pedido.id,
-        hash: pedido.hash,
-        status: pedido.status,
-        valor: pedido.valor
-      }
-    });
+// Disparar pixels de conversão (PAD criado)
+try {
+  const { dispararPixelsProduto } = await import('@/lib/pixels');
+  await dispararPixelsProduto(
+    produtoId,
+    'PAD',
+    'PAD',
+    {
+      email: clienteEmail || undefined,
+      telefone: clienteTelefone,
+      nome: clienteNome,
+      cidade,
+      estado,
+      cep,
+      valor,
+      produtoNome
+    }
+  );
+} catch (error) {
+  console.error('Erro ao disparar pixels:', error);
+  // Não falhar a criação do pedido se o pixel falhar
+}
+
+return NextResponse.json({
+  success: true,
+  pedido: {
+    id: pedido.id,
+    hash: pedido.hash,
+    status: pedido.status,
+    valor: pedido.valor
+  }
+});
 
   } catch (error: any) {
     console.error('Erro ao criar pedido PAD:', error);
