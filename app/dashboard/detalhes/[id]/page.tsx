@@ -117,16 +117,21 @@ const [formPixel, setFormPixel] = useState({
   const [modalConfig, setModalConfig] = useState<{ aberto: boolean; planoId: string | null }>({ aberto: false, planoId: null });
   const carregarPixels = async () => {
   try {
+    console.log('🔍 Carregando pixels para produto:', produtoId);
     const token = localStorage.getItem('token');
     const response = await fetch(`/api/pixels?produtoId=${produtoId}`, {
       headers: { 'Authorization': 'Bearer ' + token }
     });
+    console.log('📡 Response status:', response.status);
     if (response.ok) {
       const data = await response.json();
+      console.log('📦 Pixels recebidos:', data);
       setPixels(data.pixels || []);
+    } else {
+      console.error('❌ Erro na resposta:', await response.text());
     }
   } catch (error) {
-    console.error('Erro ao carregar pixels:', error);
+    console.error('❌ Erro ao carregar pixels:', error);
   }
 };
   const [configPlano, setConfigPlano] = useState({
