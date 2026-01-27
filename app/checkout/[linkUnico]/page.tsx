@@ -209,6 +209,32 @@ const finalizarPedido = async () => {
       
       if (res.ok) {
         const data = await res.json();
+        
+        // Disparar pixels de conversão
+        try {
+          const { dispararPixelsProduto } = await import('@/lib/pixels');
+          
+          // Disparar evento de checkout
+          await dispararPixelsProduto(
+            produto.id,
+            'CHECKOUT',
+            formData.metodoPagamento === 'PIX' ? 'PIX' : 
+            formData.metodoPagamento === 'BOLETO' ? 'BOLETO' : 'PIX',
+            {
+              email: formData.email,
+              telefone: formData.telefone,
+              nome: formData.nome,
+              cidade: formData.cidade,
+              estado: formData.estado,
+              cep: formData.cep,
+              valor: plano.preco,
+              produtoNome: plano.nome
+            }
+          );
+        } catch (pixelError) {
+          console.error('Erro ao disparar pixels:', pixelError);
+        }
+        
         router.push(`/pedido/${data.vendaId}`);
       } else {
         const error = await res.json();
@@ -219,7 +245,6 @@ const finalizarPedido = async () => {
       alert('❌ Erro ao processar pagamento');
     }
   };
-
   const formatarTempo = (segundos: number) => {
     const mins = Math.floor(segundos / 60);
     const secs = segundos % 60;
