@@ -4,9 +4,10 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
-  ArrowLeft, Package, CheckCircle, XCircle, Clock, Eye, 
+  ArrowLeft, Package, CheckCircle, XCircle, Eye, 
   MessageCircle, MoreVertical, CreditCard, LogOut, Home,
-  DollarSign, Users, ShoppingBag, Wallet, BarChart3, Shield
+  DollarSign, Users, ShoppingBag, Wallet, BarChart3, Shield,
+  Calendar, ChevronDown
 } from 'lucide-react';
 
 interface PedidoPAD {
@@ -31,6 +32,16 @@ interface PedidoPAD {
   motivo: string;
   createdAt: string;
   vendaId: string;
+  codigoRastreio: string;
+}
+
+interface Stats {
+  total: { count: number; valor: number };
+  emAnalise: { count: number; valor: number };
+  aprovados: { count: number; valor: number };
+  enviados: { count: number; valor: number };
+  pagos: { count: number; valor: number };
+  cancelados: { count: number; valor: number };
 }
 
 export default function DashboardPADPage() {
@@ -45,14 +56,17 @@ export default function DashboardPADPage() {
     pedido: null
   });
   const [menuAberto, setMenuAberto] = useState<string | null>(null);
-
-  const stats = {
-    total: pedidos.length,
-    emAnalise: pedidos.filter(p => p.status === 'EM_ANALISE').length,
-    aprovados: pedidos.filter(p => p.status === 'APROVADO').length,
-    pagos: pedidos.filter(p => p.vendaId).length,
-    cancelados: pedidos.filter(p => p.status === 'CANCELADO').length
-  };
+  const [dataInicio, setDataInicio] = useState('');
+  const [dataFim, setDataFim] = useState('');
+  const [mostrarCalendario, setMostrarCalendario] = useState(false);
+  const [stats, setStats] = useState<Stats>({
+    total: { count: 0, valor: 0 },
+    emAnalise: { count: 0, valor: 0 },
+    aprovados: { count: 0, valor: 0 },
+    enviados: { count: 0, valor: 0 },
+    pagos: { count: 0, valor: 0 },
+    cancelados: { count: 0, valor: 0 }
+  });
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -64,19 +78,62 @@ export default function DashboardPADPage() {
     }
 
     setUser(JSON.parse(userData));
-    carregarPedidos();
+    
+    // Definir data padrão (hoje)
+    const hoje = new Date().toISOString().split('T')[0];
+    setDataInicio(hoje);
+    setDataFim(hoje);
+    
+    setLoading(false);
   }, []);
+
+  useEffect(() => {
+    if (dataInicio && dataFim) {
+      carregarPedidos();
+    }
+  }, [dataInicio, dataFim]);
 
   const carregarPedidos = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/pad/listar', {
+      const response = await fetch(`/api/pad/listar?dataInicio=${dataInicio}&dataFim=${dataFim}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
       if (response.ok) {
         const data = await response.json();
-        setPedidos(data.pedidos || []);
+        const pedidosData = data.pedidos || [];
+        setPedidos(pedidosData);
+        
+        // Calcular estatísticas
+        const statsCalculadas: Stats = {
+          total: {
+            count: pedidosData.length,
+            valor: pedidosData.reduce((sum: number, p: PedidoPAD) => sum + p.valor, 0)
+          },
+          emAnalise: {
+            count: pedidosData.filter((p: PedidoPAD) => p.status === 'EM_ANALISE').length,
+            valor: pedidosData.filter((p: PedidoPAD) => p.status === 'EM_ANALISE').reduce((sum: number, p: PedidoPAD) => sum + p.valor, 0)
+          },
+          aprovados: {
+            count: pedidosData.filter((p: PedidoPAD) => p.status === 'APROVADO' && !p.vendaId).length,
+            valor: pedidosData.filter((p: PedidoPAD) => p.status === 'APROVADO' && !p.vendaId).reduce((sum: number, p: PedidoPAD) => sum + p.valor, 0)
+          },
+          enviados: {
+            count: pedidosData.filter((p: PedidoPAD) => p.codigoRastreio).length,
+            valor: pedidosData.filter((p: PedidoPAD) => p.codigoRastreio).reduce((sum: number, p: PedidoPAD) => sum + p.valor, 0)
+          },
+          pagos: {
+            count: pedidosData.filter((p: PedidoPAD) => p.vendaId).length,
+            valor: pedidosData.filter((p: PedidoPAD) => p.vendaId).reduce((sum: number, p: PedidoPAD) => sum + p.valor, 0)
+          },
+          cancelados: {
+            count: pedidosData.filter((p: PedidoPAD) => p.status === 'CANCELADO').length,
+            valor: pedidosData.filter((p: PedidoPAD) => p.status === 'CANCELADO').reduce((sum: number, p: PedidoPAD) => sum + p.valor, 0)
+          }
+        };
+        
+        setStats(statsCalculadas);
       }
     } catch (error) {
       console.error('Erro ao carregar pedidos:', error);
@@ -141,6 +198,12 @@ export default function DashboardPADPage() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     router.push('/');
+  };
+
+  const formatarData = (data: string) => {
+    if (!data) return '';
+    const [ano, mes, dia] = data.split('-');
+    return `${dia}/${mes}/${ano}`;
   };
 
   const pedidosFiltrados = pedidos.filter(p => {
@@ -246,34 +309,103 @@ export default function DashboardPADPage() {
               <h1 className="text-2xl font-bold text-gray-900">📦 Pedidos PAD</h1>
               <p className="text-gray-600">Pagamento Após Entrega</p>
             </div>
+
+            {/* FILTRO DE DATA */}
+            <div className="relative">
+              <button
+                onClick={() => setMostrarCalendario(!mostrarCalendario)}
+                className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+              >
+                <Calendar size={20} className="text-gray-600" />
+                <span className="text-sm font-medium text-gray-700">
+                  {dataInicio === dataFim 
+                    ? formatarData(dataInicio)
+                    : `${formatarData(dataInicio)} - ${formatarData(dataFim)}`
+                  }
+                </span>
+                <ChevronDown size={16} className="text-gray-600" />
+              </button>
+
+              {mostrarCalendario && (
+                <div className="absolute right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 p-4 z-10 w-80">
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Data Início</label>
+                      <input
+                        type="date"
+                        value={dataInicio}
+                        onChange={(e) => setDataInicio(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Data Fim</label>
+                      <input
+                        type="date"
+                        value={dataFim}
+                        onChange={(e) => setDataFim(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
+                    </div>
+                    <button
+                      onClick={() => setMostrarCalendario(false)}
+                      className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition"
+                    >
+                      Aplicar
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 
-        {/* STATS */}
         <div className="p-8">
+          {/* STATS */}
           <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
             <div className="bg-white rounded-xl border border-gray-200 p-4">
+              <div className="text-2xl font-bold text-gray-900 mb-1">
+                R$ {stats.total.valor.toFixed(2).replace('.', ',')}
+              </div>
               <div className="text-sm text-gray-600">Total</div>
-              <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
+              <div className="text-xs text-gray-500 mt-1">{stats.total.count} unidades</div>
             </div>
             <div className="bg-yellow-50 rounded-xl border border-yellow-200 p-4">
+              <div className="text-2xl font-bold text-yellow-900 mb-1">
+                R$ {stats.emAnalise.valor.toFixed(2).replace('.', ',')}
+              </div>
               <div className="text-sm text-yellow-600">Em Análise</div>
-              <div className="text-2xl font-bold text-yellow-900">{stats.emAnalise}</div>
+              <div className="text-xs text-yellow-700 mt-1">{stats.emAnalise.count} unidades</div>
             </div>
             <div className="bg-green-50 rounded-xl border border-green-200 p-4">
+              <div className="text-2xl font-bold text-green-900 mb-1">
+                R$ {stats.aprovados.valor.toFixed(2).replace('.', ',')}
+              </div>
               <div className="text-sm text-green-600">Aprovados</div>
-              <div className="text-2xl font-bold text-green-900">{stats.aprovados}</div>
+              <div className="text-xs text-green-700 mt-1">{stats.aprovados.count} unidades</div>
             </div>
             <div className="bg-blue-50 rounded-xl border border-blue-200 p-4">
-              <div className="text-sm text-blue-600">Pagos</div>
-              <div className="text-2xl font-bold text-blue-900">{stats.pagos}</div>
+              <div className="text-2xl font-bold text-blue-900 mb-1">
+                R$ {stats.enviados.valor.toFixed(2).replace('.', ',')}
+              </div>
+              <div className="text-sm text-blue-600">Enviados</div>
+              <div className="text-xs text-blue-700 mt-1">{stats.enviados.count} unidades</div>
+            </div>
+            <div className="bg-purple-50 rounded-xl border border-purple-200 p-4">
+              <div className="text-2xl font-bold text-purple-900 mb-1">
+                R$ {stats.pagos.valor.toFixed(2).replace('.', ',')}
+              </div>
+              <div className="text-sm text-purple-600">Pagos</div>
+              <div className="text-xs text-purple-700 mt-1">{stats.pagos.count} unidades</div>
             </div>
             <div className="bg-red-50 rounded-xl border border-red-200 p-4">
+              <div className="text-2xl font-bold text-red-900 mb-1">
+                R$ {stats.cancelados.valor.toFixed(2).replace('.', ',')}
+              </div>
               <div className="text-sm text-red-600">Cancelados</div>
-              <div className="text-2xl font-bold text-red-900">{stats.cancelados}</div>
+              <div className="text-xs text-red-700 mt-1">{stats.cancelados.count} unidades</div>
             </div>
           </div>
-
           {/* FILTROS */}
           <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6">
             <div className="grid md:grid-cols-3 gap-4">
@@ -296,6 +428,7 @@ export default function DashboardPADPage() {
               </select>
             </div>
           </div>
+
           {/* TABELA */}
           <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
             <div className="overflow-x-auto">
@@ -355,7 +488,6 @@ export default function DashboardPADPage() {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center space-x-2">
-                            {/* VER DETALHES */}
                             <button
                               onClick={() => setModalDetalhes({ aberto: true, pedido })}
                               className="p-2 hover:bg-gray-100 rounded-lg transition"
@@ -364,7 +496,6 @@ export default function DashboardPADPage() {
                               <Eye size={18} className="text-gray-600" />
                             </button>
 
-                            {/* WHATSAPP */}
                             <button
                               onClick={() => abrirWhatsApp(pedido.clienteTelefone, pedido.clienteNome, pedido.produtoNome, pedido.valor)}
                               className="p-2 hover:bg-green-50 rounded-lg transition"
@@ -373,7 +504,6 @@ export default function DashboardPADPage() {
                               <MessageCircle size={18} className="text-green-600" />
                             </button>
 
-                            {/* MENU 3 PONTOS */}
                             <div className="relative">
                               <button
                                 onClick={() => setMenuAberto(menuAberto === pedido.id ? null : pedido.id)}
@@ -455,7 +585,6 @@ export default function DashboardPADPage() {
 
             <div className="p-6">
               <div className="grid md:grid-cols-2 gap-6">
-                {/* INFORMAÇÕES DA TRANSAÇÃO */}
                 <div className="bg-gray-50 rounded-xl p-6">
                   <h4 className="font-bold text-gray-900 mb-4">Informações da Transação</h4>
                   <div className="space-y-3">
@@ -486,7 +615,6 @@ export default function DashboardPADPage() {
                   </div>
                 </div>
 
-                {/* INFORMAÇÕES DO CLIENTE */}
                 <div className="bg-gray-50 rounded-xl p-6">
                   <h4 className="font-bold text-gray-900 mb-4">Informações do Cliente</h4>
                   <div className="space-y-3">
@@ -509,7 +637,6 @@ export default function DashboardPADPage() {
                   </div>
                 </div>
 
-                {/* ENDEREÇO DE ENTREGA */}
                 <div className="bg-gray-50 rounded-xl p-6">
                   <h4 className="font-bold text-gray-900 mb-4">Endereço de Entrega</h4>
                   <div className="space-y-2 text-sm">
@@ -531,7 +658,6 @@ export default function DashboardPADPage() {
                   </div>
                 </div>
 
-                {/* INFORMAÇÕES DO PRODUTO */}
                 <div className="bg-gray-50 rounded-xl p-6">
                   <h4 className="font-bold text-gray-900 mb-4">Informações do Produto</h4>
                   <div className="space-y-3">
@@ -547,7 +673,6 @@ export default function DashboardPADPage() {
                 </div>
               </div>
 
-              {/* AÇÕES */}
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <div className="flex flex-wrap gap-3">
                   <button

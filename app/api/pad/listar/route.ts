@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 
@@ -24,10 +24,30 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
+    const searchParams = request.nextUrl.searchParams;
+    const dataInicio = searchParams.get('dataInicio');
+    const dataFim = searchParams.get('dataFim');
+
+    // Montar filtro de data
+    const filtroData: any = {};
+    if (dataInicio && dataFim) {
+      const inicio = new Date(dataInicio);
+      inicio.setHours(0, 0, 0, 0);
+      
+      const fim = new Date(dataFim);
+      fim.setHours(23, 59, 59, 999);
+
+      filtroData.createdAt = {
+        gte: inicio,
+        lte: fim
+      };
+    }
+
     // Buscar pedidos do vendedor
     const pedidos = await prisma.pedidoPAD.findMany({
       where: {
-        vendedorId: userId
+        vendedorId: userId,
+        ...filtroData
       },
       orderBy: {
         createdAt: 'desc'
@@ -35,7 +55,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json({ pedidos });
-
+   
   } catch (error) {
     console.error('Erro ao listar pedidos PAD:', error);
     return NextResponse.json(
