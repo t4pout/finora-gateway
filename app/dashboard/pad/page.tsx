@@ -1,34 +1,63 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Package, CheckCircle, XCircle, Clock, Truck, Search, Filter, Calendar } from 'lucide-react';
+import { 
+  ArrowLeft, Package, CheckCircle, XCircle, Clock, Eye, 
+  MessageCircle, MoreVertical, CreditCard, LogOut, Home,
+  DollarSign, Users, ShoppingBag, Wallet, BarChart3, Shield
+} from 'lucide-react';
+
+interface PedidoPAD {
+  id: string;
+  hash: string;
+  clienteNome: string;
+  clienteCpfCnpj: string;
+  clienteTelefone: string;
+  clienteEmail: string;
+  cep: string;
+  rua: string;
+  numero: string;
+  complemento: string;
+  bairro: string;
+  cidade: string;
+  estado: string;
+  produtoNome: string;
+  produtoImagem: string;
+  valor: number;
+  quantidade: number;
+  status: 'EM_ANALISE' | 'APROVADO' | 'CANCELADO';
+  motivo: string;
+  createdAt: string;
+  vendaId: string;
+}
 
 export default function DashboardPADPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [pedidos, setPedidos] = useState<any[]>([]);
+  const [pedidos, setPedidos] = useState<PedidoPAD[]>([]);
   const [filtroStatus, setFiltroStatus] = useState('TODOS');
   const [busca, setBusca] = useState('');
-  const [dataSelecionada, setDataSelecionada] = useState('');
   const [user, setUser] = useState<any>(null);
-
-  // Estatísticas
-  const [stats, setStats] = useState({
-    total: 0,
-    emAnalise: 0,
-    aprovados: 0,
-    enviados: 0,
-    pagos: 0,
-    cancelados: 0,
-    valorTotal: 0
+  const [modalDetalhes, setModalDetalhes] = useState<{aberto: boolean; pedido: PedidoPAD | null}>({
+    aberto: false,
+    pedido: null
   });
+  const [menuAberto, setMenuAberto] = useState<string | null>(null);
+
+  const stats = {
+    total: pedidos.length,
+    emAnalise: pedidos.filter(p => p.status === 'EM_ANALISE').length,
+    aprovados: pedidos.filter(p => p.status === 'APROVADO').length,
+    pagos: pedidos.filter(p => p.vendaId).length,
+    cancelados: pedidos.filter(p => p.status === 'CANCELADO').length
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
-    
+
     if (!token || !userData) {
       router.push('/auth/login');
       return;
@@ -48,315 +77,529 @@ export default function DashboardPADPage() {
       if (response.ok) {
         const data = await response.json();
         setPedidos(data.pedidos || []);
-        calcularStats(data.pedidos || []);
       }
     } catch (error) {
       console.error('Erro ao carregar pedidos:', error);
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
-  const calcularStats = (pedidosData: any[]) => {
-    const stats = {
-      total: pedidosData.length,
-      emAnalise: pedidosData.filter(p => p.status === 'EM_ANALISE').length,
-      aprovados: pedidosData.filter(p => p.status === 'APROVADO').length,
-      enviados: pedidosData.filter(p => p.status === 'ENVIADO').length,
-      pagos: pedidosData.filter(p => p.status === 'PAGO').length,
-      cancelados: pedidosData.filter(p => p.status === 'CANCELADO').length,
-      valorTotal: pedidosData
-        .filter(p => p.status === 'PAGO')
-        .reduce((acc, p) => acc + p.valor, 0)
-    };
-    setStats(stats);
-  };
-
-  const aprovarPedido = async (id: string) => {
-    if (!confirm('Deseja aprovar este pedido?')) return;
-
+  const aprovarPedido = async (hash: string) => {
+    if (!confirm('Aprovar este pedido?')) return;
+    
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/pad/${id}/aprovar`, {
-        method: 'PATCH',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (response.ok) {
-        alert('✅ Pedido aprovado!');
-        carregarPedidos();
-      } else {
-        alert('❌ Erro ao aprovar pedido');
-      }
-    } catch (error) {
-      alert('❌ Erro ao conectar');
-    }
-  };
-
-  const cancelarPedido = async (id: string) => {
-    const motivo = prompt('Motivo do cancelamento:');
-    if (!motivo) return;
-
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`/api/pad/${id}/cancelar`, {
-        method: 'PATCH',
+      await fetch('/api/pad/aprovar', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ motivo })
+        body: JSON.stringify({ hash })
       });
-
-      if (response.ok) {
-        alert('✅ Pedido cancelado!');
-        carregarPedidos();
-      } else {
-        alert('❌ Erro ao cancelar pedido');
-      }
+      alert('✅ Pedido aprovado!');
+      carregarPedidos();
     } catch (error) {
-      alert('❌ Erro ao conectar');
+      alert('❌ Erro ao aprovar');
     }
   };
 
-  const pedidosFiltrados = pedidos
-    .filter(p => filtroStatus === 'TODOS' || p.status === filtroStatus)
-    .filter(p => {
-      if (!busca) return true;
-      const searchLower = busca.toLowerCase();
-      return (
-        p.clienteNome.toLowerCase().includes(searchLower) ||
-        p.clienteCpfCnpj.includes(busca) ||
-        p.hash.toLowerCase().includes(searchLower)
-      );
-    })
-    .filter(p => {
-      if (!dataSelecionada) return true;
-      const pedidoData = new Date(p.createdAt).toISOString().split('T')[0];
-      return pedidoData === dataSelecionada;
-    });
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'EM_ANALISE': return 'bg-yellow-100 text-yellow-800';
-      case 'APROVADO': return 'bg-green-100 text-green-800';
-      case 'ENVIADO': return 'bg-blue-100 text-blue-800';
-      case 'PAGO': return 'bg-purple-100 text-purple-800';
-      case 'CANCELADO': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+  const cancelarPedido = async (hash: string) => {
+    const motivo = prompt('Motivo do cancelamento:');
+    if (!motivo) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      await fetch('/api/pad/cancelar', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ hash, motivo })
+      });
+      alert('✅ Pedido cancelado!');
+      carregarPedidos();
+    } catch (error) {
+      alert('❌ Erro ao cancelar');
     }
   };
 
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'EM_ANALISE': return 'Em análise';
-      case 'APROVADO': return 'Aprovado';
-      case 'ENVIADO': return 'Enviado';
-      case 'PAGO': return 'Pago';
-      case 'CANCELADO': return 'Cancelado';
-      default: return status;
-    }
+  const abrirWhatsApp = (telefone: string, nome: string, produto: string, valor: number) => {
+    const tel = telefone.replace(/\D/g, '');
+    const mensagem = `Olá ${nome}! Sobre seu pedido de ${produto} no valor de R$ ${valor.toFixed(2)}...`;
+    window.open(`https://wa.me/55${tel}?text=${encodeURIComponent(mensagem)}`, '_blank');
   };
 
+  const copiarLinkPagamento = (hash: string) => {
+    const link = `${window.location.origin}/pad/pagar/${hash}`;
+    navigator.clipboard.writeText(link);
+    alert('✅ Link copiado!');
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    router.push('/');
+  };
+
+  const pedidosFiltrados = pedidos.filter(p => {
+    const matchStatus = filtroStatus === 'TODOS' || p.status === filtroStatus;
+    const matchBusca = !busca || 
+      p.clienteNome.toLowerCase().includes(busca.toLowerCase()) ||
+      p.clienteCpfCnpj.includes(busca) ||
+      p.hash.includes(busca);
+    return matchStatus && matchBusca;
+  });
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-purple-600 text-xl">Carregando...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-6 py-4">
+    <div className="flex h-screen bg-gray-50">
+      {/* SIDEBAR */}
+      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-purple-500 rounded-xl"></div>
+            <div>
+              <div className="text-xl font-bold text-gray-900">Finora</div>
+              <div className="text-xs text-gray-500">Pagamentos que fluem</div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="p-4 border-b border-gray-200">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+              <span className="text-purple-600 font-bold text-lg">{user?.nome?.charAt(0).toUpperCase()}</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-semibold text-gray-900 truncate">{user?.nome}</div>
+            </div>
+          </div>
+        </div>
+
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+          <Link href="/dashboard">
+            <div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition">
+              <Home size={20} />
+              <span>Página Inicial</span>
+            </div>
+          </Link>
+          <Link href="/dashboard/produtos">
+            <div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition">
+              <Package size={20} />
+              <span>Produtos</span>
+            </div>
+          </Link>
+          <Link href="/dashboard/vendas">
+            <div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition">
+              <DollarSign size={20} />
+              <span>Vendas</span>
+            </div>
+          </Link>
+          <Link href="/dashboard/pad">
+            <div className="flex items-center space-x-3 px-4 py-3 rounded-lg bg-purple-50 text-purple-600 font-semibold">
+              <Package size={20} />
+              <span>Pedidos PAD</span>
+            </div>
+          </Link>
+          <Link href="/dashboard/carteira">
+            <div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition">
+              <Wallet size={20} />
+              <span>Carteira</span>
+            </div>
+          </Link>
+          <div className="border-t border-gray-200 my-4"></div>
+          <button onClick={handleLogout} className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-red-50 text-red-600 font-medium transition">
+            <LogOut size={20} />
+            <span>Sair</span>
+          </button>
+        </nav>
+
+        {user?.role === 'ADMIN' && (
+          <div className="p-4 border-t border-gray-200">
+            <Link href="/dashboard/admin">
+              <div className="flex items-center justify-center space-x-2 px-4 py-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition">
+                <Shield size={20} />
+                <span>Administrativo</span>
+              </div>
+            </Link>
+          </div>
+        )}
+
+        <div className="p-4 border-t border-gray-200">
+          <div className="text-xs text-gray-500 text-center">© 2026 Finora</div>
+        </div>
+      </aside>
+
+      {/* MAIN CONTENT */}
+      <main className="flex-1 overflow-y-auto">
+        <header className="bg-white border-b border-gray-200 px-8 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Link href="/dashboard">
-                <button className="p-2 hover:bg-gray-100 rounded-lg">
-                  <ArrowLeft size={20} />
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">📦 Pedidos PAD</h1>
+              <p className="text-gray-600">Pagamento Após Entrega</p>
+            </div>
+          </div>
+        </header>
+
+        {/* STATS */}
+        <div className="p-8">
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
+            <div className="bg-white rounded-xl border border-gray-200 p-4">
+              <div className="text-sm text-gray-600">Total</div>
+              <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
+            </div>
+            <div className="bg-yellow-50 rounded-xl border border-yellow-200 p-4">
+              <div className="text-sm text-yellow-600">Em Análise</div>
+              <div className="text-2xl font-bold text-yellow-900">{stats.emAnalise}</div>
+            </div>
+            <div className="bg-green-50 rounded-xl border border-green-200 p-4">
+              <div className="text-sm text-green-600">Aprovados</div>
+              <div className="text-2xl font-bold text-green-900">{stats.aprovados}</div>
+            </div>
+            <div className="bg-blue-50 rounded-xl border border-blue-200 p-4">
+              <div className="text-sm text-blue-600">Pagos</div>
+              <div className="text-2xl font-bold text-blue-900">{stats.pagos}</div>
+            </div>
+            <div className="bg-red-50 rounded-xl border border-red-200 p-4">
+              <div className="text-sm text-red-600">Cancelados</div>
+              <div className="text-2xl font-bold text-red-900">{stats.cancelados}</div>
+            </div>
+          </div>
+
+          {/* FILTROS */}
+          <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6">
+            <div className="grid md:grid-cols-3 gap-4">
+              <input
+                type="text"
+                placeholder="🔍 Buscar por nome, CPF ou hash..."
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg"
+              />
+              <select
+                value={filtroStatus}
+                onChange={(e) => setFiltroStatus(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg"
+              >
+                <option value="TODOS">Todos os Status</option>
+                <option value="EM_ANALISE">Em Análise</option>
+                <option value="APROVADO">Aprovados</option>
+                <option value="CANCELADO">Cancelados</option>
+              </select>
+            </div>
+          </div>
+          {/* TABELA */}
+          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Hash</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Cliente</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Produto</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Valor</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Data</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Ações</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {pedidosFiltrados.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="px-6 py-12 text-center">
+                        <Package size={48} className="mx-auto text-gray-300 mb-3" />
+                        <p className="text-gray-600">Nenhum pedido encontrado</p>
+                      </td>
+                    </tr>
+                  ) : (
+                    pedidosFiltrados.map((pedido) => (
+                      <tr key={pedido.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4">
+                          <code className="text-xs bg-gray-100 px-2 py-1 rounded">{pedido.hash}</code>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="font-medium text-gray-900">{pedido.clienteNome}</div>
+                          <div className="text-xs text-gray-500">{pedido.clienteCpfCnpj}</div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center space-x-2">
+                            {pedido.produtoImagem && (
+                              <img src={pedido.produtoImagem} alt="" className="w-8 h-8 rounded object-cover" />
+                            )}
+                            <span className="text-sm">{pedido.produtoNome}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="font-semibold text-gray-900">R$ {pedido.valor.toFixed(2)}</div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            pedido.status === 'EM_ANALISE' ? 'bg-yellow-100 text-yellow-700' :
+                            pedido.status === 'APROVADO' ? 'bg-green-100 text-green-700' :
+                            'bg-red-100 text-red-700'
+                          }`}>
+                            {pedido.status === 'EM_ANALISE' ? 'Em análise' : 
+                             pedido.status === 'APROVADO' ? 'Aprovado' : 'Cancelado'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-600">
+                          {new Date(pedido.createdAt).toLocaleDateString('pt-BR')}
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center space-x-2">
+                            {/* VER DETALHES */}
+                            <button
+                              onClick={() => setModalDetalhes({ aberto: true, pedido })}
+                              className="p-2 hover:bg-gray-100 rounded-lg transition"
+                              title="Ver detalhes"
+                            >
+                              <Eye size={18} className="text-gray-600" />
+                            </button>
+
+                            {/* WHATSAPP */}
+                            <button
+                              onClick={() => abrirWhatsApp(pedido.clienteTelefone, pedido.clienteNome, pedido.produtoNome, pedido.valor)}
+                              className="p-2 hover:bg-green-50 rounded-lg transition"
+                              title="WhatsApp"
+                            >
+                              <MessageCircle size={18} className="text-green-600" />
+                            </button>
+
+                            {/* MENU 3 PONTOS */}
+                            <div className="relative">
+                              <button
+                                onClick={() => setMenuAberto(menuAberto === pedido.id ? null : pedido.id)}
+                                className="p-2 hover:bg-gray-100 rounded-lg transition"
+                              >
+                                <MoreVertical size={18} className="text-gray-600" />
+                              </button>
+
+                              {menuAberto === pedido.id && (
+                                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 z-10">
+                                  <button
+                                    onClick={() => {
+                                      copiarLinkPagamento(pedido.hash);
+                                      setMenuAberto(null);
+                                    }}
+                                    className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-2 border-b"
+                                  >
+                                    <CreditCard size={16} />
+                                    <span className="text-sm">Acessar Link de Pagamento</span>
+                                  </button>
+                                  
+                                  {pedido.status === 'EM_ANALISE' && (
+                                    <>
+                                      <button
+                                        onClick={() => {
+                                          aprovarPedido(pedido.hash);
+                                          setMenuAberto(null);
+                                        }}
+                                        className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-2 text-green-600 border-b"
+                                      >
+                                        <CheckCircle size={16} />
+                                        <span className="text-sm">Aprovar</span>
+                                      </button>
+                                      <button
+                                        onClick={() => {
+                                          cancelarPedido(pedido.hash);
+                                          setMenuAberto(null);
+                                        }}
+                                        className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-2 text-red-600"
+                                      >
+                                        <XCircle size={16} />
+                                        <span className="text-sm">Cancelar</span>
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+      {/* MODAL DETALHES */}
+      {modalDetalhes.aberto && modalDetalhes.pedido && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={() => setModalDetalhes({ aberto: false, pedido: null })}
+        >
+          <div 
+            className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+              <h3 className="text-xl font-bold text-gray-900">📦 Detalhes da Transação PAD</h3>
+              <button 
+                onClick={() => setModalDetalhes({ aberto: false, pedido: null })}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* INFORMAÇÕES DA TRANSAÇÃO */}
+                <div className="bg-gray-50 rounded-xl p-6">
+                  <h4 className="font-bold text-gray-900 mb-4">Informações da Transação</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <div className="text-xs text-gray-500">Hash:</div>
+                      <div className="font-mono text-sm">{modalDetalhes.pedido.hash}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500">Valor:</div>
+                      <div className="text-lg font-bold text-purple-600">R$ {modalDetalhes.pedido.valor.toFixed(2)}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500">Status:</div>
+                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                        modalDetalhes.pedido.status === 'EM_ANALISE' ? 'bg-yellow-100 text-yellow-700' :
+                        modalDetalhes.pedido.status === 'APROVADO' ? 'bg-green-100 text-green-700' :
+                        'bg-red-100 text-red-700'
+                      }`}>
+                        {modalDetalhes.pedido.status === 'EM_ANALISE' ? 'PAD Aprovado' :
+                         modalDetalhes.pedido.status === 'APROVADO' ? 'Aguardando Envio' :
+                         'Cancelado'}
+                      </span>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500">Data de Criação:</div>
+                      <div className="text-sm">{new Date(modalDetalhes.pedido.createdAt).toLocaleString('pt-BR')}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* INFORMAÇÕES DO CLIENTE */}
+                <div className="bg-gray-50 rounded-xl p-6">
+                  <h4 className="font-bold text-gray-900 mb-4">Informações do Cliente</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <div className="text-xs text-gray-500">Nome:</div>
+                      <div className="font-medium">{modalDetalhes.pedido.clienteNome}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500">Email:</div>
+                      <div className="text-sm">{modalDetalhes.pedido.clienteEmail || 'Não informado'}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500">Telefone:</div>
+                      <div className="text-sm">{modalDetalhes.pedido.clienteTelefone}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500">Documento:</div>
+                      <div className="text-sm">{modalDetalhes.pedido.clienteCpfCnpj}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ENDEREÇO DE ENTREGA */}
+                <div className="bg-gray-50 rounded-xl p-6">
+                  <h4 className="font-bold text-gray-900 mb-4">Endereço de Entrega</h4>
+                  <div className="space-y-2 text-sm">
+                    <div>
+                      <span className="text-gray-600">Endereço:</span>{' '}
+                      {modalDetalhes.pedido.rua}, {modalDetalhes.pedido.numero}
+                      {modalDetalhes.pedido.complemento && ` - ${modalDetalhes.pedido.complemento}`}
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Bairro:</span> {modalDetalhes.pedido.bairro}
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Cidade/Estado:</span>{' '}
+                      {modalDetalhes.pedido.cidade} - {modalDetalhes.pedido.estado}
+                    </div>
+                    <div>
+                      <span className="text-gray-600">CEP:</span> {modalDetalhes.pedido.cep}
+                    </div>
+                  </div>
+                </div>
+
+                {/* INFORMAÇÕES DO PRODUTO */}
+                <div className="bg-gray-50 rounded-xl p-6">
+                  <h4 className="font-bold text-gray-900 mb-4">Informações do Produto</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <div className="text-xs text-gray-500">Produto:</div>
+                      <div className="font-medium">{modalDetalhes.pedido.produtoNome}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500">Preço:</div>
+                      <div className="text-lg font-bold text-purple-600">R$ {modalDetalhes.pedido.valor.toFixed(2)}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* AÇÕES */}
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    onClick={() => abrirWhatsApp(
+                      modalDetalhes.pedido!.clienteTelefone,
+                      modalDetalhes.pedido!.clienteNome,
+                      modalDetalhes.pedido!.produtoNome,
+                      modalDetalhes.pedido!.valor
+                    )}
+                    className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition flex items-center justify-center space-x-2"
+                  >
+                    <MessageCircle size={20} />
+                    <span>WhatsApp</span>
+                  </button>
+
+                  {modalDetalhes.pedido.status === 'EM_ANALISE' && (
+                    <>
+                      <button
+                        onClick={() => {
+                          aprovarPedido(modalDetalhes.pedido!.hash);
+                          setModalDetalhes({ aberto: false, pedido: null });
+                        }}
+                        className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition"
+                      >
+                        APROVAR
+                      </button>
+                      <button
+                        onClick={() => {
+                          cancelarPedido(modalDetalhes.pedido!.hash);
+                          setModalDetalhes({ aberto: false, pedido: null });
+                        }}
+                        className="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition"
+                      >
+                        REPROVAR
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <button
+                  onClick={() => setModalDetalhes({ aberto: false, pedido: null })}
+                  className="w-full px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition"
+                >
+                  FECHAR
                 </button>
-              </Link>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">📦 Pedidos PAD</h1>
-                <p className="text-sm text-gray-600">Pay After Delivery</p>
               </div>
             </div>
           </div>
         </div>
-      </header>
-
-      <main className="container mx-auto px-6 py-8">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-          <div className="bg-white rounded-xl p-4 shadow-sm border">
-            <div className="flex items-center space-x-2 mb-2">
-              <Package className="w-5 h-5 text-gray-600" />
-              <span className="text-sm text-gray-600">Total</span>
-            </div>
-            <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
-          </div>
-
-          <div className="bg-yellow-50 rounded-xl p-4 shadow-sm border border-yellow-200">
-            <div className="flex items-center space-x-2 mb-2">
-              <Clock className="w-5 h-5 text-yellow-600" />
-              <span className="text-sm text-yellow-800">Em Análise</span>
-            </div>
-            <div className="text-2xl font-bold text-yellow-900">{stats.emAnalise}</div>
-          </div>
-
-          <div className="bg-green-50 rounded-xl p-4 shadow-sm border border-green-200">
-            <div className="flex items-center space-x-2 mb-2">
-              <CheckCircle className="w-5 h-5 text-green-600" />
-              <span className="text-sm text-green-800">Aprovados</span>
-            </div>
-            <div className="text-2xl font-bold text-green-900">{stats.aprovados}</div>
-          </div>
-
-          <div className="bg-blue-50 rounded-xl p-4 shadow-sm border border-blue-200">
-            <div className="flex items-center space-x-2 mb-2">
-              <Truck className="w-5 h-5 text-blue-600" />
-              <span className="text-sm text-blue-800">Enviados</span>
-            </div>
-            <div className="text-2xl font-bold text-blue-900">{stats.enviados}</div>
-          </div>
-
-          <div className="bg-purple-50 rounded-xl p-4 shadow-sm border border-purple-200">
-            <div className="flex items-center space-x-2 mb-2">
-              <CheckCircle className="w-5 h-5 text-purple-600" />
-              <span className="text-sm text-purple-800">Pagos</span>
-            </div>
-            <div className="text-2xl font-bold text-purple-900">{stats.pagos}</div>
-          </div>
-
-          <div className="bg-red-50 rounded-xl p-4 shadow-sm border border-red-200">
-            <div className="flex items-center space-x-2 mb-2">
-              <XCircle className="w-5 h-5 text-red-600" />
-              <span className="text-sm text-red-800">Cancelados</span>
-            </div>
-            <div className="text-2xl font-bold text-red-900">{stats.cancelados}</div>
-          </div>
-        </div>
-
-        {/* Filtros */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border mb-6">
-          <div className="grid md:grid-cols-3 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Buscar por nome, CPF ou hash..."
-                value={busca}
-                onChange={(e) => setBusca(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg text-gray-900"
-              />
-            </div>
-
-            <div className="relative">
-              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <select
-                value={filtroStatus}
-                onChange={(e) => setFiltroStatus(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg text-gray-900"
-              >
-                <option value="TODOS">Todos os status</option>
-                <option value="EM_ANALISE">Em análise</option>
-                <option value="APROVADO">Aprovado</option>
-                <option value="ENVIADO">Enviado</option>
-                <option value="PAGO">Pago</option>
-                <option value="CANCELADO">Cancelado</option>
-              </select>
-            </div>
-
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="date"
-                value={dataSelecionada}
-                onChange={(e) => setDataSelecionada(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg text-gray-900"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Tabela de Pedidos */}
-        <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b">
-                <tr>
-                  <th className="text-left py-4 px-6 text-sm font-semibold text-gray-900">Hash</th>
-                  <th className="text-left py-4 px-6 text-sm font-semibold text-gray-900">Cliente</th>
-                  <th className="text-left py-4 px-6 text-sm font-semibold text-gray-900">Produto</th>
-                  <th className="text-left py-4 px-6 text-sm font-semibold text-gray-900">Valor</th>
-                  <th className="text-left py-4 px-6 text-sm font-semibold text-gray-900">Status</th>
-                  <th className="text-left py-4 px-6 text-sm font-semibold text-gray-900">Data</th>
-                  <th className="text-left py-4 px-6 text-sm font-semibold text-gray-900">Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pedidosFiltrados.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="text-center py-12 text-gray-500">
-                      Nenhum pedido encontrado
-                    </td>
-                  </tr>
-                ) : (
-                  pedidosFiltrados.map((pedido) => (
-                    <tr key={pedido.id} className="border-b hover:bg-gray-50">
-                      <td className="py-4 px-6">
-                        <span className="font-mono text-sm text-gray-900">{pedido.hash}</span>
-                      </td>
-                      <td className="py-4 px-6">
-                        <div className="font-medium text-gray-900">{pedido.clienteNome}</div>
-                        <div className="text-sm text-gray-500">{pedido.clienteCpfCnpj}</div>
-                      </td>
-                      <td className="py-4 px-6">
-                        <div className="text-sm text-gray-900">{pedido.produtoNome}</div>
-                      </td>
-                      <td className="py-4 px-6">
-                        <div className="font-semibold text-gray-900">
-                          R$ {pedido.valor.toFixed(2)}
-                        </div>
-                      </td>
-                      <td className="py-4 px-6">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(pedido.status)}`}>
-                          {getStatusLabel(pedido.status)}
-                        </span>
-                      </td>
-                      <td className="py-4 px-6 text-sm text-gray-600">
-                        {new Date(pedido.createdAt).toLocaleDateString('pt-BR')}
-                      </td>
-                      <td className="py-4 px-6">
-                        <div className="flex space-x-2">
-                          {pedido.status === 'EM_ANALISE' && (
-                            <>
-                              <button
-                                onClick={() => aprovarPedido(pedido.id)}
-                                className="px-3 py-1 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700"
-                              >
-                                Aprovar
-                              </button>
-                              <button
-                                onClick={() => cancelarPedido(pedido.id)}
-                                className="px-3 py-1 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700"
-                              >
-                                Cancelar
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </main>
+      )}
     </div>
   );
 }
