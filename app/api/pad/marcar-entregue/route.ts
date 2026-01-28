@@ -31,7 +31,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Hash não fornecido' }, { status: 400 });
     }
 
-    // Buscar pedido pelo hash
     const pedido = await prisma.pedidoPAD.findUnique({
       where: { hash }
     });
@@ -44,20 +43,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Sem permissão' }, { status: 403 });
     }
 
-    if (pedido.status !== 'EM_ANALISE') {
-      return NextResponse.json(
-        { error: 'Apenas pedidos em análise podem ser aprovados' },
-        { status: 400 }
-      );
-    }
-
-    // Aprovar pedido
     const pedidoAtualizado = await prisma.pedidoPAD.update({
       where: { hash },
-      data: { status: 'AGUARDANDO_ENVIO' }
+      data: { 
+        status: 'ENTREGUE',
+        dataEntrega: new Date()
+      }
     });
-
-    console.log('✅ Pedido aprovado:', pedidoAtualizado.hash);
 
     return NextResponse.json({
       success: true,
@@ -65,9 +57,9 @@ export async function POST(request: NextRequest) {
     });
    
   } catch (error) {
-    console.error('Erro ao aprovar pedido:', error);
+    console.error('Erro:', error);
     return NextResponse.json(
-      { error: 'Erro ao aprovar pedido' },
+      { error: 'Erro ao atualizar status' },
       { status: 500 }
     );
   }

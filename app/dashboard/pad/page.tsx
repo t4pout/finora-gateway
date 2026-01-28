@@ -40,6 +40,7 @@ interface Stats {
   emAnalise: { count: number; valor: number };
   aprovados: { count: number; valor: number };
   enviados: { count: number; valor: number };
+  entregue: { count: number; valor: number };
   pagos: { count: number; valor: number };
   cancelados: { count: number; valor: number };
 }
@@ -64,6 +65,7 @@ export default function DashboardPADPage() {
     emAnalise: { count: 0, valor: 0 },
     aprovados: { count: 0, valor: 0 },
     enviados: { count: 0, valor: 0 },
+    entregue: { count: 0, valor: 0 },
     pagos: { count: 0, valor: 0 },
     cancelados: { count: 0, valor: 0 }
   });
@@ -116,16 +118,20 @@ export default function DashboardPADPage() {
             valor: pedidosData.filter((p: PedidoPAD) => p.status === 'EM_ANALISE').reduce((sum: number, p: PedidoPAD) => sum + p.valor, 0)
           },
           aprovados: {
-            count: pedidosData.filter((p: PedidoPAD) => p.status === 'APROVADO' && !p.vendaId).length,
-            valor: pedidosData.filter((p: PedidoPAD) => p.status === 'APROVADO' && !p.vendaId).reduce((sum: number, p: PedidoPAD) => sum + p.valor, 0)
+            count: pedidosData.filter((p: PedidoPAD) => ['AGUARDANDO_ENVIO', 'ENTREGUE'].includes(p.status)).length,
+            valor: pedidosData.filter((p: PedidoPAD) => ['AGUARDANDO_ENVIO', 'ENTREGUE'].includes(p.status)).reduce((sum: number, p: PedidoPAD) => sum + p.valor, 0)
           },
           enviados: {
-            count: pedidosData.filter((p: PedidoPAD) => p.codigoRastreio).length,
-            valor: pedidosData.filter((p: PedidoPAD) => p.codigoRastreio).reduce((sum: number, p: PedidoPAD) => sum + p.valor, 0)
+            count: pedidosData.filter((p: PedidoPAD) => ['AGUARDANDO_ENVIO', 'ENTREGUE'].includes(p.status)).length,
+            valor: pedidosData.filter((p: PedidoPAD) => ['AGUARDANDO_ENVIO', 'ENTREGUE'].includes(p.status)).reduce((sum: number, p: PedidoPAD) => sum + p.valor, 0)
+          },
+          entregue: {
+            count: pedidosData.filter((p: PedidoPAD) => p.status === 'ENTREGUE').length,
+            valor: pedidosData.filter((p: PedidoPAD) => p.status === 'ENTREGUE').reduce((sum: number, p: PedidoPAD) => sum + p.valor, 0)
           },
           pagos: {
-            count: pedidosData.filter((p: PedidoPAD) => p.vendaId).length,
-            valor: pedidosData.filter((p: PedidoPAD) => p.vendaId).reduce((sum: number, p: PedidoPAD) => sum + p.valor, 0)
+            count: pedidosData.filter((p: PedidoPAD) => p.status === 'PAGO').length,
+            valor: pedidosData.filter((p: PedidoPAD) => p.status === 'PAGO').reduce((sum: number, p: PedidoPAD) => sum + p.valor, 0)
           },
           cancelados: {
             count: pedidosData.filter((p: PedidoPAD) => p.status === 'CANCELADO').length,
@@ -217,6 +223,26 @@ export default function DashboardPADPage() {
         body: JSON.stringify({ hash })
       });
       alert('✅ Status atualizado!');
+      carregarPedidos();
+    } catch (error) {
+      alert('❌ Erro ao atualizar');
+    }
+  };
+  
+  const marcarComoEntregue = async (hash: string) => {
+    if (!confirm('Marcar pedido como entregue?')) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      await fetch('/api/pad/marcar-entregue', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ hash })
+      });
+      alert('✅ Pedido marcado como entregue!');
       carregarPedidos();
     } catch (error) {
       alert('❌ Erro ao atualizar');
@@ -430,7 +456,14 @@ export default function DashboardPADPage() {
               </div>
               <div className="text-sm text-blue-600">Enviados</div>
               <div className="text-xs text-blue-700 mt-1">Pedidos enviados: {stats.enviados.count}</div>
+            </div>            <div className="bg-teal-50 rounded-xl border border-teal-200 p-4">
+              <div className="text-2xl font-bold text-teal-900 mb-1">
+                R$ {stats.entregue.valor.toFixed(2).replace('.', ',')}
+              </div>
+              <div className="text-sm text-teal-600">Entregue</div>
+              <div className="text-xs text-teal-700 mt-1">Pedidos entregues: {stats.entregue.count}</div>
             </div>
+
             <div className="bg-purple-50 rounded-xl border border-purple-200 p-4">
               <div className="text-2xl font-bold text-purple-900 mb-1">
                 R$ {stats.pagos.valor.toFixed(2).replace('.', ',')}
@@ -516,15 +549,15 @@ export default function DashboardPADPage() {
                         <td className="px-6 py-4">
                           <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                             pedido.status === 'EM_ANALISE' ? 'bg-yellow-100 text-yellow-700' :
-                            pedido.status === 'APROVADO' ? 'bg-green-100 text-green-700' :
                             pedido.status === 'AGUARDANDO_ENVIO' ? 'bg-blue-100 text-blue-700' :
-                            pedido.status === 'AGUARDANDO_PAGAMENTO' ? 'bg-purple-100 text-purple-700' :
+                            pedido.status === 'ENTREGUE' ? 'bg-teal-100 text-teal-700' :
+                            pedido.status === 'PAGO' ? 'bg-purple-100 text-purple-700' :
                             'bg-red-100 text-red-700'
                           }`}>
-                            {pedido.status === 'EM_ANALISE' ? 'Em análise' : 
-                             pedido.status === 'APROVADO' ? 'Aprovado' :
-                             pedido.status === 'AGUARDANDO_ENVIO' ? 'Aguardando envio' :
-                             pedido.status === 'AGUARDANDO_PAGAMENTO' ? 'Aguardando pagamento' :
+                            {pedido.status === 'EM_ANALISE' ? 'Em análise' :
+                             pedido.status === 'AGUARDANDO_ENVIO' ? 'PAD Aprovado - Enviado' :
+                             pedido.status === 'ENTREGUE' ? 'PAD Aprovado - Entregue' :
+                             pedido.status === 'PAGO' ? 'Pago' :
                              'Cancelado'}
                           </span>
                         </td>
@@ -569,30 +602,18 @@ export default function DashboardPADPage() {
                                     <CreditCard size={16} />
                                     <span className="text-sm">Acessar Link de Pagamento</span>
                                   </button>                                  
-                                  {pedido.status === 'APROVADO' && (
-                                    <>
-                                      <button
-                                        onClick={() => {
-                                          marcarComoEnviado(pedido.hash);
-                                          setMenuAberto(null);
-                                        }}
-                                        className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-2 text-blue-600 border-b"
-                                      >
-                                        <Package size={16} />
-                                        <span className="text-sm">Marcar como Enviado</span>
-                                      </button>
-                                      <button
-                                        onClick={() => {
-                                          marcarAguardandoPagamento(pedido.hash);
-                                          setMenuAberto(null);
-                                        }}
-                                        className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-2 text-purple-600 border-b"
-                                      >
-                                        <CreditCard size={16} />
-                                        <span className="text-sm">Aguardando Pagamento</span>
-                                      </button>
-                                    </>
-                                  )}                                  
+                                  {pedido.status === 'AGUARDANDO_ENVIO' && (
+                                    <button
+                                      onClick={() => {
+                                        marcarComoEntregue(pedido.hash);
+                                        setMenuAberto(null);
+                                      }}
+                                      className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-2 text-teal-600 border-b"
+                                    >
+                                      <CheckCircle size={16} />
+                                      <span className="text-sm">Marcar como Entregue</span>
+                                    </button>
+                                  )}               
                                   {pedido.status === 'APROVADO' && (
                                     <>
                                       <button
