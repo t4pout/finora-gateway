@@ -52,7 +52,6 @@ function CriarPedidoPADForm() {
     cidade: '',
     estado: '',
     cep: '',
-    quantidade: 1
   });
 
   useEffect(() => {
@@ -84,7 +83,7 @@ function CriarPedidoPADForm() {
   }, [planoId]);
 
   useEffect(() => {
-    if (!plano?.checkoutCronometro || tempoRestante <= 0) return;
+    if (!plano?.checkoutPadCronometro || tempoRestante <= 0) return;
 
     const interval = setInterval(() => {
       setTempoRestante(prev => prev > 0 ? prev - 1 : 0);
@@ -94,7 +93,7 @@ function CriarPedidoPADForm() {
   }, [plano, tempoRestante]);
 
   useEffect(() => {
-    if (!plano?.checkoutProvaSocial || !plano.checkoutPadIntervaloPop) return;
+    if (!plano?.checkoutPadProvaSocial || !plano.checkoutPadIntervaloPop) return;
 
     const nomesMasculinos = ['João', 'Pedro', 'Carlos', 'Rafael', 'Lucas'];
     const nomesFemininos = ['Maria', 'Ana', 'Julia', 'Beatriz', 'Camila'];
@@ -223,8 +222,8 @@ function CriarPedidoPADForm() {
     setLoading(false);
   };
 
-  const corPrimaria = plano?.checkoutCorPrimaria || '#8b5cf6';
-  const corSecundaria = plano?.checkoutCorSecundaria || '#667eea';
+  const corPrimaria = plano?.checkoutPadCorPrimaria || '#8b5cf6';
+  const corSecundaria = plano?.checkoutPadCorSecundaria || '#667eea';
   return (
     <div style={{
       minHeight: '100vh',
@@ -244,7 +243,7 @@ function CriarPedidoPADForm() {
           </div>
         )}
 
-        {plano?.checkoutCronometro && tempoRestante > 0 && (
+        {plano?.checkoutPadCronometro && tempoRestante > 0 && (
           <div style={{
             backgroundColor: '#dc2626',
             color: 'white',
@@ -475,21 +474,7 @@ function CriarPedidoPADForm() {
               </div>
             </div>
 
-            <input
-              type="number"
-              min="1"
-              placeholder="Quantidade"
-              value={formData.quantidade}
-              onChange={(e) => setFormData({ ...formData, quantidade: parseInt(e.target.value) || 1 })}
-              style={{
-                width: '100%',
-                padding: '12px',
-                border: '1px solid #d1d5db',
-                borderRadius: '8px',
-                fontSize: '16px'
-              }}
-            />
-
+         
             <button
               onClick={criarPedido}
               disabled={loading}
