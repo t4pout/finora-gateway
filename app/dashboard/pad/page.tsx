@@ -716,11 +716,15 @@ export default function DashboardPADPage() {
                       <div className="text-xs text-gray-500">Status:</div>
                       <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
                         modalDetalhes.pedido.status === 'EM_ANALISE' ? 'bg-yellow-100 text-yellow-700' :
-                        modalDetalhes.pedido.status === 'APROVADO' ? 'bg-green-100 text-green-700' :
+                        modalDetalhes.pedido.status === 'AGUARDANDO_ENVIO' ? 'bg-blue-100 text-blue-700' :
+                        modalDetalhes.pedido.status === 'ENTREGUE' ? 'bg-teal-100 text-teal-700' :
+                        modalDetalhes.pedido.status === 'PAGO' ? 'bg-purple-100 text-purple-700' :
                         'bg-red-100 text-red-700'
                       }`}>
-                        {modalDetalhes.pedido.status === 'EM_ANALISE' ? 'PAD Aprovado' :
-                         modalDetalhes.pedido.status === 'APROVADO' ? 'Aguardando Envio' :
+                        {modalDetalhes.pedido.status === 'EM_ANALISE' ? 'Em Análise' :
+                         modalDetalhes.pedido.status === 'AGUARDANDO_ENVIO' ? 'PAD Aprovado - Enviado' :
+                         modalDetalhes.pedido.status === 'ENTREGUE' ? 'PAD Aprovado - Entregue' :
+                         modalDetalhes.pedido.status === 'PAGO' ? 'Pago' :
                          'Cancelado'}
                       </span>
                     </div>
