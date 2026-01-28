@@ -162,9 +162,9 @@ export default function DashboardPADPage() {
   };
 
   const cancelarPedido = async (hash: string) => {
-    const motivo = prompt('Motivo do cancelamento:');
-    if (!motivo) return;
-    
+    if (!confirm('Cancelar este pedido?')) return;
+    const motivo = 'Cancelado pelo vendedor';
+
     try {
       const token = localStorage.getItem('token');
       await fetch('/api/pad/cancelar', {
