@@ -94,6 +94,18 @@ export async function PATCH(
         checkoutCpfObrigatorio: body.checkoutCpfObrigatorio,
         checkoutTelObrigatorio: body.checkoutTelObrigatorio,
         checkoutPedirEndereco: body.checkoutPedirEndereco,
+        // ✅ CONFIGURAÇÕES DE CHECKOUT PAD (SEPARADAS)
+        checkoutPadBanner: body.checkoutPadBanner,
+        checkoutPadLogoSuperior: body.checkoutPadLogoSuperior,
+        checkoutPadLogoInferior: body.checkoutPadLogoInferior,
+        checkoutPadCorPrimaria: body.checkoutPadCorPrimaria,
+        checkoutPadCorSecundaria: body.checkoutPadCorSecundaria,
+        checkoutPadCronometro: body.checkoutPadCronometro,
+        checkoutPadTempoMinutos: body.checkoutPadTempoMinutos,
+        checkoutPadMensagemUrgencia: body.checkoutPadMensagemUrgencia,
+        checkoutPadProvaSocial: body.checkoutPadProvaSocial,
+        checkoutPadIntervaloPop: body.checkoutPadIntervaloPop,
+        checkoutPadProvaSocialGenero: body.checkoutPadProvaSocialGenero,
       }
     });
 

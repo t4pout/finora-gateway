@@ -69,8 +69,8 @@ function CriarPedidoPADForm() {
           console.log('📦 Plano carregado:', data.plano);
           setPlano(data.plano);
           
-          if (data.plano.checkoutCronometro && data.plano.checkoutTempoMinutos) {
-            setTempoRestante(data.plano.checkoutTempoMinutos * 60);
+          if (data.plano.checkoutPadCronometro && data.plano.checkoutPadTempoMinutos) {
+            setTempoRestante(data.plano.checkoutPadTempoMinutos * 60);
           }
         }
       } catch (error) {
@@ -94,7 +94,7 @@ function CriarPedidoPADForm() {
   }, [plano, tempoRestante]);
 
   useEffect(() => {
-    if (!plano?.checkoutProvaSocial || !plano.checkoutIntervaloPop) return;
+    if (!plano?.checkoutProvaSocial || !plano.checkoutPadIntervaloPop) return;
 
     const nomesMasculinos = ['João', 'Pedro', 'Carlos', 'Rafael', 'Lucas'];
     const nomesFemininos = ['Maria', 'Ana', 'Julia', 'Beatriz', 'Camila'];
@@ -103,9 +103,9 @@ function CriarPedidoPADForm() {
     const mostrarPopup = () => {
       let nome = '';
       
-      if (plano.checkoutProvaSocialGenero === 'HOMENS') {
+      if (plano.checkoutPadProvaSocialGenero === 'HOMENS') {
         nome = nomesMasculinos[Math.floor(Math.random() * nomesMasculinos.length)];
-      } else if (plano.checkoutProvaSocialGenero === 'MULHERES') {
+      } else if (plano.checkoutPadProvaSocialGenero === 'MULHERES') {
         nome = nomesFemininos[Math.floor(Math.random() * nomesFemininos.length)];
       } else {
         const todos = [...nomesMasculinos, ...nomesFemininos];
@@ -140,7 +140,7 @@ function CriarPedidoPADForm() {
       }, 5000);
     };
 
-    const interval = setInterval(mostrarPopup, plano.checkoutIntervaloPop * 1000);
+    const interval = setInterval(mostrarPopup, plano.checkoutPadIntervaloPop * 1000);
     return () => clearInterval(interval);
   }, [plano]);
 
@@ -234,13 +234,13 @@ function CriarPedidoPADForm() {
       <div style={{ maxWidth: '768px', margin: '0 auto' }}>
         {plano?.checkoutBanner && (
           <div style={{ marginBottom: '24px', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}>
-            <img src={plano.checkoutBanner} alt="Banner" style={{ width: '100%' }} />
+            <img src={plano.checkoutPadBanner} alt="Banner" style={{ width: '100%' }} />
           </div>
         )}
 
         {plano?.checkoutLogoSuperior && (
           <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-            <img src={plano.checkoutLogoSuperior} alt="Logo" style={{ height: '64px', margin: '0 auto' }} />
+            <img src={plano.checkoutPadLogoSuperior} alt="Logo" style={{ height: '64px', margin: '0 auto' }} />
           </div>
         )}
 
@@ -255,7 +255,7 @@ function CriarPedidoPADForm() {
             boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
           }}>
             <p style={{ fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
-              {plano.checkoutMensagemUrgencia || '⏰ Oferta expira em:'}
+              {plano.checkoutPadMensagemUrgencia || '⏰ Oferta expira em:'}
             </p>
             <p style={{ fontSize: '36px', fontWeight: 'bold' }}>{formatarTempo(tempoRestante)}</p>
           </div>
@@ -512,7 +512,7 @@ function CriarPedidoPADForm() {
 
         {plano?.checkoutLogoInferior && (
           <div style={{ textAlign: 'center', marginTop: '24px' }}>
-            <img src={plano.checkoutLogoInferior} alt="Logo" style={{ height: '48px', margin: '0 auto', opacity: 0.8 }} />
+            <img src={plano.checkoutPadLogoInferior} alt="Logo" style={{ height: '48px', margin: '0 auto', opacity: 0.8 }} />
           </div>
         )}
       </div>

@@ -205,17 +205,6 @@ model PlanoOferta {
   checkoutCpfObrigatorio     Boolean  @default(true)
   checkoutTelObrigatorio     Boolean  @default(true)
   checkoutPedirEndereco      Boolean  @default(true)
-  checkoutPadBanner             String?
-  checkoutPadLogoSuperior       String?
-  checkoutPadLogoInferior       String?
-  checkoutPadCorPrimaria        String?  @default("#9333ea")
-  checkoutPadCorSecundaria      String?  @default("#a855f7")
-  checkoutPadCronometro         Boolean  @default(false)
-  checkoutPadTempoMinutos       Int?     @default(15)
-  checkoutPadMensagemUrgencia   String?
-  checkoutPadProvaSocial        Boolean  @default(false)
-  checkoutPadIntervaloPop       Int?     @default(8)
-  checkoutPadProvaSocialGenero  String?  @default("AMBOS")
   checkoutProvaSocialGenero  String?  @default("AMBOS")
   produtoId                  String
   createdAt                  DateTime @default(now())

@@ -114,8 +114,8 @@ const [formPixel, setFormPixel] = useState({
   condicaoPagamentoAprovado: false
 });
   const [modalPlano, setModalPlano] = useState<{ aberto: boolean; plano: any }>({ aberto: false, plano: null });
-  const [modalConfig, setModalConfig] = useState<{ aberto: boolean; planoId: string | null }>({ aberto: false, planoId: null });
-  const carregarPixels = async () => {
+  const [modalConfig, setModalConfig] = useState<{ aberto: boolean; planoId: string | null; tipo: 'NORMAL' | 'PAD' }>({ aberto: false, planoId: null, tipo: 'NORMAL' });
+    const carregarPixels = async () => {
   try {
     console.log('🔍 Carregando pixels para produto:', produtoId);
     const token = localStorage.getItem('token');
@@ -290,26 +290,69 @@ const carregarPlanos = async () => {
   };
 
   const salvarConfigCheckout = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`/api/produtos/${produtoId}/checkout-config`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
-        },
-        body: JSON.stringify(configCheckout)
-      });
-      if (response.ok) {
-        alert('✅ Configurações do checkout salvas!');
-        carregarConfigCheckout();
-      } else {
-        alert('❌ Erro ao salvar');
-      }
-    } catch (error) {
+  if (!modalConfig.planoId) return;
+  
+  try {
+    const token = localStorage.getItem('token');
+    
+    // Preparar dados baseado no tipo (NORMAL ou PAD)
+    const dados: any = {};
+    
+    if (modalConfig.tipo === 'NORMAL') {
+      dados.checkoutBanner = configCheckout.checkoutBanner;
+      dados.checkoutLogoSuperior = configCheckout.checkoutLogoSuperior;
+      dados.checkoutLogoInferior = configCheckout.checkoutLogoInferior;
+      dados.checkoutCorPrimaria = configCheckout.checkoutCorPrimaria;
+      dados.checkoutCorSecundaria = configCheckout.checkoutCorSecundaria;
+      dados.checkoutCronometro = configCheckout.checkoutCronometro;
+      dados.checkoutTempoMinutos = configCheckout.checkoutTempoMinutos;
+      dados.checkoutMensagemUrgencia = configCheckout.checkoutMensagemUrgencia;
+      dados.checkoutProvaSocial = configCheckout.checkoutProvaSocial;
+      dados.checkoutIntervaloPop = configCheckout.checkoutIntervaloPop;
+      dados.checkoutProvaSocialGenero = configCheckout.checkoutProvaSocialGenero;
+      dados.checkoutAceitaPix = configCheckout.checkoutAceitaPix;
+      dados.checkoutAceitaCartao = configCheckout.checkoutAceitaCartao;
+      dados.checkoutAceitaBoleto = configCheckout.checkoutAceitaBoleto;
+      dados.checkoutMetodoPreferencial = configCheckout.checkoutMetodoPreferencial;
+      dados.checkoutCpfObrigatorio = configCheckout.checkoutCpfObrigatorio;
+      dados.checkoutTelObrigatorio = configCheckout.checkoutTelObrigatorio;
+      dados.checkoutPedirEndereco = configCheckout.checkoutPedirEndereco;
+    } else {
+      // PAD
+      dados.checkoutPadBanner = configCheckout.checkoutBanner;
+      dados.checkoutPadLogoSuperior = configCheckout.checkoutLogoSuperior;
+      dados.checkoutPadLogoInferior = configCheckout.checkoutLogoInferior;
+      dados.checkoutPadCorPrimaria = configCheckout.checkoutCorPrimaria;
+      dados.checkoutPadCorSecundaria = configCheckout.checkoutCorSecundaria;
+      dados.checkoutPadCronometro = configCheckout.checkoutCronometro;
+      dados.checkoutPadTempoMinutos = configCheckout.checkoutTempoMinutos;
+      dados.checkoutPadMensagemUrgencia = configCheckout.checkoutMensagemUrgencia;
+      dados.checkoutPadProvaSocial = configCheckout.checkoutProvaSocial;
+      dados.checkoutPadIntervaloPop = configCheckout.checkoutIntervaloPop;
+      dados.checkoutPadProvaSocialGenero = configCheckout.checkoutProvaSocialGenero;
+    }
+    
+    const response = await fetch(`/api/planos/${modalConfig.planoId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify(dados)
+    });
+    
+    if (response.ok) {
+      alert(`✅ Configurações do Checkout ${modalConfig.tipo === 'NORMAL' ? 'Normal' : 'PAD'} salvas!`);
+      setModalConfig({ aberto: false, planoId: null, tipo: 'NORMAL' });
+      carregarPlanos();
+    } else {
       alert('❌ Erro ao salvar');
     }
-  };
+  } catch (error) {
+    console.error('Erro ao salvar:', error);
+    alert('❌ Erro ao salvar');
+  }
+};
 
   const copiarLinkAfiliacao = () => {
     const link = `${window.location.origin}/afiliacao/${configAfiliacao.linkConvite}`;
@@ -517,14 +560,18 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
   };
 
   const carregarConfigPlano = async (planoId: string) => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`/api/planos/${planoId}`, {
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        if (data.plano) {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`/api/planos/${planoId}`, {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (response.ok) {
+      const data = await response.json();
+      if (data.plano) {
+        // Carregar configs baseado no tipo (NORMAL ou PAD)
+        const tipo = modalConfig.tipo;
+        
+        if (tipo === 'NORMAL') {
           setConfigPlano({
             checkoutBanner: data.plano.checkoutBanner || '',
             checkoutLogoSuperior: data.plano.checkoutLogoSuperior || '',
@@ -536,7 +583,7 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
             checkoutMensagemUrgencia: data.plano.checkoutMensagemUrgencia || '',
             checkoutProvaSocial: data.plano.checkoutProvaSocial || false,
             checkoutIntervaloPop: data.plano.checkoutIntervaloPop || 8,
-            checkoutProvaSocialGenero: data.plano.checkoutProvaSocialGenero || 'AMBOS', 
+            checkoutProvaSocialGenero: data.plano.checkoutProvaSocialGenero || 'AMBOS',
             checkoutAceitaPix: data.plano.checkoutAceitaPix ?? true,
             checkoutAceitaCartao: data.plano.checkoutAceitaCartao ?? true,
             checkoutAceitaBoleto: data.plano.checkoutAceitaBoleto ?? true,
@@ -545,34 +592,98 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
             checkoutTelObrigatorio: data.plano.checkoutTelObrigatorio ?? true,
             checkoutPedirEndereco: data.plano.checkoutPedirEndereco ?? true
           });
+        } else {
+          // PAD
+          setConfigPlano({
+            checkoutBanner: data.plano.checkoutPadBanner || '',
+            checkoutLogoSuperior: data.plano.checkoutPadLogoSuperior || '',
+            checkoutLogoInferior: data.plano.checkoutPadLogoInferior || '',
+            checkoutCorPrimaria: data.plano.checkoutPadCorPrimaria || '#9333ea',
+            checkoutCorSecundaria: data.plano.checkoutPadCorSecundaria || '#a855f7',
+            checkoutCronometro: data.plano.checkoutPadCronometro || false,
+            checkoutTempoMinutos: data.plano.checkoutPadTempoMinutos || 15,
+            checkoutMensagemUrgencia: data.plano.checkoutPadMensagemUrgencia || '',
+            checkoutProvaSocial: data.plano.checkoutPadProvaSocial || false,
+            checkoutIntervaloPop: data.plano.checkoutPadIntervaloPop || 8,
+            checkoutProvaSocialGenero: data.plano.checkoutPadProvaSocialGenero || 'AMBOS',
+            checkoutAceitaPix: true,
+            checkoutAceitaCartao: true,
+            checkoutAceitaBoleto: true,
+            checkoutMetodoPreferencial: 'PIX',
+            checkoutCpfObrigatorio: true,
+            checkoutTelObrigatorio: true,
+            checkoutPedirEndereco: true
+          });
         }
       }
-    } catch (error) {
-      console.error('Erro:', error);
     }
-  };
+  } catch (error) {
+    console.error('Erro:', error);
+  }
+};
 
   const handleSalvarConfigPlano = async () => {
-    if (!modalConfig.planoId) return;
+  if (!modalConfig.planoId) return;
+  
+  try {
+    console.log('🔍 Salvando configPlano:', configPlano);
+    console.log('🔍 Tipo:', modalConfig.tipo);
     
-    try {
-      console.log('🔍 Salvando configPlano:', configPlano);
-console.log('🔍 Gênero selecionado:', configPlano.checkoutProvaSocialGenero);
-      const token = localStorage.getItem('token');
-      await fetch(`/api/planos/${modalConfig.planoId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
-        },
-        body: JSON.stringify(configPlano)
-      });
-      alert('✅ Configurações salvas!');
-      setModalConfig({ aberto: false, planoId: null });
-    } catch (error) {
-      alert('❌ Erro ao salvar');
+    const token = localStorage.getItem('token');
+    
+    // Preparar dados baseado no tipo
+    const dados: any = {};
+    
+    if (modalConfig.tipo === 'NORMAL') {
+      dados.checkoutBanner = configPlano.checkoutBanner;
+      dados.checkoutLogoSuperior = configPlano.checkoutLogoSuperior;
+      dados.checkoutLogoInferior = configPlano.checkoutLogoInferior;
+      dados.checkoutCorPrimaria = configPlano.checkoutCorPrimaria;
+      dados.checkoutCorSecundaria = configPlano.checkoutCorSecundaria;
+      dados.checkoutCronometro = configPlano.checkoutCronometro;
+      dados.checkoutTempoMinutos = configPlano.checkoutTempoMinutos;
+      dados.checkoutMensagemUrgencia = configPlano.checkoutMensagemUrgencia;
+      dados.checkoutProvaSocial = configPlano.checkoutProvaSocial;
+      dados.checkoutIntervaloPop = configPlano.checkoutIntervaloPop;
+      dados.checkoutProvaSocialGenero = configPlano.checkoutProvaSocialGenero;
+      dados.checkoutAceitaPix = configPlano.checkoutAceitaPix;
+      dados.checkoutAceitaCartao = configPlano.checkoutAceitaCartao;
+      dados.checkoutAceitaBoleto = configPlano.checkoutAceitaBoleto;
+      dados.checkoutMetodoPreferencial = configPlano.checkoutMetodoPreferencial;
+      dados.checkoutCpfObrigatorio = configPlano.checkoutCpfObrigatorio;
+      dados.checkoutTelObrigatorio = configPlano.checkoutTelObrigatorio;
+      dados.checkoutPedirEndereco = configPlano.checkoutPedirEndereco;
+    } else {
+      // PAD
+      dados.checkoutPadBanner = configPlano.checkoutBanner;
+      dados.checkoutPadLogoSuperior = configPlano.checkoutLogoSuperior;
+      dados.checkoutPadLogoInferior = configPlano.checkoutLogoInferior;
+      dados.checkoutPadCorPrimaria = configPlano.checkoutCorPrimaria;
+      dados.checkoutPadCorSecundaria = configPlano.checkoutCorSecundaria;
+      dados.checkoutPadCronometro = configPlano.checkoutCronometro;
+      dados.checkoutPadTempoMinutos = configPlano.checkoutTempoMinutos;
+      dados.checkoutPadMensagemUrgencia = configPlano.checkoutMensagemUrgencia;
+      dados.checkoutPadProvaSocial = configPlano.checkoutProvaSocial;
+      dados.checkoutPadIntervaloPop = configPlano.checkoutIntervaloPop;
+      dados.checkoutPadProvaSocialGenero = configPlano.checkoutProvaSocialGenero;
     }
-  };
+    
+    await fetch(`/api/planos/${modalConfig.planoId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify(dados)
+    });
+    
+    alert(`✅ Configurações do Checkout ${modalConfig.tipo === 'NORMAL' ? 'Normal' : 'PAD'} salvas!`);
+    setModalConfig({ aberto: false, planoId: null, tipo: 'NORMAL' });
+    carregarPlanos();
+  } catch (error) {
+    alert('❌ Erro ao salvar');
+  }
+};
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -930,9 +1041,12 @@ console.log('🔍 Gênero selecionado:', configPlano.checkoutProvaSocialGenero);
 
                         <div className="space-y-2">
   <div className="flex gap-2">
-    <button onClick={() => setModalConfig({ aberto: true, planoId: plano.id })} className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm font-semibold">
-      ⚙️ Configurar
-    </button>
+    <button onClick={() => setModalConfig({ aberto: true, planoId: plano.id, tipo: 'NORMAL' })} className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm font-semibold">
+  ⚙️ Checkout Normal
+</button>
+<button onClick={() => setModalConfig({ aberto: true, planoId: plano.id, tipo: 'PAD' })} className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-semibold">
+  💳 Checkout PAD
+</button>
     <button 
   onClick={() => {
     setFormPixel({
@@ -1017,7 +1131,9 @@ console.log('🔍 Gênero selecionado:', configPlano.checkoutProvaSocialGenero);
               {modalConfig.aberto && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto" onClick={() => setModalConfig({ aberto: false, planoId: null })}>
                   <div className="bg-white rounded-2xl p-8 max-w-4xl w-full my-8" onClick={(e) => e.stopPropagation()}>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-6">⚙️ Configurar Checkout do Plano</h3>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-6">
+  {modalConfig.tipo === 'NORMAL' ? '⚙️ Configurar Checkout Normal' : '💳 Configurar Checkout PAD'}
+</h3>
                     
                     <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-4">
                       <div className="space-y-4">
