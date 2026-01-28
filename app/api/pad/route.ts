@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -15,8 +15,13 @@ function gerarHash(): string {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    console.log('📦 Dados recebidos:', body);
 
     const {
+      planoId,
+      produtoId,
+      valor,
+      nome,
       clienteNome,
       clienteCpfCnpj,
       clienteTelefone,
@@ -28,9 +33,6 @@ export async function POST(request: NextRequest) {
       bairro,
       cidade,
       estado,
-      produtoId,
-      produtoNome,
-      valor,
       quantidade = 1
     } = body;
 
@@ -56,7 +58,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Buscar o produto para pegar o vendedorId e imagem
+    // Buscar o produto
     const produto = await prisma.produto.findUnique({
       where: { id: produtoId }
     });
@@ -81,65 +83,39 @@ export async function POST(request: NextRequest) {
     }
 
     // Criar pedido PAD
-const pedido = await prisma.pedidoPAD.create({
-  data: {
-    hash,
-    clienteNome,
-    clienteCpfCnpj,
-    clienteTelefone,
-    clienteEmail: clienteEmail || null,
-    cep,
-    rua,
-    numero,
-    complemento: complemento || null,
-    bairro,
-    cidade,
-    estado,
-    produtoId,
-    produtoNome,
-    produtoImagem: produto.imagem || null,
-    valor,
-    quantidade,
-    status: 'EM_ANALISE',
-    vendedorId: produto.userId
-  }
-});
+    const pedido = await prisma.pedidoPAD.create({
+      data: {
+        hash,
+        clienteNome,
+        clienteCpfCnpj,
+        clienteTelefone,
+        clienteEmail: clienteEmail || null,
+        cep,
+        rua,
+        numero,
+        complemento: complemento || null,
+        bairro,
+        cidade,
+        estado,
+        produtoId,
+        produtoNome: nome || produto.nome,
+        produtoImagem: produto.imagem || null,
+        vendedorId: produto.userId,
+        valor: parseFloat(valor.toString()),
+        quantidade,
+        status: 'EM_ANALISE'
+      }
+    });
 
-// Disparar pixels de conversão (PAD criado)
-try {
-  const { dispararPixelsProduto } = await import('@/lib/pixels');
-  await dispararPixelsProduto(
-    produtoId,
-    'COMPRA',
-    'PAD',
-    {
-      email: clienteEmail || undefined,
-      telefone: clienteTelefone,
-      nome: clienteNome,
-      cidade,
-      estado,
-      cep,
-      valor,
-      produtoNome
-    }
-  );
-} catch (error) {
-  console.error('Erro ao disparar pixels:', error);
-  // Não falhar a criação do pedido se o pixel falhar
-}
+    console.log('✅ Pedido PAD criado:', pedido);
 
-return NextResponse.json({
-  success: true,
-  pedido: {
-    id: pedido.id,
-    hash: pedido.hash,
-    status: pedido.status,
-    valor: pedido.valor
-  }
-});
-
+    return NextResponse.json({
+      success: true,
+      pedido,
+      message: 'Pedido criado com sucesso!'
+    });
   } catch (error: any) {
-    console.error('Erro ao criar pedido PAD:', error);
+    console.error('❌ Erro ao criar pedido PAD:', error);
     return NextResponse.json(
       { error: 'Erro ao criar pedido', details: error.message },
       { status: 500 }
