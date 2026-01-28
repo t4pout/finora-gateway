@@ -58,6 +58,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // ✅ VALIDAÇÃO: Verificar se já existe pedido em análise com esse CPF
+    const pedidoExistente = await prisma.pedidoPAD.findFirst({
+      where: {
+        clienteCpfCnpj,
+        status: 'EM_ANALISE'
+      }
+    });
+
+    if (pedidoExistente) {
+      return NextResponse.json(
+        { 
+          error: 'Você já possui um pedido em análise. Aguarde a aprovação ou cancelamento antes de fazer um novo pedido.',
+          pedidoHash: pedidoExistente.hash
+        },
+        { status: 400 }
+      );
+    }
+
     // Buscar o produto
     const produto = await prisma.produto.findUnique({
       where: { id: produtoId }

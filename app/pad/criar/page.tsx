@@ -209,10 +209,17 @@ function CriarPedidoPADForm() {
 
       const data = await response.json();
 
-      if (response.ok && data.success) {
+     if (response.ok && data.success) {
         router.push(`/pad/aguardando/${data.pedido.hash}`);
       } else {
-        setErro(data.error || 'Erro ao criar pedido');
+        // Se o erro for por CPF duplicado, mostrar modal especial
+        if (data.pedidoHash) {
+          if (confirm(`⚠️ ${data.error}\n\nClique em OK para ver seu pedido e efetuar o pagamento.`)) {
+            router.push(`/pad/buscar?cpf=${formData.clienteCpfCnpj}`);
+          }
+        } else {
+          setErro(data.error || 'Erro ao criar pedido');
+        }
       }
     } catch (error) {
       console.error('Erro ao criar pedido:', error);
