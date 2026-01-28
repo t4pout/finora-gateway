@@ -182,6 +182,46 @@ export default function DashboardPADPage() {
     }
   };
 
+  
+  const marcarComoEnviado = async (hash: string) => {
+    if (!confirm('Marcar pedido como enviado?')) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      await fetch('/api/pad/marcar-envio', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ hash })
+      });
+      alert('✅ Status atualizado!');
+      carregarPedidos();
+    } catch (error) {
+      alert('❌ Erro ao atualizar');
+    }
+  };
+
+  const marcarAguardandoPagamento = async (hash: string) => {
+    if (!confirm('Marcar como aguardando pagamento?')) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      await fetch('/api/pad/marcar-pagamento', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ hash })
+      });
+      alert('✅ Status atualizado!');
+      carregarPedidos();
+    } catch (error) {
+      alert('❌ Erro ao atualizar');
+    }
+  };
   const abrirWhatsApp = (telefone: string, nome: string, produto: string, valor: number) => {
     const tel = telefone.replace(/\D/g, '');
     const mensagem = `Olá ${nome}! Sobre seu pedido de ${produto} no valor de R$ ${valor.toFixed(2)}...`;
@@ -368,42 +408,42 @@ export default function DashboardPADPage() {
                 R$ {stats.total.valor.toFixed(2).replace('.', ',')}
               </div>
               <div className="text-sm text-gray-600">Total</div>
-              <div className="text-xs text-gray-500 mt-1">{stats.total.count} unidades</div>
+              <div className="text-xs text-gray-500 mt-1">Pedidos gerados: {stats.total.count}</div>
             </div>
             <div className="bg-yellow-50 rounded-xl border border-yellow-200 p-4">
               <div className="text-2xl font-bold text-yellow-900 mb-1">
                 R$ {stats.emAnalise.valor.toFixed(2).replace('.', ',')}
               </div>
               <div className="text-sm text-yellow-600">Em Análise</div>
-              <div className="text-xs text-yellow-700 mt-1">{stats.emAnalise.count} unidades</div>
+              <div className="text-xs text-yellow-700 mt-1">Pedidos em análise: {stats.emAnalise.count}</div>
             </div>
             <div className="bg-green-50 rounded-xl border border-green-200 p-4">
               <div className="text-2xl font-bold text-green-900 mb-1">
                 R$ {stats.aprovados.valor.toFixed(2).replace('.', ',')}
               </div>
               <div className="text-sm text-green-600">Aprovados</div>
-              <div className="text-xs text-green-700 mt-1">{stats.aprovados.count} unidades</div>
+              <div className="text-xs text-green-700 mt-1">PAD aprovadas: {stats.aprovados.count}</div>
             </div>
             <div className="bg-blue-50 rounded-xl border border-blue-200 p-4">
               <div className="text-2xl font-bold text-blue-900 mb-1">
                 R$ {stats.enviados.valor.toFixed(2).replace('.', ',')}
               </div>
               <div className="text-sm text-blue-600">Enviados</div>
-              <div className="text-xs text-blue-700 mt-1">{stats.enviados.count} unidades</div>
+              <div className="text-xs text-blue-700 mt-1">Pedidos enviados: {stats.enviados.count}</div>
             </div>
             <div className="bg-purple-50 rounded-xl border border-purple-200 p-4">
               <div className="text-2xl font-bold text-purple-900 mb-1">
                 R$ {stats.pagos.valor.toFixed(2).replace('.', ',')}
               </div>
               <div className="text-sm text-purple-600">Pagos</div>
-              <div className="text-xs text-purple-700 mt-1">{stats.pagos.count} unidades</div>
+              <div className="text-xs text-purple-700 mt-1">Pedidos pagos: {stats.pagos.count}</div>
             </div>
             <div className="bg-red-50 rounded-xl border border-red-200 p-4">
               <div className="text-2xl font-bold text-red-900 mb-1">
                 R$ {stats.cancelados.valor.toFixed(2).replace('.', ',')}
               </div>
               <div className="text-sm text-red-600">Cancelados</div>
-              <div className="text-xs text-red-700 mt-1">{stats.cancelados.count} unidades</div>
+              <div className="text-xs text-red-700 mt-1">Pedidos cancelados: {stats.cancelados.count}</div>
             </div>
           </div>
           {/* FILTROS */}
@@ -477,10 +517,15 @@ export default function DashboardPADPage() {
                           <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                             pedido.status === 'EM_ANALISE' ? 'bg-yellow-100 text-yellow-700' :
                             pedido.status === 'APROVADO' ? 'bg-green-100 text-green-700' :
+                            pedido.status === 'AGUARDANDO_ENVIO' ? 'bg-blue-100 text-blue-700' :
+                            pedido.status === 'AGUARDANDO_PAGAMENTO' ? 'bg-purple-100 text-purple-700' :
                             'bg-red-100 text-red-700'
                           }`}>
                             {pedido.status === 'EM_ANALISE' ? 'Em análise' : 
-                             pedido.status === 'APROVADO' ? 'Aprovado' : 'Cancelado'}
+                             pedido.status === 'APROVADO' ? 'Aprovado' :
+                             pedido.status === 'AGUARDANDO_ENVIO' ? 'Aguardando envio' :
+                             pedido.status === 'AGUARDANDO_PAGAMENTO' ? 'Aguardando pagamento' :
+                             'Cancelado'}
                           </span>
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-600">
@@ -523,7 +568,57 @@ export default function DashboardPADPage() {
                                   >
                                     <CreditCard size={16} />
                                     <span className="text-sm">Acessar Link de Pagamento</span>
-                                  </button>
+                                  </button>                                  
+                                  {pedido.status === 'APROVADO' && (
+                                    <>
+                                      <button
+                                        onClick={() => {
+                                          marcarComoEnviado(pedido.hash);
+                                          setMenuAberto(null);
+                                        }}
+                                        className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-2 text-blue-600 border-b"
+                                      >
+                                        <Package size={16} />
+                                        <span className="text-sm">Marcar como Enviado</span>
+                                      </button>
+                                      <button
+                                        onClick={() => {
+                                          marcarAguardandoPagamento(pedido.hash);
+                                          setMenuAberto(null);
+                                        }}
+                                        className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-2 text-purple-600 border-b"
+                                      >
+                                        <CreditCard size={16} />
+                                        <span className="text-sm">Aguardando Pagamento</span>
+                                      </button>
+                                    </>
+                                  )}                                  
+                                  {pedido.status === 'APROVADO' && (
+                                    <>
+                                      <button
+                                        onClick={() => {
+                                          marcarComoEnviado(pedido.hash);
+                                          setMenuAberto(null);
+                                        }}
+                                        className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-2 text-blue-600 border-b"
+                                      >
+                                        <Package size={16} />
+                                        <span className="text-sm">Marcar como Enviado</span>
+                                      </button>
+                                      <button
+                                        onClick={() => {
+                                          marcarAguardandoPagamento(pedido.hash);
+                                          setMenuAberto(null);
+                                        }}
+                                        className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-2 text-purple-600 border-b"
+                                      >
+                                        <CreditCard size={16} />
+                                        <span className="text-sm">Aguardando Pagamento</span>
+                                      </button>
+                                    </>
+                                  )}
+
+
                                   
                                   {pedido.status === 'EM_ANALISE' && (
                                     <>
