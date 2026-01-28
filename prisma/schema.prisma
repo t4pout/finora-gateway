@@ -391,6 +391,7 @@ model Campanha {
   quantidade        Int      @default(1)
   
   status            String   @default("EM_ANALISE")
+  motivo            String?
   
   codigoRastreio    String?
   dataEnvio         DateTime?
