@@ -232,13 +232,13 @@ function CriarPedidoPADForm() {
       background: `linear-gradient(135deg, ${corSecundaria} 0%, ${corPrimaria} 100%)`
     }}>
       <div style={{ maxWidth: '768px', margin: '0 auto' }}>
-        {plano?.checkoutBanner && (
+        {plano?.checkoutPadBanner && (
           <div style={{ marginBottom: '24px', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}>
             <img src={plano.checkoutPadBanner} alt="Banner" style={{ width: '100%' }} />
           </div>
         )}
 
-        {plano?.checkoutLogoSuperior && (
+        {plano?.checkoutPadLogoSuperior && (
           <div style={{ textAlign: 'center', marginBottom: '24px' }}>
             <img src={plano.checkoutPadLogoSuperior} alt="Logo" style={{ height: '64px', margin: '0 auto' }} />
           </div>
@@ -510,7 +510,7 @@ function CriarPedidoPADForm() {
           </div>
         </div>
 
-        {plano?.checkoutLogoInferior && (
+        {plano?.checkoutPadLogoInferior && (
           <div style={{ textAlign: 'center', marginTop: '24px' }}>
             <img src={plano.checkoutPadLogoInferior} alt="Logo" style={{ height: '48px', margin: '0 auto', opacity: 0.8 }} />
           </div>
