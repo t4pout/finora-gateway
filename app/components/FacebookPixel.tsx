@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
 export default function FacebookPixel() {
+  console.log('🔍 FacebookPixel component mounted');
   const pathname = usePathname();
 
   useEffect(() => {
