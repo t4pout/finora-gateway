@@ -73,7 +73,7 @@ export default function BuscarPedidoPage() {
   };
 
   const podePagar = (pedido: any) => {
-    return pedido.status === 'ENTREGUE' && !pedido.vendaId;
+    return (pedido.status === 'AGUARDANDO_ENVIO' || pedido.status === 'ENTREGUE') && !pedido.vendaId;
   };
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-yellow-50">
