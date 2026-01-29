@@ -35,7 +35,24 @@ function CriarPedidoPADForm() {
   const [plano, setPlano] = useState<PlanoOferta | null>(null);
   const [tempoRestante, setTempoRestante] = useState(0);
 
-  const planoId = searchParams.get('planoId');
+  
+
+  useEffect(() => {
+    if (plano && produtoId) {
+      // Disparar evento InitiateCheckout do Facebook Pixel
+      if (typeof window !== 'undefined' && (window as any).fbq) {
+        (window as any).fbq('track', 'InitiateCheckout', {
+          content_name: plano.nome,
+          content_ids: [produtoId],
+          content_type: 'product',
+          value: parseFloat(valor || '0'),
+          currency: 'BRL'
+        });
+        console.log('📊 Pixel: InitiateCheckout disparado');
+      }
+    }
+  }, [plano, produtoId, valor]);
+
   const produtoId = searchParams.get('produtoId');
   const valor = searchParams.get('valor');
   const nomePlano = searchParams.get('nome');
@@ -210,6 +227,18 @@ function CriarPedidoPADForm() {
       const data = await response.json();
 
      if (response.ok && data.success) {
+        // Disparar evento Purchase do Facebook Pixel
+        if (typeof window !== 'undefined' && (window as any).fbq) {
+          (window as any).fbq('track', 'Purchase', {
+            content_name: nomePlano || plano?.nome,
+            content_ids: [produtoId],
+            content_type: 'product',
+            value: parseFloat(valor || '0'),
+            currency: 'BRL',
+            order_id: data.pedido.hash
+          });
+          console.log('📊 Pixel: Purchase disparado');
+        }
         router.push(`/pad/aguardando/${data.pedido.hash}`);
       } else {
         // Se o erro for por CPF duplicado, mostrar modal especial
