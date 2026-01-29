@@ -37,6 +37,9 @@ export default function CheckoutPadPlanoPage() {
       
       console.log('🚀 Redirecionando para:', redirectUrl);
       
+      // Delay de 800ms para garantir que scripts carreguem
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
       router.push(redirectUrl);
       
       // Fallback: se router.push não funcionar, usar window.location
