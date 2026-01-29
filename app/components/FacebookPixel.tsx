@@ -21,7 +21,7 @@ export default function FacebookPixel() {
 
         if (data.pixels && data.pixels.length > 0) {
           data.pixels.forEach((pixel: any) => {
-            if (pixel.plataforma === 'FACEBOOK' && pixel.ativo) {
+            if (pixel.plataforma === 'FACEBOOK') {
               // Carregar Facebook Pixel
               if (!(window as any).fbq) {
                 (function(f: any,b: any,e: any,v: any,n?: any,t?: any,s?: any){
