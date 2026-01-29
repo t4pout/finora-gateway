@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 function CriarPedidoPADForm() {
@@ -28,6 +28,10 @@ function CriarPedidoPADForm() {
     estado: '',
     cep: ''
   });
+  const [plano, setPlano] = useState<any>(null);
+  const [loadingPlano, setLoadingPlano] = useState(true);
+
+  // Carregar dados do plano
   useEffect(() => {
     const carregarPlano = async () => {
       if (!planoId) return;
