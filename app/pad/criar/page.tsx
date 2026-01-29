@@ -28,6 +28,28 @@ function CriarPedidoPADForm() {
     estado: '',
     cep: ''
   });
+  useEffect(() => {
+    const carregarPlano = async () => {
+      if (!planoId) return;
+      
+      try {
+        const response = await fetch(`/api/planos/${planoId}`);
+        const data = await response.json();
+        
+        if (response.ok && data.plano) {
+          setPlano(data.plano);
+          console.log('📦 Plano carregado:', data.plano);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar plano:', error);
+      } finally {
+        setLoadingPlano(false);
+      }
+    };
+    
+    carregarPlano();
+  }, [planoId]);
+
 
   const buscarCEP = async (cep: string) => {
     // Remove caracteres não numéricos
