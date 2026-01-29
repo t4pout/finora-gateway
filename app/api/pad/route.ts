@@ -127,6 +127,19 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Pedido PAD criado:', pedido);
 
+    // Enviar notificação Telegram
+    try {
+      await fetch(`${request.nextUrl.origin}/api/telegram/notificar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mensagem: `🔔 <b>PEDIDO GERADO PAD</b>\n\n💰 Valor: R$ ${pedido.valor.toFixed(2)}\n👤 Cliente: ${pedido.clienteNome}\n📦 Produto: ${pedido.produtoNome}\n🔗 Hash: ${pedido.hash}`
+        })
+      });
+    } catch (e) {
+      console.error('Erro ao enviar notificação:', e);
+    }
+
     return NextResponse.json({
       success: true,
       pedido,
