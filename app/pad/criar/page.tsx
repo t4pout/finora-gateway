@@ -54,6 +54,26 @@ function CriarPedidoPADForm() {
     carregarPlano();
   }, [planoId]);
 
+  // Disparar InitiateCheckout quando plano carregar
+  useEffect(() => {
+    if (plano && produtoId && valor) {
+      if (typeof window !== 'undefined' && (window as any).fbq) {
+        try {
+          (window as any).fbq('track', 'InitiateCheckout', {
+            content_name: plano.nome || nomePlano,
+            content_ids: [produtoId],
+            content_type: 'product',
+            value: parseFloat(valor || '0'),
+            currency: 'BRL'
+          });
+          console.log('📊 Pixel: InitiateCheckout disparado');
+        } catch (e) {
+          console.error('Erro pixel:', e);
+        }
+      }
+    }
+  }, [plano]);
+
 
   const buscarCEP = async (cep: string) => {
     // Remove caracteres não numéricos
@@ -110,6 +130,23 @@ function CriarPedidoPADForm() {
       const data = await response.json();
 
       if (response.ok) {
+        // Disparar Purchase
+        if (typeof window !== 'undefined' && (window as any).fbq) {
+          try {
+            (window as any).fbq('track', 'Purchase', {
+              content_name: nomePlano,
+              content_ids: [produtoId],
+              content_type: 'product',
+              value: parseFloat(valor || '0'),
+              currency: 'BRL',
+              order_id: data.pedido?.hash
+            });
+            console.log('📊 Pixel: Purchase disparado');
+          } catch (e) {
+            console.error('Erro pixel:', e);
+          }
+        }
+        
         // Redirecionar para a página de aguardando aprovação
         router.push(`/pad/aguardando/${data.pedido.hash}`);
       } else {
