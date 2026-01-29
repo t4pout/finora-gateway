@@ -123,8 +123,21 @@ function CriarPedidoPADForm() {
     }
   };
 
+  const corPrimaria = plano?.checkoutPadCorPrimaria || '#9333ea';
+  const corSecundaria = plano?.checkoutPadCorSecundaria || '#a855f7';
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div style={{
+      minHeight: '100vh',
+      padding: '32px 16px',
+      background: `linear-gradient(135deg, ${corSecundaria} 0%, ${corPrimaria} 100%)`
+    }}>
+      {/* Banner */}
+      {plano?.checkoutPadBanner && (
+        <div style={{ marginBottom: '24px', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}>
+          <img src={plano.checkoutPadBanner} alt="Banner" style={{ width: '100%' }} />
+        </div>
+      )}
       <div className="container mx-auto px-4 max-w-2xl">
         <div className="bg-white rounded-xl shadow-lg p-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Finalizar Pedido</h1>
