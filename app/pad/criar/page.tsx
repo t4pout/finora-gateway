@@ -134,8 +134,22 @@ function CriarPedidoPADForm() {
     }}>
       {/* Banner */}
       {plano?.checkoutPadBanner && (
-        <div style={{ marginBottom: '24px', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}>
-          <img src={plano.checkoutPadBanner} alt="Banner" style={{ width: '100%' }} />
+        <div style={{ 
+          maxWidth: '1200px', 
+          margin: '0 auto 24px', 
+          borderRadius: '8px', 
+          overflow: 'hidden', 
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' 
+        }}>
+          <img 
+            src={plano.checkoutPadBanner} 
+            alt="Banner" 
+            style={{ 
+              width: '100%', 
+              height: 'auto',
+              display: 'block'
+            }} 
+          />
         </div>
       )}
       <div className="container mx-auto px-4 max-w-2xl">
