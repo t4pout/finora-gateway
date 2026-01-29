@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -10,14 +10,17 @@ export default function CheckoutPadPlanoPage() {
   const [erro, setErro] = useState('');
 
   useEffect(() => {
+    console.log('🔄 Iniciando redirect de checkout-plano...');
     criarPedidoPAD();
   }, []);
 
   const criarPedidoPAD = async () => {
     try {
+      console.log('📦 Buscando plano:', params.planoId);
+      
       // Buscar dados do plano
       const resPlano = await fetch(`/api/planos/${params.planoId}`);
-      
+
       if (!resPlano.ok) {
         setErro('Plano não encontrado');
         setLoading(false);
@@ -26,12 +29,26 @@ export default function CheckoutPadPlanoPage() {
 
       const dataPlano = await resPlano.json();
       const plano = dataPlano.plano;
+      
+      console.log('✅ Plano encontrado:', plano);
 
       // Redirecionar para a página de criar pedido PAD com os dados do plano
-      router.push(`/pad/criar?planoId=${plano.id}&produtoId=${plano.produtoId}&valor=${plano.preco}&nome=${encodeURIComponent(plano.nome)}`);
+      const redirectUrl = `/pad/criar?planoId=${plano.id}&produtoId=${plano.produtoId}&valor=${plano.preco}&nome=${encodeURIComponent(plano.nome)}`;
       
+      console.log('🚀 Redirecionando para:', redirectUrl);
+      
+      router.push(redirectUrl);
+      
+      // Fallback: se router.push não funcionar, usar window.location
+      setTimeout(() => {
+        if (window.location.pathname.includes('checkout-plano')) {
+          console.log('⚠️ Router.push falhou, usando window.location');
+          window.location.href = redirectUrl;
+        }
+      }, 1000);
+
     } catch (error) {
-      console.error('Erro:', error);
+      console.error('❌ Erro:', error);
       setErro('Erro ao processar checkout');
       setLoading(false);
     }
