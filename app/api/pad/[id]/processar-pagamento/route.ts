@@ -196,6 +196,72 @@ export async function POST(
       }
     }
 
+    
+    // ========== BOLETO (Mercado Pago) ==========
+    if (metodoPagamento === 'BOLETO') {
+      try {
+        const paymentData = {
+          transaction_amount: pedido.valor,
+          description: `PAD - ${pedido.produtoNome}`,
+          payment_method_id: 'bolbradesco',
+          payer: {
+            email: pedido.clienteEmail || 'contato@finorapayments.com',
+            first_name: pedido.clienteNome.split(' ')[0],
+            last_name: pedido.clienteNome.split(' ').slice(1).join(' ') || pedido.clienteNome.split(' ')[0],
+            identification: {
+              type: pedido.clienteCpfCnpj.replace(/\D/g, '').length === 11 ? 'CPF' : 'CNPJ',
+              number: pedido.clienteCpfCnpj.replace(/\D/g, '')
+            },
+            address: {
+              zip_code: pedido.cep.replace(/\D/g, ''),
+              street_name: pedido.rua,
+              street_number: pedido.numero,
+              neighborhood: pedido.bairro,
+              city: pedido.cidade,
+              federal_unit: pedido.estado
+            }
+          },
+          external_reference: pedido.id
+        };
+
+        const result = await payment.create({ body: paymentData });
+
+        if (result.status === 'pending' && result.transaction_details?.external_resource_url) {
+          // Atualizar pedido com link do boleto
+          await prisma.pedidoPAD.update({
+            where: { id: pedido.id },
+            data: {
+              boletoUrl: result.transaction_details.external_resource_url,
+              boletoBarcode: result.barcode?.content || null
+            }
+          });
+
+          return NextResponse.json({
+            success: true,
+            metodoPagamento: 'BOLETO',
+            boletoUrl: result.transaction_details.external_resource_url,
+            boletoBarcode: result.barcode?.content,
+            status: result.status,
+            transacaoId: result.id
+          });
+        } else {
+          return NextResponse.json({
+            success: false,
+            metodoPagamento: 'BOLETO',
+            message: 'Erro ao gerar boleto',
+            details: result
+          }, { status: 400 });
+        }
+
+      } catch (error: any) {
+        console.error('❌ Erro Boleto:', error);
+        return NextResponse.json(
+          { error: 'Erro ao processar boleto', details: error.message },
+          { status: 500 }
+        );
+      }
+    }
+
     return NextResponse.json(
       { error: 'Método de pagamento inválido' },
       { status: 400 }
