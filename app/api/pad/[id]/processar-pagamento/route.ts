@@ -30,7 +30,7 @@ export async function POST(
       );
     }
 
-    if (pedido.status !== 'ENTREGUE') {
+    if (pedido.status !== 'ENTREGUE' && pedido.status !== 'AGUARDANDO_ENVIO') {
       return NextResponse.json(
         { error: 'Este pedido não pode receber pagamento no momento' },
         { status: 400 }
