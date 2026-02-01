@@ -403,6 +403,8 @@ model Campanha {
   pixQrCode         String?
   pixCopiaECola     String?
   pixId             String?
+  boletoUrl         String?
+  boletoBarcode     String?
   dataPagamento     DateTime?
   
   vendedorId        String
