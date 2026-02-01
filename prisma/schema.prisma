@@ -249,6 +249,8 @@ model Venda {
   pixQrCode       String?
   pixCopiaECola   String?
   pixId           String?
+  boletoUrl       String?
+  boletoBarcode   String?
   compradorNome   String
   compradorEmail  String
   compradorCpf    String?
