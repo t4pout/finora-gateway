@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -8,6 +9,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [manterLogado, setManterLogado] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -27,6 +29,9 @@ export default function LoginPage() {
 
       if (response.ok) {
         localStorage.setItem('token', data.token);
+        if (manterLogado) {
+          localStorage.setItem('manterLogado', 'true');
+        }
         window.location.href = '/dashboard';
       } else {
         setError(data.error || 'Erro ao fazer login');
@@ -42,11 +47,14 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/">
-            <div className="flex items-center justify-center space-x-3 mb-2">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-purple-500 rounded-2xl"></div>
-              <div className="text-3xl font-bold text-gray-900">Finora</div>
-            </div>
+          <Link href="/" className="inline-block mb-4">
+            <Image 
+              src="/logo.png" 
+              alt="Finora" 
+              width={200} 
+              height={55}
+              priority
+            />
           </Link>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Bem-vindo de volta!</h1>
           <p className="text-gray-600">Entre na sua conta para continuar</p>
@@ -82,6 +90,19 @@ export default function LoginPage() {
                 placeholder="Digite sua senha"
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition"
               />
+            </div>
+
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="manterLogado"
+                checked={manterLogado}
+                onChange={(e) => setManterLogado(e.target.checked)}
+                className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-600"
+              />
+              <label htmlFor="manterLogado" className="ml-2 text-sm text-gray-700">
+                Manter-me conectado
+              </label>
             </div>
 
             <button
