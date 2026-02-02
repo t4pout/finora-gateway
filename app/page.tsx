@@ -1,4 +1,6 @@
-'use client';
+﻿'use client';
+
+import Image from 'next/image';
 export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
@@ -33,13 +35,16 @@ function HomeContent() {
       <header className="fixed top-0 w-full bg-white shadow-sm z-50">
         <nav className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-purple-500 rounded-xl"></div>
-              <div>
-                <div className="text-2xl font-bold text-gray-900">Finora</div>
-                <div className="text-xs text-gray-500">Pagamentos que fluem.</div>
-              </div>
-            </div>
+            <Link href="/" className="flex items-center">
+              <Image 
+                src="/logo.png" 
+                alt="Finora - Pagamentos que fluem" 
+                width={180} 
+                height={50}
+                priority
+                className="h-12 w-auto"
+              />
+            </Link>
             
             <div className="hidden md:flex space-x-8">
               <a href="#recursos" className="text-gray-700 hover:text-purple-600 transition font-medium">Recursos</a>

@@ -1,5 +1,7 @@
 ﻿'use client';
 
+import Image from 'next/image';
+
 import DashboardSidebar from '../components/Sidebar';
 
 import { useEffect, useState } from 'react';
@@ -298,8 +300,13 @@ export default function DashboardPADPage() {
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-purple-500 rounded-xl"></div>
             <div>
-              <div className="text-xl font-bold text-gray-900">Finora</div>
-              <div className="text-xs text-gray-500">Pagamentos que fluem</div>
+              <Image 
+            src="/logo.png" 
+            alt="Finora" 
+            width={160} 
+            height={45}
+            priority
+          />
             </div>
           </div>
         </div>
