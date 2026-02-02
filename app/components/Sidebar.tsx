@@ -1,4 +1,6 @@
-'use client';
+﻿'use client';
+
+import Image from 'next/image';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -25,15 +27,16 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
 
   return (
     <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-purple-500 rounded-xl"></div>
-          <div>
-            <div className="text-xl font-bold text-gray-900">Finora</div>
-            <div className="text-xs text-gray-500">Pagamentos que fluem</div>
-          </div>
-        </div>
-      </div>
+      <Link href="/dashboard" className="p-6 border-b border-gray-200 block">
+        <Image 
+          src="/logo.png" 
+          alt="Finora - Pagamentos que fluem" 
+          width={180} 
+          height={50}
+          priority
+          className="w-auto h-12"
+        />
+      </Link>
 
       <div className="p-4 border-b border-gray-200">
         <div className="flex items-center space-x-3">
