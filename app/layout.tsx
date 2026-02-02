@@ -14,6 +14,8 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <head>
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon.ico" />
         <script src="https://cdn.tailwindcss.com"></script>
         <script src="/fb-pixel.js" defer></script>
       </head>
