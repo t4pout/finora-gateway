@@ -65,6 +65,12 @@ export default function CheckoutPagamentoPADPage() {
           router.push(`/pad/detalhes/${params.id}`);
           return;
         }
+       // Verificar se já tem vendaId (pagamento em processamento)
+          if (data.pedido.vendaId) {
+            alert('Este pedido já tem um pagamento em processamento!');
+            router.push(`/pad/detalhes/${params.id}`);
+            return;
+          }
         
         setPedido(data.pedido);
       } else {
