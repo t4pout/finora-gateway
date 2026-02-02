@@ -410,7 +410,8 @@ model Campanha {
   vendedorId        String
   observacoes       String?
   motivoCancelamento String?
-  
+
+  afiliacaoId       String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
   

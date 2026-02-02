@@ -113,6 +113,61 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    // Processar comissão de afiliado se houver
+    if (pedidoPad.afiliacaoId) {
+      try {
+        const afiliacao = await prisma.afiliacao.findUnique({
+          where: { id: pedidoPad.afiliacaoId },
+          include: { afiliado: true }
+        });
+
+        if (afiliacao && afiliacao.status === 'ATIVO') {
+          const valorComissao = valorBruto * (afiliacao.comissao / 100);
+
+          // Criar registro de comissão
+          await prisma.comissao.create({
+            data: {
+              valor: valorComissao,
+              percentual: afiliacao.comissao,
+              status: 'PENDENTE',
+              vendaId: vendaId,
+              afiliadoId: afiliacao.afiliadoId
+            }
+          });
+
+          // Adicionar saldo na carteira do afiliado
+          await prisma.carteira.create({
+            data: {
+              usuarioId: afiliacao.afiliadoId,
+              vendaId: vendaId,
+              tipo: 'CREDITO',
+              valor: valorComissao,
+              descricao: `Comissão PAD - ${afiliacao.comissao}% de R$ ${valorBruto.toFixed(2)} - Pedido ${pedidoPadHash}`,
+              status: 'PENDENTE'
+            }
+          });
+
+          // Incrementar conversões
+          await prisma.afiliacao.update({
+            where: { id: pedidoPad.afiliacaoId },
+            data: {
+              conversoes: {
+                increment: 1
+              }
+            }
+          });
+
+          console.log('💰 Comissão de afiliado criada:', {
+            afiliado: afiliacao.afiliado.nome,
+            valorComissao,
+            percentual: afiliacao.comissao
+          });
+        }
+      } catch (error) {
+        console.error('Erro ao processar comissão de afiliado:', error);
+      }
+    }
+
     console.log('✅ Pagamento processado com sucesso!');
 
     return NextResponse.json({

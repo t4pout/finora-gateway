@@ -101,6 +101,24 @@ export async function POST(request: NextRequest) {
     }
 
     // Criar pedido PAD
+    // Buscar código de afiliado (cookie ou query)
+    const afiliadoCode = request.cookies.get('afiliado_code')?.value;
+    let afiliacaoId = null;
+    
+    if (afiliadoCode) {
+      try {
+        const afiliacao = await prisma.afiliacao.findUnique({
+          where: { codigo: afiliadoCode }
+        });
+        if (afiliacao && afiliacao.status === 'ATIVO') {
+          afiliacaoId = afiliacao.id;
+          console.log('✅ Afiliado detectado:', afiliadoCode);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar afiliação:', error);
+      }
+    }
+
     const pedido = await prisma.pedidoPAD.create({
       data: {
         hash,
