@@ -167,15 +167,18 @@ export async function POST(
               vendaId: venda.id
             })
           });
-
-          await prisma.pedidoPAD.update({
-            where: { id: pedido.id },
-            data: {
-              status: 'PAGO',
-              dataPagamento: new Date(),
-              vendaId: venda.id
+            
+            console.log('📡 Resposta processar-aprovacao:', aprovacaoRes.status);
+            
+            if (!aprovacaoRes.ok) {
+              const errorData = await aprovacaoRes.json();
+              console.error('❌ Erro em processar-aprovacao:', errorData);
             }
-          });
+          } catch (err) {
+            console.error('❌ Erro ao chamar processar-aprovacao:', err);
+          }
+
+          
 
           return NextResponse.json({
             success: true,
