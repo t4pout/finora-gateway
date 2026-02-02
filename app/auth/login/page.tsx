@@ -27,11 +27,16 @@ export default function LoginPage() {
 
       const data = await response.json();
 
+      console.log('🔍 Response status:', response.status);
+      console.log('🔍 Response data:', data);
+
       if (response.ok) {
+        console.log('✅ Login OK, salvando token...');
         localStorage.setItem('token', data.token);
         if (manterLogado) {
           localStorage.setItem('manterLogado', 'true');
         }
+        console.log('🚀 Redirecionando para dashboard...');
         window.location.href = '/dashboard';
       } else {
         setError(data.error || 'Erro ao fazer login');
