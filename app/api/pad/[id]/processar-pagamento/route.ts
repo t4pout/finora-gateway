@@ -101,6 +101,7 @@ export async function POST(
         );
       }
     }
+
     // ========== CARTÃO (Mercado Pago) ==========
     if (metodoPagamento === 'CARTAO') {
       try {
@@ -120,21 +121,22 @@ export async function POST(
           payer: {
             email: pedido.clienteEmail || 'contato@finorapayments.com',
             identification: {
-              type: pedido.clienteCpfCnpj.length === 11 ? 'CPF' : 'CNPJ',
-              number: pedido.clienteCpfCnpj
+              type: pedido.clienteCpfCnpj.replace(/\D/g, '').length === 11 ? 'CPF' : 'CNPJ',
+              number: pedido.clienteCpfCnpj.replace(/\D/g, '')
             }
           },
           external_reference: pedido.id
         };
 
         console.log('🚀 Enviando para Mercado Pago:', JSON.stringify(paymentData, null, 2));
-          
-          const result = await payment.create({ body: paymentData });
+        
+        const result = await payment.create({ body: paymentData });
 
-        console.log('✅ Pagamento APROVADO no Mercado Pago!');
-        console.log('📊 Dados do resultado:', JSON.stringify(result, null, 2));
+        console.log('✅ Resultado do Mercado Pago - Status:', result.status);
         
         if (result.status === 'approved') {
+          console.log('✅ Pagamento APROVADO! Criando venda...');
+          
           // Criar registro de venda
           const venda = await prisma.venda.create({
             data: {
@@ -156,29 +158,35 @@ export async function POST(
               vendedorId: pedido.vendedorId
             }
           });
-          console.log('✅ Venda criada:', venda.id);
           
+          console.log('✅ Venda criada:', venda.id);
+
           // Processar aprovação e adicionar saldo na carteira
-          await fetch(`${request.nextUrl.origin}/api/pad/processar-aprovacao`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              pedidoPadHash: pedido.hash,
-              vendaId: venda.id
-            })
-          });
+          try {
+            console.log('🔄 Chamando processar-aprovacao...');
             
-            console.log('📡 Resposta processar-aprovacao:', aprovacaoRes.status);
-            
-            if (!aprovacaoRes.ok) {
-              const errorData = await aprovacaoRes.json();
+            const aprovacaoResponse = await fetch(`${request.nextUrl.origin}/api/pad/processar-aprovacao`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                pedidoPadHash: pedido.hash,
+                vendaId: venda.id
+              })
+            });
+
+            console.log('📡 Status processar-aprovacao:', aprovacaoResponse.status);
+
+            if (!aprovacaoResponse.ok) {
+              const errorData = await aprovacaoResponse.json();
               console.error('❌ Erro em processar-aprovacao:', errorData);
+              throw new Error('Falha ao processar aprovação');
             }
+
+            console.log('✅ Aprovação processada com sucesso!');
           } catch (err) {
             console.error('❌ Erro ao chamar processar-aprovacao:', err);
+            // Não propaga o erro para não quebrar o fluxo
           }
-
-          
 
           return NextResponse.json({
             success: true,
@@ -205,7 +213,6 @@ export async function POST(
       }
     }
 
-    
     // ========== BOLETO (Mercado Pago) ==========
     if (metodoPagamento === 'BOLETO') {
       try {
@@ -233,9 +240,7 @@ export async function POST(
           external_reference: pedido.id
         };
 
-        console.log('🚀 Enviando para Mercado Pago:', JSON.stringify(paymentData, null, 2));
-          
-          const result = await payment.create({ body: paymentData });
+        const result = await payment.create({ body: paymentData });
 
         if (result.status === 'pending' && result.transaction_details?.external_resource_url) {
           // Atualizar pedido com link do boleto
