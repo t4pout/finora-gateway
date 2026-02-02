@@ -33,6 +33,7 @@ export default function LoginPage() {
       if (response.ok) {
         console.log('✅ Login OK, salvando token...');
         localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
         if (manterLogado) {
           localStorage.setItem('manterLogado', 'true');
         }
