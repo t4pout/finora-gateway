@@ -129,6 +129,9 @@ export async function POST(
 
         const result = await payment.create({ body: paymentData });
 
+        console.log('✅ Pagamento APROVADO no Mercado Pago!');
+        console.log('📊 Dados do resultado:', JSON.stringify(result, null, 2));
+        
         if (result.status === 'approved') {
           // Criar registro de venda
           const venda = await prisma.venda.create({
@@ -151,7 +154,8 @@ export async function POST(
               vendedorId: pedido.vendedorId
             }
           });
-
+          console.log('✅ Venda criada:', venda.id);
+          
           // Processar aprovação e adicionar saldo na carteira
           await fetch(`${request.nextUrl.origin}/api/pad/processar-aprovacao`, {
             method: 'POST',
