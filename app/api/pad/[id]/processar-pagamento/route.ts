@@ -127,7 +127,9 @@ export async function POST(
           external_reference: pedido.id
         };
 
-        const result = await payment.create({ body: paymentData });
+        console.log('🚀 Enviando para Mercado Pago:', JSON.stringify(paymentData, null, 2));
+          
+          const result = await payment.create({ body: paymentData });
 
         console.log('✅ Pagamento APROVADO no Mercado Pago!');
         console.log('📊 Dados do resultado:', JSON.stringify(result, null, 2));
@@ -228,7 +230,9 @@ export async function POST(
           external_reference: pedido.id
         };
 
-        const result = await payment.create({ body: paymentData });
+        console.log('🚀 Enviando para Mercado Pago:', JSON.stringify(paymentData, null, 2));
+          
+          const result = await payment.create({ body: paymentData });
 
         if (result.status === 'pending' && result.transaction_details?.external_resource_url) {
           // Atualizar pedido com link do boleto
