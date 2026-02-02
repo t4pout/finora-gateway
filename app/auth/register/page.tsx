@@ -1,5 +1,7 @@
 ﻿'use client';
 
+import Image from 'next/image';
+
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -57,7 +59,15 @@ export default function RegisterPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <Link href="/">
+          <Link href="/" className="inline-flex items-center justify-center mb-4">
+            <Image 
+              src="/logo.png" 
+              alt="Finora" 
+              width={200} 
+              height={55}
+              priority
+            />
+          </Link>
             <div className="inline-flex items-center space-x-2 mb-4 cursor-pointer">
               <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-purple-500 rounded-xl"></div>
               <div className="text-3xl font-bold text-gray-900">Finora</div>
