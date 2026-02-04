@@ -37,18 +37,36 @@ export default function AdminPage() {
   const [filtro, setFiltro] = useState('');
   const [modalTaxa, setModalTaxa] = useState<{ userId: string; userName: string } | null>(null);
   const [planoSelecionado, setPlanoSelecionado] = useState('');
-  const logarComoUsuario = (userId: string, nome: string, email: string, role: string) => {
+  const logarComoUsuario = async (userId: string, nome: string, email: string, role: string) => {
     if (!confirm(`Deseja logar como ${nome}?`)) return;
     
-    const userData = {
-      id: userId,
-      nome: nome,
-      email: email,
-      role: role
-    };
-    
-    localStorage.setItem('user', JSON.stringify(userData));
-    window.location.href = '/dashboard';
+    try {
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch('/api/admin/login-as', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ userId })
+      });
+
+      if (!response.ok) {
+        alert('❌ Erro ao fazer login como usuário');
+        return;
+      }
+
+      const data = await response.json();
+
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      window.location.href = '/dashboard';
+    } catch (error) {
+      console.error('Erro:', error);
+      alert('❌ Erro ao fazer login como usuário');
+    }
   };
 
   useEffect(() => {
