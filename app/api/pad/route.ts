@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
     nome: true,
     preco: true,
     imagem: true,
-    vendedorId: true
+    userId: true
   }
 });
 
@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
 
    // Buscar configurações de Telegram do vendedor
     const vendedor = await prisma.user.findUnique({
-      where: { id: produto.vendedorId },
+      where: { id: produto.userId },
       select: {
         telegramBotToken: true,
         telegramChatId: true
@@ -194,7 +194,7 @@ export async function POST(request: NextRequest) {
           body: JSON.stringify({
             botToken: process.env.TELEGRAM_BOT_TOKEN,
             chatId: process.env.TELEGRAM_CHAT_ID,
-            mensagem: mensagemPadrao + `\n\n🧑‍💼 Vendedor ID: ${produto.vendedorId}`
+            mensagem: mensagemPadrao + `\n\n🧑‍💼 Vendedor ID: ${produto.userId}`
           })
         });
         console.log('✅ Notificação enviada para bot geral');
