@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Image from 'next/image';
 
@@ -60,6 +60,8 @@ export default function DashboardPADPage() {
     aberto: false,
     pedido: null
   });
+  const [modoEdicao, setModoEdicao] = useState(false);
+  const [pedidoEditado, setPedidoEditado] = useState<PedidoPAD | null>(null);
   const [menuAberto, setMenuAberto] = useState<string | null>(null);
   const [dataInicio, setDataInicio] = useState('');
   const [dataFim, setDataFim] = useState('');
@@ -699,7 +701,27 @@ export default function DashboardPADPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-              <h3 className="text-xl font-bold text-gray-900">📦 Detalhes da Transação PAD</h3>
+              <div className="flex items-center space-x-3">
+                  <h3 className="text-xl font-bold text-gray-900">📦 Detalhes da Transação PAD</h3>
+                  <button
+                    onClick={() => {
+                      setModoEdicao(!modoEdicao);
+                      if (!modoEdicao) {
+                        setPedidoEditado(JSON.parse(JSON.stringify(modalDetalhes.pedido)));
+                      }
+                    }}
+                    className="p-2 hover:bg-purple-50 rounded-lg transition"
+                    title={modoEdicao ? "Cancelar edição" : "Editar pedido"}
+                  >
+                    {modoEdicao ? (
+                      <span className="text-red-600">✕</span>
+                    ) : (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-600" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
               <button 
                 onClick={() => setModalDetalhes({ aberto: false, pedido: null })}
                 className="text-gray-400 hover:text-gray-600"
@@ -749,19 +771,55 @@ export default function DashboardPADPage() {
                   <div className="space-y-3">
                     <div>
                       <div className="text-xs text-gray-500">Nome:</div>
-                      <div className="font-medium">{modalDetalhes.pedido.clienteNome}</div>
+                      {modoEdicao ? (
+                        <input
+                          type="text"
+                          value={pedidoEditado?.clienteNome || ''}
+                          onChange={(e) => setPedidoEditado(prev => prev ? {...prev, clienteNome: e.target.value} : null)}
+                          className="w-full px-3 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-600"
+                        />
+                      ) : (
+                        <div className="font-medium">{modalDetalhes.pedido.clienteNome}</div>
+                      )}
                     </div>
                     <div>
                       <div className="text-xs text-gray-500">Email:</div>
-                      <div className="text-sm">{modalDetalhes.pedido.clienteEmail || 'Não informado'}</div>
+                      {modoEdicao ? (
+                        <input
+                          type="email"
+                          value={pedidoEditado?.clienteEmail || ''}
+                          onChange={(e) => setPedidoEditado(prev => prev ? {...prev, clienteEmail: e.target.value} : null)}
+                          className="w-full px-3 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-600"
+                        />
+                      ) : (
+                        <div className="text-sm">{modalDetalhes.pedido.clienteEmail || 'Não informado'}</div>
+                      )}
                     </div>
                     <div>
                       <div className="text-xs text-gray-500">Telefone:</div>
-                      <div className="text-sm">{modalDetalhes.pedido.clienteTelefone}</div>
+                      {modoEdicao ? (
+                        <input
+                          type="text"
+                          value={pedidoEditado?.clienteTelefone || ''}
+                          onChange={(e) => setPedidoEditado(prev => prev ? {...prev, clienteTelefone: e.target.value} : null)}
+                          className="w-full px-3 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-600"
+                        />
+                      ) : (
+                        <div className="text-sm">{modalDetalhes.pedido.clienteTelefone}</div>
+                      )}
                     </div>
                     <div>
                       <div className="text-xs text-gray-500">Documento:</div>
-                      <div className="text-sm">{modalDetalhes.pedido.clienteCpfCnpj}</div>
+                      {modoEdicao ? (
+                        <input
+                          type="text"
+                          value={pedidoEditado?.clienteCpfCnpj || ''}
+                          onChange={(e) => setPedidoEditado(prev => prev ? {...prev, clienteCpfCnpj: e.target.value} : null)}
+                          className="w-full px-3 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-600"
+                        />
+                      ) : (
+                        <div className="text-sm">{modalDetalhes.pedido.clienteCpfCnpj}</div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -842,7 +900,29 @@ export default function DashboardPADPage() {
                 </div>
               </div>
 
-              <div className="mt-4">
+              {modoEdicao && (
+                  <div className="mt-4">
+                    <button
+                      onClick={salvarEdicao}
+                      className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition"
+                    >
+                      💾 SALVAR ALTERAÇÕES
+                    </button>
+                  </div>
+                )}
+
+                {!modoEdicao && modalDetalhes.pedido.status !== 'CANCELADO' && (
+                  <div className="mt-4">
+                    <button
+                      onClick={() => reprovarPedido(modalDetalhes.pedido!.hash)}
+                      className="w-full px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition"
+                    >
+                      🚫 REPROVAR/CANCELAR PEDIDO
+                    </button>
+                  </div>
+                )}
+
+                <div className="mt-4">
                 <button
                   onClick={() => setModalDetalhes({ aberto: false, pedido: null })}
                   className="w-full px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition"
