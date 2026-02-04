@@ -39,7 +39,7 @@ export async function PATCH(
 
     // Verificar se o pedido existe e pertence ao vendedor
     const pedido = await prisma.pedidoPAD.findUnique({
-      where: { id },
+      where: { hash: id },
       select: { vendedorId: true, status: true }
     });
 
@@ -60,7 +60,7 @@ export async function PATCH(
 
     // Cancelar pedido
     const pedidoAtualizado = await prisma.pedidoPAD.update({
-      where: { id },
+      where: { hash: id },
       data: {
         status: 'CANCELADO',
         motivoCancelamento: body.motivo
