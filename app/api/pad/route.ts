@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
 
    // Buscar configurações de Telegram do vendedor
     const vendedor = await prisma.user.findUnique({
-      where: { id: plano.userId },
+      where: { id: produto.vendedorId },
       select: {
         telegramBotToken: true,
         telegramChatId: true
@@ -187,7 +187,7 @@ export async function POST(request: NextRequest) {
           body: JSON.stringify({
             botToken: process.env.TELEGRAM_BOT_TOKEN,
             chatId: process.env.TELEGRAM_CHAT_ID,
-            mensagem: mensagemPadrao + `\n\n🧑‍💼 Vendedor ID: ${plano.userId}`
+            mensagem: mensagemPadrao + `\n\n🧑‍💼 Vendedor ID: ${produto.vendedorId}`
           })
         });
         console.log('✅ Notificação enviada para bot geral');
