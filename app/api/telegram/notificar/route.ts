@@ -1,40 +1,50 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
-
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { mensagem } = body;
+    const { botToken, chatId, mensagem } = body;
 
-    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
-      console.error('❌ Telegram não configurado');
-      return NextResponse.json({ error: 'Telegram não configurado' }, { status: 500 });
+    // Se não tiver credenciais, usa as padrões (backward compatibility)
+    const tokenFinal = botToken || process.env.TELEGRAM_BOT_TOKEN;
+    const chatIdFinal = chatId || process.env.TELEGRAM_CHAT_ID;
+
+    if (!tokenFinal || !chatIdFinal) {
+      console.log('⚠️ Telegram não configurado, pulando notificação');
+      return NextResponse.json({ success: true, skipped: true });
     }
 
-    const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+    if (!mensagem) {
+      return NextResponse.json(
+        { error: 'Mensagem é obrigatória' },
+        { status: 400 }
+      );
+    }
 
-    const response = await fetch(telegramUrl, {
+    const response = await fetch(`https://api.telegram.org/bot${tokenFinal}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        chat_id: TELEGRAM_CHAT_ID,
+        chat_id: chatIdFinal,
         text: mensagem,
         parse_mode: 'HTML'
       })
     });
 
-    if (!response.ok) {
-      throw new Error('Erro ao enviar mensagem');
+    const data = await response.json();
+
+    if (!response.ok || !data.ok) {
+      console.error('❌ Erro Telegram API:', data);
+      // Não retorna erro para não quebrar o fluxo de criação do pedido
+      return NextResponse.json({ success: false, error: data.description });
     }
 
-    console.log('✅ Notificação Telegram enviada:', mensagem);
-
+    console.log('✅ Notificação Telegram enviada');
     return NextResponse.json({ success: true });
 
   } catch (error: any) {
-    console.error('❌ Erro ao enviar Telegram:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('❌ Erro ao enviar notificação Telegram:', error);
+    // Não retorna erro para não quebrar o fluxo
+    return NextResponse.json({ success: false, error: error.message });
   }
 }

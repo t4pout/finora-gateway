@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -151,6 +151,8 @@ export async function POST(request: NextRequest) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          botToken: vendedor.telegramBotToken,
+          chatId: vendedor.telegramChatId,
           mensagem: `🔔 <b>PEDIDO GERADO PAD</b>\n\n💰 Valor: R$ ${pedido.valor.toFixed(2)}\n👤 Cliente: ${pedido.clienteNome}\n📦 Produto: ${pedido.produtoNome}\n🔗 Hash: ${pedido.hash}`
         })
       });
