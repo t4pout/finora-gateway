@@ -916,14 +916,54 @@ export default function DashboardPADPage() {
                       )}
                     </div>
                     <div>
-                      <span className="text-gray-600">Bairro:</span> {modalDetalhes.pedido.bairro}
+                      <span className="text-gray-600">Bairro:</span>{' '}
+                      {modoEdicao ? (
+                        <input
+                          type="text"
+                          value={pedidoEditado?.bairro || ''}
+                          onChange={(e) => setPedidoEditado(prev => prev ? {...prev, bairro: e.target.value} : null)}
+                          className="px-3 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-600"
+                        />
+                      ) : (
+                        modalDetalhes.pedido.bairro
+                      )}
                     </div>
                     <div>
                       <span className="text-gray-600">Cidade/Estado:</span>{' '}
-                      {modalDetalhes.pedido.cidade} - {modalDetalhes.pedido.estado}
+                      {modoEdicao ? (
+                        <div className="inline-flex gap-2">
+                          <input
+                            type="text"
+                            placeholder="Cidade"
+                            value={pedidoEditado?.cidade || ''}
+                            onChange={(e) => setPedidoEditado(prev => prev ? {...prev, cidade: e.target.value} : null)}
+                            className="px-3 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-600"
+                          />
+                          <input
+                            type="text"
+                            placeholder="UF"
+                            maxLength={2}
+                            value={pedidoEditado?.estado || ''}
+                            onChange={(e) => setPedidoEditado(prev => prev ? {...prev, estado: e.target.value.toUpperCase()} : null)}
+                            className="w-20 px-3 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-600"
+                          />
+                        </div>
+                      ) : (
+                        <>{modalDetalhes.pedido.cidade} - {modalDetalhes.pedido.estado}</>
+                      )}
                     </div>
                     <div>
-                      <span className="text-gray-600">CEP:</span> {modalDetalhes.pedido.cep}
+                      <span className="text-gray-600">CEP:</span>{' '}
+                      {modoEdicao ? (
+                        <input
+                          type="text"
+                          value={pedidoEditado?.cep || ''}
+                          onChange={(e) => setPedidoEditado(prev => prev ? {...prev, cep: e.target.value} : null)}
+                          className="px-3 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-600"
+                        />
+                      ) : (
+                        modalDetalhes.pedido.cep
+                      )}
                     </div>
                   </div>
                 </div>
