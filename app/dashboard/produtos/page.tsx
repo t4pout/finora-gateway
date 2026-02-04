@@ -149,7 +149,7 @@ export default function ProdutosPage() {
               )}
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-4">
               {produtosFiltrados.map((produto) => (
                 <div key={produto.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition">
                   {produto.imagem ? (
