@@ -145,18 +145,56 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Pedido PAD criado:', pedido);
 
-    // Enviar notificação Telegram
-    try {
-      await fetch(`${request.nextUrl.origin}/api/telegram/notificar`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          botToken: vendedor.telegramBotToken,
-          chatId: vendedor.telegramChatId,
-          mensagem: `🔔 <b>PEDIDO GERADO PAD</b>\n\n💰 Valor: R$ ${pedido.valor.toFixed(2)}\n👤 Cliente: ${pedido.clienteNome}\n📦 Produto: ${pedido.produtoNome}\n🔗 Hash: ${pedido.hash}`
-        })
-      });
-    } catch (e) {
+   // Buscar configurações de Telegram do vendedor
+    const vendedor = await prisma.user.findUnique({
+      where: { id: plano.userId },
+      select: {
+        telegramBotToken: true,
+        telegramChatId: true
+      }
+    });
+
+    const mensagemPadrao = `🔔 <b>PEDIDO GERADO PAD</b>\n\n` +
+      `💰 Valor: R$ ${pedido.valor.toFixed(2)}\n` +
+      `👤 Cliente: ${pedido.clienteNome}\n` +
+      `📦 Produto: ${pedido.produtoNome}\n` +
+      `🔗 Hash: ${pedido.hash}`;
+
+    // 1. Notificação individual do vendedor
+    if (vendedor?.telegramBotToken && vendedor?.telegramChatId) {
+      try {
+        await fetch(`${request.nextUrl.origin}/api/telegram/notificar`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            botToken: vendedor.telegramBotToken,
+            chatId: vendedor.telegramChatId,
+            mensagem: mensagemPadrao
+          })
+        });
+        console.log('✅ Notificação enviada para vendedor');
+      } catch (e) {
+        console.error('Erro notificação vendedor:', e);
+      }
+    }
+
+    // 2. Notificação geral da plataforma
+    if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID) {
+      try {
+        await fetch(`${request.nextUrl.origin}/api/telegram/notificar`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            botToken: process.env.TELEGRAM_BOT_TOKEN,
+            chatId: process.env.TELEGRAM_CHAT_ID,
+            mensagem: mensagemPadrao + `\n\n🧑‍💼 Vendedor ID: ${plano.userId}`
+          })
+        });
+        console.log('✅ Notificação enviada para bot geral');
+      } catch (e) {
+        console.error('Erro notificação geral:', e);
+      }
+    }
       console.error('Erro ao enviar notificação:', e);
     }
 
