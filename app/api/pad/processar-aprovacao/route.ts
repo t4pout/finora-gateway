@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
@@ -112,6 +112,41 @@ export async function POST(request: NextRequest) {
         status: 'PENDENTE'
       }
     });
+
+    // Enviar notificação de pagamento confirmado
+    try {
+      const vendedorCompleto = await prisma.user.findUnique({
+        where: { id: venda.vendedorId },
+        select: {
+          telegramBotToken: true,
+          telegramChatId: true
+        }
+      });
+
+      if (vendedorCompleto?.telegramBotToken && vendedorCompleto?.telegramChatId) {
+        const mensagemPagamento = `💰 <b>PAGAMENTO CONFIRMADO!</b>\n\n` +
+          `📦 Pedido: ${pedidoPadHash}\n` +
+          `💵 Valor: R$ ${valorBruto.toFixed(2)}\n` +
+          `💳 Método: ${venda.metodoPagamento}\n` +
+          `💸 Taxa: R$ ${valorTaxaTotal.toFixed(2)}\n` +
+          `✅ Líquido: R$ ${valorLiquido.toFixed(2)}\n\n` +
+          `🎉 O valor já está disponível na sua carteira!`;
+
+        await fetch(`${request.nextUrl.origin}/api/telegram/notificar`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            botToken: vendedorCompleto.telegramBotToken,
+            chatId: vendedorCompleto.telegramChatId,
+            mensagem: mensagemPagamento
+          })
+        });
+
+        console.log('✅ Notificação de pagamento enviada');
+      }
+    } catch (error) {
+      console.error('Erro ao enviar notificação de pagamento:', error);
+    }
 
     // Processar comissão de afiliado se houver
     if (pedidoPad.afiliacaoId) {
