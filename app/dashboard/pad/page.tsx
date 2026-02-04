@@ -226,7 +226,7 @@ export default function DashboardPADPage() {
     
     try {
       const response = await fetch(`/api/pad/${hash}/cancelar`, {
-        method: 'POST',
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -884,8 +884,36 @@ export default function DashboardPADPage() {
                   <div className="space-y-2 text-sm">
                     <div>
                       <span className="text-gray-600">Endereço:</span>{' '}
-                      {modalDetalhes.pedido.rua}, {modalDetalhes.pedido.numero}
-                      {modalDetalhes.pedido.complemento && ` - ${modalDetalhes.pedido.complemento}`}
+                      {modoEdicao ? (
+                        <div className="space-y-2">
+                          <input
+                            type="text"
+                            placeholder="Rua"
+                            value={pedidoEditado?.rua || ''}
+                            onChange={(e) => setPedidoEditado(prev => prev ? {...prev, rua: e.target.value} : null)}
+                            className="w-full px-3 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-600"
+                          />
+                          <div className="grid grid-cols-2 gap-2">
+                            <input
+                              type="text"
+                              placeholder="Número"
+                              value={pedidoEditado?.numero || ''}
+                              onChange={(e) => setPedidoEditado(prev => prev ? {...prev, numero: e.target.value} : null)}
+                              className="px-3 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-600"
+                            />
+                            <input
+                              type="text"
+                              placeholder="Complemento"
+                              value={pedidoEditado?.complemento || ''}
+                              onChange={(e) => setPedidoEditado(prev => prev ? {...prev, complemento: e.target.value} : null)}
+                              className="px-3 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-600"
+                            />
+                          </div>
+                        </div>
+                      ) : (
+                        <>{modalDetalhes.pedido.rua}, {modalDetalhes.pedido.numero}
+                        {modalDetalhes.pedido.complemento && ` - ${modalDetalhes.pedido.complemento}`}</>
+                      )}
                     </div>
                     <div>
                       <span className="text-gray-600">Bairro:</span> {modalDetalhes.pedido.bairro}
