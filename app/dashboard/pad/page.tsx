@@ -193,6 +193,61 @@ export default function DashboardPADPage() {
       alert('❌ Erro ao cancelar');
     }
   };
+  
+   const salvarEdicao = async () => {
+    if (!pedidoEditado) return;
+    
+    try {
+      const response = await fetch(`/api/pad/${pedidoEditado.hash}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(pedidoEditado)
+      });
+
+      if (response.ok) {
+        alert('✅ Pedido atualizado com sucesso!');
+        setModoEdicao(false);
+        carregarPedidos();
+        setModalDetalhes({ aberto: false, pedido: null });
+      } else {
+        alert('❌ Erro ao atualizar pedido');
+      }
+    } catch (error) {
+      console.error('Erro ao salvar edição:', error);
+      alert('❌ Erro ao salvar alterações');
+    }
+  };
+
+  const reprovarPedido = async (hash: string) => {
+    if (!confirm('Tem certeza que deseja reprovar/cancelar este pedido?')) return;
+    
+    try {
+      const response = await fetch(`/api/pad/${hash}/cancelar`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          motivo: 'Cancelado pelo administrador'
+        })
+      });
+
+      if (response.ok) {
+        alert('✅ Pedido cancelado com sucesso!');
+        carregarPedidos();
+        setModalDetalhes({ aberto: false, pedido: null });
+      } else {
+        alert('❌ Erro ao cancelar pedido');
+      }
+    } catch (error) {
+      console.error('Erro ao cancelar:', error);
+      alert('❌ Erro ao cancelar pedido');
+    }
+  };
 
   
   const marcarComoEnviado = async (hash: string) => {
