@@ -37,6 +37,19 @@ export default function AdminPage() {
   const [filtro, setFiltro] = useState('');
   const [modalTaxa, setModalTaxa] = useState<{ userId: string; userName: string } | null>(null);
   const [planoSelecionado, setPlanoSelecionado] = useState('');
+  const logarComoUsuario = (userId: string, nome: string, email: string, role: string) => {
+    if (!confirm(`Deseja logar como ${nome}?`)) return;
+    
+    const userData = {
+      id: userId,
+      nome: nome,
+      email: email,
+      role: role
+    };
+    
+    localStorage.setItem('user', JSON.stringify(userData));
+    window.location.href = '/dashboard';
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -295,6 +308,15 @@ export default function AdminPage() {
                       </td>
                       <td className="py-4 px-4">
                         <div className="flex gap-2">
+                        <button
+                              onClick={() => logarComoUsuario(user.id, user.nome, user.email, user.role)}
+                              className="p-2 hover:bg-purple-50 rounded-lg transition text-purple-600"
+                              title="Logar como este usuário"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </button>
                           <button 
                             onClick={() => abrirModalTaxa(user.id, user.nome, user.planoTaxa?.id)}
                             className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition"
