@@ -195,9 +195,7 @@ export async function POST(request: NextRequest) {
         console.error('Erro notificação geral:', e);
       }
     }
-      console.error('Erro ao enviar notificação:', e);
-    }
-
+ 
     return NextResponse.json({
       success: true,
       pedido,
