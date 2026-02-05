@@ -165,7 +165,7 @@ export default function NovoProdutoPage() {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none text-gray-900"
                 >
                   <option value="DIGITAL">Digital</option>
-                  <option value="FISICO">FÃ­sico</option>
+                  <option value="FISICO">Fà­sico</option>
                 </select>
               </div>
 

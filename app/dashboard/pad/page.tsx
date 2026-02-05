@@ -113,7 +113,7 @@ export default function DashboardPADPage() {
         const pedidosData = data.pedidos || [];
         setPedidos(pedidosData);
         
-        // Calcular estatÃ­sticas
+        // Calcular estatà­sticas
         const statsCalculadas: Stats = {
           total: {
             count: pedidosData.length,
@@ -217,7 +217,7 @@ export default function DashboardPADPage() {
       }
     } catch (error) {
       console.error('Erro ao salvar edição:', error);
-      alert('âŒ Erro ao salvar alteraçÃµes');
+      alert('âŒ Erro ao salvar alterações');
     }
   };
 
@@ -311,7 +311,7 @@ export default function DashboardPADPage() {
   };
   const abrirWhatsApp = (telefone: string, nome: string, produto: string, valor: number) => {
     const tel = telefone.replace(/\D/g, '');
-    const mensagem = `OlÃ¡ ${nome}! Sobre seu pedido de ${produto} no valor de R$ ${valor.toFixed(2)}...`;
+    const mensagem = `Olá ${nome}! Sobre seu pedido de ${produto} no valor de R$ ${valor.toFixed(2)}...`;
     window.open(`https://wa.me/55${tel}?text=${encodeURIComponent(mensagem)}`, '_blank');
   };
 
@@ -383,7 +383,7 @@ export default function DashboardPADPage() {
           <Link href="/dashboard">
             <div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition">
               <Home size={20} />
-              <span>PÃ¡gina Inicial</span>
+              <span>Página Inicial</span>
             </div>
           </Link>
           <Link href="/dashboard/produtos">
@@ -462,7 +462,7 @@ export default function DashboardPADPage() {
                 <div className="absolute right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 p-4 z-10 w-80">
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">Data InÃ­cio</label>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Data Inà­cio</label>
                       <input
                         type="date"
                         value={dataInicio}
@@ -506,8 +506,8 @@ export default function DashboardPADPage() {
               <div className="text-2xl font-bold text-yellow-900 mb-1">
                 R$ {stats.emAnalise.valor.toFixed(2).replace('.', ',')}
               </div>
-              <div className="text-sm text-yellow-600">Em AnÃ¡lise</div>
-              <div className="text-xs text-yellow-700 mt-1">Pedidos em anÃ¡lise: {stats.emAnalise.count}</div>
+              <div className="text-sm text-yellow-600">Em Análise</div>
+              <div className="text-xs text-yellow-700 mt-1">Pedidos em análise: {stats.emAnalise.count}</div>
             </div>
             <div className="bg-green-50 rounded-xl border border-green-200 p-4">
               <div className="text-2xl font-bold text-green-900 mb-1">
@@ -561,7 +561,7 @@ export default function DashboardPADPage() {
                 className="px-4 py-2 border border-gray-300 rounded-lg"
               >
                 <option value="TODOS">Todos os Status</option>
-                <option value="EM_ANALISE">Em AnÃ¡lise</option>
+                <option value="EM_ANALISE">Em Análise</option>
                 <option value="AGUARDANDO_ENVIO">Aprovados</option>
                 <option value="CANCELADO">Cancelados</option>
               </select>
@@ -580,7 +580,7 @@ export default function DashboardPADPage() {
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Valor</th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Data</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">AçÃµes</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Ações</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
@@ -620,7 +620,7 @@ export default function DashboardPADPage() {
                             pedido.status === 'PAGO' ? 'bg-purple-100 text-purple-700' :
                             'bg-red-100 text-red-700'
                           }`}>
-                            {pedido.status === 'EM_ANALISE' ? 'Em anÃ¡lise' :
+                            {pedido.status === 'EM_ANALISE' ? 'Em análise' :
                              pedido.status === 'AGUARDANDO_ENVIO' ? 'PAD Aprovado - Enviado' :
                              pedido.status === 'ENTREGUE' ? 'PAD Aprovado - Entregue' :
                              pedido.status === 'PAGO' ? 'Pago' :
@@ -788,7 +788,7 @@ export default function DashboardPADPage() {
             <div className="p-6">
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="bg-gray-50 rounded-xl p-6">
-                  <h4 className="font-bold text-gray-900 mb-4">InformaçÃµes da Transação</h4>
+                  <h4 className="font-bold text-gray-900 mb-4">Informações da Transação</h4>
                   <div className="space-y-3">
                     <div>
                       <div className="text-xs text-gray-500">Hash:</div>
@@ -807,7 +807,7 @@ export default function DashboardPADPage() {
                         modalDetalhes.pedido.status === 'PAGO' ? 'bg-purple-100 text-purple-700' :
                         'bg-red-100 text-red-700'
                       }`}>
-                        {modalDetalhes.pedido.status === 'EM_ANALISE' ? 'Em AnÃ¡lise' :
+                        {modalDetalhes.pedido.status === 'EM_ANALISE' ? 'Em Análise' :
                          modalDetalhes.pedido.status === 'AGUARDANDO_ENVIO' ? 'PAD Aprovado - Enviado' :
                          modalDetalhes.pedido.status === 'ENTREGUE' ? 'PAD Aprovado - Entregue' :
                          modalDetalhes.pedido.status === 'PAGO' ? 'Pago' :
@@ -822,7 +822,7 @@ export default function DashboardPADPage() {
                 </div>
 
                 <div className="bg-gray-50 rounded-xl p-6">
-                  <h4 className="font-bold text-gray-900 mb-4">InformaçÃµes do Cliente</h4>
+                  <h4 className="font-bold text-gray-900 mb-4">Informações do Cliente</h4>
                   <div className="space-y-3">
                     <div>
                       <div className="text-xs text-gray-500">Nome:</div>
@@ -896,7 +896,7 @@ export default function DashboardPADPage() {
                           <div className="grid grid-cols-2 gap-2">
                             <input
                               type="text"
-                              placeholder="NÃºmero"
+                              placeholder="Nàºmero"
                               value={pedidoEditado?.numero || ''}
                               onChange={(e) => setPedidoEditado(prev => prev ? {...prev, numero: e.target.value} : null)}
                               className="px-3 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-600"
@@ -969,7 +969,7 @@ export default function DashboardPADPage() {
                 </div>
 
                 <div className="bg-gray-50 rounded-xl p-6">
-                  <h4 className="font-bold text-gray-900 mb-4">InformaçÃµes do Produto</h4>
+                  <h4 className="font-bold text-gray-900 mb-4">Informações do Produto</h4>
                   <div className="space-y-3">
                     <div>
                       <div className="text-xs text-gray-500">Produto:</div>
@@ -1029,7 +1029,7 @@ export default function DashboardPADPage() {
                       onClick={salvarEdicao}
                       className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition"
                     >
-                      ðŸ’¾ SALVAR ALTERAÃ‡Ã•ES
+                      ðŸ’¾ SALVAR ALTERAà‡à•ES
                     </button>
                   </div>
                 )}

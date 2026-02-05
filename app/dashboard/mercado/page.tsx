@@ -192,7 +192,7 @@ export default function MercadoPage() {
               >
                 <option value="TODOS">Todos os Tipos</option>
                 <option value="DIGITAL">Digital</option>
-                <option value="FISICO">FÃ­sico</option>
+                <option value="FISICO">Fà­sico</option>
               </select>
 
               <select

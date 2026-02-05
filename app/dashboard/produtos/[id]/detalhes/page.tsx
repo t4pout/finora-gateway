@@ -80,7 +80,7 @@ export default function ProdutosPage() {
       });
 
       if (response.ok) {
-        alert('Produto excluÃ­do!');
+        alert('Produto excluà­do!');
         carregarProdutos();
       }
     } catch (error) {
@@ -139,7 +139,7 @@ export default function ProdutosPage() {
           <Link href="/dashboard">
             <div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition">
               <Home size={20} />
-              <span>PÃ¡gina Inicial</span>
+              <span>Pà¡gina Inicial</span>
             </div>
           </Link>
 
@@ -186,7 +186,7 @@ export default function ProdutosPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Meus Produtos</h1>
-              <p className="text-sm text-gray-500">Gerencie seus produtos fÃ­sicos e digitais</p>
+              <p className="text-sm text-gray-500">Gerencie seus produtos fà­sicos e digitais</p>
             </div>
 
             <Link href="/dashboard/produtos/novo">

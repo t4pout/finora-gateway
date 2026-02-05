@@ -102,7 +102,7 @@ export async function POST(
       }
     }
 
-    // ========== CARTÃO (Mercado Pago) ==========
+    // ========== CARTàO (Mercado Pago) ==========
     if (metodoPagamento === 'CARTAO') {
       try {
         if (!dadosCartao || !dadosCartao.token) {

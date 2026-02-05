@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
   try {
     const { email, senha } = await request.json();
 
-    // ValidaçÃµes
+    // Validaçàµes
     if (!email || !senha) {
       return NextResponse.json(
         { error: 'Email e senha são obrigatórios' },
@@ -19,14 +19,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Buscar usuÃ¡rio
+    // Buscar usuà¡rio
     const user = await prisma.user.findUnique({
       where: { email }
     });
 
     if (!user) {
       return NextResponse.json(
-        { error: 'Email ou senha invÃ¡lidos' },
+        { error: 'Email ou senha invà¡lidos' },
         { status: 401 }
       );
     }
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     if (!senhaValida) {
       return NextResponse.json(
-        { error: 'Email ou senha invÃ¡lidos' },
+        { error: 'Email ou senha invà¡lidos' },
         { status: 401 }
       );
     }
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
       { expiresIn: '7d' }
     );
 
-    // Retornar dados do usuÃ¡rio (sem senha)
+    // Retornar dados do usuà¡rio (sem senha)
     const userData = {
       id: user.id,
       nome: user.nome,

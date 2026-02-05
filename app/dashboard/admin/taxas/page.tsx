@@ -277,7 +277,7 @@ export default function TaxasAdminPage() {
                     </div>
 
                     <div className="p-3 bg-purple-50 rounded-lg">
-                      <div className="text-xs font-semibold text-purple-900 mb-1">CARTÃO</div>
+                      <div className="text-xs font-semibold text-purple-900 mb-1">CARTàO</div>
                       <div className="text-sm text-purple-700">
                         {plano.cartaoPercentual}% {plano.cartaoFixo > 0 && `+ R$ ${plano.cartaoFixo.toFixed(2)}`}
                       </div>
@@ -290,7 +290,7 @@ export default function TaxasAdminPage() {
                       </div>
 
                     <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                      <div className="text-xs font-semibold text-gray-900 mb-2">PRAZOS DE LIBERAÇÃO</div>
+                      <div className="text-xs font-semibold text-gray-900 mb-2">PRAZOS DE LIBERAÇàO</div>
                       <div className="grid grid-cols-3 gap-2 text-xs text-gray-700">
                         <div>PIX: {plano.prazoPixDias || 3}d</div>
                         <div>Cartão: {plano.prazoCartaoDias || 30}d</div>

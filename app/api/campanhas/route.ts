@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
   try {
     const userId = verificarToken(request);
     if (!userId) {
-      return NextResponse.json({ error: 'NÃ£o autorizado' }, { status: 401 });
+      return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
   try {
     const userId = verificarToken(request);
     if (!userId) {
-      return NextResponse.json({ error: 'NÃ£o autorizado' }, { status: 401 });
+      return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
     const { nome, produtoId, plataforma, pixelId, accessToken, eventToken, conversionId, paginaOfertaId } = await request.json();
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Dados incompletos' }, { status: 400 });
     }
 
-    // Gerar cÃ³digo Ãºnico para campanha
+    // Gerar cà³digo àºnico para campanha
     const codigoCampanha = gerarCodigoCampanha();
     
     // Buscar página de oferta

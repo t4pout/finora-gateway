@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // ✅ VALIDAÇÃO: Verificar se já existe pedido em análise com esse CPF
+    // ✅ VALIDAÇàO: Verificar se já existe pedido em análise com esse CPF
     const pedidoExistente = await prisma.pedidoPAD.findFirst({
       where: {
         clienteCpfCnpj,

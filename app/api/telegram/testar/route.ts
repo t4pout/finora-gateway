@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const mensagem = '🧪 <b>TESTE DE NOTIFICAÇÃO</b>\n\n✅ Suas configurações do Telegram estão funcionando corretamente!\n\n🔔 Você receberá notificações sempre que um novo pedido PAD for criado.';
+    const mensagem = '🧪 <b>TESTE DE NOTIFICAÇàO</b>\n\n✅ Suas configurações do Telegram estão funcionando corretamente!\n\n🔔 Você receberá notificações sempre que um novo pedido PAD for criado.';
 
     const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
       method: 'POST',

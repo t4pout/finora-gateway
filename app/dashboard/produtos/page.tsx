@@ -105,7 +105,7 @@ export default function ProdutosPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Meus Produtos</h1>
-              <p className="text-sm text-gray-500">Gerencie seus produtos fÃ­sicos e digitais</p>
+              <p className="text-sm text-gray-500">Gerencie seus produtos fà­sicos e digitais</p>
             </div>
 
             <Link href="/dashboard/produtos/novo">
