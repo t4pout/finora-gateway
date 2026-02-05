@@ -73,6 +73,67 @@ function CriarPedidoPADForm() {
       }
     }
   }, [plano]);
+  // Pop-up de Prova Social
+  useEffect(() => {
+    if (!plano?.checkoutPadProvaSocial || !plano.checkoutPadIntervaloPop) return;
+
+    const nomesMasculinos = ['João', 'Pedro', 'Carlos', 'Rafael', 'Lucas', 'Felipe', 'Bruno', 'Marcelo'];
+    const nomesFemininos = ['Maria', 'Ana', 'Julia', 'Beatriz', 'Camila', 'Larissa', 'Fernanda', 'Paula'];
+    const cidades = ['São Paulo', 'Rio de Janeiro', 'Belo Horizonte', 'Brasília', 'Curitiba', 'Porto Alegre'];
+
+    const mostrarPopup = () => {
+      let nome = '';
+      
+      if (plano.checkoutPadProvaSocialGenero === 'HOMENS') {
+        nome = nomesMasculinos[Math.floor(Math.random() * nomesMasculinos.length)];
+      } else if (plano.checkoutPadProvaSocialGenero === 'MULHERES') {
+        nome = nomesFemininos[Math.floor(Math.random() * nomesFemininos.length)];
+      } else {
+        const todosNomes = [...nomesMasculinos, ...nomesFemininos];
+        nome = todosNomes[Math.floor(Math.random() * todosNomes.length)];
+      }
+
+      const cidade = cidades[Math.floor(Math.random() * cidades.length)];
+      const minutosAtras = Math.floor(Math.random() * 30) + 1;
+
+      const popup = document.createElement('div');
+      popup.style.cssText = 'position: fixed; bottom: 16px; left: 16px; background: white; border-radius: 8px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); padding: 16px; max-width: 320px; z-index: 9999; animation: slideIn 0.3s ease-out;';
+      popup.innerHTML = `
+        <style>
+          @keyframes slideIn {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+          }
+          @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(-100%); opacity: 0; }
+          }
+        </style>
+        <div style="display: flex; align-items: flex-start; gap: 12px;">
+          <div style="flex-shrink: 0;">
+            <div style="width: 40px; height: 40px; background-color: #d1fae5; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+              <span style="color: #059669; font-size: 20px;">✓</span>
+            </div>
+          </div>
+          <div style="flex: 1;">
+            <p style="font-weight: 600; color: #111827; margin: 0;">${nome} de ${cidade}</p>
+            <p style="font-size: 14px; color: #6b7280; margin: 4px 0 0 0;">Acabou de comprar</p>
+            <p style="font-size: 12px; color: #9ca3af; margin: 4px 0 0 0;">há ${minutosAtras} minutos</p>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(popup);
+
+      setTimeout(() => {
+        popup.style.animation = 'slideOut 0.3s ease-out';
+        setTimeout(() => popup.remove(), 300);
+      }, 5000);
+    };
+
+    const interval = setInterval(mostrarPopup, plano.checkoutPadIntervaloPop * 1000);
+    return () => clearInterval(interval);
+  }, [plano]);
 
 
   const buscarCEP = async (cep: string) => {
