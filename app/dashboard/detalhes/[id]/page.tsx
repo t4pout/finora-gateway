@@ -584,13 +584,13 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
             checkoutProvaSocial: data.plano.checkoutProvaSocial || false,
             checkoutIntervaloPop: data.plano.checkoutIntervaloPop || 8,
             checkoutProvaSocialGenero: data.plano.checkoutProvaSocialGenero || 'AMBOS',
-            checkoutAceitaPix: data.plano.checkoutAceitaPix ?? true,
-            checkoutAceitaCartao: data.plano.checkoutAceitaCartao ?? true,
-            checkoutAceitaBoleto: data.plano.checkoutAceitaBoleto ?? true,
+            checkoutAceitaPix: data.plano.checkoutAceitaPix ? true,
+            checkoutAceitaCartao: data.plano.checkoutAceitaCartao ? true,
+            checkoutAceitaBoleto: data.plano.checkoutAceitaBoleto ? true,
             checkoutMetodoPreferencial: data.plano.checkoutMetodoPreferencial || 'PIX',
-            checkoutCpfObrigatorio: data.plano.checkoutCpfObrigatorio ?? true,
-            checkoutTelObrigatorio: data.plano.checkoutTelObrigatorio ?? true,
-            checkoutPedirEndereco: data.plano.checkoutPedirEndereco ?? true
+            checkoutCpfObrigatorio: data.plano.checkoutCpfObrigatorio ? true,
+            checkoutTelObrigatorio: data.plano.checkoutTelObrigatorio ? true,
+            checkoutPedirEndereco: data.plano.checkoutPedirEndereco ? true
           });
         } else {
           // PAD
@@ -1111,7 +1111,7 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
                         <input type="number" step="0.01" defaultValue={modalPlano.plano?.preco} name="preco" required className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="0.00" />
                       </div>
                       <div className="flex items-center space-x-2">
-                        <input type="checkbox" defaultChecked={modalPlano.plano?.ativo ?? true} name="ativo" className="w-4 h-4" />
+                        <input type="checkbox" defaultChecked={modalPlano.plano?.ativo ? true} name="ativo" className="w-4 h-4" />
                         <span className="text-sm text-gray-700">Plano ativo</span>
                       </div>
                       <div className="flex gap-3 pt-4">
