@@ -180,9 +180,47 @@ function HomeContent() {
       </section>
 
       <footer className="py-16 px-6 bg-gray-900 text-gray-300">
-        <div className="container mx-auto text-center">
-          <div className="text-2xl font-bold mb-4 text-purple-400">Finora</div>
-          <p className="mb-4">© 2026 Finora. Todos os direitos reservados.</p>
+        <div className="container mx-auto">
+          <div className="grid md:grid-cols-4 gap-8 mb-12">
+            <div>
+              <div className="text-2xl font-bold mb-4 text-purple-400">Finora</div>
+              <p className="text-sm text-gray-400 leading-relaxed">
+                A plataforma completa para gestão de pagamentos e vendas online.
+              </p>
+              <div className="mt-4 text-sm text-gray-500">
+                CNPJ: 00.000.000/0001-00
+              </div>
+            </div>
+            
+            <div>
+              <h4 className="font-bold text-white mb-4">Produto</h4>
+              <ul className="space-y-2 text-sm">
+                <li><a href="#recursos" className="hover:text-purple-400 transition">Recursos</a></li>
+                <li><a href="#precos" className="hover:text-purple-400 transition">Preços</a></li>
+                <li><a href="#solucoes" className="hover:text-purple-400 transition">Soluções</a></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-bold text-white mb-4">Legal</h4>
+              <ul className="space-y-2 text-sm">
+                <li><Link href="/termos" className="hover:text-purple-400 transition">Termos de Uso</Link></li>
+                <li><Link href="/privacidade" className="hover:text-purple-400 transition">Política de Privacidade</Link></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-bold text-white mb-4">Contato</h4>
+              <ul className="space-y-2 text-sm">
+                <li><Link href="/contato" className="hover:text-purple-400 transition">Fale Conosco</Link></li>
+                <li><a href="mailto:contato@finorapayments.com" className="hover:text-purple-400 transition">contato@finorapayments.com</a></li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="border-t border-gray-800 pt-8 text-center text-sm text-gray-500">
+            <p>© 2026 Finora Payments. Todos os direitos reservados.</p>
+          </div>
         </div>
       </footer>
     </div>
