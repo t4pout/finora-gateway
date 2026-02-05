@@ -584,12 +584,12 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
             checkoutProvaSocial: data.plano.checkoutProvaSocial || false,
             checkoutIntervaloPop: data.plano.checkoutIntervaloPop || 8,
             checkoutProvaSocialGenero: data.plano.checkoutProvaSocialGenero || 'AMBOS',
-            checkoutAceitaPix: data.plano.checkoutAceitaPix ? true : false : false,
-            checkoutAceitaCartao: data.plano.checkoutAceitaCartao ? true : false : false,
-            checkoutAceitaBoleto: data.plano.checkoutAceitaBoleto ? true : false : false,
+            checkoutAceitaPix: data.plano.checkoutAceitaPix ? true : false,
+            checkoutAceitaCartao: data.plano.checkoutAceitaCartao ? true : false,
+            checkoutAceitaBoleto: data.plano.checkoutAceitaBoleto ? true : false,
             checkoutMetodoPreferencial: data.plano.checkoutMetodoPreferencial || 'PIX',
-            checkoutCpfObrigatorio: data.plano.checkoutCpfObrigatorio ? true : false : false,
-            checkoutTelObrigatorio: data.plano.checkoutTelObrigatorio ? true : false : false,
+            checkoutCpfObrigatorio: data.plano.checkoutCpfObrigatorio ? true : false,
+            checkoutTelObrigatorio: data.plano.checkoutTelObrigatorio ? true : false,
             checkoutPedirEndereco: data.plano.checkoutPedirEndereco ? true : false
           });
         } else {
