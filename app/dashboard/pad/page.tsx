@@ -769,7 +769,7 @@ export default function DashboardPADPage() {
                     title={modoEdicao ? "Cancelar edição" : "Editar pedido"}
                   >
                     {modoEdicao ? (
-                      <span className="text-red-600">âœ•</span>
+                      <span className="text-red-600">x</span>
                     ) : (
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-600" viewBox="0 0 20 20" fill="currentColor">
                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
@@ -781,7 +781,7 @@ export default function DashboardPADPage() {
                 onClick={() => setModalDetalhes({ aberto: false, pedido: null })}
                 className="text-gray-400 hover:text-gray-600"
               >
-                âœ•
+                x
               </button>
             </div>
 
@@ -1040,7 +1040,7 @@ export default function DashboardPADPage() {
                       onClick={() => reprovarPedido(modalDetalhes.pedido!.hash)}
                       className="w-full px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition"
                     >
-                      ðŸš« REPROVAR/CANCELAR PEDIDO
+                      🚫 REPROVAR/CANCELAR PEDIDO
                     </button>
                   </div>
                 )}
