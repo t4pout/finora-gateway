@@ -536,28 +536,56 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
   };
 
   const handleUploadCheckout = async (e: React.ChangeEvent<HTMLInputElement>, tipo: 'banner' | 'logoSuperior' | 'logoInferior') => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    try {
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData
-      });
-      const data = await res.json();
-      if (data.url) {
-        if (tipo === 'banner') setConfigPlano({...configPlano, checkoutBanner: data.url});
-        if (tipo === 'logoSuperior') setConfigPlano({...configPlano, checkoutLogoSuperior: data.url});
-        if (tipo === 'logoInferior') setConfigPlano({...configPlano, checkoutLogoInferior: data.url});
-        alert(`Upload realizado!`);
+  const file = e.target.files?.[0];
+  if (!file) return;
+  
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  try {
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData
+    });
+    const data = await res.json();
+    if (data.url) {
+      const novoConfig = {...configPlano};
+      if (tipo === 'banner') novoConfig.checkoutBanner = data.url;
+      if (tipo === 'logoSuperior') novoConfig.checkoutLogoSuperior = data.url;
+      if (tipo === 'logoInferior') novoConfig.checkoutLogoInferior = data.url;
+      
+      setConfigPlano(novoConfig);
+      
+      if (modalConfig.planoId) {
+        const token = localStorage.getItem('token');
+        const dados: any = {};
+        
+        if (modalConfig.tipo === 'NORMAL') {
+          dados.checkoutBanner = novoConfig.checkoutBanner;
+          dados.checkoutLogoSuperior = novoConfig.checkoutLogoSuperior;
+          dados.checkoutLogoInferior = novoConfig.checkoutLogoInferior;
+        } else {
+          dados.checkoutPadBanner = novoConfig.checkoutBanner;
+          dados.checkoutPadLogoSuperior = novoConfig.checkoutLogoSuperior;
+          dados.checkoutPadLogoInferior = novoConfig.checkoutLogoInferior;
+        }
+        
+        await fetch(`/api/planos/${modalConfig.planoId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify(dados)
+        });
+        
+        alert(`✅ ${tipo === 'banner' ? 'Banner' : tipo === 'logoSuperior' ? 'Logo Superior' : 'Logo Inferior'} salvo!`);
       }
-    } catch (error) {
-      alert('Erro ao fazer upload');
     }
-  };
+  } catch (error) {
+    alert('❌ Erro ao fazer upload');
+  }
+};
 
   const carregarConfigPlano = async (planoId: string) => {
   try {
