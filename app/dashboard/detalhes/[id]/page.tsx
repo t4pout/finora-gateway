@@ -584,7 +584,7 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
             checkoutProvaSocial: data.plano.checkoutProvaSocial || false,
             checkoutIntervaloPop: data.plano.checkoutIntervaloPop || 8,
             checkoutProvaSocialGenero: data.plano.checkoutProvaSocialGenero || 'AMBOS',
-            checkoutAceitaPix: data.plano.checkoutAceitaPix ? true,
+            checkoutAceitaPix: data.plano.checkoutAceitaPix ? true : false,
             checkoutAceitaCartao: data.plano.checkoutAceitaCartao ? true,
             checkoutAceitaBoleto: data.plano.checkoutAceitaBoleto ? true,
             checkoutMetodoPreferencial: data.plano.checkoutMetodoPreferencial || 'PIX',
