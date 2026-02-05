@@ -143,7 +143,7 @@ export default function NovoProdutoPage() {
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                DescriÃ§Ã£o
+                Descrição
               </label>
               <textarea
                 value={formData.descricao}
@@ -171,7 +171,7 @@ export default function NovoProdutoPage() {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  PreÃ§o (R$) *
+                  Preço (R$) *
                 </label>
                 <input
                   type="number"
@@ -188,7 +188,7 @@ export default function NovoProdutoPage() {
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  ComissÃ£o Afiliados (%)
+                  Comissão Afiliados (%)
                 </label>
                 <input
                   type="number"

@@ -93,7 +93,7 @@ export default function MercadoPage() {
       });
 
       if (response.ok) {
-        alert('SolicitaÃ§Ã£o enviada com sucesso!');
+        alert('Solicitação enviada com sucesso!');
       } else {
         const data = await response.json();
         alert(data.error || 'Erro ao solicitar');

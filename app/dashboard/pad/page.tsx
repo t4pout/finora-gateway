@@ -87,7 +87,7 @@ export default function DashboardPADPage() {
 
     setUser(JSON.parse(userData));
     
-    // Definir data padrÃ£o (hoje)
+    // Definir data padrão (hoje)
     const hoje = new Date().toISOString().split('T')[0];
     setDataInicio(hoje);
     setDataFim(hoje);
@@ -216,8 +216,8 @@ export default function DashboardPADPage() {
         alert('âŒ Erro ao atualizar pedido');
       }
     } catch (error) {
-      console.error('Erro ao salvar ediÃ§Ã£o:', error);
-      alert('âŒ Erro ao salvar alteraÃ§Ãµes');
+      console.error('Erro ao salvar edição:', error);
+      alert('âŒ Erro ao salvar alteraçÃµes');
     }
   };
 
@@ -439,7 +439,7 @@ export default function DashboardPADPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">ðŸ“¦ Pedidos PAD</h1>
-              <p className="text-gray-600">Pagamento ApÃ³s Entrega</p>
+              <p className="text-gray-600">Pagamento Após Entrega</p>
             </div>
 
             {/* FILTRO DE DATA */}
@@ -580,7 +580,7 @@ export default function DashboardPADPage() {
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Valor</th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Data</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">AÃ§Ãµes</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">AçÃµes</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
@@ -757,7 +757,7 @@ export default function DashboardPADPage() {
           >
             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                  <h3 className="text-xl font-bold text-gray-900">ðŸ“¦ Detalhes da TransaÃ§Ã£o PAD</h3>
+                  <h3 className="text-xl font-bold text-gray-900">ðŸ“¦ Detalhes da Transação PAD</h3>
                   <button
                     onClick={() => {
                       setModoEdicao(!modoEdicao);
@@ -766,7 +766,7 @@ export default function DashboardPADPage() {
                       }
                     }}
                     className="p-2 hover:bg-purple-50 rounded-lg transition"
-                    title={modoEdicao ? "Cancelar ediÃ§Ã£o" : "Editar pedido"}
+                    title={modoEdicao ? "Cancelar edição" : "Editar pedido"}
                   >
                     {modoEdicao ? (
                       <span className="text-red-600">âœ•</span>
@@ -788,7 +788,7 @@ export default function DashboardPADPage() {
             <div className="p-6">
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="bg-gray-50 rounded-xl p-6">
-                  <h4 className="font-bold text-gray-900 mb-4">InformaÃ§Ãµes da TransaÃ§Ã£o</h4>
+                  <h4 className="font-bold text-gray-900 mb-4">InformaçÃµes da Transação</h4>
                   <div className="space-y-3">
                     <div>
                       <div className="text-xs text-gray-500">Hash:</div>
@@ -815,14 +815,14 @@ export default function DashboardPADPage() {
                       </span>
                     </div>
                     <div>
-                      <div className="text-xs text-gray-500">Data de CriaÃ§Ã£o:</div>
+                      <div className="text-xs text-gray-500">Data de Criação:</div>
                       <div className="text-sm">{new Date(modalDetalhes.pedido.createdAt).toLocaleString('pt-BR')}</div>
                     </div>
                   </div>
                 </div>
 
                 <div className="bg-gray-50 rounded-xl p-6">
-                  <h4 className="font-bold text-gray-900 mb-4">InformaÃ§Ãµes do Cliente</h4>
+                  <h4 className="font-bold text-gray-900 mb-4">InformaçÃµes do Cliente</h4>
                   <div className="space-y-3">
                     <div>
                       <div className="text-xs text-gray-500">Nome:</div>
@@ -847,7 +847,7 @@ export default function DashboardPADPage() {
                           className="w-full px-3 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-600"
                         />
                       ) : (
-                        <div className="text-sm">{modalDetalhes.pedido.clienteEmail || 'NÃ£o informado'}</div>
+                        <div className="text-sm">{modalDetalhes.pedido.clienteEmail || 'Não informado'}</div>
                       )}
                     </div>
                     <div>
@@ -880,10 +880,10 @@ export default function DashboardPADPage() {
                 </div>
 
                 <div className="bg-gray-50 rounded-xl p-6">
-                  <h4 className="font-bold text-gray-900 mb-4">EndereÃ§o de Entrega</h4>
+                  <h4 className="font-bold text-gray-900 mb-4">Endereço de Entrega</h4>
                   <div className="space-y-2 text-sm">
                     <div>
-                      <span className="text-gray-600">EndereÃ§o:</span>{' '}
+                      <span className="text-gray-600">Endereço:</span>{' '}
                       {modoEdicao ? (
                         <div className="space-y-2">
                           <input
@@ -969,14 +969,14 @@ export default function DashboardPADPage() {
                 </div>
 
                 <div className="bg-gray-50 rounded-xl p-6">
-                  <h4 className="font-bold text-gray-900 mb-4">InformaÃ§Ãµes do Produto</h4>
+                  <h4 className="font-bold text-gray-900 mb-4">InformaçÃµes do Produto</h4>
                   <div className="space-y-3">
                     <div>
                       <div className="text-xs text-gray-500">Produto:</div>
                       <div className="font-medium">{modalDetalhes.pedido.produtoNome}</div>
                     </div>
                     <div>
-                      <div className="text-xs text-gray-500">PreÃ§o:</div>
+                      <div className="text-xs text-gray-500">Preço:</div>
                       <div className="text-lg font-bold text-purple-600">R$ {modalDetalhes.pedido.valor.toFixed(2)}</div>
                     </div>
                   </div>

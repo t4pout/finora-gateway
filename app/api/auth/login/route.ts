@@ -11,10 +11,10 @@ export async function POST(request: NextRequest) {
   try {
     const { email, senha } = await request.json();
 
-    // ValidaÃ§Ãµes
+    // ValidaçÃµes
     if (!email || !senha) {
       return NextResponse.json(
-        { error: 'Email e senha sÃ£o obrigatÃ³rios' },
+        { error: 'Email e senha são obrigatórios' },
         { status: 400 }
       );
     }
