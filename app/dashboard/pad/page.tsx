@@ -87,7 +87,7 @@ export default function DashboardPADPage() {
 
     setUser(JSON.parse(userData));
     
-    // Definir data padrão (hoje)
+    // Definir data padrÃ£o (hoje)
     const hoje = new Date().toISOString().split('T')[0];
     setDataInicio(hoje);
     setDataFim(hoje);
@@ -113,7 +113,7 @@ export default function DashboardPADPage() {
         const pedidosData = data.pedidos || [];
         setPedidos(pedidosData);
         
-        // Calcular estatísticas
+        // Calcular estatÃ­sticas
         const statsCalculadas: Stats = {
           total: {
             count: pedidosData.length,
@@ -166,10 +166,10 @@ export default function DashboardPADPage() {
         },
         body: JSON.stringify({ hash })
       });
-      alert('✅ Pedido aprovado!');
+      alert('âœ… Pedido aprovado!');
       carregarPedidos();
     } catch (error) {
-      alert('❌ Erro ao aprovar');
+      alert('âŒ Erro ao aprovar');
     }
   };
 
@@ -187,10 +187,10 @@ export default function DashboardPADPage() {
         },
         body: JSON.stringify({ hash, motivo })
       });
-      alert('✅ Pedido cancelado!');
+      alert('âœ… Pedido cancelado!');
       carregarPedidos();
     } catch (error) {
-      alert('❌ Erro ao cancelar');
+      alert('âŒ Erro ao cancelar');
     }
   };
   
@@ -208,16 +208,16 @@ export default function DashboardPADPage() {
       });
 
       if (response.ok) {
-        alert('✅ Pedido atualizado com sucesso!');
+        alert('âœ… Pedido atualizado com sucesso!');
         setModoEdicao(false);
         carregarPedidos();
         setModalDetalhes({ aberto: false, pedido: null });
       } else {
-        alert('❌ Erro ao atualizar pedido');
+        alert('âŒ Erro ao atualizar pedido');
       }
     } catch (error) {
-      console.error('Erro ao salvar edição:', error);
-      alert('❌ Erro ao salvar alterações');
+      console.error('Erro ao salvar ediÃ§Ã£o:', error);
+      alert('âŒ Erro ao salvar alteraÃ§Ãµes');
     }
   };
 
@@ -237,15 +237,15 @@ export default function DashboardPADPage() {
       });
 
       if (response.ok) {
-        alert('✅ Pedido cancelado com sucesso!');
+        alert('âœ… Pedido cancelado com sucesso!');
         carregarPedidos();
         setModalDetalhes({ aberto: false, pedido: null });
       } else {
-        alert('❌ Erro ao cancelar pedido');
+        alert('âŒ Erro ao cancelar pedido');
       }
     } catch (error) {
       console.error('Erro ao cancelar:', error);
-      alert('❌ Erro ao cancelar pedido');
+      alert('âŒ Erro ao cancelar pedido');
     }
   };
 
@@ -263,10 +263,10 @@ export default function DashboardPADPage() {
         },
         body: JSON.stringify({ hash })
       });
-      alert('✅ Status atualizado!');
+      alert('âœ… Status atualizado!');
       carregarPedidos();
     } catch (error) {
-      alert('❌ Erro ao atualizar');
+      alert('âŒ Erro ao atualizar');
     }
   };
 
@@ -283,10 +283,10 @@ export default function DashboardPADPage() {
         },
         body: JSON.stringify({ hash })
       });
-      alert('✅ Status atualizado!');
+      alert('âœ… Status atualizado!');
       carregarPedidos();
     } catch (error) {
-      alert('❌ Erro ao atualizar');
+      alert('âŒ Erro ao atualizar');
     }
   };
   
@@ -303,22 +303,22 @@ export default function DashboardPADPage() {
         },
         body: JSON.stringify({ hash })
       });
-      alert('✅ Pedido marcado como entregue!');
+      alert('âœ… Pedido marcado como entregue!');
       carregarPedidos();
     } catch (error) {
-      alert('❌ Erro ao atualizar');
+      alert('âŒ Erro ao atualizar');
     }
   };
   const abrirWhatsApp = (telefone: string, nome: string, produto: string, valor: number) => {
     const tel = telefone.replace(/\D/g, '');
-    const mensagem = `Olá ${nome}! Sobre seu pedido de ${produto} no valor de R$ ${valor.toFixed(2)}...`;
+    const mensagem = `OlÃ¡ ${nome}! Sobre seu pedido de ${produto} no valor de R$ ${valor.toFixed(2)}...`;
     window.open(`https://wa.me/55${tel}?text=${encodeURIComponent(mensagem)}`, '_blank');
   };
 
   const copiarLinkPagamento = (hash: string) => {
     const link = `${window.location.origin}/pad/pagar/${hash}`;
     navigator.clipboard.writeText(link);
-    alert('✅ Link copiado!');
+    alert('âœ… Link copiado!');
   };
 
   const handleLogout = () => {
@@ -383,7 +383,7 @@ export default function DashboardPADPage() {
           <Link href="/dashboard">
             <div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition">
               <Home size={20} />
-              <span>Página Inicial</span>
+              <span>PÃ¡gina Inicial</span>
             </div>
           </Link>
           <Link href="/dashboard/produtos">
@@ -429,7 +429,7 @@ export default function DashboardPADPage() {
         )}
 
         <div className="p-4 border-t border-gray-200">
-          <div className="text-xs text-gray-500 text-center">© 2026 Finora</div>
+          <div className="text-xs text-gray-500 text-center">Â© 2026 Finora</div>
         </div>
       </aside>
 
@@ -438,8 +438,8 @@ export default function DashboardPADPage() {
         <header className="bg-white border-b border-gray-200 px-8 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">📦 Pedidos PAD</h1>
-              <p className="text-gray-600">Pagamento Após Entrega</p>
+              <h1 className="text-2xl font-bold text-gray-900">ðŸ“¦ Pedidos PAD</h1>
+              <p className="text-gray-600">Pagamento ApÃ³s Entrega</p>
             </div>
 
             {/* FILTRO DE DATA */}
@@ -462,7 +462,7 @@ export default function DashboardPADPage() {
                 <div className="absolute right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 p-4 z-10 w-80">
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">Data Início</label>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Data InÃ­cio</label>
                       <input
                         type="date"
                         value={dataInicio}
@@ -506,8 +506,8 @@ export default function DashboardPADPage() {
               <div className="text-2xl font-bold text-yellow-900 mb-1">
                 R$ {stats.emAnalise.valor.toFixed(2).replace('.', ',')}
               </div>
-              <div className="text-sm text-yellow-600">Em Análise</div>
-              <div className="text-xs text-yellow-700 mt-1">Pedidos em análise: {stats.emAnalise.count}</div>
+              <div className="text-sm text-yellow-600">Em AnÃ¡lise</div>
+              <div className="text-xs text-yellow-700 mt-1">Pedidos em anÃ¡lise: {stats.emAnalise.count}</div>
             </div>
             <div className="bg-green-50 rounded-xl border border-green-200 p-4">
               <div className="text-2xl font-bold text-green-900 mb-1">
@@ -550,7 +550,7 @@ export default function DashboardPADPage() {
             <div className="grid md:grid-cols-3 gap-4">
               <input
                 type="text"
-                placeholder="🔍 Buscar por nome, CPF ou hash..."
+                placeholder="ðŸ” Buscar por nome, CPF ou hash..."
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
                 className="px-4 py-2 border border-gray-300 rounded-lg"
@@ -561,8 +561,8 @@ export default function DashboardPADPage() {
                 className="px-4 py-2 border border-gray-300 rounded-lg"
               >
                 <option value="TODOS">Todos os Status</option>
-                <option value="EM_ANALISE">Em Análise</option>
-                <option value="APROVADO">Aprovados</option>
+                <option value="EM_ANALISE">Em AnÃ¡lise</option>
+                <option value="AGUARDANDO_ENVIO">Aprovados</option>
                 <option value="CANCELADO">Cancelados</option>
               </select>
             </div>
@@ -580,7 +580,7 @@ export default function DashboardPADPage() {
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Valor</th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Data</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Ações</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">AÃ§Ãµes</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
@@ -620,7 +620,7 @@ export default function DashboardPADPage() {
                             pedido.status === 'PAGO' ? 'bg-purple-100 text-purple-700' :
                             'bg-red-100 text-red-700'
                           }`}>
-                            {pedido.status === 'EM_ANALISE' ? 'Em análise' :
+                            {pedido.status === 'EM_ANALISE' ? 'Em anÃ¡lise' :
                              pedido.status === 'AGUARDANDO_ENVIO' ? 'PAD Aprovado - Enviado' :
                              pedido.status === 'ENTREGUE' ? 'PAD Aprovado - Entregue' :
                              pedido.status === 'PAGO' ? 'Pago' :
@@ -757,7 +757,7 @@ export default function DashboardPADPage() {
           >
             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                  <h3 className="text-xl font-bold text-gray-900">📦 Detalhes da Transação PAD</h3>
+                  <h3 className="text-xl font-bold text-gray-900">ðŸ“¦ Detalhes da TransaÃ§Ã£o PAD</h3>
                   <button
                     onClick={() => {
                       setModoEdicao(!modoEdicao);
@@ -766,10 +766,10 @@ export default function DashboardPADPage() {
                       }
                     }}
                     className="p-2 hover:bg-purple-50 rounded-lg transition"
-                    title={modoEdicao ? "Cancelar edição" : "Editar pedido"}
+                    title={modoEdicao ? "Cancelar ediÃ§Ã£o" : "Editar pedido"}
                   >
                     {modoEdicao ? (
-                      <span className="text-red-600">✕</span>
+                      <span className="text-red-600">âœ•</span>
                     ) : (
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-600" viewBox="0 0 20 20" fill="currentColor">
                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
@@ -781,14 +781,14 @@ export default function DashboardPADPage() {
                 onClick={() => setModalDetalhes({ aberto: false, pedido: null })}
                 className="text-gray-400 hover:text-gray-600"
               >
-                ✕
+                âœ•
               </button>
             </div>
 
             <div className="p-6">
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="bg-gray-50 rounded-xl p-6">
-                  <h4 className="font-bold text-gray-900 mb-4">Informações da Transação</h4>
+                  <h4 className="font-bold text-gray-900 mb-4">InformaÃ§Ãµes da TransaÃ§Ã£o</h4>
                   <div className="space-y-3">
                     <div>
                       <div className="text-xs text-gray-500">Hash:</div>
@@ -807,7 +807,7 @@ export default function DashboardPADPage() {
                         modalDetalhes.pedido.status === 'PAGO' ? 'bg-purple-100 text-purple-700' :
                         'bg-red-100 text-red-700'
                       }`}>
-                        {modalDetalhes.pedido.status === 'EM_ANALISE' ? 'Em Análise' :
+                        {modalDetalhes.pedido.status === 'EM_ANALISE' ? 'Em AnÃ¡lise' :
                          modalDetalhes.pedido.status === 'AGUARDANDO_ENVIO' ? 'PAD Aprovado - Enviado' :
                          modalDetalhes.pedido.status === 'ENTREGUE' ? 'PAD Aprovado - Entregue' :
                          modalDetalhes.pedido.status === 'PAGO' ? 'Pago' :
@@ -815,14 +815,14 @@ export default function DashboardPADPage() {
                       </span>
                     </div>
                     <div>
-                      <div className="text-xs text-gray-500">Data de Criação:</div>
+                      <div className="text-xs text-gray-500">Data de CriaÃ§Ã£o:</div>
                       <div className="text-sm">{new Date(modalDetalhes.pedido.createdAt).toLocaleString('pt-BR')}</div>
                     </div>
                   </div>
                 </div>
 
                 <div className="bg-gray-50 rounded-xl p-6">
-                  <h4 className="font-bold text-gray-900 mb-4">Informações do Cliente</h4>
+                  <h4 className="font-bold text-gray-900 mb-4">InformaÃ§Ãµes do Cliente</h4>
                   <div className="space-y-3">
                     <div>
                       <div className="text-xs text-gray-500">Nome:</div>
@@ -847,7 +847,7 @@ export default function DashboardPADPage() {
                           className="w-full px-3 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-600"
                         />
                       ) : (
-                        <div className="text-sm">{modalDetalhes.pedido.clienteEmail || 'Não informado'}</div>
+                        <div className="text-sm">{modalDetalhes.pedido.clienteEmail || 'NÃ£o informado'}</div>
                       )}
                     </div>
                     <div>
@@ -880,10 +880,10 @@ export default function DashboardPADPage() {
                 </div>
 
                 <div className="bg-gray-50 rounded-xl p-6">
-                  <h4 className="font-bold text-gray-900 mb-4">Endereço de Entrega</h4>
+                  <h4 className="font-bold text-gray-900 mb-4">EndereÃ§o de Entrega</h4>
                   <div className="space-y-2 text-sm">
                     <div>
-                      <span className="text-gray-600">Endereço:</span>{' '}
+                      <span className="text-gray-600">EndereÃ§o:</span>{' '}
                       {modoEdicao ? (
                         <div className="space-y-2">
                           <input
@@ -896,7 +896,7 @@ export default function DashboardPADPage() {
                           <div className="grid grid-cols-2 gap-2">
                             <input
                               type="text"
-                              placeholder="Número"
+                              placeholder="NÃºmero"
                               value={pedidoEditado?.numero || ''}
                               onChange={(e) => setPedidoEditado(prev => prev ? {...prev, numero: e.target.value} : null)}
                               className="px-3 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-600"
@@ -969,14 +969,14 @@ export default function DashboardPADPage() {
                 </div>
 
                 <div className="bg-gray-50 rounded-xl p-6">
-                  <h4 className="font-bold text-gray-900 mb-4">Informações do Produto</h4>
+                  <h4 className="font-bold text-gray-900 mb-4">InformaÃ§Ãµes do Produto</h4>
                   <div className="space-y-3">
                     <div>
                       <div className="text-xs text-gray-500">Produto:</div>
                       <div className="font-medium">{modalDetalhes.pedido.produtoNome}</div>
                     </div>
                     <div>
-                      <div className="text-xs text-gray-500">Preço:</div>
+                      <div className="text-xs text-gray-500">PreÃ§o:</div>
                       <div className="text-lg font-bold text-purple-600">R$ {modalDetalhes.pedido.valor.toFixed(2)}</div>
                     </div>
                   </div>
@@ -1029,7 +1029,7 @@ export default function DashboardPADPage() {
                       onClick={salvarEdicao}
                       className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition"
                     >
-                      💾 SALVAR ALTERAÇÕES
+                      ðŸ’¾ SALVAR ALTERAÃ‡Ã•ES
                     </button>
                   </div>
                 )}
@@ -1040,7 +1040,7 @@ export default function DashboardPADPage() {
                       onClick={() => reprovarPedido(modalDetalhes.pedido!.hash)}
                       className="w-full px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition"
                     >
-                      🚫 REPROVAR/CANCELAR PEDIDO
+                      ðŸš« REPROVAR/CANCELAR PEDIDO
                     </button>
                   </div>
                 )}
