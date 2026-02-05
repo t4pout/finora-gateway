@@ -438,7 +438,7 @@ export default function DashboardPADPage() {
         <header className="bg-white border-b border-gray-200 px-8 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">ðŸ“¦ Pedidos PAD</h1>
+              <h1 className="text-2xl font-bold text-gray-900">PEDIDOS PAD</h1>
               <p className="text-gray-600">Pagamento Após Entrega</p>
             </div>
 
@@ -757,7 +757,7 @@ export default function DashboardPADPage() {
           >
             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                  <h3 className="text-xl font-bold text-gray-900">ðŸ“¦ Detalhes da Transação PAD</h3>
+                  <h3 className="text-xl font-bold text-gray-900">Detalhes da Transação PAD</h3>
                   <button
                     onClick={() => {
                       setModoEdicao(!modoEdicao);
