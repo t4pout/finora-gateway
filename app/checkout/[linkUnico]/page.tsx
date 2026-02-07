@@ -464,6 +464,21 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
 
               {etapa === 3 && (
                 <div className="form-step fade-in">
+                {etapa === 3 && (
+                <div className="form-step fade-in">
+                  {plano.produto && (
+                    <div className="produto-info">
+                      {plano.produto.imagem && (
+                        <img src={plano.produto.imagem} alt={plano.produto.nome} className="produto-imagem" />
+                      )}
+                      <div className="produto-detalhes">
+                        <div className="produto-titulo">{plano.produto.nome}</div>
+                        <div className="produto-desc">{plano.produto.descricao}</div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <p className="section-title">Escolha o método de pagamento:</p>
                   <p className="section-title">Escolha o método de pagamento:</p>
 
                   <div className="payment-methods">
@@ -473,7 +488,11 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
                         className={`payment-card ${formData.metodoPagamento === 'PIX' ? 'active' : ''}`}
                         style={formData.metodoPagamento === 'PIX' ? { borderColor: corPrimaria, backgroundColor: `${corPrimaria}15` } : {}}
                       >
-                        <div className="payment-icon">💳</div>
+                        <div className="payment-icon">
+                          <svg width="32" height="32" viewBox="0 0 512 512" fill="currentColor">
+                            <path d="M242.4 292.5C247.8 287.1 247.8 278.2 242.4 272.8L190.4 220.8C185 215.4 176.1 215.4 170.7 220.8C165.3 226.2 165.3 235.1 170.7 240.5L214.1 283.9L170.7 327.3C165.3 332.7 165.3 341.6 170.7 347C176.1 352.4 185 352.4 190.4 347L242.4 292.5zM272 256C272 264.8 279.2 272 288 272H416C424.8 272 432 264.8 432 256C432 247.2 424.8 240 416 240H288C279.2 240 272 247.2 272 256zM512 256C512 397.4 397.4 512 256 512C114.6 512 0 397.4 0 256C0 114.6 114.6 0 256 0C397.4 0 512 114.6 512 256zM256 48C141.1 48 48 141.1 48 256C48 370.9 141.1 464 256 464C370.9 464 464 370.9 464 256C464 141.1 370.9 48 256 48z"/>
+                          </svg>
+                        </div>
                         <div className="payment-name">PIX</div>
                         <div className="payment-desc">Aprovação instantânea</div>
                       </button>
@@ -762,6 +781,40 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
           gap: 16px;
+        }
+         .produto-info {
+          display: flex;
+          gap: 20px;
+          padding: 24px;
+          background: #f9fafb;
+          border-radius: 16px;
+          margin-bottom: 24px;
+          align-items: center;
+        }
+
+        .produto-imagem {
+          width: 100px;
+          height: 100px;
+          border-radius: 12px;
+          object-fit: cover;
+          flex-shrink: 0;
+        }
+
+        .produto-detalhes {
+          flex: 1;
+        }
+
+        .produto-titulo {
+          font-size: 16px;
+          font-weight: 600;
+          color: #111827;
+          margin-bottom: 6px;
+        }
+
+        .produto-desc {
+          font-size: 14px;
+          color: #6b7280;
+          line-height: 1.5;
         }
 
         .payment-card {
