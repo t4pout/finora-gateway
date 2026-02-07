@@ -43,6 +43,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
   const [etapa, setEtapa] = useState(1);
   const [tempoRestante, setTempoRestante] = useState(0);
   const [buscandoCep, setBuscandoCep] = useState(false);
+  const [processando, setProcessando] = useState(false);
 
   const [formData, setFormData] = useState({
     nome: '',
@@ -78,8 +79,6 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
       if (!res.ok) throw new Error('Plano não encontrado');
       
       const data = await res.json();
-      console.log('📦 Plano carregado:', data.plano);
-      
       setPlano(data.plano);
       
       if (data.plano.checkoutCronometro && data.plano.checkoutTempoMinutos) {
@@ -100,19 +99,20 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
       router.push('/');
     }
   };
+
+  // Busca automática de CEP
+  useEffect(() => {
+    const cepLimpo = formData.cep.replace(/\D/g, '');
+    if (cepLimpo.length === 8) {
+      buscarCEP(cepLimpo);
+    }
+  }, [formData.cep]);
+
   useEffect(() => {
     if (!plano?.checkoutCronometro || tempoRestante <= 0) return;
-
     const interval = setInterval(() => {
-      setTempoRestante(prev => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          return 0;
-        }
-        return prev - 1;
-      });
+      setTempoRestante(prev => prev <= 1 ? 0 : prev - 1);
     }, 1000);
-
     return () => clearInterval(interval);
   }, [plano, tempoRestante]);
 
@@ -125,7 +125,6 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
 
     const mostrarPopup = () => {
       let nome = '';
-      
       if (plano.checkoutProvaSocialGenero === 'HOMENS') {
         nome = nomesMasculinos[Math.floor(Math.random() * nomesMasculinos.length)];
       } else if (plano.checkoutProvaSocialGenero === 'MULHERES') {
@@ -139,26 +138,21 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
       const minutosAtras = Math.floor(Math.random() * 30) + 1;
 
       const popup = document.createElement('div');
-      popup.className = 'fixed bottom-4 left-4 bg-white rounded-lg shadow-xl p-4 max-w-xs z-50 animate-slide-in';
+      popup.className = 'popup-prova-social';
       popup.innerHTML = `
-        <div style="display: flex; align-items: flex-start; gap: 12px;">
-          <div style="flex-shrink: 0;">
-            <div style="width: 40px; height: 40px; background-color: #d1fae5; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-              <span style="color: #059669; font-size: 20px;">✓</span>
-            </div>
-          </div>
-          <div style="flex: 1;">
-            <p style="font-weight: 600; color: #111827; margin: 0;">${nome} de ${cidade}</p>
-            <p style="font-size: 14px; color: #6b7280; margin: 4px 0 0 0;">Acabou de comprar</p>
-            <p style="font-size: 12px; color: #9ca3af; margin: 4px 0 0 0;">há ${minutosAtras} minutos</p>
+        <div class="popup-conteudo">
+          <div class="popup-icone">✓</div>
+          <div class="popup-texto">
+            <p class="popup-nome">${nome} de ${cidade}</p>
+            <p class="popup-acao">Acabou de comprar</p>
+            <p class="popup-tempo">há ${minutosAtras} minutos</p>
           </div>
         </div>
       `;
 
       document.body.appendChild(popup);
-
       setTimeout(() => {
-        popup.style.animation = 'slide-out 0.3s ease-out';
+        popup.classList.add('popup-saindo');
         setTimeout(() => popup.remove(), 300);
       }, 5000);
     };
@@ -173,16 +167,11 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const buscarCEP = async () => {
-    const cepLimpo = formData.cep.replace(/\D/g, '');
-    if (cepLimpo.length !== 8) return;
-
+  const buscarCEP = async (cep: string) => {
     setBuscandoCep(true);
-
     try {
-      const res = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+      const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
       const data = await res.json();
-
       if (!data.erro) {
         setFormData(prev => ({
           ...prev,
@@ -195,17 +184,16 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
     } catch (error) {
       console.error('Erro ao buscar CEP:', error);
     }
-
     setBuscandoCep(false);
   };
 
   const finalizarPedido = async () => {
-    console.log('🔍 FormData ao finalizar:', formData);
-    
     if (!formData.nome || !formData.email || !formData.telefone) {
       alert('Preencha todos os campos obrigatórios');
       return;
     }
+
+    setProcessando(true);
 
     try {
       const res = await fetch('/api/pagamento', {
@@ -238,27 +226,23 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
     } catch (error) {
       console.error('Erro ao finalizar pedido:', error);
       alert('Erro ao processar pedido');
+    } finally {
+      setProcessando(false);
     }
   };
+
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ 
-          width: '48px', 
-          height: '48px', 
-          border: '4px solid #e5e7eb', 
-          borderTop: '4px solid #8b5cf6', 
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite'
-        }}></div>
+      <div className="loading-container">
+        <div className="spinner"></div>
       </div>
     );
   }
 
   if (!plano) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <p style={{ color: '#dc2626' }}>Plano não encontrado</p>
+      <div className="loading-container">
+        <p className="error-text">Plano não encontrado</p>
       </div>
     );
   }
@@ -267,445 +251,768 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
   const corSecundaria = plano.checkoutCorSecundaria || '#667eea';
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      padding: '32px 16px',
-      background: `linear-gradient(135deg, ${corSecundaria} 0%, ${corPrimaria} 100%)`
-    }}>
-      <div style={{ maxWidth: '1024px', margin: '0 auto' }}>
-        {plano.checkoutBanner && (
-          <div style={{ marginBottom: '24px', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}>
-            <img 
-              src={plano.checkoutBanner} 
-              alt="Banner" 
-              style={{ width: '100%', height: 'auto' }}
-            />
-          </div>
-        )}
-
-        {plano.checkoutLogoSuperior && (
-          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-            <img 
-              src={plano.checkoutLogoSuperior} 
-              alt="Logo" 
-              style={{ height: '64px', margin: '0 auto' }}
-            />
-          </div>
-        )}
-
-        {plano.checkoutCronometro && tempoRestante > 0 && (
-          <div style={{
-            backgroundColor: '#dc2626',
-            color: 'white',
-            borderRadius: '8px',
-            padding: '16px',
-            marginBottom: '24px',
-            textAlign: 'center',
-            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
-          }}>
-            <p style={{ fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
-              {plano.checkoutMensagemUrgencia || '⏰ Oferta expira em:'}
-            </p>
-            <p style={{ fontSize: '36px', fontWeight: 'bold' }}>{formatarTempo(tempoRestante)}</p>
-          </div>
-        )}
-
-        <div style={{
-          backgroundColor: 'white',
-          borderRadius: '8px',
-          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
-          padding: '24px',
-          marginBottom: '24px'
-        }}>
-          <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '8px' }}>{plano.nome}</h1>
-          <p style={{ color: '#6b7280', marginBottom: '16px' }}>{plano.descricao}</p>
-          <p style={{ 
-            fontSize: '36px', 
-            fontWeight: 'bold', 
-            color: corPrimaria,
-            marginBottom: '24px'
-          }}>
-            R$ {plano.preco.toFixed(2)}
-          </p>
-
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <div style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: etapa >= 1 ? '#8b5cf6' : '#d1d5db',
-                color: 'white'
-              }}>1</div>
-              <div style={{
-                width: '64px',
-                height: '4px',
-                backgroundColor: etapa >= 2 ? '#8b5cf6' : '#d1d5db'
-              }}></div>
-              <div style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: etapa >= 2 ? '#8b5cf6' : '#d1d5db',
-                color: 'white'
-              }}>2</div>
-              <div style={{
-                width: '64px',
-                height: '4px',
-                backgroundColor: etapa >= 3 ? '#8b5cf6' : '#d1d5db'
-              }}></div>
-              <div style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: etapa >= 3 ? '#8b5cf6' : '#d1d5db',
-                color: 'white'
-              }}>3</div>
+    <>
+      <div className="checkout-container" style={{
+        background: `linear-gradient(135deg, ${corSecundaria} 0%, ${corPrimaria} 100%)`
+      }}>
+        <div className="checkout-wrapper">
+          {plano.checkoutBanner && (
+            <div className="banner-container">
+              <img src={plano.checkoutBanner} alt="Banner" className="banner-image" />
             </div>
-          </div>
-          {etapa === 1 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <input
-                type="text"
-                placeholder="Nome Completo *"
-                value={formData.nome}
-                onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '8px',
-                  fontSize: '16px'
-                }}
-              />
-              <input
-                type="email"
-                placeholder="Email *"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '8px',
-                  fontSize: '16px'
-                }}
-              />
-              <input
-                type="tel"
-                placeholder="Telefone *"
-                value={formData.telefone}
-                onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '8px',
-                  fontSize: '16px'
-                }}
-              />
-              {plano.checkoutCpfObrigatorio && (
-                <input
-                  type="text"
-                  placeholder="CPF *"
-                  value={formData.cpf}
-                  onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '8px',
-                    fontSize: '16px'
-                  }}
-                />
+          )}
+
+          {plano.checkoutLogoSuperior && (
+            <div className="logo-superior">
+              <img src={plano.checkoutLogoSuperior} alt="Logo" />
+            </div>
+          )}
+
+          {plano.checkoutCronometro && tempoRestante > 0 && (
+            <div className="cronometro-urgencia">
+              <p className="cronometro-mensagem">
+                {plano.checkoutMensagemUrgencia || '⏰ Oferta expira em:'}
+              </p>
+              <p className="cronometro-tempo">{formatarTempo(tempoRestante)}</p>
+            </div>
+          )}
+
+          <div className="card-principal">
+            <div className="card-header">
+              <h1 className="plano-nome">{plano.nome}</h1>
+              <p className="plano-descricao">{plano.descricao}</p>
+              <div className="plano-preco" style={{ color: corPrimaria }}>
+                R$ {plano.preco.toFixed(2)}
+              </div>
+            </div>
+
+            <div className="progress-bar">
+              <div className={`progress-step ${etapa >= 1 ? 'active' : ''}`}>
+                <div className="step-circle">1</div>
+                <span className="step-label">Dados</span>
+              </div>
+              <div className={`progress-line ${etapa >= 2 ? 'active' : ''}`}></div>
+              <div className={`progress-step ${etapa >= 2 ? 'active' : ''}`}>
+                <div className="step-circle">2</div>
+                <span className="step-label">Endereço</span>
+              </div>
+              <div className={`progress-line ${etapa >= 3 ? 'active' : ''}`}></div>
+              <div className={`progress-step ${etapa >= 3 ? 'active' : ''}`}>
+                <div className="step-circle">3</div>
+                <span className="step-label">Pagamento</span>
+              </div>
+            </div>
+
+            <div className="form-container">
+              {etapa === 1 && (
+                <div className="form-step fade-in">
+                  <div className="form-group">
+                    <label>Nome Completo *</label>
+                    <input
+                      type="text"
+                      value={formData.nome}
+                      onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                      placeholder="Digite seu nome completo"
+                      className="form-input"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>E-mail *</label>
+                    <input
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      placeholder="seu@email.com"
+                      className="form-input"
+                    />
+                  </div>
+
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Telefone *</label>
+                      <input
+                        type="tel"
+                        value={formData.telefone}
+                        onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
+                        placeholder="(00) 00000-0000"
+                        className="form-input"
+                      />
+                    </div>
+
+                    {plano.checkoutCpfObrigatorio && (
+                      <div className="form-group">
+                        <label>CPF *</label>
+                        <input
+                          type="text"
+                          value={formData.cpf}
+                          onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
+                          placeholder="000.000.000-00"
+                          className="form-input"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={() => setEtapa(plano.checkoutPedirEndereco ? 2 : 3)}
+                    className="btn-primary"
+                    style={{ backgroundColor: corPrimaria }}
+                  >
+                    Continuar →
+                  </button>
+                </div>
               )}
-              <button
-                onClick={() => setEtapa(plano.checkoutPedirEndereco ? 2 : 3)}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  borderRadius: '8px',
-                  backgroundColor: corPrimaria,
-                  color: 'white',
-                  fontWeight: '600',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontSize: '16px'
-                }}
-              >
-                Continuar
-              </button>
-            </div>
-          )}
 
-          {etapa === 2 && plano.checkoutPedirEndereco && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <input
-                  type="text"
-                  placeholder="CEP *"
-                  value={formData.cep}
-                  onChange={(e) => setFormData({ ...formData, cep: e.target.value })}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '8px',
-                    fontSize: '16px'
-                  }}
-                />
-                <button
-                  onClick={buscarCEP}
-                  disabled={buscandoCep}
-                  style={{
-                    padding: '12px 16px',
-                    backgroundColor: '#f3f4f6',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {buscandoCep ? '...' : 'Buscar'}
-                </button>
-              </div>
-              <input
-                type="text"
-                placeholder="Rua *"
-                value={formData.rua}
-                onChange={(e) => setFormData({ ...formData, rua: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '8px',
-                  fontSize: '16px'
-                }}
-              />
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <input
-                  type="text"
-                  placeholder="Número *"
-                  value={formData.numero}
-                  onChange={(e) => setFormData({ ...formData, numero: e.target.value })}
-                  style={{
-                    padding: '12px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '8px',
-                    fontSize: '16px'
-                  }}
-                />
-                <input
-                  type="text"
-                  placeholder="Complemento"
-                  value={formData.complemento}
-                  onChange={(e) => setFormData({ ...formData, complemento: e.target.value })}
-                  style={{
-                    padding: '12px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '8px',
-                    fontSize: '16px'
-                  }}
-                />
-              </div>
-              <input
-                type="text"
-                placeholder="Bairro *"
-                value={formData.bairro}
-                onChange={(e) => setFormData({ ...formData, bairro: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '8px',
-                  fontSize: '16px'
-                }}
-              />
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <input
-                  type="text"
-                  placeholder="Cidade *"
-                  value={formData.cidade}
-                  onChange={(e) => setFormData({ ...formData, cidade: e.target.value })}
-                  style={{
-                    padding: '12px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '8px',
-                    fontSize: '16px'
-                  }}
-                />
-                <input
-                  type="text"
-                  placeholder="Estado *"
-                  maxLength={2}
-                  value={formData.estado}
-                  onChange={(e) => setFormData({ ...formData, estado: e.target.value.toUpperCase() })}
-                  style={{
-                    padding: '12px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '8px',
-                    fontSize: '16px'
-                  }}
-                />
-              </div>
-              <div style={{ display: 'flex', gap: '16px' }}>
-                <button
-                  onClick={() => setEtapa(1)}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    backgroundColor: '#f3f4f6',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Voltar
-                </button>
-                <button
-                  onClick={() => setEtapa(3)}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    borderRadius: '8px',
-                    backgroundColor: corPrimaria,
-                    color: 'white',
-                    fontWeight: '600',
-                    border: 'none',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Continuar
-                </button>
-              </div>
-            </div>
-          )}
-          {etapa === 3 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <p style={{ fontWeight: '600', marginBottom: '16px' }}>Escolha o método de pagamento:</p>
-              
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px' }}>
-                {plano.checkoutAceitaPix && (
-                  <button
-                    onClick={() => setFormData({ ...formData, metodoPagamento: 'PIX' })}
-                    style={{
-                      padding: '16px',
-                      border: formData.metodoPagamento === 'PIX' ? `2px solid ${corPrimaria}` : '2px solid #d1d5db',
-                      borderRadius: '8px',
-                      backgroundColor: formData.metodoPagamento === 'PIX' ? '#f3e8ff' : 'white',
-                      cursor: 'pointer',
-                      textAlign: 'center'
-                    }}
-                  >
-                    <p style={{ fontWeight: '600' }}>PIX</p>
-                    <p style={{ fontSize: '14px', color: '#6b7280' }}>Pagamento instantâneo</p>
-                  </button>
-                )}
-                
-                {plano.checkoutAceitaCartao && (
-                  <button
-                    onClick={() => setFormData({ ...formData, metodoPagamento: 'CARTAO' })}
-                    style={{
-                      padding: '16px',
-                      border: formData.metodoPagamento === 'CARTAO' ? `2px solid ${corPrimaria}` : '2px solid #d1d5db',
-                      borderRadius: '8px',
-                      backgroundColor: formData.metodoPagamento === 'CARTAO' ? '#f3e8ff' : 'white',
-                      cursor: 'pointer',
-                      textAlign: 'center'
-                    }}
-                  >
-                    <p style={{ fontWeight: '600' }}>Cartão</p>
-                    <p style={{ fontSize: '14px', color: '#6b7280' }}>Crédito ou débito</p>
-                  </button>
-                )}
-                
-                {plano.checkoutAceitaBoleto && (
-                  <button
-                    onClick={() => setFormData({ ...formData, metodoPagamento: 'BOLETO' })}
-                    style={{
-                      padding: '16px',
-                      border: formData.metodoPagamento === 'BOLETO' ? `2px solid ${corPrimaria}` : '2px solid #d1d5db',
-                      borderRadius: '8px',
-                      backgroundColor: formData.metodoPagamento === 'BOLETO' ? '#f3e8ff' : 'white',
-                      cursor: 'pointer',
-                      textAlign: 'center'
-                    }}
-                  >
-                    <p style={{ fontWeight: '600' }}>Boleto</p>
-                    <p style={{ fontSize: '14px', color: '#6b7280' }}>Pague em até 3 dias</p>
-                  </button>
-                )}
-              </div>
+              {etapa === 2 && plano.checkoutPedirEndereco && (
+                <div className="form-step fade-in">
+                  <div className="form-group">
+                    <label>CEP * {buscandoCep && <span className="loading-cep">Buscando...</span>}</label>
+                    <input
+                      type="text"
+                      value={formData.cep}
+                      onChange={(e) => setFormData({ ...formData, cep: e.target.value })}
+                      placeholder="00000-000"
+                      className="form-input"
+                      maxLength={9}
+                    />
+                  </div>
 
-              <div style={{ display: 'flex', gap: '16px', marginTop: '24px' }}>
-                <button
-                  onClick={() => setEtapa(plano.checkoutPedirEndereco ? 2 : 1)}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    backgroundColor: '#f3f4f6',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Voltar
-                </button>
-                <button
-                  onClick={finalizarPedido}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    borderRadius: '8px',
-                    backgroundColor: corPrimaria,
-                    color: 'white',
-                    fontWeight: '600',
-                    border: 'none',
-                    cursor: 'pointer'
-                  }}
-                >
-                  🔒 Finalizar Pedido
-                </button>
-              </div>
+                  <div className="form-group">
+                    <label>Rua *</label>
+                    <input
+                      type="text"
+                      value={formData.rua}
+                      onChange={(e) => setFormData({ ...formData, rua: e.target.value })}
+                      placeholder="Nome da rua"
+                      className="form-input"
+                    />
+                  </div>
+
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Número *</label>
+                      <input
+                        type="text"
+                        value={formData.numero}
+                        onChange={(e) => setFormData({ ...formData, numero: e.target.value })}
+                        placeholder="123"
+                        className="form-input"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Complemento</label>
+                      <input
+                        type="text"
+                        value={formData.complemento}
+                        onChange={(e) => setFormData({ ...formData, complemento: e.target.value })}
+                        placeholder="Apto, casa..."
+                        className="form-input"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Bairro *</label>
+                    <input
+                      type="text"
+                      value={formData.bairro}
+                      onChange={(e) => setFormData({ ...formData, bairro: e.target.value })}
+                      placeholder="Nome do bairro"
+                      className="form-input"
+                    />
+                  </div>
+
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Cidade *</label>
+                      <input
+                        type="text"
+                        value={formData.cidade}
+                        onChange={(e) => setFormData({ ...formData, cidade: e.target.value })}
+                        placeholder="Cidade"
+                        className="form-input"
+                      />
+                    </div>
+                    <div className="form-group" style={{ maxWidth: '100px' }}>
+                      <label>UF *</label>
+                      <input
+                        type="text"
+                        value={formData.estado}
+                        onChange={(e) => setFormData({ ...formData, estado: e.target.value.toUpperCase() })}
+                        placeholder="SP"
+                        className="form-input"
+                        maxLength={2}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="btn-row">
+                    <button onClick={() => setEtapa(1)} className="btn-secondary">
+                      ← Voltar
+                    </button>
+                    <button
+                      onClick={() => setEtapa(3)}
+                      className="btn-primary"
+                      style={{ backgroundColor: corPrimaria }}
+                    >
+                      Continuar →
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {etapa === 3 && (
+                <div className="form-step fade-in">
+                  <p className="section-title">Escolha o método de pagamento:</p>
+
+                  <div className="payment-methods">
+                    {plano.checkoutAceitaPix && (
+                      <button
+                        onClick={() => setFormData({ ...formData, metodoPagamento: 'PIX' })}
+                        className={`payment-card ${formData.metodoPagamento === 'PIX' ? 'active' : ''}`}
+                        style={formData.metodoPagamento === 'PIX' ? { borderColor: corPrimaria, backgroundColor: `${corPrimaria}15` } : {}}
+                      >
+                        <div className="payment-icon">💳</div>
+                        <div className="payment-name">PIX</div>
+                        <div className="payment-desc">Aprovação instantânea</div>
+                      </button>
+                    )}
+
+                    {plano.checkoutAceitaCartao && (
+                      <button
+                        onClick={() => setFormData({ ...formData, metodoPagamento: 'CARTAO' })}
+                        className={`payment-card ${formData.metodoPagamento === 'CARTAO' ? 'active' : ''}`}
+                        style={formData.metodoPagamento === 'CARTAO' ? { borderColor: corPrimaria, backgroundColor: `${corPrimaria}15` } : {}}
+                      >
+                        <div className="payment-icon">💳</div>
+                        <div className="payment-name">Cartão</div>
+                        <div className="payment-desc">Crédito ou débito</div>
+                      </button>
+                    )}
+
+                    {plano.checkoutAceitaBoleto && (
+                      <button
+                        onClick={() => setFormData({ ...formData, metodoPagamento: 'BOLETO' })}
+                        className={`payment-card ${formData.metodoPagamento === 'BOLETO' ? 'active' : ''}`}
+                        style={formData.metodoPagamento === 'BOLETO' ? { borderColor: corPrimaria, backgroundColor: `${corPrimaria}15` } : {}}
+                      >
+                        <div className="payment-icon">📄</div>
+                        <div className="payment-name">Boleto</div>
+                        <div className="payment-desc">Pague em até 3 dias</div>
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="btn-row">
+                    <button onClick={() => setEtapa(plano.checkoutPedirEndereco ? 2 : 1)} className="btn-secondary">
+                      ← Voltar
+                    </button>
+                    <button
+                      onClick={finalizarPedido}
+                      disabled={processando}
+                      className="btn-primary btn-finalizar"
+                      style={{ backgroundColor: corPrimaria }}
+                    >
+                      {processando ? (
+                        <>
+                          <span className="spinner-small"></span> Processando...
+                        </>
+                      ) : (
+                        <>🔒 Finalizar Pedido</>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {plano.checkoutLogoInferior && (
+            <div className="logo-inferior">
+              <img src={plano.checkoutLogoInferior} alt="Logo" />
             </div>
           )}
         </div>
-
-        {plano.checkoutLogoInferior && (
-          <div style={{ textAlign: 'center', marginTop: '24px' }}>
-            <img 
-              src={plano.checkoutLogoInferior} 
-              alt="Logo" 
-              style={{ height: '48px', margin: '0 auto', opacity: 0.8 }}
-            />
-          </div>
-        )}
       </div>
 
       <style jsx global>{`
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        .checkout-container {
+          min-height: 100vh;
+          padding: 20px;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        .checkout-wrapper {
+          max-width: 600px;
+          margin: 0 auto;
+        }
+
+        .banner-container {
+          margin-bottom: 24px;
+          border-radius: 16px;
+          overflow: hidden;
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .banner-image {
+          width: 100%;
+          height: auto;
+          display: block;
+        }
+
+        .logo-superior {
+          text-align: center;
+          margin-bottom: 24px;
+        }
+
+        .logo-superior img {
+          height: 60px;
+        }
+
+        .cronometro-urgencia {
+          background: linear-gradient(135deg, #dc2626, #991b1b);
+          color: white;
+          border-radius: 16px;
+          padding: 20px;
+          margin-bottom: 24px;
+          text-align: center;
+          box-shadow: 0 8px 24px rgba(220, 38, 38, 0.3);
+          animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.02); }
+        }
+
+        .cronometro-mensagem {
+          font-size: 14px;
+          font-weight: 500;
+          margin-bottom: 8px;
+          opacity: 0.95;
+        }
+
+        .cronometro-tempo {
+          font-size: 42px;
+          font-weight: bold;
+          letter-spacing: 2px;
+        }
+
+        .card-principal {
+          background: white;
+          border-radius: 20px;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+          overflow: hidden;
+        }
+
+        .card-header {
+          padding: 32px;
+          text-align: center;
+          border-bottom: 1px solid #f3f4f6;
+        }
+
+        .plano-nome {
+          font-size: 28px;
+          font-weight: 700;
+          margin-bottom: 8px;
+          color: #111827;
+        }
+
+        .plano-descricao {
+          color: #6b7280;
+          font-size: 16px;
+          margin-bottom: 20px;
+        }
+
+        .plano-preco {
+          font-size: 48px;
+          font-weight: 800;
+          margin-top: 16px;
+        }
+
+        .progress-bar {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 32px;
+          gap: 0;
+        }
+
+        .progress-step {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .step-circle {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background: #e5e7eb;
+          color: #9ca3af;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 600;
+          transition: all 0.3s;
+        }
+
+        .progress-step.active .step-circle {
+          background: #8b5cf6;
+          color: white;
+          box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+        }
+
+        .step-label {
+          font-size: 12px;
+          color: #9ca3af;
+          font-weight: 500;
+        }
+
+        .progress-step.active .step-label {
+          color: #8b5cf6;
+          font-weight: 600;
+        }
+
+        .progress-line {
+          width: 60px;
+          height: 3px;
+          background: #e5e7eb;
+          transition: all 0.3s;
+        }
+
+        .progress-line.active {
+          background: #8b5cf6;
+        }
+
+        .form-container {
+          padding: 32px;
+        }
+
+        .form-step {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        .fade-in {
+          animation: fadeIn 0.4s ease-in;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          flex: 1;
+        }
+
+        .form-group label {
+          font-size: 14px;
+          font-weight: 600;
+          color: #374151;
+        }
+
+        .loading-cep {
+          font-size: 12px;
+          color: #8b5cf6;
+          font-weight: 400;
+          margin-left: 8px;
+        }
+
+        .form-input {
+          padding: 14px 16px;
+          border: 2px solid #e5e7eb;
+          border-radius: 12px;
+          font-size: 16px;
+          transition: all 0.2s;
+          outline: none;
+        }
+
+        .form-input:focus {
+          border-color: #8b5cf6;
+          box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .form-row {
+          display: flex;
+          gap: 16px;
+        }
+
+        .section-title {
+          font-size: 18px;
+          font-weight: 600;
+          color: #111827;
+          margin-bottom: 16px;
+        }
+
+        .payment-methods {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+          gap: 16px;
+        }
+
+        .payment-card {
+          padding: 24px;
+          border: 2px solid #e5e7eb;
+          border-radius: 16px;
+          background: white;
+          cursor: pointer;
+          transition: all 0.3s;
+          text-align: center;
+        }
+
+        .payment-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .payment-icon {
+          font-size: 32px;
+          margin-bottom: 12px;
+        }
+
+        .payment-name {
+          font-weight: 600;
+          font-size: 16px;
+          color: #111827;
+          margin-bottom: 4px;
+        }
+
+        .payment-desc {
+          font-size: 13px;
+          color: #6b7280;
+        }
+
+        .btn-row {
+          display: flex;
+          gap: 12px;
+          margin-top: 8px;
+        }
+
+        .btn-primary {
+          flex: 1;
+          padding: 16px;
+          border: none;
+          border-radius: 12px;
+          font-size: 16px;
+          font-weight: 600;
+          color: white;
+          cursor: pointer;
+          transition: all 0.3s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .btn-secondary {
+          padding: 16px;
+          border: 2px solid #e5e7eb;
+          border-radius: 12px;
+          font-size: 16px;
+          font-weight: 600;
+          color: #6b7280;
+          background: white;
+          cursor: pointer;
+          transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+          border-color: #d1d5db;
+          background: #f9fafb;
+        }
+
+        .btn-finalizar {
+          font-size: 18px;
+          padding: 18px;
+        }
+
+        .spinner-small {
+          width: 16px;
+          height: 16px;
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          border-top-color: white;
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+        }
+
+        .logo-inferior {
+          text-align: center;
+          margin-top: 32px;
+          opacity: 0.7;
+        }
+
+        .logo-inferior img {
+          height: 48px;
+        }
+
+        .loading-container {
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .spinner {
+          width: 48px;
+          height: 48px;
+          border: 4px solid #e5e7eb;
+          border-top-color: #8b5cf6;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+
         @keyframes spin {
           to { transform: rotate(360deg); }
         }
-        @keyframes slide-in {
+
+        .error-text {
+          color: #dc2626;
+          font-size: 18px;
+          font-weight: 600;
+        }
+
+        .popup-prova-social {
+          position: fixed;
+          bottom: 20px;
+          left: 20px;
+          background: white;
+          border-radius: 16px;
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+          padding: 16px;
+          max-width: 300px;
+          z-index: 1000;
+          animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
           from { transform: translateX(-100%); opacity: 0; }
           to { transform: translateX(0); opacity: 1; }
         }
-        @keyframes slide-out {
-          from { transform: translateX(0); opacity: 1; }
+
+        .popup-saindo {
+          animation: slideOut 0.3s ease-out forwards !important;
+        }
+
+        @keyframes slideOut {
           to { transform: translateX(-100%); opacity: 0; }
         }
-        .animate-slide-in {
-          animation: slide-in 0.3s ease-out;
+
+        .popup-conteudo {
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+        }
+
+        .popup-icone {
+          width: 40px;
+          height: 40px;
+          background: #d1fae5;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #059669;
+          font-size: 20px;
+          flex-shrink: 0;
+        }
+
+        .popup-texto {
+          flex: 1;
+        }
+
+        .popup-nome {
+          font-weight: 600;
+          color: #111827;
+          margin-bottom: 4px;
+        }
+
+        .popup-acao {
+          font-size: 14px;
+          color: #6b7280;
+          margin-bottom: 2px;
+        }
+
+        .popup-tempo {
+          font-size: 12px;
+          color: #9ca3af;
+        }
+
+        @media (max-width: 640px) {
+          .checkout-container {
+            padding: 12px;
+          }
+
+          .card-header {
+            padding: 24px 20px;
+          }
+
+          .plano-nome {
+            font-size: 24px;
+          }
+
+          .plano-preco {
+            font-size: 36px;
+          }
+
+          .form-container {
+            padding: 24px 20px;
+          }
+
+          .progress-bar {
+            padding: 24px 12px;
+          }
+
+          .step-label {
+            display: none;
+          }
+
+          .progress-line {
+            width: 40px;
+          }
+
+          .form-row {
+            flex-direction: column;
+          }
+
+          .payment-methods {
+            grid-template-columns: 1fr;
+          }
+
+          .btn-row {
+            flex-direction: column;
+          }
+
+          .popup-prova-social {
+            left: 12px;
+            right: 12px;
+            max-width: none;
+          }
         }
       `}</style>
-    </div>
+    </>
   );
 }
