@@ -464,8 +464,6 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
 
               {etapa === 3 && (
                 <div className="form-step fade-in">
-                {etapa === 3 && (
-                <div className="form-step fade-in">
                   {plano.produto && (
                     <div className="produto-info">
                       {plano.produto.imagem && (
@@ -478,7 +476,6 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
                     </div>
                   )}
                   
-                  <p className="section-title">Escolha o método de pagamento:</p>
                   <p className="section-title">Escolha o método de pagamento:</p>
 
                   <div className="payment-methods">
@@ -777,12 +774,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
           margin-bottom: 16px;
         }
 
-        .payment-methods {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-          gap: 16px;
-        }
-         .produto-info {
+        .produto-info {
           display: flex;
           gap: 20px;
           padding: 24px;
@@ -815,6 +807,12 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
           font-size: 14px;
           color: #6b7280;
           line-height: 1.5;
+        }
+
+        .payment-methods {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+          gap: 16px;
         }
 
         .payment-card {
