@@ -200,6 +200,8 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
   };
 
   const finalizarPedido = async () => {
+    console.log('🔍 FormData ao finalizar:', formData);
+    
     if (!formData.nome || !formData.email || !formData.telefone) {
       alert('Preencha todos os campos obrigatórios');
       return;
