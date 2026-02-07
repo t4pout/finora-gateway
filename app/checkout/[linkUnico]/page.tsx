@@ -211,7 +211,18 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           planoId: plano?.id,
-          ...formData
+          compradorNome: formData.nome,
+          compradorEmail: formData.email,
+          compradorCpf: formData.cpf,
+          compradorTel: formData.telefone,
+          cep: formData.cep,
+          rua: formData.rua,
+          numero: formData.numero,
+          complemento: formData.complemento,
+          bairro: formData.bairro,
+          cidade: formData.cidade,
+          estado: formData.estado,
+          metodoPagamento: formData.metodoPagamento
         })
       });
 
@@ -219,7 +230,8 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
         const data = await res.json();
         router.push(`/pedido/${data.vendaId}`);
       } else {
-        alert('Erro ao processar pedido');
+        const errorData = await res.json();
+        alert('Erro ao processar pedido: ' + (errorData.error || 'Erro desconhecido'));
       }
     } catch (error) {
       console.error('Erro ao finalizar pedido:', error);
