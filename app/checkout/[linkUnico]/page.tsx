@@ -486,9 +486,13 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
                         className={`payment-card ${formData.metodoPagamento === 'PIX' ? 'active' : ''}`}
                         style={formData.metodoPagamento === 'PIX' ? { borderColor: corPrimaria, backgroundColor: `${corPrimaria}15` } : {}}
                       >
-                        <div className="payment-icon" style={{ color: '#32BCAD' }}>
-                          <svg width="48" height="48" viewBox="0 0 512 512" fill="currentColor">
-                            <path d="M242.4 292.5C247.8 287.1 247.8 278.2 242.4 272.8L190.4 220.8C185 215.4 176.1 215.4 170.7 220.8C165.3 226.2 165.3 235.1 170.7 240.5L214.1 283.9L170.7 327.3C165.3 332.7 165.3 341.6 170.7 347C176.1 352.4 185 352.4 190.4 347L242.4 292.5zM272 256C272 264.8 279.2 272 288 272H416C424.8 272 432 264.8 432 256C432 247.2 424.8 240 416 240H288C279.2 240 272 247.2 272 256zM512 256C512 397.4 397.4 512 256 512C114.6 512 0 397.4 0 256C0 114.6 114.6 0 256 0C397.4 0 512 114.6 512 256zM256 48C141.1 48 48 141.1 48 256C48 370.9 141.1 464 256 464C370.9 464 464 370.9 464 256C464 141.1 370.9 48 256 48z"/>
+                        <div className="payment-icon">
+                          <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="64" height="64" rx="12" fill="#32BCAD"/>
+                            <path d="M38.5 18.9L34.3 23.1L27.4 30L34.3 36.9L38.5 41.1L31.6 48L27.4 43.8L20.5 36.9L16.3 41.1L12.1 36.9L20.5 30L12.1 23.1L16.3 18.9L20.5 23.1L27.4 16.2L31.6 12L38.5 18.9Z" fill="white"/>
+                            <path d="M38.5 23.1L34.3 27.3M20.5 36.9L16.3 33M27.4 30L34.3 23.1M27.4 30L20.5 23.1" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                            <path d="M31.6 41.1L27.4 36.9L34.3 30M20.5 23.1L12.1 30" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M44 30C44 23.4 38.6 18 32 18C25.4 18 20 23.4 20 30C20 36.6 25.4 42 32 42C38.6 42 44 36.6 44 30ZM42 30C42 24.5 37.5 20 32 20C26.5 20 22 24.5 22 30C22 35.5 26.5 40 32 40C37.5 40 42 35.5 42 30Z" fill="white" fill-opacity="0.3"/>
                           </svg>
                         </div>
                         <div className="payment-name">PIX</div>
