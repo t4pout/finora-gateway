@@ -1041,8 +1041,53 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
                       <div key={plano.id} className="border-2 border-gray-200 rounded-xl p-6 hover:border-purple-400 transition">
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex-1">
-                            <h3 className="text-lg font-bold text-gray-900 mb-1">{plano.nome}</h3>
-                            {plano.descricao && <p className="text-sm text-gray-600 mb-2">{plano.descricao}</p>}
+                            <input
+  type="text"
+  defaultValue={plano.nome}
+  onBlur={async (e) => {
+    if (e.target.value === plano.nome) return;
+    try {
+      const token = localStorage.getItem('token');
+      await fetch(`/api/planos/${plano.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ nome: e.target.value })
+      });
+      alert('✅ Nome atualizado!');
+      carregarPlanos();
+    } catch (error) {
+      alert('❌ Erro ao atualizar');
+    }
+  }}
+  className="text-lg font-bold text-gray-900 mb-1 w-full border-2 border-transparent hover:border-purple-300 focus:border-purple-500 rounded px-2 py-1 outline-none transition"
+/>
+                            <input
+  type="text"
+  defaultValue={plano.descricao || ''}
+  placeholder="Adicionar descrição..."
+  onBlur={async (e) => {
+    if (e.target.value === plano.descricao) return;
+    try {
+      const token = localStorage.getItem('token');
+      await fetch(`/api/planos/${plano.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ descricao: e.target.value })
+      });
+      alert('✅ Descrição atualizada!');
+      carregarPlanos();
+    } catch (error) {
+      alert('❌ Erro ao atualizar');
+    }
+  }}
+  className="text-sm text-gray-600 mb-2 w-full border-2 border-transparent hover:border-purple-300 focus:border-purple-500 rounded px-2 py-1 outline-none transition"
+/>
                             <div className="text-2xl font-bold text-purple-600">
                               R$ {plano.preco.toFixed(2).replace('.', ',')}
                             </div>
