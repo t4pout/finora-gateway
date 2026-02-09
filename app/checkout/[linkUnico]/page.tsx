@@ -74,6 +74,35 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
     carregarPlano();
   }, [linkUnico]);
 
+  // Facebook Pixel: InitiateCheckout - Dispara quando entra no checkout
+  useEffect(() => {
+    if (typeof window !== 'undefined' && (window as any).fbq && plano) {
+      (window as any).fbq('track', 'InitiateCheckout', {
+        content_name: plano.nome,
+        content_ids: [plano.id],
+        content_type: 'product',
+        value: plano.preco,
+        currency: 'BRL'
+      });
+      console.log('FB Pixel: InitiateCheckout disparado');
+    }
+  }, [plano]);
+
+  // Facebook Pixel: AddPaymentInfo - Dispara quando seleciona método de pagamento
+  useEffect(() => {
+    if (typeof window !== 'undefined' && (window as any).fbq && plano && etapa === 3 && formData.metodoPagamento) {
+      (window as any).fbq('track', 'AddPaymentInfo', {
+        content_name: plano.nome,
+        content_ids: [plano.id],
+        content_type: 'product',
+        value: plano.preco,
+        currency: 'BRL',
+        payment_method: formData.metodoPagamento
+      });
+      console.log('FB Pixel: AddPaymentInfo disparado -', formData.metodoPagamento);
+    }
+  }, [etapa, formData.metodoPagamento, plano]);
+
   const carregarPlano = async () => {
     try {
       const res = await fetch(`/api/planos/link/${linkUnico}`);
@@ -219,6 +248,20 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
 
       if (res.ok) {
         const data = await res.json();
+        
+        // Facebook Pixel: Purchase - Dispara quando o pedido é finalizado
+        if (typeof window !== 'undefined' && (window as any).fbq && plano) {
+          (window as any).fbq('track', 'Purchase', {
+            content_name: plano.nome,
+            content_ids: [plano.id],
+            content_type: 'product',
+            value: plano.preco,
+            currency: 'BRL',
+            transaction_id: data.vendaId
+          });
+          console.log('FB Pixel: Purchase disparado');
+        }
+        
         router.push(`/pedido/${data.vendaId}`);
       } else {
         const errorData = await res.json();
