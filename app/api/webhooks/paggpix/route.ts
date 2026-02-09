@@ -39,115 +39,50 @@ export async function POST(request: NextRequest) {
       const { pix_id, status, amount } = event.data;
 
       if (status === 'DONE') {
-        // Buscar venda pelo pixId
-        const venda = await prisma.venda.findFirst({
+        console.log('🔍 Buscando venda/pedido com pixId:', pix_id);
+
+        // Tentar encontrar venda normal primeiro
+        let venda = await prisma.venda.findFirst({
           where: { pixId: pix_id },
           include: {
             produto: {
               include: {
-                usuario: true
+                user: true
+              }
+            }
+          }
+        });
+
+        if (venda) {
+          console.log('✅ Venda normal encontrada:', venda.id);
+          return await processarVendaNormal(venda);
+        }
+
+        // Se não encontrou venda normal, buscar pedido PAD
+        let pedidoPAD = await prisma.pedidoPAD.findFirst({
+          where: { pixId: pix_id },
+          include: {
+            produto: {
+              select: {
+                nome: true,
+                userId: true
               }
             },
-            plano: true,
-            afiliado: true
-          }
-        });
-
-        if (!venda) {
-          console.error('❌ Venda não encontrada para pixId:', pix_id);
-          return NextResponse.json({ error: 'Venda não encontrada' }, { status: 404 });
-        }
-
-        if (venda.status === 'PAGO') {
-          console.log('⚠️ Venda já estava paga:', venda.id);
-          return NextResponse.json({ message: 'Já processado' }, { status: 200 });
-        }
-
-        // 1. Atualizar status da venda
-        await prisma.venda.update({
-          where: { id: venda.id },
-          data: { 
-            status: 'PAGO',
-            dataPagamento: new Date()
-          }
-        });
-
-        console.log('✅ Venda marcada como PAGA:', venda.id);
-
-        // 2. Calcular valores
-        const valorTotal = venda.valor;
-        const taxaPlataforma = venda.plano?.taxaPlataforma || 5; // % padrão
-        const valorTaxa = (valorTotal * taxaPlataforma) / 100;
-        const valorLiquido = valorTotal - valorTaxa;
-
-        // 3. Registrar taxa da plataforma na carteira
-        await prisma.carteira.create({
-          data: {
-            usuarioId: venda.produto.usuarioId,
-            vendaId: venda.id,
-            tipo: 'TAXA_PLATAFORMA',
-            valor: -valorTaxa, // Negativo porque é débito
-            descricao: `Taxa de ${taxaPlataforma}% sobre venda #${venda.id.substring(0,8)}`,
-            status: 'CONFIRMADO'
-          }
-        });
-
-        console.log(`💰 Taxa plataforma registrada: R$ ${valorTaxa.toFixed(2)}`);
-
-        // 4. Registrar valor líquido na carteira do vendedor
-        await prisma.carteira.create({
-          data: {
-            usuarioId: venda.produto.usuarioId,
-            vendaId: venda.id,
-            tipo: 'VENDA',
-            valor: valorLiquido,
-            descricao: `Venda #${venda.id.substring(0,8)} - ${venda.produto.nome}`,
-            status: 'CONFIRMADO'
-          }
-        });
-
-        console.log(`✅ Saldo adicionado ao vendedor: R$ ${valorLiquido.toFixed(2)}`);
-
-        // 5. Processar comissões de afiliados (se houver)
-        if (venda.afiliadoId && venda.plano?.comissaoAfiliado) {
-          const valorComissao = (valorTotal * venda.plano.comissaoAfiliado) / 100;
-
-          await prisma.comissao.create({
-            data: {
-              afiliadoId: venda.afiliadoId,
-              vendaId: venda.id,
-              valor: valorComissao,
-              percentual: venda.plano.comissaoAfiliado,
-              status: 'PENDENTE'
+            vendedor: {
+              include: {
+                planoTaxa: true
+              }
             }
-          });
+          }
+        });
 
-          await prisma.carteira.create({
-            data: {
-              usuarioId: venda.afiliadoId,
-              vendaId: venda.id,
-              tipo: 'COMISSAO',
-              valor: valorComissao,
-              descricao: `Comissão de ${venda.plano.comissaoAfiliado}% - Venda #${venda.id.substring(0,8)}`,
-              status: 'CONFIRMADO'
-            }
-          });
-
-          console.log(`🤝 Comissão do afiliado: R$ ${valorComissao.toFixed(2)}`);
+        if (pedidoPAD) {
+          console.log('✅ Pedido PAD encontrado:', pedidoPAD.id);
+          return await processarPedidoPAD(pedidoPAD);
         }
 
-        // 6. TODO: Enviar email de confirmação
-        // await enviarEmailConfirmacao(venda);
-
-        console.log('🎉 Processamento completo da venda:', venda.id);
-
-        return NextResponse.json({ 
-          success: true,
-          vendaId: venda.id,
-          valorTotal,
-          valorTaxa,
-          valorLiquido
-        }, { status: 200 });
+        console.error('❌ Nenhuma venda ou pedido PAD encontrado para pixId:', pix_id);
+        return NextResponse.json({ error: 'Venda/Pedido não encontrado' }, { status: 404 });
       }
     }
 
@@ -160,4 +95,158 @@ export async function POST(request: NextRequest) {
       details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
+}
+
+// Processar venda normal (checkout)
+async function processarVendaNormal(venda: any) {
+  if (venda.status === 'PAGO') {
+    console.log('⚠️ Venda já estava paga:', venda.id);
+    return NextResponse.json({ message: 'Já processado' }, { status: 200 });
+  }
+
+  // Atualizar status da venda
+  await prisma.venda.update({
+    where: { id: venda.id },
+    data: { 
+      status: 'PAGO',
+      dataPagamento: new Date()
+    }
+  });
+
+  console.log('✅ Venda marcada como PAGA:', venda.id);
+
+  // Buscar plano de taxa do vendedor
+  const vendedor = await prisma.user.findUnique({
+    where: { id: venda.produto.userId },
+    include: { planoTaxa: true }
+  });
+
+  if (!vendedor || !vendedor.planoTaxa) {
+    console.error('❌ Vendedor sem plano de taxa');
+    return NextResponse.json({ error: 'Plano de taxa não encontrado' }, { status: 400 });
+  }
+
+  const valorTotal = venda.valor;
+  const taxaPercentual = vendedor.planoTaxa.pixPercentual;
+  const taxaFixa = vendedor.planoTaxa.pixFixo;
+  const prazoLiberacaoDias = vendedor.planoTaxa.prazoPixDias;
+
+  const valorTaxa = (valorTotal * taxaPercentual / 100) + taxaFixa;
+  const valorLiquido = valorTotal - valorTaxa;
+
+  const dataLiberacao = new Date();
+  dataLiberacao.setDate(dataLiberacao.getDate() + prazoLiberacaoDias);
+
+  console.log(`💰 Venda: R$ ${valorTotal} | Taxa: ${taxaPercentual}% + R$${taxaFixa} = R$${valorTaxa.toFixed(2)} | Líquido: R$${valorLiquido.toFixed(2)}`);
+
+  // Registrar na carteira como PENDENTE
+  await prisma.carteira.create({
+    data: {
+      usuarioId: venda.produto.userId,
+      vendaId: venda.id,
+      tipo: 'VENDA',
+      valor: valorLiquido,
+      descricao: `Venda #${venda.id.substring(0,8)} - ${venda.produto.nome} (Taxa ${taxaPercentual}% + R$${taxaFixa.toFixed(2)})`,
+      status: 'PENDENTE'
+    }
+  });
+
+  // Registrar transação com data de liberação
+  await prisma.transacao.create({
+    data: {
+      userId: venda.produto.userId,
+      vendaId: venda.id,
+      tipo: 'VENDA',
+      valor: valorLiquido,
+      status: 'PENDENTE',
+      descricao: `Venda #${venda.id.substring(0,8)}`,
+      dataLiberacao: dataLiberacao
+    }
+  });
+
+  console.log(`✅ Saldo PENDENTE adicionado. Liberação: ${dataLiberacao.toLocaleDateString()}`);
+
+  return NextResponse.json({ 
+    success: true,
+    tipo: 'VENDA_NORMAL',
+    vendaId: venda.id,
+    valorTotal,
+    valorTaxa,
+    valorLiquido,
+    dataLiberacao
+  }, { status: 200 });
+}
+
+// Processar pedido PAD
+async function processarPedidoPAD(pedido: any) {
+  if (pedido.dataPagamento) {
+    console.log('⚠️ Pedido PAD já estava pago:', pedido.id);
+    return NextResponse.json({ message: 'Já processado' }, { status: 200 });
+  }
+
+  // Atualizar status do pedido
+  await prisma.pedidoPAD.update({
+    where: { id: pedido.id },
+    data: { 
+      dataPagamento: new Date(),
+      status: 'PAGO'
+    }
+  });
+
+  console.log('✅ Pedido PAD marcado como PAGO:', pedido.id);
+
+  const planoTaxa = pedido.vendedor.planoTaxa;
+
+  if (!planoTaxa) {
+    console.error('❌ Vendedor sem plano de taxa');
+    return NextResponse.json({ error: 'Plano de taxa não encontrado' }, { status: 400 });
+  }
+
+  const valorTotal = pedido.valor;
+  const taxaPercentual = planoTaxa.pixPercentual;
+  const taxaFixa = planoTaxa.pixFixo;
+  const prazoLiberacaoDias = planoTaxa.prazoPixDias;
+
+  const valorTaxa = (valorTotal * taxaPercentual / 100) + taxaFixa;
+  const valorLiquido = valorTotal - valorTaxa;
+
+  const dataLiberacao = new Date();
+  dataLiberacao.setDate(dataLiberacao.getDate() + prazoLiberacaoDias);
+
+  console.log(`💰 PAD: R$ ${valorTotal} | Taxa: ${taxaPercentual}% + R$${taxaFixa} = R$${valorTaxa.toFixed(2)} | Líquido: R$${valorLiquido.toFixed(2)}`);
+
+  // Registrar na carteira como PENDENTE
+  await prisma.carteira.create({
+    data: {
+      usuarioId: pedido.produto.userId,
+      tipo: 'VENDA_PAD',
+      valor: valorLiquido,
+      descricao: `Venda PAD #${pedido.hash} - ${pedido.produto.nome} (Taxa ${taxaPercentual}% + R$${taxaFixa.toFixed(2)})`,
+      status: 'PENDENTE'
+    }
+  });
+
+  // Registrar transação com data de liberação
+  await prisma.transacao.create({
+    data: {
+      userId: pedido.produto.userId,
+      tipo: 'VENDA_PAD',
+      valor: valorLiquido,
+      status: 'PENDENTE',
+      descricao: `Venda PAD #${pedido.hash}`,
+      dataLiberacao: dataLiberacao
+    }
+  });
+
+  console.log(`✅ Saldo PENDENTE adicionado. Liberação: ${dataLiberacao.toLocaleDateString()}`);
+
+  return NextResponse.json({ 
+    success: true,
+    tipo: 'PEDIDO_PAD',
+    pedidoId: pedido.id,
+    valorTotal,
+    valorTaxa,
+    valorLiquido,
+    dataLiberacao
+  }, { status: 200 });
 }
