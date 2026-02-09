@@ -14,10 +14,15 @@ export async function POST(request: NextRequest) {
           { pixId: { contains: pixId } }
         ]
       },
-     include: {
+      include: {
         produto: {
           include: {
             user: true
+          }
+        },
+        vendedor: {
+          include: {
+            planoTaxa: true
           }
         }
       }
@@ -47,31 +52,63 @@ export async function POST(request: NextRequest) {
     
     console.log('💰 Status atualizado para PAGO');
     
-    // Adicionar saldo na carteira
+    const planoTaxa = venda.vendedor.planoTaxa;
+    
+    if (!planoTaxa) {
+      return NextResponse.json({ 
+        error: 'Vendedor sem plano de taxa configurado' 
+      }, { status: 400 });
+    }
+    
     const valorTotal = venda.valor;
-    const taxaPlataforma = 5;
-    const valorTaxa = (valorTotal * taxaPlataforma) / 100;
+    const taxaPercentual = planoTaxa.pixPercentual;
+    const taxaFixa = planoTaxa.pixFixo;
+    const prazoLiberacaoDias = planoTaxa.prazoPixDias;
+    
+    const valorTaxa = (valorTotal * taxaPercentual / 100) + taxaFixa;
     const valorLiquido = valorTotal - valorTaxa;
     
+    const dataLiberacao = new Date();
+    dataLiberacao.setDate(dataLiberacao.getDate() + prazoLiberacaoDias);
+    
+    // Criar carteira como PENDENTE
     await prisma.carteira.create({
       data: {
         usuarioId: venda.produto.userId,
         vendaId: venda.id,
         tipo: 'VENDA',
         valor: valorLiquido,
-        descricao: `Venda #${venda.id.substring(0,8)} - ${venda.produto.nome}`,
-        status: 'CONFIRMADO'
+        descricao: `Venda #${venda.id.substring(0,8)} - ${venda.produto.nome} (Taxa ${taxaPercentual}% + R$${taxaFixa.toFixed(2)})`,
+        status: 'PENDENTE'
       }
     });
     
-    console.log('✅ Saldo adicionado à carteira');
+    // Criar transação com data de liberação
+    await prisma.transacao.create({
+      data: {
+        userId: venda.produto.userId,
+        vendaId: venda.id,
+        tipo: 'VENDA',
+        valor: valorLiquido,
+        status: 'PENDENTE',
+        descricao: `Venda #${venda.id.substring(0,8)}`,
+        dataLiberacao: dataLiberacao
+      }
+    });
+    
+    console.log('✅ Saldo PENDENTE adicionado');
     
     return NextResponse.json({ 
       success: true, 
       vendaId: venda.id,
       valorTotal,
+      taxaPercentual,
+      taxaFixa,
+      valorTaxa,
       valorLiquido,
-      message: 'Venda atualizada com sucesso!'
+      prazoLiberacaoDias,
+      dataLiberacao,
+      message: 'Venda atualizada com taxa personalizada!'
     });
     
   } catch (error) {
