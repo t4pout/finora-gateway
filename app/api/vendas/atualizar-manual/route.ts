@@ -14,10 +14,10 @@ export async function POST(request: NextRequest) {
           { pixId: { contains: pixId } }
         ]
       },
-      include: {
+     include: {
         produto: {
           include: {
-            usuario: true
+            user: true
           }
         }
       }
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     
     await prisma.carteira.create({
       data: {
-        usuarioId: venda.produto.usuarioId,
+        usuarioId: venda.produto.userId,
         vendaId: venda.id,
         tipo: 'VENDA',
         valor: valorLiquido,
