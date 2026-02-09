@@ -59,7 +59,7 @@ export async function PUT(
     }
 
     const { id } = await context.params;
-    const { nome, descricao, tipo, preco, comissao, estoque, arquivoUrl, status } = await request.json();
+    const { nome, descricao, tipo, preco, comissao, estoque, arquivoUrl, imagem, status } = await request.json();
 
     const produto = await prisma.produto.findFirst({
       where: { id, userId }
@@ -79,6 +79,7 @@ export async function PUT(
         comissao: comissao ? parseFloat(comissao) : 0,
         estoque: tipo === 'FISICO' && estoque ? parseInt(estoque) : null,
         arquivoUrl: tipo === 'DIGITAL' ? arquivoUrl : null,
+        imagem: imagem || null,
         status
       }
     });
