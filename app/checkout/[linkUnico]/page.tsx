@@ -485,8 +485,8 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
                         className={`payment-card ${formData.metodoPagamento === 'PIX' ? 'active' : ''}`}
                         style={formData.metodoPagamento === 'PIX' ? { borderColor: corPrimaria, backgroundColor: `${corPrimaria}15` } : {}}
                       >
-                        <div className="payment-icon">
-                          <svg width="32" height="32" viewBox="0 0 512 512" fill="currentColor">
+                        <div className="payment-icon" style={{ color: '#32BCAD' }}>
+                          <svg width="48" height="48" viewBox="0 0 512 512" fill="currentColor">
                             <path d="M242.4 292.5C247.8 287.1 247.8 278.2 242.4 272.8L190.4 220.8C185 215.4 176.1 215.4 170.7 220.8C165.3 226.2 165.3 235.1 170.7 240.5L214.1 283.9L170.7 327.3C165.3 332.7 165.3 341.6 170.7 347C176.1 352.4 185 352.4 190.4 347L242.4 292.5zM272 256C272 264.8 279.2 272 288 272H416C424.8 272 432 264.8 432 256C432 247.2 424.8 240 416 240H288C279.2 240 272 247.2 272 256zM512 256C512 397.4 397.4 512 256 512C114.6 512 0 397.4 0 256C0 114.6 114.6 0 256 0C397.4 0 512 114.6 512 256zM256 48C141.1 48 48 141.1 48 256C48 370.9 141.1 464 256 464C370.9 464 464 370.9 464 256C464 141.1 370.9 48 256 48z"/>
                           </svg>
                         </div>
@@ -816,13 +816,35 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
         }
 
         .payment-card {
-          padding: 24px;
-          border: 2px solid #e5e7eb;
-          border-radius: 16px;
+          padding: 32px 24px;
+          border: 3px solid #e5e7eb;
+          border-radius: 20px;
           background: white;
           cursor: pointer;
           transition: all 0.3s;
           text-align: center;
+          position: relative;
+        }
+
+        .payment-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          border-radius: 18px;
+          padding: 3px;
+          background: linear-gradient(135deg, transparent, transparent);
+          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          -webkit-mask-composite: xor;
+          mask-composite: exclude;
+          opacity: 0;
+          transition: opacity 0.3s;
+        }
+
+        .payment-card.active::before {
+          opacity: 1;
         }
 
         .payment-card:hover {
@@ -831,8 +853,11 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
         }
 
         .payment-icon {
-          font-size: 32px;
+          font-size: 48px;
           margin-bottom: 12px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
         }
 
         .payment-name {
