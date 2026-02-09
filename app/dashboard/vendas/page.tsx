@@ -186,7 +186,7 @@ export default function VendasPage() {
                   
                   if (response.ok) {
                     alert(`✅ Verificação concluída!\n\nTotal verificadas: ${data.total}\nAtualizadas: ${data.atualizadas || 0}`);
-                    carregarVendas(); // Recarrega a lista
+                    carregarVendas();
                   } else {
                     alert('❌ Erro: ' + (data.error || 'Erro desconhecido'));
                   }
@@ -226,7 +226,6 @@ export default function VendasPage() {
                 <div className="w-3 h-3 bg-green-500 rounded-full"></div>
               </div>
               <div className="text-3xl font-bold text-green-600">{totalPagas}</div>
-            </div>
             </div>
 
             <div className="bg-white rounded-xl border border-gray-200 p-6">
@@ -351,14 +350,12 @@ export default function VendasPage() {
             </div>
 
             <div className="p-6 space-y-6">
-              {/* Informações do Produto */}
               <div className="bg-purple-50 rounded-xl p-4">
                 <h3 className="font-semibold text-purple-900 mb-2">Produto</h3>
                 <p className="text-lg font-bold text-purple-700">{vendaSelecionada.produto.nome}</p>
                 <p className="text-sm text-purple-600">ID: {vendaSelecionada.id.substring(0, 8)}</p>
               </div>
 
-            {/* Dados do Cliente */}
               <div>
                 <h3 className="font-semibold text-gray-900 mb-3">Dados do Cliente</h3>
                 <div className="grid md:grid-cols-2 gap-4">
@@ -384,7 +381,6 @@ export default function VendasPage() {
                   )}
                 </div>
 
-                {/* PIX Copia e Cola para cobrança */}
                 {vendaSelecionada.metodoPagamento === 'PIX' && vendaSelecionada.pixCopiaECola && vendaSelecionada.status === 'PENDENTE' && (
                   <div className="mt-4 bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4">
                     <div className="flex items-center gap-2 mb-2">
@@ -430,7 +426,6 @@ export default function VendasPage() {
                 )}
               </div>
 
-              {/* Endereço */}
               {vendaSelecionada.cep && (
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-3">Endereço</h3>
@@ -465,7 +460,6 @@ export default function VendasPage() {
                 </div>
               )}
 
-              {/* Informações da Venda */}
               <div>
                 <h3 className="font-semibold text-gray-900 mb-3">Informações da Venda</h3>
                 <div className="grid md:grid-cols-2 gap-4">
@@ -496,7 +490,6 @@ export default function VendasPage() {
                 </div>
               </div>
 
-                          {/* Boleto */}
               {vendaSelecionada.boletoUrl && (
                 <div>
                   <label className="text-sm text-gray-600 mb-2 block">Boleto</label>
