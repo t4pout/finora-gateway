@@ -4,7 +4,14 @@ import { prisma } from '@/lib/prisma';
 export async function GET(request: NextRequest) {
   try {
     const pedidos = await prisma.pedidoPAD.findMany({
-      where: { status: 'PENDENTE' },
+      where: { 
+        OR: [
+          { status: 'EM_ANALISE' },
+          { status: 'APROVADO' },
+          { status: 'AGUARDANDO_ENVIO' },
+          { status: 'AGUARDANDO_PAGAMENTO' }
+        ]
+      },
       select: {
         id: true,
         hash: true,
@@ -13,18 +20,19 @@ export async function GET(request: NextRequest) {
         clienteEmail: true,
         clienteTelefone: true,
         status: true,
-        metodoPagamento: true,
         pixId: true,
         pixQrCode: true,
         pixCopiaECola: true,
+        dataPagamento: true,
         createdAt: true,
-        produtoNome: true
+        produtoNome: true,
+        vendedorId: true
       },
       orderBy: { createdAt: 'desc' },
       take: 50
     });
     
-    return NextResponse.json({ pedidos });
+    return NextResponse.json({ pedidos, total: pedidos.length });
   } catch (error) {
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }
