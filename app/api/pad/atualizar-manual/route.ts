@@ -85,9 +85,10 @@ export async function POST(request: NextRequest) {
       });
       
       // Criar transação com data de liberação
+    try {
       await prisma.transacao.create({
         data: {
-          usuarioId: pedido.produto.userId,
+          userId: pedido.produto.userId,
           tipo: 'VENDA_PAD',
           valor: valorLiquido,
           status: 'PENDENTE',
@@ -95,6 +96,10 @@ export async function POST(request: NextRequest) {
           dataLiberacao: dataLiberacao
         }
       });
+      console.log('✅ Transação criada');
+    } catch (err) {
+      console.error('⚠️ Erro ao criar transação:', err);
+    }
       
       return NextResponse.json({ 
         message: 'Carteira atualizada com valores corretos',
@@ -122,7 +127,7 @@ export async function POST(request: NextRequest) {
     // Criar transação com data de liberação
     await prisma.transacao.create({
       data: {
-        usuarioId: pedido.produto.userId,
+        userId: pedido.produto.userId,
         tipo: 'VENDA_PAD',
         valor: valorLiquido,
         status: 'PENDENTE',
