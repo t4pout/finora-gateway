@@ -15,6 +15,11 @@ export async function POST(request: NextRequest) {
             nome: true,
             userId: true
           }
+        },
+        vendedor: {
+          include: {
+            planoTaxa: true
+          }
         }
       }
     });
@@ -25,22 +30,40 @@ export async function POST(request: NextRequest) {
     
     console.log('✅ Pedido encontrado:', pedido.id);
     
-    // Atualizar status para indicar que foi pago
+    // Atualizar status do pedido para mostrar que foi pago
     await prisma.pedidoPAD.update({
       where: { id: pedido.id },
       data: { 
-        dataPagamento: new Date(),
-        status: 'AGUARDANDO_ENVIO' // Já estava nesse status, mas garantindo
+        dataPagamento: new Date()
       }
     });
     
-    console.log('💰 Status atualizado');
+    console.log('💰 Data de pagamento atualizada');
     
-    // Adicionar saldo na carteira do vendedor
+    // Buscar taxa personalizada do vendedor
+    const planoTaxa = pedido.vendedor.planoTaxa;
+    
+    if (!planoTaxa) {
+      return NextResponse.json({ 
+        error: 'Vendedor sem plano de taxa configurado' 
+      }, { status: 400 });
+    }
+    
     const valorTotal = pedido.valor;
-    const taxaPlataforma = 5; // 5%
-    const valorTaxa = (valorTotal * taxaPlataforma) / 100;
+    const taxaPercentual = planoTaxa.pixPercentual;
+    const taxaFixa = planoTaxa.pixFixo;
+    const prazoLiberacaoDias = planoTaxa.prazoPixDias;
+    
+    // Calcular taxa
+    const valorTaxa = (valorTotal * taxaPercentual / 100) + taxaFixa;
     const valorLiquido = valorTotal - valorTaxa;
+    
+    // Calcular data de liberação
+    const dataLiberacao = new Date();
+    dataLiberacao.setDate(dataLiberacao.getDate() + prazoLiberacaoDias);
+    
+    console.log(`📊 Taxa: ${taxaPercentual}% + R$${taxaFixa} = R$${valorTaxa.toFixed(2)}`);
+    console.log(`📅 Prazo: ${prazoLiberacaoDias} dias - Liberação em ${dataLiberacao.toLocaleDateString()}`);
     
     // Verificar se já existe entrada na carteira
     const carteiraExistente = await prisma.carteira.findFirst({
@@ -51,35 +74,78 @@ export async function POST(request: NextRequest) {
     });
     
     if (carteiraExistente) {
+      // Atualizar com valores corretos
+      await prisma.carteira.update({
+        where: { id: carteiraExistente.id },
+        data: {
+          valor: valorLiquido,
+          status: 'PENDENTE',
+          descricao: `Venda PAD #${pedido.hash} - ${pedido.produto.nome} (Taxa ${taxaPercentual}% + R$${taxaFixa.toFixed(2)} descontada)`
+        }
+      });
+      
+      // Criar transação com data de liberação
+      await prisma.transacao.create({
+        data: {
+          usuarioId: pedido.produto.userId,
+          tipo: 'VENDA_PAD',
+          valor: valorLiquido,
+          status: 'PENDENTE',
+          descricao: `Venda PAD #${pedido.hash}`,
+          dataLiberacao: dataLiberacao
+        }
+      });
+      
       return NextResponse.json({ 
-        message: 'Pedido já tinha saldo creditado',
+        message: 'Carteira atualizada com valores corretos',
         pedidoId: pedido.id,
-        carteiraId: carteiraExistente.id
+        carteiraId: carteiraExistente.id,
+        valorTotal,
+        valorTaxa,
+        valorLiquido,
+        prazoLiberacaoDias,
+        dataLiberacao
       });
     }
     
-    // Criar entrada na carteira
+    // Criar entrada na carteira como PENDENTE
     const carteira = await prisma.carteira.create({
       data: {
         usuarioId: pedido.produto.userId,
         tipo: 'VENDA_PAD',
         valor: valorLiquido,
-        descricao: `Venda PAD #${pedido.hash} - ${pedido.produto.nome} (Taxa ${taxaPlataforma}% descontada)`,
-        status: 'CONFIRMADO'
+        descricao: `Venda PAD #${pedido.hash} - ${pedido.produto.nome} (Taxa ${taxaPercentual}% + R$${taxaFixa.toFixed(2)} descontada)`,
+        status: 'PENDENTE'
       }
     });
     
-    console.log('✅ Saldo adicionado à carteira do vendedor');
+    // Criar transação com data de liberação
+    await prisma.transacao.create({
+      data: {
+        usuarioId: pedido.produto.userId,
+        tipo: 'VENDA_PAD',
+        valor: valorLiquido,
+        status: 'PENDENTE',
+        descricao: `Venda PAD #${pedido.hash}`,
+        dataLiberacao: dataLiberacao
+      }
+    });
+    
+    console.log('✅ Saldo adicionado à carteira (PENDENTE)');
     
     return NextResponse.json({ 
       success: true,
-      message: 'Pedido PAD atualizado e saldo creditado!',
+      message: 'Pedido PAD atualizado com taxa personalizada!',
       pedidoId: pedido.id,
       carteiraId: carteira.id,
       valorTotal,
+      taxaPercentual,
+      taxaFixa,
       valorTaxa,
       valorLiquido,
-      vendedorId: pedido.produto.userId
+      prazoLiberacaoDias,
+      dataLiberacao,
+      planoTaxa: planoTaxa.nome
     });
     
   } catch (error) {
