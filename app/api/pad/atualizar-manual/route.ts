@@ -34,7 +34,8 @@ export async function POST(request: NextRequest) {
     await prisma.pedidoPAD.update({
       where: { id: pedido.id },
       data: { 
-        dataPagamento: new Date()
+        dataPagamento: new Date(),
+        status: 'PAGO'
       }
     });
     

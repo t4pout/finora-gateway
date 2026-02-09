@@ -395,7 +395,7 @@ model Campanha {
   valor             Float
   quantidade        Int      @default(1)
   
-  status            String   @default("EM_ANALISE") // EM_ANALISE | APROVADO | AGUARDANDO_ENVIO | AGUARDANDO_PAGAMENTO | CANCELADO
+  status            String   @default("EM_ANALISE") // EM_ANALISE | APROVADO | AGUARDANDO_ENVIO | AGUARDANDO_PAGAMENTO | PAGO | CANCELADO
   motivo            String?
   
   codigoRastreio    String?
