@@ -109,7 +109,6 @@ async function processarVendaNormal(venda: any) {
     where: { id: venda.id },
     data: { 
       status: 'PAGO',
-      dataPagamento: new Date()
     }
   });
 
