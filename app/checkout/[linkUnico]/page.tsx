@@ -486,13 +486,10 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
                         className={`payment-card ${formData.metodoPagamento === 'PIX' ? 'active' : ''}`}
                         style={formData.metodoPagamento === 'PIX' ? { borderColor: corPrimaria, backgroundColor: `${corPrimaria}15` } : {}}
                       >
-                        <div className="payment-icon">
-                          <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect width="64" height="64" rx="12" fill="#32BCAD"/>
-                            <path d="M38.5 18.9L34.3 23.1L27.4 30L34.3 36.9L38.5 41.1L31.6 48L27.4 43.8L20.5 36.9L16.3 41.1L12.1 36.9L20.5 30L12.1 23.1L16.3 18.9L20.5 23.1L27.4 16.2L31.6 12L38.5 18.9Z" fill="white"/>
-                            <path d="M38.5 23.1L34.3 27.3M20.5 36.9L16.3 33M27.4 30L34.3 23.1M27.4 30L20.5 23.1" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-                            <path d="M31.6 41.1L27.4 36.9L34.3 30M20.5 23.1L12.1 30" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-                            <path fill-rule="evenodd" clip-rule="evenodd" d="M44 30C44 23.4 38.6 18 32 18C25.4 18 20 23.4 20 30C20 36.6 25.4 42 32 42C38.6 42 44 36.6 44 30ZM42 30C42 24.5 37.5 20 32 20C26.5 20 22 24.5 22 30C22 35.5 26.5 40 32 40C37.5 40 42 35.5 42 30Z" fill="white" fill-opacity="0.3"/>
+                       <div className="payment-icon">
+                          <svg width="80" height="80" viewBox="0 0 100 100" fill="none">
+                            <path d="M71.69 28.31a6.67 6.67 0 0 1 9.43 0l9.43 9.43a6.67 6.67 0 0 1 0 9.43l-28.3 28.3a6.67 6.67 0 0 1-9.43 0l-9.43-9.43L28.31 50l-9.43-9.43a6.67 6.67 0 0 1 0-9.43l9.43-9.43a6.67 6.67 0 0 1 9.43 0L50 34.38l14.08-14.08 7.61 8.01z" fill="#32BCAD"/>
+                            <path d="M28.31 71.69a6.67 6.67 0 0 1-9.43 0l-9.43-9.43a6.67 6.67 0 0 1 0-9.43l28.3-28.3a6.67 6.67 0 0 1 9.43 0l9.43 9.43L71.69 50l9.43 9.43a6.67 6.67 0 0 1 0 9.43l-9.43 9.43a6.67 6.67 0 0 1-9.43 0L50 65.62l-14.08 14.08-7.61-8.01z" fill="#32BCAD"/>
                           </svg>
                         </div>
                         <div className="payment-name">PIX</div>
