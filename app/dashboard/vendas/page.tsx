@@ -168,6 +168,37 @@ export default function VendasPage() {
               <h1 className="text-2xl font-bold text-gray-900">💳 Vendas</h1>
               <p className="text-sm text-gray-500">Gerencie todas as suas vendas</p>
             </div>
+            <button
+              onClick={async () => {
+                if (!confirm('Verificar vendas pendentes que já foram pagas?')) return;
+                
+                try {
+                  const token = localStorage.getItem('token');
+                  const response = await fetch('/api/vendas/verificar-pendentes', {
+                    method: 'POST',
+                    headers: {
+                      'Authorization': 'Bearer ' + token,
+                      'Content-Type': 'application/json'
+                    }
+                  });
+                  
+                  const data = await response.json();
+                  
+                  if (response.ok) {
+                    alert(`✅ Verificação concluída!\n\nTotal verificadas: ${data.total}\nAtualizadas: ${data.atualizadas || 0}`);
+                    carregarVendas(); // Recarrega a lista
+                  } else {
+                    alert('❌ Erro: ' + (data.error || 'Erro desconhecido'));
+                  }
+                } catch (error) {
+                  alert('❌ Erro ao verificar vendas');
+                  console.error(error);
+                }
+              }}
+              className="px-4 py-2 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition flex items-center gap-2"
+            >
+              🔄 Verificar Vendas Pagas
+            </button>
           </div>
         </header>
 
