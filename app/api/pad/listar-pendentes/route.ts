@@ -9,16 +9,16 @@ export async function GET(request: NextRequest) {
         id: true,
         hash: true,
         valor: true,
-        compradorNome: true,
+        clienteNome: true,
+        clienteEmail: true,
+        clienteTelefone: true,
         status: true,
         metodoPagamento: true,
         pixId: true,
+        pixQrCode: true,
+        pixCopiaECola: true,
         createdAt: true,
-        produto: {
-          select: {
-            nome: true
-          }
-        }
+        produtoNome: true
       },
       orderBy: { createdAt: 'desc' },
       take: 50
