@@ -817,14 +817,18 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
         }
 
         .payment-card {
-          padding: 32px 24px;
+          padding: 24px 20px;
           border: 3px solid #e5e7eb;
-          border-radius: 20px;
+          border-radius: 16px;
           background: white;
           cursor: pointer;
           transition: all 0.3s;
           text-align: center;
           position: relative;
+          min-height: 160px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
         }
 
         .payment-card::before {
@@ -854,18 +858,25 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
         }
 
         .payment-icon {
-          font-size: 48px;
-          margin-bottom: 12px;
+          font-size: 56px;
+          margin-bottom: 8px;
           display: flex;
           justify-content: center;
           align-items: center;
+          height: 60px;
+        }
+
+        .payment-icon svg {
+          width: 56px !important;
+          height: 56px !important;
         }
 
         .payment-name {
-          font-weight: 600;
-          font-size: 16px;
+          font-weight: 700;
+          font-size: 18px;
           color: #111827;
-          margin-bottom: 4px;
+          margin-bottom: 6px;
+          margin-top: 8px;
         }
 
         .payment-desc {
