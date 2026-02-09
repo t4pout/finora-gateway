@@ -146,7 +146,7 @@ export default function VendasPage() {
   });
 
   const totalVendas = vendasFiltradas.reduce((acc, v) => acc + v.valor, 0);
-  const totalAprovadas = vendasFiltradas.filter(v => v.status === 'APROVADO').length;
+  const totalPagas = vendasFiltradas.filter(v => v.status === 'PAGO').length;
   const totalPendentes = vendasFiltradas.filter(v => v.status === 'PENDENTE').length;
 
   if (loading) {
@@ -222,10 +222,11 @@ export default function VendasPage() {
 
             <div className="bg-white rounded-xl border border-gray-200 p-6">
               <div className="flex items-center justify-between mb-2">
-                <div className="text-sm text-gray-600">Aprovadas</div>
+                <div className="text-sm text-gray-600">Pagas</div>
                 <div className="w-3 h-3 bg-green-500 rounded-full"></div>
               </div>
-              <div className="text-3xl font-bold text-green-600">{totalAprovadas}</div>
+              <div className="text-3xl font-bold text-green-600">{totalPagas}</div>
+            </div>
             </div>
 
             <div className="bg-white rounded-xl border border-gray-200 p-6">
@@ -246,7 +247,7 @@ export default function VendasPage() {
             <div className="flex gap-2 mb-4">
               <button onClick={() => setFiltroStatus('TODAS')} className={`px-4 py-2 rounded-lg font-semibold transition ${filtroStatus === 'TODAS' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>Todas</button>
               <button onClick={() => setFiltroStatus('PENDENTE')} className={`px-4 py-2 rounded-lg font-semibold transition ${filtroStatus === 'PENDENTE' ? 'bg-yellow-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>Pendente</button>
-              <button onClick={() => setFiltroStatus('APROVADO')} className={`px-4 py-2 rounded-lg font-semibold transition ${filtroStatus === 'APROVADO' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>Aprovada</button>
+              <button onClick={() => setFiltroStatus('PAGO')} className={`px-4 py-2 rounded-lg font-semibold transition ${filtroStatus === 'PAGO' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>Paga</button>
               <button onClick={() => setFiltroStatus('CANCELADA')} className={`px-4 py-2 rounded-lg font-semibold transition ${filtroStatus === 'CANCELADA' ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>Cancelada</button>
             </div>
 
@@ -306,12 +307,12 @@ export default function VendasPage() {
                         </td>
                         <td className="py-4 px-4">
                           <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold ${
-                            venda.status === 'APROVADO' ? 'bg-green-100 text-green-700' :
+                            venda.status === 'PAGO' ? 'bg-green-100 text-green-700' :
                             venda.status === 'PENDENTE' ? 'bg-yellow-100 text-yellow-700' :
                             'bg-red-100 text-red-700'
                           }`}>
                             <div className={`w-2 h-2 rounded-full ${
-                              venda.status === 'APROVADO' ? 'bg-green-500' :
+                              venda.status === 'PAGO' ? 'bg-green-500' :
                               venda.status === 'PENDENTE' ? 'bg-yellow-500' :
                               'bg-red-500'
                             }`}></div>
@@ -479,7 +480,7 @@ export default function VendasPage() {
                   <div>
                     <label className="text-sm text-gray-600">Status</label>
                     <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold ${
-                      vendaSelecionada.status === 'APROVADO' ? 'bg-green-100 text-green-700' :
+                      vendaSelecionada.status === 'PAGO' ? 'bg-green-100 text-green-700' :
                       vendaSelecionada.status === 'PENDENTE' ? 'bg-yellow-100 text-yellow-700' :
                       'bg-red-100 text-red-700'
                     }`}>
