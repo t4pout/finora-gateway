@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
         // Atualizar transação para CONFIRMADO
         await prisma.transacao.update({
           where: { id: transacao.id },
-          data: { status: 'CONFIRMADO' }
+          data: { status: 'APROVADO' }
         });
 
         // Atualizar carteira correspondente para CONFIRMADO
