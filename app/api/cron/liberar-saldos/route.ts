@@ -15,9 +15,9 @@ export async function GET(request: NextRequest) {
     }
 
     console.log('🕐 Iniciando liberação automática de saldos...');
-
+    
     const agora = new Date();
-
+    
     // Buscar todas as transações PENDENTES com dataLiberacao vencida
     const transacoesPendentes = await prisma.transacao.findMany({
       where: {
@@ -44,26 +44,33 @@ export async function GET(request: NextRequest) {
 
     for (const transacao of transacoesPendentes) {
       try {
-        // Atualizar transação para CONFIRMADO
+        // Atualizar transação para APROVADO
         await prisma.transacao.update({
           where: { id: transacao.id },
           data: { status: 'APROVADO' }
         });
 
-        // Atualizar carteira correspondente para CONFIRMADO
-        await prisma.carteira.updateMany({
-          where: {
-            usuarioId: transacao.userId,
-            tipo: transacao.tipo,
-            valor: transacao.valor,
-            status: 'PENDENTE',
-            createdAt: {
-              gte: new Date(transacao.createdAt.getTime() - 1000 * 60 * 5), // 5 min antes
-              lte: new Date(transacao.createdAt.getTime() + 1000 * 60 * 5)  // 5 min depois
-            }
-          },
-          data: { status: 'CONFIRMADO' }
-        });
+        // Atualizar carteira correspondente para APROVADO
+        // Buscar pela vendaId se existir, senão por usuário + valor + tipo
+        if (transacao.vendaId) {
+          await prisma.carteira.updateMany({
+            where: {
+              vendaId: transacao.vendaId,
+              status: 'PENDENTE'
+            },
+            data: { status: 'APROVADO' }
+          });
+        } else {
+          await prisma.carteira.updateMany({
+            where: {
+              usuarioId: transacao.userId,
+              tipo: transacao.tipo,
+              valor: transacao.valor,
+              status: 'PENDENTE'
+            },
+            data: { status: 'APROVADO' }
+          });
+        }
 
         totalLiberado += transacao.valor;
         liberadas.push({
@@ -75,7 +82,6 @@ export async function GET(request: NextRequest) {
         });
 
         console.log(`✅ Liberado: R$ ${transacao.valor.toFixed(2)} para ${transacao.user.nome}`);
-
       } catch (error) {
         console.error(`❌ Erro ao liberar transação ${transacao.id}:`, error);
       }
