@@ -88,7 +88,7 @@ export default function DashboardPADPage() {
     setUser(JSON.parse(userData));
     
     // Definir data padrão (hoje)
-    const hoje = new Date().toISOString().split('T')[0];
+    const hoje = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' })).toISOString().split('T')[0];
     setDataInicio(hoje);
     setDataFim(hoje);
     

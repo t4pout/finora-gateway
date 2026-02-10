@@ -42,11 +42,10 @@ export async function POST(request: NextRequest) {
     }
     
     // Atualizar status
-    await prisma.venda.update({
+   await prisma.venda.update({
       where: { id: venda.id },
       data: { 
-        status: 'PAGO',
-        dataPagamento: new Date()
+        status: 'PAGO'
       }
     });
     
