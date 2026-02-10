@@ -141,6 +141,51 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
       router.push('/');
     }
   };
+ // Carregar e injetar pixels do produto
+  useEffect(() => {
+    if (!plano?.produto?.id) return;
+    
+    const carregarPixels = async () => {
+      try {
+        const res = await fetch(`/api/produtos/${plano.produto.id}`);
+        if (!res.ok) return;
+        
+        const data = await res.json();
+        const produto = data.produto;
+        
+        // Injetar pixels no head
+        if (produto.pixels && produto.pixels.length > 0) {
+          produto.pixels.forEach((pixel: any) => {
+            if (pixel.tipo === 'FACEBOOK' && pixel.codigo) {
+              console.log('📊 Carregando pixel:', pixel.codigo);
+              
+              // Injetar script do Facebook Pixel
+              const script = document.createElement('script');
+              script.innerHTML = `
+                !function(f,b,e,v,n,t,s)
+                {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+                n.queue=[];t=b.createElement(e);t.async=!0;
+                t.src=v;s=b.getElementsByTagName(e)[0];
+                s.parentNode.insertBefore(t,s)}(window, document,'script',
+                'https://connect.facebook.net/en_US/fbevents.js');
+                fbq('init', '${pixel.codigo}');
+                fbq('track', 'PageView');
+              `;
+              document.head.appendChild(script);
+              
+              console.log('✅ Pixel injetado:', pixel.codigo);
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Erro ao carregar pixels:', error);
+      }
+    };
+    
+    carregarPixels();
+  }, [plano?.produto?.id]);
 
   // Busca automática de CEP
   useEffect(() => {
