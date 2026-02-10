@@ -31,11 +31,10 @@ export async function GET(request: NextRequest) {
     // Montar filtro de data
     const filtroData: any = {};
     if (dataInicio && dataFim) {
-      const inicio = new Date(dataInicio);
-      inicio.setHours(0, 0, 0, 0);
+      // Criar datas no fuso horário de Brasília
+      const inicio = new Date(dataInicio + 'T00:00:00-03:00');
       
-      const fim = new Date(dataFim);
-      fim.setHours(23, 59, 59, 999);
+      const fim = new Date(dataFim + 'T23:59:59-03:00');
 
       filtroData.createdAt = {
         gte: inicio,
