@@ -24,12 +24,22 @@ export async function POST(request: NextRequest) {
     const signature = request.headers.get('x-paggpix-signature');
     const body = await request.text();
 
-    // Verificar assinatura HMAC
-    const hmac = crypto.createHmac('sha256', VERIFY_TOKEN);
-    const expectedSignature = `sha256=${hmac.update(body).digest('hex')}`;
+    if (!signature) {
+      console.error('❌ Assinatura ausente');
+      return NextResponse.json({ error: 'Missing signature' }, { status: 401 });
+    }
 
-    if (signature !== expectedSignature) {
+    // Verificar assinatura HMAC (SEM prefixo sha256=)
+    const hmac = crypto.createHmac('sha256', VERIFY_TOKEN);
+    const calculatedSignature = hmac.update(body).digest('hex');
+    
+    // Remover prefixo sha256= se presente
+    const receivedSignature = signature.replace('sha256=', '');
+
+    if (calculatedSignature !== receivedSignature) {
       console.error('❌ Assinatura inválida');
+      console.log('Recebida:', receivedSignature);
+      console.log('Calculada:', calculatedSignature);
       return NextResponse.json({ error: 'Invalid signature' }, { status: 403 });
     }
 
@@ -38,7 +48,7 @@ export async function POST(request: NextRequest) {
 
     // Processar evento de pagamento
     if (event.event === 'PAYMENT' && event.data) {
-      const { pix_id, status, amount } = event.data;
+      const { pix_id, status } = event.data;
 
       if (status === 'DONE') {
         console.log('🔍 Buscando venda/pedido com pixId:', pix_id);
@@ -88,7 +98,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ received: true }, { status: 200 });
+    return NextResponse.json({ status: 'received' }, { status: 200 });
 
   } catch (error) {
     console.error('❌ Erro no webhook:', error);
