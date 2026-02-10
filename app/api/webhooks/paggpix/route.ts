@@ -8,7 +8,9 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const mode = searchParams.get('mode');
   const challenge = searchParams.get('challenge');
-  const verifyToken = request.headers.get('x-verify-token');
+  
+  // Aceitar tanto x-verify-token (header) quanto verify_token (query)
+  const verifyToken = request.headers.get('x-verify-token') || searchParams.get('verify_token');
 
   if (mode === 'subscribe' && verifyToken === VERIFY_TOKEN) {
     return new NextResponse(challenge, { status: 200 });
