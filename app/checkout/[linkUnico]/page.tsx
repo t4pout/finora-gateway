@@ -76,55 +76,43 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
 
   // Facebook Pixel: InitiateCheckout - Dispara quando entra no checkout
   useEffect(() => {
-    if (!plano) return;
-    
-    const dispararInitiateCheckout = () => {
+    if (plano) {
       if (typeof window !== 'undefined' && (window as any).fbq) {
-        (window as any).fbq('track', 'InitiateCheckout', {
-          content_name: plano.nome,
-          content_ids: [plano.id],
-          content_type: 'product',
-          value: plano.preco,
-          currency: 'BRL'
-        });
-        console.log('✅ FB Pixel: InitiateCheckout disparado', {
-          produto: plano.nome,
-          valor: plano.preco
-        });
-      } else {
-        console.log('⏳ FB Pixel ainda não carregado, tentando novamente...');
-        setTimeout(dispararInitiateCheckout, 500);
+        try {
+          (window as any).fbq('track', 'InitiateCheckout', {
+            content_name: plano.nome,
+            content_ids: [plano.id],
+            content_type: 'product',
+            value: plano.preco,
+            currency: 'BRL'
+          });
+          console.log('📊 Pixel: InitiateCheckout disparado');
+        } catch (e) {
+          console.error('Erro pixel:', e);
+        }
       }
-    };
-    
-    dispararInitiateCheckout();
+    }
   }, [plano]);
 
   // Facebook Pixel: AddPaymentInfo - Dispara quando seleciona método de pagamento
   useEffect(() => {
-    if (!plano || etapa !== 3 || !formData.metodoPagamento) return;
-    
-    const dispararAddPaymentInfo = () => {
+    if (plano && etapa === 3 && formData.metodoPagamento) {
       if (typeof window !== 'undefined' && (window as any).fbq) {
-        (window as any).fbq('track', 'AddPaymentInfo', {
-          content_name: plano.nome,
-          content_ids: [plano.id],
-          content_type: 'product',
-          value: plano.preco,
-          currency: 'BRL',
-          payment_method: formData.metodoPagamento
-        });
-        console.log('✅ FB Pixel: AddPaymentInfo disparado', {
-          metodo: formData.metodoPagamento,
-          valor: plano.preco
-        });
-      } else {
-        console.log('⏳ FB Pixel ainda não carregado, tentando novamente...');
-        setTimeout(dispararAddPaymentInfo, 500);
+        try {
+          (window as any).fbq('track', 'AddPaymentInfo', {
+            content_name: plano.nome,
+            content_ids: [plano.id],
+            content_type: 'product',
+            value: plano.preco,
+            currency: 'BRL',
+            payment_method: formData.metodoPagamento
+          });
+          console.log('📊 Pixel: AddPaymentInfo disparado');
+        } catch (e) {
+          console.error('Erro pixel:', e);
+        }
       }
-    };
-    
-    dispararAddPaymentInfo();
+    }
   }, [etapa, formData.metodoPagamento, plano]);
 
   const carregarPlano = async () => {
