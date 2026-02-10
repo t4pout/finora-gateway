@@ -48,6 +48,8 @@ export default function VendasPage() {
   const [filtroData, setFiltroData] = useState('TODAS');
   const [vendaSelecionada, setVendaSelecionada] = useState<Venda | null>(null);
   const [modalAberto, setModalAberto] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [mostrandoTodas, setMostrandoTodas] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -65,10 +67,14 @@ export default function VendasPage() {
     carregarVendas();
   }, [router]);
 
-  const carregarVendas = async () => {
+  const carregarVendas = async (mostrarTodas: boolean = false) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/vendas', {
+      const url = mostrarTodas 
+        ? '/api/vendas?todas=true' 
+        : '/api/vendas';
+      
+      const response = await fetch(url, {
         headers: {
           'Authorization': 'Bearer ' + token
         }
@@ -77,6 +83,8 @@ export default function VendasPage() {
       if (response.ok) {
         const data = await response.json();
         setVendas(data.vendas || []);
+        setIsAdmin(data.isAdmin || false);
+        setMostrandoTodas(data.mostrandoTodas || false);
       }
     } catch (error) {
       console.error('Erro ao carregar vendas:', error);
@@ -168,37 +176,22 @@ export default function VendasPage() {
               <h1 className="text-2xl font-bold text-gray-900">💳 Vendas</h1>
               <p className="text-sm text-gray-500">Gerencie todas as suas vendas</p>
             </div>
-            <button
-              onClick={async () => {
-                if (!confirm('Verificar vendas pendentes que já foram pagas?')) return;
-                
-                try {
-                  const token = localStorage.getItem('token');
-                  const response = await fetch('/api/vendas/verificar-pendentes', {
-                    method: 'POST',
-                    headers: {
-                      'Authorization': 'Bearer ' + token,
-                      'Content-Type': 'application/json'
-                    }
-                  });
-                  
-                  const data = await response.json();
-                  
-                  if (response.ok) {
-                    alert(`✅ Verificação concluída!\n\nTotal verificadas: ${data.total}\nAtualizadas: ${data.atualizadas || 0}`);
-                    carregarVendas();
-                  } else {
-                    alert('❌ Erro: ' + (data.error || 'Erro desconhecido'));
-                  }
-                } catch (error) {
-                  alert('❌ Erro ao verificar vendas');
-                  console.error(error);
-                }
-              }}
-              className="px-4 py-2 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition flex items-center gap-2"
-            >
-              🔄 Verificar Vendas Pagas
-            </button>
+            {isAdmin && (
+              <button
+                onClick={() => {
+                  const novoEstado = !mostrandoTodas;
+                  setMostrandoTodas(novoEstado);
+                  carregarVendas(novoEstado);
+                }}
+                className={`px-4 py-2 font-semibold rounded-lg transition flex items-center gap-2 ${
+                  mostrandoTodas 
+                    ? 'bg-orange-600 text-white hover:bg-orange-700' 
+                    : 'bg-gray-600 text-white hover:bg-gray-700'
+                }`}
+              >
+                {mostrandoTodas ? '👤 Ver Minhas Vendas' : '🌐 Ver Todas as Vendas'}
+              </button>
+            )}
           </div>
         </header>
 

@@ -248,21 +248,35 @@ export async function GET(request: NextRequest) {
       where: { id: userId }
     });
 
-    // Se for admin, retorna todas as vendas
-    // Se for usuário normal, retorna apenas suas vendas
+    // Verificar parâmetro para ver todas as vendas (somente ADMIN)
+    const { searchParams } = new URL(request.url);
+    const verTodas = searchParams.get('todas') === 'true';
+
+    // Se for admin E solicitou ver todas, mostra tudo
+    // Caso contrário, mostra apenas suas vendas
     const vendas = await prisma.venda.findMany({
-      where: user?.role === 'ADMIN' ? {} : { vendedorId: userId },
+      where: (user?.role === 'ADMIN' && verTodas) ? {} : { vendedorId: userId },
       include: {
         produto: {
           select: {
             nome: true
+          }
+        },
+        transacoes: {
+          select: {
+            valor: true
           }
         }
       },
       orderBy: { createdAt: 'desc' }
     });
 
-    return NextResponse.json({ success: true, vendas });
+    return NextResponse.json({ 
+      success: true, 
+      vendas,
+      isAdmin: user?.role === 'ADMIN',
+      mostrandoTodas: (user?.role === 'ADMIN' && verTodas)
+    });
   } catch (error) {
     console.error('Erro ao buscar vendas:', error);
     return NextResponse.json({ error: 'Erro ao buscar vendas' }, { status: 500 });
