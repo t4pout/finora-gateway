@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     const { planoId, compradorNome, compradorEmail, compradorCpf, compradorTel, cep, rua, numero, complemento, bairro, cidade, estado } = body;
 
     // Buscar plano e produto
-    const plano = await prisma.plano.findUnique({
+    const plano = await prisma.planoOferta.findUnique({
       where: { id: planoId },
       include: { produto: true }
     });
