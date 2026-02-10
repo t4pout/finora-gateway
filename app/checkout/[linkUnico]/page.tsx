@@ -143,21 +143,37 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
   };
  // Carregar e injetar pixels do produto
   useEffect(() => {
-    if (!plano?.produto?.id) return;
+    console.log('🔍 useEffect pixels rodando...', { 
+      temPlano: !!plano, 
+      produtoId: plano?.produto?.id 
+    });
+    
+    if (!plano?.produto?.id) {
+      console.log('❌ Sem produto.id, abortando');
+      return;
+    }
     
     const carregarPixels = async () => {
       try {
+        console.log('📡 Buscando pixels para produto:', plano.produto.id);
+        
         const res = await fetch(`/api/produtos/${plano.produto.id}`);
-        if (!res.ok) return;
+        if (!res.ok) {
+          console.log('❌ Erro ao buscar produto, status:', res.status);
+          return;
+        }
         
         const data = await res.json();
         const produto = data.produto;
         
+        console.log('✅ Produto recebido:', produto);
+        console.log('🎯 Pixels encontrados:', produto.pixels);
+        
         // Injetar pixels no head
         if (produto.pixels && produto.pixels.length > 0) {
           produto.pixels.forEach((pixel: any) => {
-            if (pixel.tipo === 'FACEBOOK' && pixel.codigo) {
-              console.log('📊 Carregando pixel:', pixel.codigo);
+            if (pixel.plataforma === 'FACEBOOK' && pixel.pixelId) {
+              console.log('📊 Carregando pixel:', pixel.pixelId);
               
               // Injetar script do Facebook Pixel
               const script = document.createElement('script');
@@ -170,17 +186,19 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
                 t.src=v;s=b.getElementsByTagName(e)[0];
                 s.parentNode.insertBefore(t,s)}(window, document,'script',
                 'https://connect.facebook.net/en_US/fbevents.js');
-                fbq('init', '${pixel.codigo}');
+                fbq('init', '${pixel.pixelId}');
                 fbq('track', 'PageView');
               `;
               document.head.appendChild(script);
               
-              console.log('✅ Pixel injetado:', pixel.codigo);
+              console.log('✅ Pixel injetado:', pixel.pixelId);
             }
           });
+        } else {
+          console.log('⚠️ Nenhum pixel encontrado no produto');
         }
       } catch (error) {
-        console.error('Erro ao carregar pixels:', error);
+        console.error('❌ Erro ao carregar pixels:', error);
       }
     };
     
