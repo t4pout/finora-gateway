@@ -323,26 +323,6 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
 
       if (res.ok) {
         const data = await res.json();
-        
-        // Facebook Pixel: Purchase - Dispara quando o pedido é finalizado
-        const dispararPurchase = () => {
-          if (typeof window !== 'undefined' && (window as any).fbq && plano) {
-            (window as any).fbq('track', 'Purchase', {
-              content_name: plano.nome,
-              content_ids: [plano.id],
-              content_type: 'product',
-              value: plano.preco,
-              currency: 'BRL',
-              transaction_id: data.vendaId
-            });
-            console.log('✅ FB Pixel: Purchase disparado', {
-              transacao: data.vendaId,
-              valor: plano.preco
-            });
-          }
-        };
-        
-        dispararPurchase();
         router.push(`/pedido/${data.vendaId}`);
       } else {
         const errorData = await res.json();
