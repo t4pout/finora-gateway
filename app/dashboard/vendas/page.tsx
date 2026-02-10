@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Sidebar from '@/app/components/Sidebar';
 
@@ -102,7 +102,7 @@ export default function VendasPage() {
   };
 
   const getDataInicio = () => {
-    const hoje = new Date();
+    const hoje = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
     hoje.setHours(0, 0, 0, 0);
     
     switch (filtroData) {
