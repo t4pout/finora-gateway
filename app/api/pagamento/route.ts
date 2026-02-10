@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     const { planoId, compradorNome, compradorEmail, compradorCpf, compradorTel, cep, rua, numero, complemento, bairro, cidade, estado } = body;
 
     // Buscar plano e produto
-    const plano = await prisma.planoOferta.findUnique({
+    const plano = await prisma.plano.findUnique({
       where: { id: planoId },
       include: { produto: true }
     });
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
 
 // Buscar produto e vendedor para notificações
 const produto = await prisma.produto.findUnique({
-  where: { id: planoOferta.produtoId },
+  where: { id: plano.produtoId },
   include: {
     user: {
       select: {
@@ -110,7 +110,7 @@ const mensagemVendaGerada = `🔔 <b>VENDA GERADA</b>\n\n` +
   `💰 Valor: R$ ${venda.valor.toFixed(2)}\n` +
   `👤 Cliente: ${venda.compradorNome}\n` +
   `📧 Email: ${venda.compradorEmail}\n` +
-  `📦 Produto: ${planoOferta.nome}\n` +
+  `📦 Produto: ${plano.nome}\n` +
   `💳 Pagamento: ${venda.metodoPagamento}\n` +
   `${statusPagamento}\n` +
   `🆔 Venda ID: ${venda.id.substring(0,8)}`;
