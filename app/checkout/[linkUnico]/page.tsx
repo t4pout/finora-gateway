@@ -76,31 +76,55 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
 
   // Facebook Pixel: InitiateCheckout - Dispara quando entra no checkout
   useEffect(() => {
-    if (typeof window !== 'undefined' && (window as any).fbq && plano) {
-      (window as any).fbq('track', 'InitiateCheckout', {
-        content_name: plano.nome,
-        content_ids: [plano.id],
-        content_type: 'product',
-        value: plano.preco,
-        currency: 'BRL'
-      });
-      console.log('FB Pixel: InitiateCheckout disparado');
-    }
+    if (!plano) return;
+    
+    const dispararInitiateCheckout = () => {
+      if (typeof window !== 'undefined' && (window as any).fbq) {
+        (window as any).fbq('track', 'InitiateCheckout', {
+          content_name: plano.nome,
+          content_ids: [plano.id],
+          content_type: 'product',
+          value: plano.preco,
+          currency: 'BRL'
+        });
+        console.log('✅ FB Pixel: InitiateCheckout disparado', {
+          produto: plano.nome,
+          valor: plano.preco
+        });
+      } else {
+        console.log('⏳ FB Pixel ainda não carregado, tentando novamente...');
+        setTimeout(dispararInitiateCheckout, 500);
+      }
+    };
+    
+    dispararInitiateCheckout();
   }, [plano]);
 
   // Facebook Pixel: AddPaymentInfo - Dispara quando seleciona método de pagamento
   useEffect(() => {
-    if (typeof window !== 'undefined' && (window as any).fbq && plano && etapa === 3 && formData.metodoPagamento) {
-      (window as any).fbq('track', 'AddPaymentInfo', {
-        content_name: plano.nome,
-        content_ids: [plano.id],
-        content_type: 'product',
-        value: plano.preco,
-        currency: 'BRL',
-        payment_method: formData.metodoPagamento
-      });
-      console.log('FB Pixel: AddPaymentInfo disparado -', formData.metodoPagamento);
-    }
+    if (!plano || etapa !== 3 || !formData.metodoPagamento) return;
+    
+    const dispararAddPaymentInfo = () => {
+      if (typeof window !== 'undefined' && (window as any).fbq) {
+        (window as any).fbq('track', 'AddPaymentInfo', {
+          content_name: plano.nome,
+          content_ids: [plano.id],
+          content_type: 'product',
+          value: plano.preco,
+          currency: 'BRL',
+          payment_method: formData.metodoPagamento
+        });
+        console.log('✅ FB Pixel: AddPaymentInfo disparado', {
+          metodo: formData.metodoPagamento,
+          valor: plano.preco
+        });
+      } else {
+        console.log('⏳ FB Pixel ainda não carregado, tentando novamente...');
+        setTimeout(dispararAddPaymentInfo, 500);
+      }
+    };
+    
+    dispararAddPaymentInfo();
   }, [etapa, formData.metodoPagamento, plano]);
 
   const carregarPlano = async () => {
@@ -250,18 +274,24 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
         const data = await res.json();
         
         // Facebook Pixel: Purchase - Dispara quando o pedido é finalizado
-        if (typeof window !== 'undefined' && (window as any).fbq && plano) {
-          (window as any).fbq('track', 'Purchase', {
-            content_name: plano.nome,
-            content_ids: [plano.id],
-            content_type: 'product',
-            value: plano.preco,
-            currency: 'BRL',
-            transaction_id: data.vendaId
-          });
-          console.log('FB Pixel: Purchase disparado');
-        }
+        const dispararPurchase = () => {
+          if (typeof window !== 'undefined' && (window as any).fbq && plano) {
+            (window as any).fbq('track', 'Purchase', {
+              content_name: plano.nome,
+              content_ids: [plano.id],
+              content_type: 'product',
+              value: plano.preco,
+              currency: 'BRL',
+              transaction_id: data.vendaId
+            });
+            console.log('✅ FB Pixel: Purchase disparado', {
+              transacao: data.vendaId,
+              valor: plano.preco
+            });
+          }
+        };
         
+        dispararPurchase();
         router.push(`/pedido/${data.vendaId}`);
       } else {
         const errorData = await res.json();
