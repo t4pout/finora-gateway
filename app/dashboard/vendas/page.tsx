@@ -203,7 +203,8 @@ export default function VendasPage() {
         </header>
 
         <div className="p-8">
-          <div className="grid md:grid-cols-4 gap-6 mb-8">
+
+<div className="grid md:grid-cols-4 gap-6 mb-8">
             <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white">
               <div className="flex items-center justify-between mb-2">
                 <div className="text-sm font-medium opacity-90">Total em Vendas</div>
@@ -246,9 +247,6 @@ export default function VendasPage() {
               <div className="text-sm text-gray-500 mt-1">{totalPagas} de {vendasFiltradas.length}</div>
             </div>
           </div>
-            </div>
-          </div>
-
           <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
             <div className="flex items-center gap-4 mb-4">
               <Filter size={20} className="text-gray-600" />
