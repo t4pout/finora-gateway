@@ -210,30 +210,42 @@ export default function VendasPage() {
                 <DollarSign size={24} />
               </div>
               <div className="text-3xl font-bold">R$ {totalVendas.toFixed(2).replace('.', ',')}</div>
+              <div className="text-sm opacity-75 mt-1">{vendasFiltradas.length} vendas</div>
             </div>
 
             <div className="bg-white rounded-xl border border-gray-200 p-6">
               <div className="flex items-center justify-between mb-2">
-                <div className="text-sm text-gray-600">Total de Vendas</div>
-                <ShoppingBag size={20} className="text-gray-600" />
-              </div>
-              <div className="text-3xl font-bold text-gray-900">{vendasFiltradas.length}</div>
-            </div>
-
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-2">
-                <div className="text-sm text-gray-600">Pagas</div>
+                <div className="text-sm text-gray-600">Vendas Pagas</div>
                 <div className="w-3 h-3 bg-green-500 rounded-full"></div>
               </div>
-              <div className="text-3xl font-bold text-green-600">{totalPagas}</div>
+              <div className="text-3xl font-bold text-green-600">
+                R$ {vendasFiltradas.filter(v => v.status === 'PAGO').reduce((acc, v) => acc + v.valor, 0).toFixed(2).replace('.', ',')}
+              </div>
+              <div className="text-sm text-gray-500 mt-1">{totalPagas} vendas</div>
             </div>
 
             <div className="bg-white rounded-xl border border-gray-200 p-6">
               <div className="flex items-center justify-between mb-2">
-                <div className="text-sm text-gray-600">Pendentes</div>
+                <div className="text-sm text-gray-600">Vendas Pendentes</div>
                 <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
               </div>
-              <div className="text-3xl font-bold text-yellow-600">{totalPendentes}</div>
+              <div className="text-3xl font-bold text-yellow-600">
+                R$ {vendasFiltradas.filter(v => v.status === 'PENDENTE').reduce((acc, v) => acc + v.valor, 0).toFixed(2).replace('.', ',')}
+              </div>
+              <div className="text-sm text-gray-500 mt-1">{totalPendentes} vendas</div>
+            </div>
+
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-sm text-gray-600">Taxa de Aprovação</div>
+                <ShoppingBag size={20} className="text-gray-600" />
+              </div>
+              <div className="text-3xl font-bold text-purple-600">
+                {vendasFiltradas.length > 0 ? ((totalPagas / vendasFiltradas.length) * 100).toFixed(1) : 0}%
+              </div>
+              <div className="text-sm text-gray-500 mt-1">{totalPagas} de {vendasFiltradas.length}</div>
+            </div>
+          </div>
             </div>
           </div>
 
