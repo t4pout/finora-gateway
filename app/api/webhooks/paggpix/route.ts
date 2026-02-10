@@ -111,6 +111,29 @@ async function processarVendaNormal(venda: any) {
       status: 'PAGO',
     }
   });
+  // Disparar evento Facebook Pixel Purchase
+try {
+  const produto = await prisma.produto.findUnique({
+    where: { id: venda.produtoId },
+    include: { pixels: true }
+  });
+  
+  if (produto?.pixels && produto.pixels.length > 0) {
+    const pixelFacebook = produto.pixels.find(p => p.plataforma === 'FACEBOOK' && p.status === 'ATIVO');
+    
+    if (pixelFacebook) {
+      // Aqui você pode integrar com Facebook Conversions API
+      console.log('📊 Purchase event para Pixel:', pixelFacebook.pixelId, {
+        transaction_id: venda.id,
+        value: valorTotal,
+        currency: 'BRL'
+      });
+      // TODO: Implementar Facebook Conversions API
+    }
+  }
+} catch (e) {
+  console.error('Erro ao disparar pixel:', e);
+}
 
   console.log('✅ Venda marcada como PAGA:', venda.id);
 
@@ -191,6 +214,28 @@ async function processarPedidoPAD(pedido: any) {
       status: 'PAGO'
     }
   });
+  // Disparar evento Facebook Pixel Purchase
+try {
+  const produto = await prisma.produto.findUnique({
+    where: { id: pedido.produtoId },
+    include: { pixels: true }
+  });
+  
+  if (produto?.pixels && produto.pixels.length > 0) {
+    const pixelFacebook = produto.pixels.find(p => p.plataforma === 'FACEBOOK' && p.status === 'ATIVO');
+    
+    if (pixelFacebook) {
+      console.log('📊 Purchase event PAD para Pixel:', pixelFacebook.pixelId, {
+        transaction_id: pedido.id,
+        value: valorTotal,
+        currency: 'BRL'
+      });
+      // TODO: Implementar Facebook Conversions API
+    }
+  }
+} catch (e) {
+  console.error('Erro ao disparar pixel PAD:', e);
+}
 
   console.log('✅ Pedido PAD marcado como PAGO:', pedido.id);
 
