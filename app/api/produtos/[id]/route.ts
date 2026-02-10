@@ -36,8 +36,10 @@ export async function GET(
         status: true,
         publicoParaAfiliados: true,
         estoque: true,
+        pixels: true,
         userId: true,
         padHabilitado: true
+        
       }
     });
 
