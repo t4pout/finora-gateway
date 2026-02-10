@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   console.log('Challenge:', challenge);
   console.log('Verify Token:', verifyToken);
 
-  if (mode === 'subscribe' && verifyToken === VERIFY_TOKEN) {
+  if ((mode === 'subscribe' || mode === 'subscription') && verifyToken === VERIFY_TOKEN) {
     console.log('✅ Verificação bem-sucedida, retornando challenge');
     return new NextResponse(challenge, { status: 200 });
   }
