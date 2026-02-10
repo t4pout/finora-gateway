@@ -1,17 +1,33 @@
 ﻿(function() {
   console.log('🔍 Script fb-pixel.js carregado');
   
-  const params = new URLSearchParams(window.location.search);
-  const produtoId = params.get('produtoId');
+  const pathname = window.location.pathname;
+  console.log('Pathname:', pathname);
   
-  console.log('ProdutoId:', produtoId);
-  console.log('Pathname:', window.location.pathname);
+  // Detectar se é checkout PAD ou checkout normal
+  let produtoId = null;
   
-  if (!produtoId || !window.location.pathname.includes('/pad/criar')) {
-    console.log('❌ Não é página de checkout PAD ou sem produtoId');
+  // Checkout PAD: /pad/criar?produtoId=xxx
+  if (pathname.includes('/pad/criar')) {
+    const params = new URLSearchParams(window.location.search);
+    produtoId = params.get('produtoId');
+    console.log('📦 Checkout PAD - ProdutoId:', produtoId);
+  }
+  
+  // Checkout Normal: já injeta o pixel via useEffect na página
+  // Não precisa fazer nada aqui, o pixel já foi injetado
+  if (pathname.includes('/checkout/')) {
+    console.log('✅ Checkout normal - Pixel será injetado via useEffect');
     return;
   }
   
+  // Se não tem produtoId e não é checkout normal, sair
+  if (!produtoId) {
+    console.log('ℹ️ Nenhum produtoId detectado');
+    return;
+  }
+  
+  // Carregar pixel para checkout PAD
   fetch('/api/pixels?produtoId=' + produtoId)
     .then(r => r.json())
     .then(data => {
