@@ -134,6 +134,62 @@ try {
 } catch (e) {
   console.error('Erro ao disparar pixel:', e);
 }
+ // Notificação Telegram: VENDA PAGA
+try {
+  const produtoCompleto = await prisma.produto.findUnique({
+    where: { id: venda.produtoId },
+    include: {
+      user: {
+        select: {
+          id: true,
+          nome: true,
+          telegramBotToken: true,
+          telegramChatId: true
+        }
+      }
+    }
+  });
+
+  const valorTotal = venda.valor;
+  const mensagemVendaPaga = `✅ <b>VENDA PAGA</b>\n\n` +
+    `💰 Valor: R$ ${valorTotal.toFixed(2)}\n` +
+    `👤 Cliente: ${venda.compradorNome}\n` +
+    `📧 Email: ${venda.compradorEmail}\n` +
+    `📦 Produto: ${produtoCompleto?.nome || 'N/A'}\n` +
+    `💳 Pagamento: PIX\n` +
+    `✅ Pagamento Confirmado\n` +
+    `🆔 Venda ID: ${venda.id.substring(0,8)}`;
+
+  // 1. Notificação individual do vendedor
+  if (produtoCompleto?.user?.telegramBotToken && produtoCompleto?.user?.telegramChatId) {
+    await fetch('https://www.finorapayments.com/api/telegram/notificar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        botToken: produtoCompleto.user.telegramBotToken,
+        chatId: produtoCompleto.user.telegramChatId,
+        mensagem: mensagemVendaPaga
+      })
+    });
+    console.log('✅ Notificação VENDA PAGA enviada para vendedor');
+  }
+
+  // 2. Notificação geral da plataforma
+  if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID) {
+    await fetch('https://www.finorapayments.com/api/telegram/notificar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        botToken: process.env.TELEGRAM_BOT_TOKEN,
+        chatId: process.env.TELEGRAM_CHAT_ID,
+        mensagem: mensagemVendaPaga + `\n\n🧑‍💼 Vendedor: ${produtoCompleto?.user?.nome || 'N/A'}`
+      })
+    });
+    console.log('✅ Notificação VENDA PAGA enviada para bot geral');
+  }
+} catch (e) {
+  console.error('Erro ao enviar notificação Telegram:', e);
+}
 
   console.log('✅ Venda marcada como PAGA:', venda.id);
 
@@ -235,6 +291,61 @@ try {
   }
 } catch (e) {
   console.error('Erro ao disparar pixel PAD:', e);
+}
+  // Notificação Telegram: PEDIDO PAD PAGO
+try {
+  const produtoCompleto = await prisma.produto.findUnique({
+    where: { id: pedido.produtoId },
+    include: {
+      user: {
+        select: {
+          id: true,
+          nome: true,
+          telegramBotToken: true,
+          telegramChatId: true
+        }
+      }
+    }
+  });
+
+  const valorTotal = pedido.valor;
+  const mensagemPedidoPago = `✅ <b>PEDIDO PAD PAGO</b>\n\n` +
+    `💰 Valor: R$ ${valorTotal.toFixed(2)}\n` +
+    `👤 Cliente: ${pedido.clienteNome}\n` +
+    `📦 Produto: ${produtoCompleto?.nome || 'N/A'}\n` +
+    `💳 Pagamento: PIX\n` +
+    `✅ Pagamento Confirmado\n` +
+    `🔗 Hash: ${pedido.hash}`;
+
+  // 1. Notificação individual do vendedor
+  if (produtoCompleto?.user?.telegramBotToken && produtoCompleto?.user?.telegramChatId) {
+    await fetch('https://www.finorapayments.com/api/telegram/notificar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        botToken: produtoCompleto.user.telegramBotToken,
+        chatId: produtoCompleto.user.telegramChatId,
+        mensagem: mensagemPedidoPago
+      })
+    });
+    console.log('✅ Notificação PEDIDO PAD PAGO enviada para vendedor');
+  }
+
+  // 2. Notificação geral da plataforma
+  if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID) {
+    await fetch('https://www.finorapayments.com/api/telegram/notificar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        botToken: process.env.TELEGRAM_BOT_TOKEN,
+        chatId: process.env.TELEGRAM_CHAT_ID,
+        mensagem: mensagemPedidoPago + `\n\n🧑‍💼 Vendedor: ${produtoCompleto?.user?.nome || 'N/A'}`
+      })
+    });
+    console.log('✅ Notificação PEDIDO PAD PAGO enviada para bot geral');
+  }
+} catch (e) {
+  console.error('Erro ao enviar notificação Telegram PAD:', e);
 }
 
   console.log('✅ Pedido PAD marcado como PAGO:', pedido.id);

@@ -82,6 +82,74 @@ export async function POST(request: NextRequest) {
         pixCopiaECola: paggpixResult.pix_code
       }
     });
+    console.log('✅ Venda criada:', venda);
+
+// Buscar produto e vendedor para notificações
+const produto = await prisma.produto.findUnique({
+  where: { id: planoOferta.produtoId },
+  include: {
+    user: {
+      select: {
+        id: true,
+        nome: true,
+        telegramBotToken: true,
+        telegramChatId: true
+      }
+    }
+  }
+});
+
+// Mensagem VENDA GERADA
+const statusPagamento = venda.metodoPagamento === 'PIX' 
+  ? '🟢 PIX Gerado - Aguardando pagamento'
+  : venda.metodoPagamento === 'BOLETO'
+  ? '🟡 Boleto Gerado - Aguardando pagamento'
+  : '💳 Cartão - Processando';
+
+const mensagemVendaGerada = `🔔 <b>VENDA GERADA</b>\n\n` +
+  `💰 Valor: R$ ${venda.valor.toFixed(2)}\n` +
+  `👤 Cliente: ${venda.compradorNome}\n` +
+  `📧 Email: ${venda.compradorEmail}\n` +
+  `📦 Produto: ${planoOferta.nome}\n` +
+  `💳 Pagamento: ${venda.metodoPagamento}\n` +
+  `${statusPagamento}\n` +
+  `🆔 Venda ID: ${venda.id.substring(0,8)}`;
+
+// 1. Notificação individual do vendedor
+if (produto?.user?.telegramBotToken && produto?.user?.telegramChatId) {
+  try {
+    await fetch(`${request.nextUrl.origin}/api/telegram/notificar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        botToken: produto.user.telegramBotToken,
+        chatId: produto.user.telegramChatId,
+        mensagem: mensagemVendaGerada
+      })
+    });
+    console.log('✅ Notificação VENDA GERADA enviada para vendedor');
+  } catch (e) {
+    console.error('Erro notificação vendedor:', e);
+  }
+}
+
+// 2. Notificação geral da plataforma (com nome do vendedor)
+if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID) {
+  try {
+    await fetch(`${request.nextUrl.origin}/api/telegram/notificar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        botToken: process.env.TELEGRAM_BOT_TOKEN,
+        chatId: process.env.TELEGRAM_CHAT_ID,
+        mensagem: mensagemVendaGerada + `\n\n🧑‍💼 Vendedor: ${produto?.user?.nome || 'N/A'}`
+      })
+    });
+    console.log('✅ Notificação VENDA GERADA enviada para bot geral');
+  } catch (e) {
+    console.error('Erro notificação geral:', e);
+  }
+}
 
     return NextResponse.json({
       vendaId: venda.id,
