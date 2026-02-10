@@ -6,16 +6,26 @@ const VERIFY_TOKEN = process.env.PAGGPIX_WEBHOOK_TOKEN || 'finora-webhook-secure
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
+  
+  // Log completo para debug
+  console.log('📥 GET recebido no webhook');
+  console.log('Query params:', Object.fromEntries(searchParams));
+  console.log('Headers:', Object.fromEntries(request.headers));
+  
   const mode = searchParams.get('mode');
   const challenge = searchParams.get('challenge');
-  
-  // Aceitar tanto x-verify-token (header) quanto verify_token (query)
   const verifyToken = request.headers.get('x-verify-token') || searchParams.get('verify_token');
 
+  console.log('Mode:', mode);
+  console.log('Challenge:', challenge);
+  console.log('Verify Token:', verifyToken);
+
   if (mode === 'subscribe' && verifyToken === VERIFY_TOKEN) {
+    console.log('✅ Verificação bem-sucedida, retornando challenge');
     return new NextResponse(challenge, { status: 200 });
   }
 
+  console.log('❌ Verificação falhou');
   return NextResponse.json({ error: 'Invalid verification' }, { status: 403 });
 }
 
