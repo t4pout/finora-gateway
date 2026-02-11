@@ -133,69 +133,11 @@ async function processarVendaNormal(venda: any) {
       status: 'PAGO',
     }
   });
-  // Disparar evento Facebook Pixel Purchase via Conversions API
-try {
-  const produto = await prisma.produto.findUnique({
-    where: { id: venda.produtoId },
-    include: { pixels: true }
-  });
-  
-  if (produto?.pixels && produto.pixels.length > 0) {
-    const pixelFacebook = produto.pixels.find(p => 
-      p.plataforma === 'FACEBOOK' && 
-      p.status === 'ATIVO' &&
-      p.eventoCompra &&
-      p.condicaoPagamentoAprovado
-    );
-    
-    if (pixelFacebook && pixelFacebook.tokenAPI) {
-      const eventData = {
-        data: [{
-          event_name: 'Purchase',
-          event_time: Math.floor(Date.now() / 1000),
-          action_source: 'website',
-          event_source_url: `https://www.finorapayments.com/checkout/${venda.id}`,
-          user_data: {
-            em: venda.compradorEmail ? crypto.createHash('sha256').update(venda.compradorEmail.toLowerCase().trim()).digest('hex') : undefined,
-            fn: venda.compradorNome ? crypto.createHash('sha256').update(venda.compradorNome.toLowerCase().trim()).digest('hex') : undefined,
-            ph: venda.compradorTel ? crypto.createHash('sha256').update(venda.compradorTel.replace(/\D/g, '')).digest('hex') : undefined,
-          },
-          custom_data: {
-            value: venda.valor,
-            currency: 'BRL',
-            content_ids: [venda.produtoId],
-            content_type: 'product',
-            content_name: produto.nome
-          }
-        }]
-      };
-
-      const response = await fetch(
-        `https://graph.facebook.com/v18.0/${pixelFacebook.pixelId}/events`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            ...eventData,
-            access_token: pixelFacebook.tokenAPI
-          })
-        }
-      );
-
-      const result = await response.json();
-      console.log('📊 Purchase event enviado:', result);
-    }
-  }
-} catch (e) {
-  console.error('Erro ao disparar pixel Purchase:', e);
-}
- // Notificação Telegram: VENDA PAGA
-try {
+  // Buscar produto ANTES de tudo
   const produtoCompleto = await prisma.produto.findUnique({
     where: { id: venda.produtoId },
-    include: {
+    include: { 
+      pixels: true,
       user: {
         select: {
           id: true,
@@ -207,46 +149,103 @@ try {
     }
   });
 
-  const valorTotal = venda.valor;
-  const mensagemVendaPaga = `✅ <b>VENDA PAGA</b>\n\n` +
-    `💰 Valor: R$ ${valorTotal.toFixed(2)}\n` +
-    `👤 Cliente: ${venda.compradorNome}\n` +
-    `📧 Email: ${venda.compradorEmail}\n` +
-    `📦 Produto: ${produtoCompleto?.nome || 'N/A'}\n` +
-    `💳 Pagamento: PIX\n` +
-    `✅ Pagamento Confirmado\n` +
-    `🆔 Venda ID: ${venda.id.substring(0,8)}`;
+  const valorVenda = venda.valor;
 
-  // 1. Notificação individual do vendedor
-  if (produtoCompleto?.user?.telegramBotToken && produtoCompleto?.user?.telegramChatId) {
-    await fetch('https://www.finorapayments.com/api/telegram/notificar', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        botToken: produtoCompleto.user.telegramBotToken,
-        chatId: produtoCompleto.user.telegramChatId,
-        mensagem: mensagemVendaPaga
-      })
-    });
-    console.log('✅ Notificação VENDA PAGA enviada para vendedor');
+  // Disparar evento Facebook Pixel Purchase via Conversions API
+  try {
+    if (produtoCompleto?.pixels && produtoCompleto.pixels.length > 0) {
+      const pixelFacebook = produtoCompleto.pixels.find(p => 
+        p.plataforma === 'FACEBOOK' && 
+        p.status === 'ATIVO' &&
+        p.eventoCompra &&
+        p.condicaoPagamentoAprovado
+      );
+      
+      if (pixelFacebook && pixelFacebook.tokenAPI) {
+        const eventData = {
+          data: [{
+            event_name: 'Purchase',
+            event_time: Math.floor(Date.now() / 1000),
+            action_source: 'website',
+            event_source_url: `https://www.finorapayments.com/checkout/${venda.id}`,
+            user_data: {
+              em: venda.compradorEmail ? crypto.createHash('sha256').update(venda.compradorEmail.toLowerCase().trim()).digest('hex') : undefined,
+              fn: venda.compradorNome ? crypto.createHash('sha256').update(venda.compradorNome.toLowerCase().trim()).digest('hex') : undefined,
+              ph: venda.compradorTel ? crypto.createHash('sha256').update(venda.compradorTel.replace(/\D/g, '')).digest('hex') : undefined,
+            },
+            custom_data: {
+              value: valorVenda,
+              currency: 'BRL',
+              content_ids: [venda.produtoId],
+              content_type: 'product',
+              content_name: produtoCompleto.nome
+            }
+          }]
+        };
+
+        const response = await fetch(
+          `https://graph.facebook.com/v18.0/${pixelFacebook.pixelId}/events`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              ...eventData,
+              access_token: pixelFacebook.tokenAPI
+            })
+          }
+        );
+
+        const result = await response.json();
+        console.log('📊 Purchase event enviado:', result);
+      }
+    }
+  } catch (e) {
+    console.error('Erro ao disparar pixel Purchase:', e);
   }
 
-  // 2. Notificação geral da plataforma
-  if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID) {
-    await fetch('https://www.finorapayments.com/api/telegram/notificar', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        botToken: process.env.TELEGRAM_BOT_TOKEN,
-        chatId: process.env.TELEGRAM_CHAT_ID,
-        mensagem: mensagemVendaPaga + `\n\n🧑‍💼 Vendedor: ${produtoCompleto?.user?.nome || 'N/A'}`
-      })
-    });
-    console.log('✅ Notificação VENDA PAGA enviada para bot geral');
+  // Notificação Telegram: VENDA PAGA
+  try {
+    const mensagemVendaPaga = `✅ <b>VENDA PAGA</b>\n\n` +
+      `💰 Valor: R$ ${valorVenda.toFixed(2)}\n` +
+      `👤 Cliente: ${venda.compradorNome}\n` +
+      `📧 Email: ${venda.compradorEmail}\n` +
+      `📦 Produto: ${produtoCompleto?.nome || 'N/A'}\n` +
+      `💳 Pagamento: PIX\n` +
+      `✅ Pagamento Confirmado\n` +
+      `🆔 Venda ID: ${venda.id.substring(0,8)}`;
+
+    // 1. Notificação individual do vendedor
+    if (produtoCompleto?.user?.telegramBotToken && produtoCompleto?.user?.telegramChatId) {
+      await fetch('https://www.finorapayments.com/api/telegram/notificar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          botToken: produtoCompleto.user.telegramBotToken,
+          chatId: produtoCompleto.user.telegramChatId,
+          mensagem: mensagemVendaPaga
+        })
+      });
+      console.log('✅ Notificação VENDA PAGA enviada para vendedor');
+    }
+
+    // 2. Notificação geral da plataforma
+    if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID) {
+      await fetch('https://www.finorapayments.com/api/telegram/notificar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          botToken: process.env.TELEGRAM_BOT_TOKEN,
+          chatId: process.env.TELEGRAM_CHAT_ID,
+          mensagem: mensagemVendaPaga + `\n\n🧑‍💼 Vendedor: ${produtoCompleto?.user?.nome || 'N/A'}`
+        })
+      });
+      console.log('✅ Notificação VENDA PAGA enviada para bot geral');
+    }
+  } catch (e) {
+    console.error('Erro ao enviar notificação Telegram:', e);
   }
-} catch (e) {
-  console.error('Erro ao enviar notificação Telegram:', e);
-}
 
   console.log('✅ Venda marcada como PAGA:', venda.id);
 
