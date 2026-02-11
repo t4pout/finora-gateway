@@ -161,7 +161,7 @@ try {
             ph: venda.compradorTel ? crypto.createHash('sha256').update(venda.compradorTel.replace(/\D/g, '')).digest('hex') : undefined,
           },
           custom_data: {
-            value: valorTotal,
+            value: venda.valor,
             currency: 'BRL',
             content_ids: [venda.produtoId],
             content_type: 'product',
