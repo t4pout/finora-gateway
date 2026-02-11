@@ -18,7 +18,7 @@ export async function GET(
       include: {
         produto: {
           include: {
-            usuario: true
+            user: true
           }
         },
         plano: true
