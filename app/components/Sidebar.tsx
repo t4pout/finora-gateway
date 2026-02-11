@@ -130,16 +130,7 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
     <span>PAD</span>
   </div>
 </Link>
-        <Link href="/dashboard/afiliados">
-          <div className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition ${
-            isActive('/dashboard/afiliados') 
-              ? 'bg-purple-50 text-purple-600 font-semibold' 
-              : 'text-gray-700 hover:bg-gray-50'
-          }`}>
-            <Users size={20} />
-            <span>Afiliados</span>
-          </div>
-        </Link>
+        
          <Link href="/dashboard/notificacoes">
           <div className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition ${
             isActive('/dashboard/notificacoes')

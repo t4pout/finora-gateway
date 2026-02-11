@@ -3,10 +3,10 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ linkConvite: string }> }
+  { params }: { params: { linkConvite: string } }
 ) {
   try {
-    const { linkConvite } = await params;
+    const { linkConvite } = params;
 
     const produto = await prisma.produto.findUnique({
       where: { linkConvite },
@@ -16,11 +16,11 @@ export async function GET(
         descricao: true,
         preco: true,
         imagem: true,
-        aceitaAfiliados: true,
-        aprovacaoAutomatica: true,
         comissaoPadrao: true,
         detalhesAfiliacao: true,
         regrasAfiliacao: true,
+        aceitaAfiliados: true,
+        aprovacaoAutomatica: true,
         user: {
           select: {
             nome: true
@@ -30,16 +30,17 @@ export async function GET(
     });
 
     if (!produto) {
-      return NextResponse.json({ error: 'Link inválido' }, { status: 404 });
+      return NextResponse.json({ error: 'Link inválido ou expirado' }, { status: 404 });
     }
 
     if (!produto.aceitaAfiliados) {
-      return NextResponse.json({ error: 'Este produto não aceita afiliados' }, { status: 400 });
+      return NextResponse.json({ error: 'Este produto não aceita afiliados no momento' }, { status: 400 });
     }
 
-    return NextResponse.json({ produto });
+    return NextResponse.json({ success: true, produto });
+
   } catch (error) {
-    console.error('Erro:', error);
-    return NextResponse.json({ error: 'Erro ao buscar produto' }, { status: 500 });
+    console.error('Erro ao buscar produto:', error);
+    return NextResponse.json({ error: 'Erro ao processar requisição' }, { status: 500 });
   }
 }

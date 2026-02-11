@@ -16,6 +16,7 @@ function verificarToken(request: NextRequest) {
   }
 }
 
+// POST - Criar solicitação de afiliação
 export async function POST(request: NextRequest) {
   try {
     const userId = verificarToken(request);
@@ -25,55 +26,68 @@ export async function POST(request: NextRequest) {
 
     const { produtoId, mensagem } = await request.json();
 
-    // Verificar se produto aceita afiliados
+    if (!produtoId) {
+      return NextResponse.json({ error: 'Produto não informado' }, { status: 400 });
+    }
+
+    // Verificar se produto existe e aceita afiliados
     const produto = await prisma.produto.findUnique({
-      where: { id: produtoId },
-      select: {
-        aceitaAfiliados: true,
-        aprovacaoAutomatica: true
-      }
+      where: { id: produtoId }
     });
 
-    if (!produto?.aceitaAfiliados) {
+    if (!produto) {
+      return NextResponse.json({ error: 'Produto não encontrado' }, { status: 404 });
+    }
+
+    if (!produto.aceitaAfiliados) {
       return NextResponse.json({ error: 'Este produto não aceita afiliados' }, { status: 400 });
     }
 
+    // Verificar se já existe solicitação
+    const solicitacaoExistente = await prisma.solicitacaoAfiliacao.findUnique({
+      where: {
+        produtoId_afiliadoId: {
+          produtoId,
+          afiliadoId: userId
+        }
+      }
+    });
+
+    if (solicitacaoExistente) {
+      return NextResponse.json({ 
+        error: 'Você já solicitou afiliação para este produto',
+        status: solicitacaoExistente.status
+      }, { status: 400 });
+    }
+
     // Criar solicitação
+    const status = produto.aprovacaoAutomatica ? 'APROVADO' : 'PENDENTE';
+
     const solicitacao = await prisma.solicitacaoAfiliacao.create({
       data: {
         produtoId,
         afiliadoId: userId,
-        mensagem,
-        status: produto.aprovacaoAutomatica ? 'APROVADO' : 'PENDENTE'
+        mensagem: mensagem || null,
+        status
       }
     });
 
-    // Se aprovação automática, criar afiliação
-    if (produto.aprovacaoAutomatica) {
-      const produtoCompleto = await prisma.produto.findUnique({
-        where: { id: produtoId },
-        select: { comissaoPadrao: true }
-      });
+    return NextResponse.json({
+      success: true,
+      message: produto.aprovacaoAutomatica 
+        ? 'Afiliação aprovada automaticamente!' 
+        : 'Solicitação enviada! Aguarde aprovação do produtor.',
+      solicitacao,
+      aprovacaoAutomatica: produto.aprovacaoAutomatica
+    });
 
-      await prisma.afiliacao.create({
-        data: {
-          codigo: `AFI-${Date.now()}-${Math.random().toString(36).substring(7)}`,
-          comissao: produtoCompleto?.comissaoPadrao || 30,
-          afiliadoId: userId
-        }
-      });
-    }
-
-    return NextResponse.json({ success: true, solicitacao });
-  } catch (error: any) {
-    if (error.code === 'P2002') {
-      return NextResponse.json({ error: 'Você já solicitou afiliação para este produto' }, { status: 400 });
-    }
-    console.error('Erro:', error);
-    return NextResponse.json({ error: 'Erro ao solicitar afiliação' }, { status: 500 });
+  } catch (error) {
+    console.error('Erro ao criar solicitação:', error);
+    return NextResponse.json({ error: 'Erro ao processar solicitação' }, { status: 500 });
   }
 }
 
+// GET - Listar solicitações do afiliado
 export async function GET(request: NextRequest) {
   try {
     const userId = verificarToken(request);
@@ -81,45 +95,25 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
-    const { searchParams } = new URL(request.url);
-    const produtoId = searchParams.get('produtoId');
-
-    const where: any = {};
-    
-    // Se não tem produtoId, buscar solicitações dos produtos do usuário
-    if (!produtoId) {
-      const produtos = await prisma.produto.findMany({
-        where: { userId },
-        select: { id: true }
-      });
-      where.produtoId = { in: produtos.map(p => p.id) };
-    } else {
-      where.produtoId = produtoId;
-    }
-
     const solicitacoes = await prisma.solicitacaoAfiliacao.findMany({
-      where,
+      where: { afiliadoId: userId },
       include: {
-        afiliado: {
-          select: {
-            id: true,
-            nome: true,
-            email: true
-          }
-        },
         produto: {
           select: {
             id: true,
-            nome: true
+            nome: true,
+            imagem: true,
+            comissaoPadrao: true
           }
         }
       },
       orderBy: { createdAt: 'desc' }
     });
 
-    return NextResponse.json({ solicitacoes });
+    return NextResponse.json({ success: true, solicitacoes });
+
   } catch (error) {
-    console.error('Erro:', error);
+    console.error('Erro ao buscar solicitações:', error);
     return NextResponse.json({ error: 'Erro ao buscar solicitações' }, { status: 500 });
   }
 }
