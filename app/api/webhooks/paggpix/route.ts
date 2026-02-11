@@ -133,7 +133,7 @@ async function processarVendaNormal(venda: any) {
       status: 'PAGO',
     }
   });
-  // Disparar evento Facebook Pixel Purchase
+  // Disparar evento Facebook Pixel Purchase via Conversions API
 try {
   const produto = await prisma.produto.findUnique({
     where: { id: venda.produtoId },
@@ -141,20 +141,55 @@ try {
   });
   
   if (produto?.pixels && produto.pixels.length > 0) {
-    const pixelFacebook = produto.pixels.find(p => p.plataforma === 'FACEBOOK' && p.status === 'ATIVO');
+    const pixelFacebook = produto.pixels.find(p => 
+      p.plataforma === 'FACEBOOK' && 
+      p.status === 'ATIVO' &&
+      p.eventoCompra &&
+      p.condicaoPagamentoAprovado
+    );
     
-    if (pixelFacebook) {
-      // Aqui você pode integrar com Facebook Conversions API
-      console.log('📊 Purchase event para Pixel:', pixelFacebook.pixelId, {
-        transaction_id: venda.id,
-        value: valorTotal,
-        currency: 'BRL'
-      });
-      // TODO: Implementar Facebook Conversions API
+    if (pixelFacebook && pixelFacebook.tokenAPI) {
+      const eventData = {
+        data: [{
+          event_name: 'Purchase',
+          event_time: Math.floor(Date.now() / 1000),
+          action_source: 'website',
+          event_source_url: `https://www.finorapayments.com/checkout/${venda.id}`,
+          user_data: {
+            em: venda.compradorEmail ? crypto.createHash('sha256').update(venda.compradorEmail.toLowerCase().trim()).digest('hex') : undefined,
+            fn: venda.compradorNome ? crypto.createHash('sha256').update(venda.compradorNome.toLowerCase().trim()).digest('hex') : undefined,
+            ph: venda.compradorTel ? crypto.createHash('sha256').update(venda.compradorTel.replace(/\D/g, '')).digest('hex') : undefined,
+          },
+          custom_data: {
+            value: valorTotal,
+            currency: 'BRL',
+            content_ids: [venda.produtoId],
+            content_type: 'product',
+            content_name: produto.nome
+          }
+        }]
+      };
+
+      const response = await fetch(
+        `https://graph.facebook.com/v18.0/${pixelFacebook.pixelId}/events`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ...eventData,
+            access_token: pixelFacebook.tokenAPI
+          })
+        }
+      );
+
+      const result = await response.json();
+      console.log('📊 Purchase event enviado:', result);
     }
   }
 } catch (e) {
-  console.error('Erro ao disparar pixel:', e);
+  console.error('Erro ao disparar pixel Purchase:', e);
 }
  // Notificação Telegram: VENDA PAGA
 try {
