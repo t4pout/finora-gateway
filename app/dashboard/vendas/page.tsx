@@ -138,10 +138,21 @@ export default function VendasPage() {
   };
 
   const vendasFiltradas = vendas.filter(v => {
-    if (filtroStatus !== 'TODAS' && v.status !== filtroStatus) {
+  if (filtroStatus !== 'TODAS' && v.status !== filtroStatus) {
+    return false;
+  }
+
+  if (filtroData === 'ONTEM') {
+    const hoje = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+    hoje.setHours(0, 0, 0, 0);
+    const ontem = new Date(hoje);
+    ontem.setDate(ontem.getDate() - 1);
+    const dataVendaBrasil = new Date(new Date(v.createdAt).toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+    dataVendaBrasil.setHours(0, 0, 0, 0);
+    if (dataVendaBrasil.getTime() !== ontem.getTime()) {
       return false;
     }
-
+  } else if (filtroData !== 'TODAS') {
     const dataInicio = getDataInicio();
     if (dataInicio) {
       const dataVenda = new Date(v.createdAt);
@@ -149,9 +160,10 @@ export default function VendasPage() {
         return false;
       }
     }
+  }
 
-    return true;
-  });
+  return true;
+});
 
   const totalVendas = vendasFiltradas.reduce((acc, v) => acc + v.valor, 0);
   const totalPagas = vendasFiltradas.filter(v => v.status === 'PAGO').length;
