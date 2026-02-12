@@ -248,6 +248,31 @@ async function processarVendaNormal(venda: any) {
   }
 
   console.log('✅ Venda marcada como PAGA:', venda.id);
+ // Enviar para Google Apps Script (Etiquetas)
+  if (venda.produto.tipo === 'FISICO') {
+    try {
+      await fetch('https://script.google.com/macros/s/AKfycbwf1pDEcCC3xztr8yiy-eQGEojYrbw9HC6RYeHfvzKtdfzCQ9lqvgRXtQCFGzMelYBD/exec', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: 'PAGO',
+          tipo: venda.produto.tipo,
+          compradorNome: venda.compradorNome,
+          rua: venda.rua,
+          numero: venda.numero,
+          complemento: venda.complemento,
+          bairro: venda.bairro,
+          cidade: venda.cidade,
+          estado: venda.estado,
+          cep: venda.cep,
+          produto: venda.produto.nome
+        })
+      });
+      console.log('📮 Etiqueta enviada para Google Slides');
+    } catch (e) {
+      console.error('Erro ao gerar etiqueta:', e);
+    }
+  }
 
   // Buscar plano de taxa do vendedor
   const vendedor = await prisma.user.findUnique({
