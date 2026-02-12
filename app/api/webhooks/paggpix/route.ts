@@ -251,8 +251,8 @@ async function processarVendaNormal(venda: any) {
  // Enviar para Google Apps Script (Etiquetas)
   if (venda.produto.tipo === 'FISICO') {
     try {
-      await fetch('https://script.google.com/macros/s/AKfycbwf1pDEcCC3xztr8yiy-eQGEojYrbw9HC6RYeHfvzKtdfzCQ9lqvgRXtQCFGzMelYBD/exec', {
-        method: 'POST',
+       await fetch('https://script.google.com/macros/s/AKfycbwkMUNqYZF6ARkYtK7jcVTVSvuWkysWlv4iOnP-fbbyYiSoSrFOSMNjryEqIk_egw4k/exec', {
+  method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           status: 'PAGO',
