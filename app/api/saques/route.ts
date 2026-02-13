@@ -65,13 +65,8 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    const totalSaques = saquesAprovados.reduce((acc, s) => acc + s.valor, 0);
-    console.log('Saldo liberado:', saldoLiberado);
-console.log('Total de saques aprovados:', totalSaques);
-console.log('Saldo disponível:', saldoDisponivel);
-console.log('Valor do saque solicitado:', valor);
-
-const saldoDisponivel = saldoLiberado - totalSaques;
+   const totalSaques = saquesAprovados.reduce((acc, s) => acc + s.valor, 0);
+   const saldoDisponivel = saldoLiberado - totalSaques;
 
     if (valor > saldoDisponivel) {
       return NextResponse.json({ error: 'Saldo insuficiente' }, { status: 400 });
