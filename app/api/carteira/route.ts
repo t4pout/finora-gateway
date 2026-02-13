@@ -24,29 +24,23 @@ export async function GET(request: NextRequest) {
     }
 
     // Buscar transações da Carteira
-const transacoes = await prisma.carteira.findMany({
-  where: { usuarioId: userId },
-  include: {
-    venda: {
-      select: {
-        id: true,
-        valor: true,
-        compradorNome: true,
-        metodoPagamento: true
-      }
-    }
-  },
-  orderBy: { createdAt: 'desc' }
+const transacoesLiberadas = await prisma.carteira.findMany({
+  where: { 
+    usuarioId: userId,
+    status: { in: ['LIBERADO', 'APROVADO'] }
+  }
+});
+
+const transacoesPendentes = await prisma.carteira.findMany({
+  where: { 
+    usuarioId: userId,
+    status: 'PENDENTE'
+  }
 });
 
 // Calcular saldos
-const saldoLiberado = transacoes
-  .filter(t => (t.status === 'LIBERADO' || t.status === 'APROVADO'))
-  .reduce((acc, t) => acc + t.valor, 0);
-
-const saldoPendente = transacoes
-  .filter(t => t.status === 'PENDENTE')
-  .reduce((acc, t) => acc + t.valor, 0);
+const saldoLiberado = transacoesLiberadas.reduce((acc, t) => acc + t.valor, 0);
+const saldoPendente = transacoesPendentes.reduce((acc, t) => acc + t.valor, 0);
 
     // Buscar saques aprovados para descontar
     const saques = await prisma.saque.findMany({
@@ -69,3 +63,5 @@ const saldoPendente = transacoes
     return NextResponse.json({ error: 'Erro ao buscar carteira' }, { status: 500 });
   }
 }
+
+
