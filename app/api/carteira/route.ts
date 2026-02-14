@@ -23,26 +23,31 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
-    // Buscar transações da Carteira
-const transacoesLiberadas = await prisma.carteira.findMany({
-  where: { 
-    usuarioId: userId,
-    status: { in: ['LIBERADO', 'APROVADO'] }
-  }
-});
+    // Buscar apenas vendas aprovadas
+    const vendasAprovadas = await prisma.carteira.findMany({
+      where: { 
+        usuarioId: userId,
+        status: 'APROVADO',
+        tipo: { in: ['VENDA', 'VENDA_PAD'] }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
 
-const transacoesPendentes = await prisma.carteira.findMany({
-  where: { 
-    usuarioId: userId,
-    status: 'PENDENTE'
-  }
-});
+    // Buscar vendas pendentes
+    const vendasPendentes = await prisma.carteira.findMany({
+      where: { 
+        usuarioId: userId,
+        status: 'PENDENTE',
+        tipo: { in: ['VENDA', 'VENDA_PAD'] }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
 
-// Calcular saldos
-const saldoLiberado = transacoesLiberadas.reduce((acc, t) => acc + t.valor, 0);
-const saldoPendente = transacoesPendentes.reduce((acc, t) => acc + t.valor, 0);
+    // Calcular saldos
+    const saldoLiberado = vendasAprovadas.reduce((acc, t) => acc + t.valor, 0);
+    const saldoPendente = vendasPendentes.reduce((acc, t) => acc + t.valor, 0);
 
-    // Buscar saques aprovados para descontar
+    // Buscar saques aprovados
     const saques = await prisma.saque.findMany({
       where: { 
         userId,
@@ -53,15 +58,22 @@ const saldoPendente = transacoesPendentes.reduce((acc, t) => acc + t.valor, 0);
     const totalSaques = saques.reduce((acc, s) => acc + s.valor, 0);
     const saldoDisponivel = saldoLiberado - totalSaques;
 
+    // Combinar todas as transações
+    const todasTransacoes = [...vendasAprovadas, ...vendasPendentes].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+
+    console.log('💰 Saldo liberado:', saldoLiberado);
+    console.log('💸 Total saques:', totalSaques);
+    console.log('✅ Saldo disponível:', saldoDisponivel);
+
     return NextResponse.json({
       saldoLiberado: saldoDisponivel,
       saldoPendente,
-      transacoes
+      transacoes: todasTransacoes
     });
   } catch (error) {
     console.error('Erro:', error);
     return NextResponse.json({ error: 'Erro ao buscar carteira' }, { status: 500 });
   }
 }
-
-
