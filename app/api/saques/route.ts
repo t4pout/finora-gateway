@@ -47,17 +47,18 @@ export async function POST(request: NextRequest) {
 
     const { valor, contaBancariaId } = await request.json();
 
-    // Verificar saldo disponível
-    const transacoes = await prisma.transacao.findMany({
+    // Buscar vendas aprovadas
+    const vendasAprovadas = await prisma.carteira.findMany({
       where: { 
-        userId,
-        status: 'LIBERADO',
-        dataLiberacao: { lte: new Date() }
+        usuarioId: userId,
+        status: 'APROVADO',
+        tipo: { in: ['VENDA', 'VENDA_PAD'] }
       }
     });
 
-    const saldoLiberado = transacoes.reduce((acc, t) => acc + t.valor, 0);
+    const saldoVendas = vendasAprovadas.reduce((acc, item) => acc + item.valor, 0);
 
+    // Buscar saques já aprovados
     const saquesAprovados = await prisma.saque.findMany({
       where: { 
         userId,
@@ -65,11 +66,21 @@ export async function POST(request: NextRequest) {
       }
     });
 
-   const totalSaques = saquesAprovados.reduce((acc, s) => acc + s.valor, 0);
-   const saldoDisponivel = saldoLiberado - totalSaques;
+    const totalSaques = saquesAprovados.reduce((acc, s) => acc + s.valor, 0);
+    const saldoDisponivel = saldoVendas - totalSaques;
+
+    console.log('💰 Vendas aprovadas:', saldoVendas);
+    console.log('💸 Saques aprovados:', totalSaques);
+    console.log('✅ Saldo disponível:', saldoDisponivel);
+    console.log('💵 Valor solicitado:', valor);
 
     if (valor > saldoDisponivel) {
-      return NextResponse.json({ error: 'Saldo insuficiente' }, { status: 400 });
+      console.log('❌ SALDO INSUFICIENTE!');
+      return NextResponse.json({ 
+        error: 'Saldo insuficiente',
+        saldoDisponivel: saldoDisponivel,
+        valorSolicitado: valor
+      }, { status: 400 });
     }
 
     const saque = await prisma.saque.create({
@@ -81,11 +92,11 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    console.log('✅ Saque criado:', saque.id);
+
     return NextResponse.json({ success: true, saque });
   } catch (error) {
-    console.error('Erro:', error);
+    console.error('❌ Erro ao solicitar saque:', error);
     return NextResponse.json({ error: 'Erro ao solicitar saque' }, { status: 500 });
   }
 }
-
-
