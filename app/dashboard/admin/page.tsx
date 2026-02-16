@@ -345,9 +345,13 @@ export default function AdminPage() {
                           <button className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition">
                             <UserCog size={18} />
                           </button>
-                          <button className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition">
-                            <Trash2 size={18} />
-                          </button>
+                          <button 
+  onClick={() => excluirUsuario(user.id, user.nome)}
+  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+  title="Excluir usuário"
+>
+  <Trash2 size={18} />
+</button>
                         </div>
                       </td>
                     </tr>
