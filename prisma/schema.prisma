@@ -303,7 +303,7 @@ model Afiliacao {
   afiliadoId String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  afiliado   User     @relation(fields: [afiliadoId], references: [id])
+  afiliado   User     @relation(fields: [afiliadoId], references: [id], onDelete: Cascade)
 
   @@map("Afiliacao")
 }
@@ -317,7 +317,7 @@ model SolicitacaoAfiliacao {
   afiliadoId     String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  afiliado       User     @relation("AfiliadoSolicitacoes", fields: [afiliadoId], references: [id], onDelete: Cascade)
+   afiliado   User     @relation("AfiliadoSolicitacoes", fields: [afiliadoId], references: [id], onDelete: Cascade)
   produto        Produto  @relation("ProdutoSolicitacoes", fields: [produtoId], references: [id], onDelete: Cascade)
 
   @@unique([produtoId, afiliadoId])
