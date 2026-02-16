@@ -8,6 +8,7 @@ import { Home, Package, DollarSign, Users, LogOut, ShoppingBag, BarChart3, Zap, 
 interface PlanoTaxa {
   id: string;
   nome: string;
+  ativo?: boolean;
 }
 
 interface User {
@@ -153,6 +154,40 @@ export default function AdminPage() {
       alert('Erro ao atribuir plano');
     }
   };
+ const excluirUsuario = async (userId: string, userName: string) => {
+  if (!confirm(`⚠️ ATENÇÃO!\n\nTem certeza que deseja EXCLUIR permanentemente o usuário "${userName}"?\n\nEsta ação NÃO pode ser desfeita e irá excluir:\n- Todos os produtos\n- Todas as vendas\n- Todo o histórico\n\nDigite SIM para confirmar.`)) {
+    return;
+  }
+
+  const confirmacao = prompt('Digite SIM (em maiúsculas) para confirmar:');
+  
+  if (confirmacao !== 'SIM') {
+    alert('Exclusão cancelada!');
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem('token');
+    
+    const response = await fetch(`/api/admin/users/${userId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': 'Bearer ' + token
+      }
+    });
+
+    if (response.ok) {
+      alert('✅ Usuário excluído com sucesso!');
+      carregarUsuarios();
+    } else {
+      const data = await response.json();
+      alert(`❌ Erro: ${data.error}`);
+    }
+  } catch (error) {
+    console.error('Erro:', error);
+    alert('❌ Erro ao excluir usuário');
+  }
+};
 
   const handleLogout = () => {
     localStorage.removeItem('token');
