@@ -146,19 +146,21 @@ export default function VendasPage() {
 
   // Filtro personalizado por data
   if (dataInicio || dataFim) {
-    const dataVenda = new Date(v.createdAt);
-    dataVenda.setHours(0, 0, 0, 0);
+    // Converter data da venda para timezone de Brasília
+    const dataVendaUTC = new Date(v.createdAt);
+    const dataVendaBrasil = new Date(dataVendaUTC.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+    dataVendaBrasil.setHours(0, 0, 0, 0);
     
     if (dataInicio) {
       const inicio = new Date(dataInicio);
       inicio.setHours(0, 0, 0, 0);
-      if (dataVenda < inicio) return false;
+      if (dataVendaBrasil < inicio) return false;
     }
     
     if (dataFim) {
       const fim = new Date(dataFim);
       fim.setHours(23, 59, 59, 999);
-      if (dataVenda > fim) return false;
+      if (dataVendaBrasil > fim) return false;
     }
     
     return true;
