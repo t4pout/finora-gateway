@@ -50,6 +50,8 @@ export default function VendasPage() {
   const [modalAberto, setModalAberto] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [mostrandoTodas, setMostrandoTodas] = useState(false);
+  const [dataInicio, setDataInicio] = useState('');
+  const [dataFim, setDataFim] = useState('');	
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -142,6 +144,27 @@ export default function VendasPage() {
     return false;
   }
 
+  // Filtro personalizado por data
+  if (dataInicio || dataFim) {
+    const dataVenda = new Date(v.createdAt);
+    dataVenda.setHours(0, 0, 0, 0);
+    
+    if (dataInicio) {
+      const inicio = new Date(dataInicio);
+      inicio.setHours(0, 0, 0, 0);
+      if (dataVenda < inicio) return false;
+    }
+    
+    if (dataFim) {
+      const fim = new Date(dataFim);
+      fim.setHours(23, 59, 59, 999);
+      if (dataVenda > fim) return false;
+    }
+    
+    return true;
+  }
+
+  // Filtros predefinidos
   if (filtroData === 'ONTEM') {
     const hoje = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
     hoje.setHours(0, 0, 0, 0);
@@ -152,7 +175,7 @@ export default function VendasPage() {
     if (dataVendaBrasil.getTime() !== ontem.getTime()) {
       return false;
     }
-  } else if (filtroData !== 'TODAS') {
+  } else if (filtroData !== 'TODAS' && filtroData !== 'PERSONALIZADO') {
     const dataInicio = getDataInicio();
     if (dataInicio) {
       const dataVenda = new Date(v.createdAt);
@@ -253,29 +276,61 @@ export default function VendasPage() {
             </div>
           </div>
           <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-            <div className="flex items-center gap-4 mb-4">
-              <Filter size={20} className="text-gray-600" />
-              <span className="font-semibold text-gray-900">Filtros</span>
-            </div>
+  <div className="flex items-center gap-4 mb-4">
+    <Filter size={20} className="text-gray-600" />
+    <span className="font-semibold text-gray-900">Filtros</span>
+  </div>
 
-            <div className="flex gap-2 mb-4">
-              <button onClick={() => setFiltroStatus('TODAS')} className={`px-4 py-2 rounded-lg font-semibold transition ${filtroStatus === 'TODAS' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>Todas</button>
-              <button onClick={() => setFiltroStatus('PENDENTE')} className={`px-4 py-2 rounded-lg font-semibold transition ${filtroStatus === 'PENDENTE' ? 'bg-yellow-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>Pendente</button>
-              <button onClick={() => setFiltroStatus('PAGO')} className={`px-4 py-2 rounded-lg font-semibold transition ${filtroStatus === 'PAGO' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>Paga</button>
-              <button onClick={() => setFiltroStatus('CANCELADA')} className={`px-4 py-2 rounded-lg font-semibold transition ${filtroStatus === 'CANCELADA' ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>Cancelada</button>
-            </div>
+  {/* Filtro de Status */}
+  <div className="mb-4">
+    <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+    <div className="flex gap-2">
+      <button onClick={() => setFiltroStatus('TODAS')} className={`px-4 py-2 rounded-lg font-semibold transition ${filtroStatus === 'TODAS' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>Todas</button>
+      <button onClick={() => setFiltroStatus('PENDENTE')} className={`px-4 py-2 rounded-lg font-semibold transition ${filtroStatus === 'PENDENTE' ? 'bg-yellow-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>Pendente</button>
+      <button onClick={() => setFiltroStatus('PAGO')} className={`px-4 py-2 rounded-lg font-semibold transition ${filtroStatus === 'PAGO' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>Paga</button>
+      <button onClick={() => setFiltroStatus('CANCELADA')} className={`px-4 py-2 rounded-lg font-semibold transition ${filtroStatus === 'CANCELADA' ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>Cancelada</button>
+    </div>
+  </div>
 
-            <div className="flex items-center gap-2">
-              <Calendar size={18} className="text-gray-600" />
-              <button onClick={() => setFiltroData('TODAS')} className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition ${filtroData === 'TODAS' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>Todas</button>
-              <button onClick={() => setFiltroData('HOJE')} className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition ${filtroData === 'HOJE' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>Hoje</button>
-              <button onClick={() => setFiltroData('ONTEM')} className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition ${filtroData === 'ONTEM' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>Ontem</button>
-              <button onClick={() => setFiltroData('7D')} className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition ${filtroData === '7D' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>7 dias</button>
-              <button onClick={() => setFiltroData('14D')} className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition ${filtroData === '14D' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>14 dias</button>
-              <button onClick={() => setFiltroData('30D')} className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition ${filtroData === '30D' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>30 dias</button>
-            </div>
-          </div>
-
+  {/* Filtro de Período */}
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-2">Período</label>
+    <div className="flex flex-wrap items-center gap-2">
+      <button onClick={() => { setFiltroData('TODAS'); setDataInicio(''); setDataFim(''); }} className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition ${filtroData === 'TODAS' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>Todas</button>
+      <button onClick={() => { setFiltroData('HOJE'); setDataInicio(''); setDataFim(''); }} className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition ${filtroData === 'HOJE' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>Hoje</button>
+      <button onClick={() => { setFiltroData('ONTEM'); setDataInicio(''); setDataFim(''); }} className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition ${filtroData === 'ONTEM' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>Ontem</button>
+      <button onClick={() => { setFiltroData('7D'); setDataInicio(''); setDataFim(''); }} className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition ${filtroData === '7D' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>7 dias</button>
+      <button onClick={() => { setFiltroData('14D'); setDataInicio(''); setDataFim(''); }} className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition ${filtroData === '14D' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>14 dias</button>
+      <button onClick={() => { setFiltroData('30D'); setDataInicio(''); setDataFim(''); }} className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition ${filtroData === '30D' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>30 dias</button>
+      
+      <div className="flex items-center gap-2 ml-4 border-l border-gray-300 pl-4">
+        <Calendar size={18} className="text-gray-600" />
+        <span className="text-sm text-gray-600">Data específica:</span>
+        <input
+          type="date"
+          value={dataInicio}
+          onChange={(e) => { setDataInicio(e.target.value); setFiltroData('PERSONALIZADO'); }}
+          className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-600 outline-none"
+        />
+        <span className="text-gray-500">até</span>
+        <input
+          type="date"
+          value={dataFim}
+          onChange={(e) => { setDataFim(e.target.value); setFiltroData('PERSONALIZADO'); }}
+          className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-600 outline-none"
+        />
+        {(dataInicio || dataFim) && (
+          <button 
+            onClick={() => { setDataInicio(''); setDataFim(''); setFiltroData('TODAS'); }}
+            className="px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-sm font-semibold hover:bg-red-200 transition"
+          >
+            Limpar
+          </button>
+        )}
+      </div>
+    </div>
+  </div>
+</div>
           <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
