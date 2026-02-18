@@ -193,6 +193,16 @@ export default function VendasPage() {
   const totalVendas = vendasFiltradas.reduce((acc, v) => acc + v.valor, 0);
   const totalPagas = vendasFiltradas.filter(v => v.status === 'PAGO').length;
   const totalPendentes = vendasFiltradas.filter(v => v.status === 'PENDENTE').length;
+  // Ticket médio
+const ticketMedioGeral = vendasFiltradas.length > 0 
+  ? totalVendas / vendasFiltradas.length 
+  : 0;
+
+const vendasPagas = vendasFiltradas.filter(v => v.status === 'PAGO');
+const totalVendasPagas = vendasPagas.reduce((acc, v) => acc + v.valor, 0);
+const ticketMedioPagas = vendasPagas.length > 0 
+  ? totalVendasPagas / vendasPagas.length 
+  : 0;
 
   if (loading) {
     return (
@@ -234,7 +244,7 @@ export default function VendasPage() {
 
         <div className="p-8">
 
-<div className="grid md:grid-cols-4 gap-6 mb-8">
+<div className="grid md:grid-cols-5 gap-6 mb-8">
             <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white">
               <div className="flex items-center justify-between mb-2">
                 <div className="text-sm font-medium opacity-90">Total em Vendas</div>
@@ -243,6 +253,23 @@ export default function VendasPage() {
               <div className="text-3xl font-bold">R$ {totalVendas.toFixed(2).replace('.', ',')}</div>
               <div className="text-sm opacity-75 mt-1">{vendasFiltradas.length} vendas</div>
             </div>
+             <div className="bg-white rounded-xl border border-gray-200 p-6">
+  <div className="flex items-center justify-between mb-2">
+    <div className="text-sm text-gray-600">Ticket Médio</div>
+    <BarChart3 size={20} className="text-blue-600" />
+  </div>
+  <div className="text-2xl font-bold text-blue-600">
+    R$ {ticketMedioGeral.toFixed(2).replace('.', ',')}
+  </div>
+  <div className="text-xs text-gray-500 mt-2 border-t border-gray-200 pt-2">
+    <div className="flex items-center justify-between">
+      <span>Pagas:</span>
+      <span className="font-semibold text-green-600">
+        R$ {ticketMedioPagas.toFixed(2).replace('.', ',')}
+      </span>
+    </div>
+  </div>
+</div>
 
             <div className="bg-white rounded-xl border border-gray-200 p-6">
               <div className="flex items-center justify-between mb-2">
