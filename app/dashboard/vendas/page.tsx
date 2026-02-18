@@ -145,26 +145,39 @@ export default function VendasPage() {
   }
 
   // Filtro personalizado por data
-  if (dataInicio || dataFim) {
-    // Converter data da venda para timezone de Brasília
-    const dataVendaUTC = new Date(v.createdAt);
-    const dataVendaBrasil = new Date(dataVendaUTC.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
-    dataVendaBrasil.setHours(0, 0, 0, 0);
+if (dataInicio || dataFim) {
+  // Pegar a data da venda e normalizar para meia-noite no horário local do Brasil
+  const dataVendaOriginal = new Date(v.createdAt);
+  
+  // Ajustar para timezone de Brasília (GMT-3)
+  const offsetBrasilia = -3 * 60; // -3 horas em minutos
+  const offsetLocal = dataVendaOriginal.getTimezoneOffset();
+  const diffMinutos = offsetBrasilia - offsetLocal;
+  
+  const dataVendaBrasil = new Date(dataVendaOriginal.getTime() + (diffMinutos * 60 * 1000));
+  
+  // Normalizar para meia-noite
+  const anoVenda = dataVendaBrasil.getFullYear();
+  const mesVenda = dataVendaBrasil.getMonth();
+  const diaVenda = dataVendaBrasil.getDate();
+  const dataVendaNormalizada = new Date(anoVenda, mesVenda, diaVenda, 0, 0, 0, 0);
+  
+  if (dataInicio) {
+    const [anoInicio, mesInicio, diaInicio] = dataInicio.split('-').map(Number);
+    const inicio = new Date(anoInicio, mesInicio - 1, diaInicio, 0, 0, 0, 0);
     
-    if (dataInicio) {
-      const inicio = new Date(dataInicio);
-      inicio.setHours(0, 0, 0, 0);
-      if (dataVendaBrasil < inicio) return false;
-    }
-    
-    if (dataFim) {
-      const fim = new Date(dataFim);
-      fim.setHours(23, 59, 59, 999);
-      if (dataVendaBrasil > fim) return false;
-    }
-    
-    return true;
+    if (dataVendaNormalizada < inicio) return false;
   }
+  
+  if (dataFim) {
+    const [anoFim, mesFim, diaFim] = dataFim.split('-').map(Number);
+    const fim = new Date(anoFim, mesFim - 1, diaFim, 23, 59, 59, 999);
+    
+    if (dataVendaNormalizada > fim) return false;
+  }
+  
+  return true;
+}
 
   // Filtros predefinidos
   if (filtroData === 'ONTEM') {
