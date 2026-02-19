@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
         bairro,
         cidade,
         estado,
+        nomePlano: plano.nome,
         produtoId: plano.produtoId,
         vendedorId: plano.produto.userId
       }

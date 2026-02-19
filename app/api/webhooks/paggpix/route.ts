@@ -265,7 +265,7 @@ async function processarVendaNormal(venda: any) {
           cidade: venda.cidade,
           estado: venda.estado,
           cep: venda.cep,
-          produto: venda.produto.nome
+          produto: venda.nomePlano || venda.produto.nome
         })
       });
       console.log('📮 Etiqueta enviada para Google Slides');
