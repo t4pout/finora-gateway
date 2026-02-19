@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Plano não encontrado ou inativo' }, { status: 404 });
     }
 
-    // PRIMEIRO: Criar venda no banco (SEM pixId ainda)
+    // PRIMEIRO: Criar venda no banco
     const venda = await prisma.venda.create({
       data: {
         valor: plano.preco,
@@ -42,122 +42,137 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // SEGUNDO: Criar cobrança no PaggPix usando o ID da venda como external_id
-    const paggpixData = {
-      cnpj: "35254464000109",
-      value: plano.preco.toFixed(2),
-      description: `${plano.nome} - ${plano.produto.nome}`,
-      external_id: venda.id  // USAR ID DA VENDA (único)
-    };
-
-    console.log('Enviando para PaggPix:', paggpixData);
-
-    const paggpixResponse = await fetch(`${PAGGPIX_API}/payments`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${PAGGPIX_TOKEN}`
-      },
-      body: JSON.stringify(paggpixData)
-    });
-
-    const responseText = await paggpixResponse.text();
-    console.log('Resposta PaggPix:', responseText);
-
-    if (!paggpixResponse.ok) {
-      console.error('Erro PaggPix:', responseText);
-      return NextResponse.json({ 
-        error: 'Erro ao criar cobrança PIX',
-        details: responseText
-      }, { status: 500 });
-    }
-
-    const paggpixResult = JSON.parse(responseText);
-
-    // TERCEIRO: Atualizar venda com dados do PIX
-    await prisma.venda.update({
-      where: { id: venda.id },
-      data: {
-        pixId: paggpixResult.pix_id,
-        pixQrCode: paggpixResult.qrcode_image,
-        pixCopiaECola: paggpixResult.pix_code
-      }
-    });
     console.log('✅ Venda criada:', venda);
 
-// Buscar produto e vendedor para notificações
-const produto = await prisma.produto.findUnique({
-  where: { id: plano.produtoId },
-  include: {
-    user: {
-      select: {
-        id: true,
-        nome: true,
-        telegramBotToken: true,
-        telegramChatId: true
+    let pixId = null;
+    let qrCode = null;
+    let copiaECola = null;
+
+    // SEGUNDO: Criar cobrança baseado no método de pagamento
+    if (metodoPagamento === 'PIX') {
+      const paggpixData = {
+        cnpj: "35254464000109",
+        value: plano.preco.toFixed(2),
+        description: `${plano.nome} - ${plano.produto.nome}`,
+        external_id: venda.id
+      };
+
+      console.log('Enviando para PaggPix:', paggpixData);
+
+      const paggpixResponse = await fetch(`${PAGGPIX_API}/payments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${PAGGPIX_TOKEN}`
+        },
+        body: JSON.stringify(paggpixData)
+      });
+
+      const responseText = await paggpixResponse.text();
+      console.log('Resposta PaggPix:', responseText);
+
+      if (!paggpixResponse.ok) {
+        console.error('Erro PaggPix:', responseText);
+        return NextResponse.json({ 
+          error: 'Erro ao criar cobrança PIX',
+          details: responseText
+        }, { status: 500 });
+      }
+
+      const paggpixResult = JSON.parse(responseText);
+
+      // Atualizar venda com dados do PIX
+      await prisma.venda.update({
+        where: { id: venda.id },
+        data: {
+          pixId: paggpixResult.pix_id,
+          pixQrCode: paggpixResult.qrcode_image,
+          pixCopiaECola: paggpixResult.pix_code
+        }
+      });
+
+      pixId = paggpixResult.pix_id;
+      qrCode = paggpixResult.qrcode_image;
+      copiaECola = paggpixResult.pix_code;
+    } else if (metodoPagamento === 'BOLETO') {
+      console.log('⚠️ Boleto selecionado - aguardando geração manual');
+      // TODO: Integrar com API de boleto
+    }
+
+    // Buscar produto e vendedor para notificações
+    const produto = await prisma.produto.findUnique({
+      where: { id: plano.produtoId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            nome: true,
+            telegramBotToken: true,
+            telegramChatId: true
+          }
+        }
+      }
+    });
+
+    // Mensagem VENDA GERADA
+    const statusPagamento = venda.metodoPagamento === 'PIX' 
+      ? '🟢 PIX Gerado - Aguardando pagamento'
+      : venda.metodoPagamento === 'BOLETO'
+      ? '🟡 Boleto Gerado - Aguardando pagamento'
+      : '💳 Cartão - Processando';
+
+    const mensagemVendaGerada = `🔔 <b>VENDA GERADA</b>\n\n` +
+      `💰 Valor: R$ ${venda.valor.toFixed(2)}\n` +
+      `👤 Cliente: ${venda.compradorNome}\n` +
+      `📧 Email: ${venda.compradorEmail}\n` +
+      `📦 Produto: ${plano.nome}\n` +
+      `💳 Pagamento: ${venda.metodoPagamento}\n` +
+      `${statusPagamento}\n` +
+      `🆔 Venda ID: ${venda.id.substring(0,8)}`;
+
+    // 1. Notificação individual do vendedor
+    if (produto?.user?.telegramBotToken && produto?.user?.telegramChatId) {
+      try {
+        await fetch(`${request.nextUrl.origin}/api/telegram/notificar`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            botToken: produto.user.telegramBotToken,
+            chatId: produto.user.telegramChatId,
+            mensagem: mensagemVendaGerada
+          })
+        });
+        console.log('✅ Notificação VENDA GERADA enviada para vendedor');
+      } catch (e) {
+        console.error('Erro notificação vendedor:', e);
       }
     }
-  }
-});
 
-// Mensagem VENDA GERADA
-const statusPagamento = venda.metodoPagamento === 'PIX' 
-  ? '🟢 PIX Gerado - Aguardando pagamento'
-  : venda.metodoPagamento === 'BOLETO'
-  ? '🟡 Boleto Gerado - Aguardando pagamento'
-  : '💳 Cartão - Processando';
-
-const mensagemVendaGerada = `🔔 <b>VENDA GERADA</b>\n\n` +
-  `💰 Valor: R$ ${venda.valor.toFixed(2)}\n` +
-  `👤 Cliente: ${venda.compradorNome}\n` +
-  `📧 Email: ${venda.compradorEmail}\n` +
-  `📦 Produto: ${plano.nome}\n` +
-  `💳 Pagamento: ${venda.metodoPagamento}\n` +
-  `${statusPagamento}\n` +
-  `🆔 Venda ID: ${venda.id.substring(0,8)}`;
-
-// 1. Notificação individual do vendedor
-if (produto?.user?.telegramBotToken && produto?.user?.telegramChatId) {
-  try {
-    await fetch(`${request.nextUrl.origin}/api/telegram/notificar`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        botToken: produto.user.telegramBotToken,
-        chatId: produto.user.telegramChatId,
-        mensagem: mensagemVendaGerada
-      })
-    });
-    console.log('✅ Notificação VENDA GERADA enviada para vendedor');
-  } catch (e) {
-    console.error('Erro notificação vendedor:', e);
-  }
-}
-
-// 2. Notificação geral da plataforma (com nome do vendedor)
-if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID) {
-  try {
-    await fetch(`${request.nextUrl.origin}/api/telegram/notificar`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        botToken: process.env.TELEGRAM_BOT_TOKEN,
-        chatId: process.env.TELEGRAM_CHAT_ID,
-        mensagem: mensagemVendaGerada + `\n\n🧑‍💼 Vendedor: ${produto?.user?.nome || 'N/A'}`
-      })
-    });
-    console.log('✅ Notificação VENDA GERADA enviada para bot geral');
-  } catch (e) {
-    console.error('Erro notificação geral:', e);
-  }
-}
+    // 2. Notificação geral da plataforma (com nome do vendedor)
+    if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID) {
+      try {
+        await fetch(`${request.nextUrl.origin}/api/telegram/notificar`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            botToken: process.env.TELEGRAM_BOT_TOKEN,
+            chatId: process.env.TELEGRAM_CHAT_ID,
+            mensagem: mensagemVendaGerada + `\n\n🧑‍💼 Vendedor: ${produto?.user?.nome || 'N/A'}`
+          })
+        });
+        console.log('✅ Notificação VENDA GERADA enviada para bot geral');
+      } catch (e) {
+        console.error('Erro notificação geral:', e);
+      }
+    }
 
     return NextResponse.json({
       vendaId: venda.id,
-      pixId: paggpixResult.pix_id,
-      qrCode: paggpixResult.qrcode_image,
-      copiaECola: paggpixResult.pix_code,
-      valor: plano.preco
+      pixId: pixId,
+      qrCode: qrCode,
+      copiaECola: copiaECola,
+      valor: plano.preco,
+      metodoPagamento: venda.metodoPagamento
     });
   } catch (error: any) {
     console.error('Erro ao criar pagamento:', error);
