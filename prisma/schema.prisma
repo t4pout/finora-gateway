@@ -24,6 +24,8 @@ model User {
   planoTaxaId           String?
   telegramBotToken      String?
   telegramChatId        String?
+  resetPasswordToken    String?   @unique
+  resetPasswordExpires  DateTime?
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
   afiliacoes            Afiliacao[]
