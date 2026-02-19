@@ -7,7 +7,7 @@ const PAGGPIX_API = 'https://public-api.paggpix.com';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { planoId, compradorNome, compradorEmail, compradorCpf, compradorTel, cep, rua, numero, complemento, bairro, cidade, estado } = body;
+    const { planoId, compradorNome, compradorEmail, compradorCpf, compradorTel, cep, rua, numero, complemento, bairro, cidade, estado, metodoPagamento } = body;
 
     // Buscar plano e produto
     const plano = await prisma.planoOferta.findUnique({
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
       data: {
         valor: plano.preco,
         status: 'PENDENTE',
-        metodoPagamento: 'PIX',
+        metodoPagamento: metodoPagamento || 'PIX',
         compradorNome,
         compradorEmail,
         compradorCpf,
