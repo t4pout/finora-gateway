@@ -5,7 +5,7 @@ import Sidebar from '@/app/components/Sidebar';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Home, Package, DollarSign, Users, LogOut, ShoppingBag, BarChart3, Zap, Filter, Calendar, Wallet, Shield , ChevronDown, Eye, X } from 'lucide-react';
+import { Home, Package, DollarSign, Users, LogOut, ShoppingBag, BarChart3, Zap, Filter, Calendar, Wallet, Shield , ChevronDown, Eye, X, Download } from 'lucide-react';
 
 interface Venda {
   id: string;
@@ -216,6 +216,55 @@ const totalVendasPagas = vendasPagas.reduce((acc, v) => acc + v.valor, 0);
 const ticketMedioPagas = vendasPagas.length > 0 
   ? totalVendasPagas / vendasPagas.length 
   : 0;
+const exportarParaExcel = async () => {
+  try {
+    const XLSX = (await import('xlsx')).default;
+    
+    // Preparar dados para exportação
+    const dadosExportacao = vendasFiltradas.map(venda => ({
+      'Data': new Date(venda.createdAt).toLocaleDateString('pt-BR'),
+      'Hora': new Date(venda.createdAt).toLocaleTimeString('pt-BR'),
+      'Produto': venda.produto.nome,
+      'Cliente': venda.compradorNome,
+      'Email': venda.compradorEmail,
+      'Telefone': venda.compradorTel || '-',
+      'CPF': venda.compradorCpf || '-',
+      'Valor Bruto': venda.valor.toFixed(2),
+      'Valor Líquido': venda.transacoes && venda.transacoes.length > 0 ? venda.transacoes[0].valor.toFixed(2) : '-',
+      'Status': venda.status,
+      'Pagamento': venda.metodoPagamento,
+      'CEP': venda.cep || '-',
+      'Endereço': venda.rua ? `${venda.rua}, ${venda.numero}` : '-',
+      'Bairro': venda.bairro || '-',
+      'Cidade': venda.cidade || '-',
+      'Estado': venda.estado || '-'
+    }));
+
+    // Criar planilha
+    const ws = XLSX.utils.json_to_sheet(dadosExportacao);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Vendas');
+
+    // Nome do arquivo com data do filtro
+    let nomeArquivo = 'vendas';
+    if (dataInicio && dataFim) {
+      nomeArquivo += `_${dataInicio}_a_${dataFim}`;
+    } else if (dataInicio) {
+      nomeArquivo += `_a_partir_de_${dataInicio}`;
+    } else if (dataFim) {
+      nomeArquivo += `_ate_${dataFim}`;
+    } else if (filtroData !== 'TODAS') {
+      nomeArquivo += `_${filtroData.toLowerCase()}`;
+    }
+    nomeArquivo += '.xlsx';
+
+    // Download
+    XLSX.writeFile(wb, nomeArquivo);
+  } catch (error) {
+    console.error('Erro ao exportar:', error);
+    alert('Erro ao exportar planilha');
+  }
+};
 
   if (loading) {
     return (
@@ -230,12 +279,37 @@ const ticketMedioPagas = vendasPagas.length > 0
       <Sidebar user={user} onLogout={handleLogout} />
 
       <main className="flex-1 overflow-y-auto">
-        <header className="bg-white border-b border-gray-200 px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">💳 Vendas</h1>
-              <p className="text-sm text-gray-500">Gerencie todas as suas vendas</p>
-            </div>
+        <div className="flex items-center justify-between">
+  <div>
+    <h1 className="text-2xl font-bold text-gray-900">💳 Vendas</h1>
+    <p className="text-sm text-gray-500">Gerencie todas as suas vendas</p>
+  </div>
+  <div className="flex items-center gap-3">
+    <button
+      onClick={exportarParaExcel}
+      className="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2"
+    >
+      <Download size={20} />
+      Exportar Excel
+    </button>
+    {isAdmin && (
+      <button
+        onClick={() => {
+          const novoEstado = !mostrandoTodas;
+          setMostrandoTodas(novoEstado);
+          carregarVendas(novoEstado);
+        }}
+        className={`px-4 py-2 font-semibold rounded-lg transition flex items-center gap-2 ${
+          mostrandoTodas 
+            ? 'bg-orange-600 text-white hover:bg-orange-700' 
+            : 'bg-gray-600 text-white hover:bg-gray-700'
+        }`}
+      >
+        {mostrandoTodas ? '👤 Ver Minhas Vendas' : '🌐 Ver Todas as Vendas'}
+      </button>
+    )}
+  </div>
+</div>
             {isAdmin && (
               <button
                 onClick={() => {
