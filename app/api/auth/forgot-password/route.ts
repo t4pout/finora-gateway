@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     });
 
     // URL do reset
-    const resetUrl = `${process.env.NEXT_PUBLIC_API_URL}/auth/reset-password?token=${token}`;
+    const resetUrl = `https://www.finorapayments.com/auth/reset-password?token=${token}`;
 
     console.log('🔑 Link de recuperação:', resetUrl);
     console.log('👤 Usuário:', user.email);
