@@ -218,7 +218,7 @@ const ticketMedioPagas = vendasPagas.length > 0
   : 0;
 const exportarParaExcel = async () => {
   try {
-    const XLSX = (await import('xlsx')).default;
+    const XLSX = await import('xlsx');
     
     // Preparar dados para exportação
     const dadosExportacao = vendasFiltradas.map(venda => ({
@@ -265,7 +265,6 @@ const exportarParaExcel = async () => {
     alert('Erro ao exportar planilha');
   }
 };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
