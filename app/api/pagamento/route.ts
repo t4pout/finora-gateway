@@ -94,59 +94,65 @@ export async function POST(request: NextRequest) {
       pixId = paggpixResult.pix_id;
       qrCode = paggpixResult.qrcode_image;
       copiaECola = paggpixResult.pix_code;
-    } else if (metodoPagamento === 'BOLETO') {
+   } else if (metodoPagamento === 'BOLETO') {
   console.log('💳 Gerando boleto via Mercado Pago...');
   
-  try {
-    const { MercadoPagoConfig, Payment } = require('mercadopago');
-    
-    const client = new MercadoPagoConfig({
-      accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN || ''
-    });
-    const paymentMP = new Payment(client);
+  const { MercadoPagoConfig, Payment } = require('mercadopago');
+  
+  const client = new MercadoPagoConfig({
+    accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN || ''
+  });
+  const paymentMP = new Payment(client);
 
-    const paymentData = {
-      transaction_amount: plano.preco,
-      description: `${plano.nome} - ${plano.produto.nome}`,
-      payment_method_id: 'bolbradesco',
-      payer: {
-        email: compradorEmail || 'contato@finorapayments.com',
-        first_name: compradorNome.split(' ')[0],
-        last_name: compradorNome.split(' ').slice(1).join(' ') || compradorNome.split(' ')[0],
-        identification: {
-          type: (compradorCpf?.replace(/\D/g, '').length === 11) ? 'CPF' : 'CNPJ',
-          number: compradorCpf?.replace(/\D/g, '') || '00000000000'
-        },
-        address: {
-          zip_code: cep?.replace(/\D/g, '') || '',
-          street_name: rua || 'Rua',
-          street_number: numero || 'SN',
-          neighborhood: bairro || 'Centro',
-          city: cidade || 'São Paulo',
-          federal_unit: estado || 'SP'
-        }
+  const paymentData = {
+    transaction_amount: plano.preco,
+    description: `${plano.nome} - ${plano.produto.nome}`,
+    payment_method_id: 'bolbradesco',
+    payer: {
+      email: compradorEmail || 'contato@finorapayments.com',
+      first_name: compradorNome.split(' ')[0],
+      last_name: compradorNome.split(' ').slice(1).join(' ') || compradorNome.split(' ')[0],
+      identification: {
+        type: (compradorCpf?.replace(/\D/g, '').length === 11) ? 'CPF' : 'CNPJ',
+        number: compradorCpf?.replace(/\D/g, '') || '00000000000'
       },
-      external_reference: venda.id
-    };
+      address: {
+        zip_code: cep?.replace(/\D/g, '') || '',
+        street_name: rua || 'Rua',
+        street_number: numero || 'SN',
+        neighborhood: bairro || 'Centro',
+        city: cidade || 'São Paulo',
+        federal_unit: estado || 'SP'
+      }
+    },
+    external_reference: venda.id
+  };
 
-    const result = await paymentMP.create({ body: paymentData });
+  console.log('📤 Dados Mercado Pago:', JSON.stringify(paymentData, null, 2));
 
-    if (result.status === 'pending' && result.transaction_details?.external_resource_url) {
-      // Atualizar venda com link do boleto
-      await prisma.venda.update({
-        where: { id: venda.id },
-        data: {
-          boletoUrl: result.transaction_details.external_resource_url,
-          boletoBarcode: result.barcode?.content || null
-        }
-      });
+  const result = await paymentMP.create({ body: paymentData });
 
-      console.log('✅ Boleto gerado:', result.transaction_details.external_resource_url);
-    } else {
-      console.error('❌ Erro ao gerar boleto:', result);
-    }
-  } catch (error) {
-    console.error('❌ Erro Mercado Pago Boleto:', error);
+  console.log('📥 Resultado Mercado Pago:', JSON.stringify(result, null, 2));
+
+  if (result.status === 'pending' && result.transaction_details?.external_resource_url) {
+    // Atualizar venda com link do boleto
+    await prisma.venda.update({
+      where: { id: venda.id },
+      data: {
+        boletoUrl: result.transaction_details.external_resource_url,
+        boletoBarcode: result.barcode?.content || null
+      }
+    });
+
+    console.log('✅ Boleto gerado:', result.transaction_details.external_resource_url);
+  } else {
+    console.error('❌ Erro ao gerar boleto. Status:', result.status);
+    console.error('❌ Detalhes:', JSON.stringify(result, null, 2));
+    
+    return NextResponse.json({ 
+      error: 'Erro ao gerar boleto',
+      details: result.status_detail || 'Status: ' + result.status
+    }, { status: 500 });
   }
 }
 
