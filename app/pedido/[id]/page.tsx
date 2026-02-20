@@ -113,62 +113,62 @@ export default function PedidoPage({ params }: { params: Promise<{ id: string }>
         </div>
 
         {/* BOLETO */}
-{venda.metodoPagamento === 'BOLETO' && (
-  <div className="bg-white rounded-2xl border-2 border-gray-200 p-8 mb-6">
-    <h2 className="text-xl font-bold text-gray-900 mb-6 text-center">
-      📄 Boleto Gerado
-    </h2>
+        {venda.metodoPagamento === 'BOLETO' && (
+          <div className="bg-white rounded-2xl border-2 border-gray-200 p-8 mb-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-6 text-center">
+              📄 Boleto Gerado
+            </h2>
 
-    {venda.boletoUrl ? (
-      <>
-        <div className="bg-green-50 border-2 border-green-500 rounded-xl p-6 mb-6 text-center">
-          <FileText size={64} className="text-green-600 mx-auto mb-4" />
-          <p className="text-lg font-bold text-green-900 mb-4">
-            ✅ Seu boleto está pronto!
-          </p>
-          
-            href={venda.boletoUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block px-8 py-4 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition text-lg"
-          >
-            📄 Abrir Boleto (PDF)
-          </a>
-          {venda.boletoBarcode && (
-            <div className="mt-4">
-              <p className="text-sm text-gray-600 mb-2">Código de barras:</p>
-              <p className="font-mono text-xs text-gray-800 break-all bg-gray-100 p-2 rounded">
-                {venda.boletoBarcode}
-              </p>
-            </div>
-          )}
-        </div>
+            {venda.boletoUrl ? (
+              <>
+                <div className="bg-green-50 border-2 border-green-500 rounded-xl p-6 mb-6 text-center">
+                  <FileText size={64} className="text-green-600 mx-auto mb-4" />
+                  <p className="text-lg font-bold text-green-900 mb-4">
+                    ✅ Seu boleto está pronto!
+                  </p>
+                  
+                    href={venda.boletoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block px-8 py-4 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition text-lg"
+                  >
+                    📄 Abrir Boleto (PDF)
+                  </a>
+                  {venda.boletoBarcode && (
+                    <div className="mt-4">
+                      <p className="text-sm text-gray-600 mb-2">Código de barras:</p>
+                      <p className="font-mono text-xs text-gray-800 break-all bg-gray-100 p-2 rounded">
+                        {venda.boletoBarcode}
+                      </p>
+                    </div>
+                  )}
+                </div>
 
-        <div className="bg-blue-50 border-2 border-blue-500 rounded-xl p-4">
-          <div className="font-semibold text-blue-900 mb-2">📋 Como pagar:</div>
-          <ol className="text-sm text-blue-700 space-y-1 list-decimal list-inside">
-            <li>Clique no botão acima para abrir o boleto</li>
-            <li>Imprima ou salve o PDF</li>
-            <li>Pague em qualquer banco até a data de vencimento</li>
-            <li>A confirmação leva até 2 dias úteis</li>
-          </ol>
-        </div>
-      </>
-    ) : (
-      <div className="bg-yellow-50 border-2 border-yellow-500 rounded-xl p-6 mb-6">
-        <div className="text-center mb-4">
-          <FileText size={64} className="text-yellow-600 mx-auto mb-2" />
-          <p className="text-lg font-bold text-yellow-900">
-            Gerando seu boleto...
-          </p>
-          <p className="text-sm text-yellow-700 mt-2">
-            Aguarde alguns instantes. A página será atualizada automaticamente.
-          </p>
-        </div>
-      </div>
-    )}
-  </div>
-)}
+                <div className="bg-blue-50 border-2 border-blue-500 rounded-xl p-4">
+                  <div className="font-semibold text-blue-900 mb-2">📋 Como pagar:</div>
+                  <ol className="text-sm text-blue-700 space-y-1 list-decimal list-inside">
+                    <li>Clique no botão acima para abrir o boleto</li>
+                    <li>Imprima ou salve o PDF</li>
+                    <li>Pague em qualquer banco até a data de vencimento</li>
+                    <li>A confirmação leva até 2 dias úteis</li>
+                  </ol>
+                </div>
+              </>
+            ) : (
+              <div className="bg-yellow-50 border-2 border-yellow-500 rounded-xl p-6 mb-6">
+                <div className="text-center mb-4">
+                  <FileText size={64} className="text-yellow-600 mx-auto mb-2" />
+                  <p className="text-lg font-bold text-yellow-900">
+                    Gerando seu boleto...
+                  </p>
+                  <p className="text-sm text-yellow-700 mt-2">
+                    Aguarde alguns instantes. A página será atualizada automaticamente.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* PIX */}
         {venda.metodoPagamento === 'PIX' && venda.pixQrCode && (
