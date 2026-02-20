@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Copy, Clock } from 'lucide-react';
+import { Copy, Clock, FileText } from 'lucide-react';
 
 export default function PedidoPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -98,7 +98,11 @@ export default function PedidoPage({ params }: { params: Promise<{ id: string }>
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-purple-100 rounded-full mb-4">
-            <Clock size={40} className="text-purple-600" />
+            {venda.metodoPagamento === 'BOLETO' ? (
+              <FileText size={40} className="text-purple-600" />
+            ) : (
+              <Clock size={40} className="text-purple-600" />
+            )}
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             ⏳ Aguardando Pagamento
@@ -108,12 +112,44 @@ export default function PedidoPage({ params }: { params: Promise<{ id: string }>
           </p>
         </div>
 
-        <div className="bg-white rounded-2xl border-2 border-gray-200 p-8 mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-6 text-center">
-            📱 Escaneie o QR Code para pagar
-          </h2>
+        {/* BOLETO */}
+        {venda.metodoPagamento === 'BOLETO' && (
+          <div className="bg-white rounded-2xl border-2 border-gray-200 p-8 mb-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-6 text-center">
+              📄 Boleto Gerado
+            </h2>
 
-          {venda?.pixQrCode && (
+            <div className="bg-yellow-50 border-2 border-yellow-500 rounded-xl p-6 mb-6">
+              <div className="text-center mb-4">
+                <FileText size={64} className="text-yellow-600 mx-auto mb-2" />
+                <p className="text-lg font-bold text-yellow-900">
+                  Seu boleto está sendo gerado!
+                </p>
+                <p className="text-sm text-yellow-700 mt-2">
+                  Em breve você receberá o boleto por email ou poderá acessá-lo aqui.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 border-2 border-blue-500 rounded-xl p-4">
+              <div className="font-semibold text-blue-900 mb-2">📋 Próximos passos:</div>
+              <ol className="text-sm text-blue-700 space-y-1 list-decimal list-inside">
+                <li>Aguarde o boleto ser gerado (alguns minutos)</li>
+                <li>Você receberá um email com o boleto</li>
+                <li>Pague em qualquer banco até a data de vencimento</li>
+                <li>A confirmação do pagamento leva até 2 dias úteis</li>
+              </ol>
+            </div>
+          </div>
+        )}
+
+        {/* PIX */}
+        {venda.metodoPagamento === 'PIX' && venda.pixQrCode && (
+          <div className="bg-white rounded-2xl border-2 border-gray-200 p-8 mb-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-6 text-center">
+              📱 Escaneie o QR Code para pagar
+            </h2>
+
             <div className="flex justify-center mb-6">
               <div className="bg-white p-4 rounded-xl border-4 border-purple-600">
                 <img 
@@ -123,40 +159,40 @@ export default function PedidoPage({ params }: { params: Promise<{ id: string }>
                 />
               </div>
             </div>
-          )}
 
-          <div className="mb-6">
-            <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Ou copie o código PIX:
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={venda?.pixCopiaECola || ''}
-                readOnly
-                className="flex-1 px-4 py-3 bg-gray-50 border-2 border-gray-300 rounded-lg font-mono text-sm text-gray-900"
-              />
-              <button
-                onClick={copiarPix}
-                className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition flex items-center space-x-2"
-              >
-                <Copy size={20} />
-                <span>{copiado ? 'Copiado!' : 'Copiar'}</span>
-              </button>
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Ou copie o código PIX:
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={venda?.pixCopiaECola || ''}
+                  readOnly
+                  className="flex-1 px-4 py-3 bg-gray-50 border-2 border-gray-300 rounded-lg font-mono text-sm text-gray-900"
+                />
+                <button
+                  onClick={copiarPix}
+                  className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition flex items-center space-x-2"
+                >
+                  <Copy size={20} />
+                  <span>{copiado ? 'Copiado!' : 'Copiar'}</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 border-2 border-blue-500 rounded-xl p-4">
+              <div className="font-semibold text-blue-900 mb-2">📋 Como pagar:</div>
+              <ol className="text-sm text-blue-700 space-y-1 list-decimal list-inside">
+                <li>Abra o app do seu banco</li>
+                <li>Escolha pagar com PIX</li>
+                <li>Escaneie o QR Code ou cole o código</li>
+                <li>Confirme o pagamento</li>
+                <li>Pronto! A confirmação é automática</li>
+              </ol>
             </div>
           </div>
-
-          <div className="bg-blue-50 border-2 border-blue-500 rounded-xl p-4">
-            <div className="font-semibold text-blue-900 mb-2">📋 Como pagar:</div>
-            <ol className="text-sm text-blue-700 space-y-1 list-decimal list-inside">
-              <li>Abra o app do seu banco</li>
-              <li>Escolha pagar com PIX</li>
-              <li>Escaneie o QR Code ou cole o código</li>
-              <li>Confirme o pagamento</li>
-              <li>Pronto! A confirmação é automática</li>
-            </ol>
-          </div>
-        </div>
+        )}
 
         <div className="bg-white rounded-2xl border-2 border-gray-200 p-6">
           <h3 className="font-bold text-lg mb-4">📦 Resumo do Pedido</h3>
@@ -171,7 +207,7 @@ export default function PedidoPage({ params }: { params: Promise<{ id: string }>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Método:</span>
-              <span className="font-semibold text-gray-900">PIX</span>
+              <span className="font-semibold text-gray-900">{venda?.metodoPagamento}</span>
             </div>
             <div className="border-t pt-3 flex justify-between">
               <span className="text-gray-900 font-bold">Total:</span>
@@ -183,7 +219,9 @@ export default function PedidoPage({ params }: { params: Promise<{ id: string }>
         </div>
 
         <div className="text-center mt-6 text-sm text-gray-600">
-          {verificando ? '🔄 Verificando pagamento...' : '⏱️ Aguardando confirmação automática'}
+          {venda.metodoPagamento === 'PIX' 
+            ? (verificando ? '🔄 Verificando pagamento...' : '⏱️ Aguardando confirmação automática')
+            : '📧 Verifique seu email para acessar o boleto'}
         </div>
       </div>
     </div>
