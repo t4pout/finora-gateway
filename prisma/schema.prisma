@@ -454,3 +454,15 @@ model PixelConversao {
   
   @@map("PixelConversao")
 }
+
+
+model ConfiguracaoGateway {
+  id        String   @id @default(cuid())
+  metodo    String   @unique // PIX | BOLETO | CARTAO
+  gateway   String   // PAGGPIX | MERCADOPAGO | ASAAS
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("ConfiguracaoGateway")
+}
