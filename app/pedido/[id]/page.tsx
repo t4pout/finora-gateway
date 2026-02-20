@@ -125,12 +125,7 @@ export default function PedidoPage({ params }: { params: Promise<{ id: string }>
                   <p className="text-lg font-bold text-green-900 mb-4">
                     ✅ Seu boleto está pronto!
                   </p>
-                  
-                    href={venda.boletoUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block px-8 py-4 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition text-lg"
-                  >
+                  <a href={venda.boletoUrl} target="_blank" rel="noopener noreferrer" className="inline-block px-8 py-4 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition text-lg">
                     📄 Abrir Boleto (PDF)
                   </a>
                   {venda.boletoBarcode && (
