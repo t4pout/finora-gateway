@@ -48,14 +48,36 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Pedido não identificado' }, { status: 400 });
     }
 
-    const origin = request.headers.get('host') || 'finorapayments.com';
+    const origin = request.headers.get('host') || 'www.finorapayments.com';
     const protocol = origin.includes('localhost') ? 'http' : 'https';
+
+    // Função auxiliar para enviar notificação Telegram
+    const enviarTelegram = async (botToken: string, chatId: string, mensagem: string) => {
+      try {
+        await fetch(`${protocol}://${origin}/api/telegram/notificar`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ botToken, chatId, mensagem })
+        });
+      } catch (e) {
+        console.error('Erro notificação Telegram:', e);
+      }
+    };
 
     // ==========================================
     // CASO 1: Verificar se é uma Venda normal
     // ==========================================
     const vendaExistente = await prisma.venda.findUnique({
-      where: { id: referenceId }
+      where: { id: referenceId },
+      include: {
+        produto: {
+          include: {
+            user: {
+              select: { id: true, nome: true, telegramBotToken: true, telegramChatId: true }
+            }
+          }
+        }
+      }
     });
 
     if (vendaExistente) {
@@ -66,7 +88,6 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ received: true, message: 'Já processado' });
       }
 
-      // Detectar método de pagamento
       let metodoPagamento = vendaExistente.metodoPagamento;
       if (payment.payment_method_id === 'pix') metodoPagamento = 'PIX';
       else if (payment.payment_method_id === 'bolbradesco') metodoPagamento = 'BOLETO';
@@ -74,10 +95,7 @@ export async function POST(request: NextRequest) {
 
       await prisma.venda.update({
         where: { id: referenceId },
-        data: {
-          status: 'PAGO',
-          metodoPagamento
-        }
+        data: { status: 'PAGO', metodoPagamento }
       });
 
       console.log('✅ Venda normal marcada como PAGO:', referenceId);
@@ -93,6 +111,31 @@ export async function POST(request: NextRequest) {
         console.error('Erro ao processar carteira:', e);
       }
 
+      // Notificação Telegram - VENDA PAGA
+      const metodoEmoji = metodoPagamento === 'PIX' ? '🟢 PIX' : metodoPagamento === 'BOLETO' ? '🟡 Boleto' : '💳 Cartão';
+      const mensagem = `✅ <b>VENDA PAGA</b>\n\n` +
+        `💰 Valor: R$ ${vendaExistente.valor.toFixed(2)}\n` +
+        `👤 Cliente: ${vendaExistente.compradorNome}\n` +
+        `📧 Email: ${vendaExistente.compradorEmail}\n` +
+        `📦 Produto: ${vendaExistente.nomePlano || vendaExistente.produto?.nome || ''}\n` +
+        `${metodoEmoji} - Pagamento confirmado\n` +
+        `🆔 Venda ID: ${vendaExistente.id.substring(0, 8)}`;
+
+      const vendedor = vendaExistente.produto?.user;
+      if (vendedor?.telegramBotToken && vendedor?.telegramChatId) {
+        await enviarTelegram(vendedor.telegramBotToken, vendedor.telegramChatId, mensagem);
+        console.log('✅ Notificação Telegram enviada para vendedor');
+      }
+
+      if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID) {
+        await enviarTelegram(
+          process.env.TELEGRAM_BOT_TOKEN,
+          process.env.TELEGRAM_CHAT_ID,
+          mensagem + `\n\n🧑‍💼 Vendedor: ${vendedor?.nome || 'N/A'}`
+        );
+        console.log('✅ Notificação Telegram enviada para bot geral');
+      }
+
       return NextResponse.json({ received: true, message: 'Venda processada com sucesso' });
     }
 
@@ -100,7 +143,16 @@ export async function POST(request: NextRequest) {
     // CASO 2: Verificar se é um PedidoPAD
     // ==========================================
     const pedido = await prisma.pedidoPAD.findUnique({
-      where: { id: referenceId }
+      where: { id: referenceId },
+      include: {
+        produto: {
+          include: {
+            user: {
+              select: { id: true, nome: true, telegramBotToken: true, telegramChatId: true }
+            }
+          }
+        }
+      }
     });
 
     if (pedido) {
@@ -141,6 +193,28 @@ export async function POST(request: NextRequest) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pedidoPadHash: pedido.hash, vendaId: venda.id })
       });
+
+      // Notificação Telegram - PAD PAGO
+      const metodoEmoji = metodoPagamento === 'PIX' ? '🟢 PIX' : metodoPagamento === 'BOLETO' ? '🟡 Boleto' : '💳 Cartão';
+      const mensagemPAD = `✅ <b>PAD PAGO</b>\n\n` +
+        `💰 Valor: R$ ${pedido.valor.toFixed(2)}\n` +
+        `👤 Cliente: ${pedido.clienteNome}\n` +
+        `📦 Produto: ${pedido.produtoNome}\n` +
+        `${metodoEmoji} - Pagamento confirmado\n` +
+        `🆔 Pedido: ${pedido.hash}`;
+
+      const vendedor = pedido.produto?.user;
+      if (vendedor?.telegramBotToken && vendedor?.telegramChatId) {
+        await enviarTelegram(vendedor.telegramBotToken, vendedor.telegramChatId, mensagemPAD);
+      }
+
+      if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID) {
+        await enviarTelegram(
+          process.env.TELEGRAM_BOT_TOKEN,
+          process.env.TELEGRAM_CHAT_ID,
+          mensagemPAD + `\n\n🧑‍💼 Vendedor: ${vendedor?.nome || 'N/A'}`
+        );
+      }
 
       console.log('✅ PedidoPAD processado com sucesso!');
       return NextResponse.json({ received: true, message: 'Pagamento PAD processado com sucesso' });
