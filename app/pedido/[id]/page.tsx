@@ -112,7 +112,6 @@ export default function PedidoPage({ params }: { params: Promise<{ id: string }>
           </p>
         </div>
 
-        {/* BOLETO */}
         {venda.metodoPagamento === 'BOLETO' && (
           <div className="bg-white rounded-2xl border-2 border-gray-200 p-8 mb-6">
             <h2 className="text-xl font-bold text-gray-900 mb-6 text-center">
@@ -120,7 +119,7 @@ export default function PedidoPage({ params }: { params: Promise<{ id: string }>
             </h2>
 
             {venda.boletoUrl ? (
-              <>
+              <div>
                 <div className="bg-green-50 border-2 border-green-500 rounded-xl p-6 mb-6 text-center">
                   <FileText size={64} className="text-green-600 mx-auto mb-4" />
                   <p className="text-lg font-bold text-green-900 mb-4">
@@ -153,7 +152,7 @@ export default function PedidoPage({ params }: { params: Promise<{ id: string }>
                     <li>A confirmação leva até 2 dias úteis</li>
                   </ol>
                 </div>
-              </>
+              </div>
             ) : (
               <div className="bg-yellow-50 border-2 border-yellow-500 rounded-xl p-6 mb-6">
                 <div className="text-center mb-4">
@@ -170,7 +169,6 @@ export default function PedidoPage({ params }: { params: Promise<{ id: string }>
           </div>
         )}
 
-        {/* PIX */}
         {venda.metodoPagamento === 'PIX' && venda.pixQrCode && (
           <div className="bg-white rounded-2xl border-2 border-gray-200 p-8 mb-6">
             <h2 className="text-xl font-bold text-gray-900 mb-6 text-center">
