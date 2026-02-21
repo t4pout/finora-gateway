@@ -229,7 +229,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
   };
 
   const avancarEtapa1 = () => {
-    if (!formData.nome || !formData.email || !formData.telefone) {
+    if (!formData.nome || !formData.telefone) {
       alert('Preencha todos os campos obrigatórios');
       return;
     }
