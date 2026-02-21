@@ -46,13 +46,13 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // Saldo = soma de LIBERADO + PENDENTE
+    // Saldo = APROVADO (liberado) + PENDENTE
     const usersComSaldo = await Promise.all(
       users.map(async (u) => {
         const resultado = await prisma.carteira.aggregate({
           where: {
             usuarioId: u.id,
-            status: { in: ['LIBERADO', 'PENDENTE'] }
+            status: { in: ['APROVADO', 'PENDENTE'] }
           },
           _sum: { valor: true }
         });
