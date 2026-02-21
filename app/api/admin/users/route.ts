@@ -46,14 +46,18 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // Buscar saldo de cada usuário via carteira
+    // Calcular saldo de cada usuário somando transações LIBERADO + PENDENTE
     const usersComSaldo = await Promise.all(
       users.map(async (u) => {
-        const carteira = await prisma.carteira.findUnique({
-          where: { userId: u.id },
-          select: { saldo: true }
+        const transacoes = await prisma.carteira.findMany({
+          where: {
+            usuarioId: u.id,
+            status: { in: ['LIBERADO', 'PENDENTE'] }
+          },
+          select: { valor: true }
         });
-        return { ...u, saldo: carteira?.saldo || 0 };
+        const saldo = transacoes.reduce((acc, t) => acc + t.valor, 0);
+        return { ...u, saldo };
       })
     );
 
