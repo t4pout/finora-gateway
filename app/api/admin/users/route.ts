@@ -46,8 +46,6 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // Saldo = igual ao cálculo da carteira do usuário:
-    // APROVADO (liberado) + PENDENTE, apenas tipo VENDA ou VENDA_PAD, menos saques APROVADO/PROCESSANDO
     const usersComSaldo = await Promise.all(
       users.map(async (u) => {
         const [aprovado, pendente, saques] = await Promise.all([
@@ -80,7 +78,7 @@ export async function GET(request: NextRequest) {
         const totalPendente = pendente._sum.valor || 0;
         const totalSaques = saques._sum.valor || 0;
         const saldo = (totalAprovado - totalSaques) + totalPendente;
-        return { ...u, saldo };
+        return { ...u, saldo, totalSaques };
       })
     );
 
