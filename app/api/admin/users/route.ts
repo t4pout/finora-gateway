@@ -46,17 +46,28 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // Calcular saldo de cada usuário somando transações LIBERADO + PENDENTE
+    // Calcular saldo real: entradas (LIBERADO + PENDENTE) - saques APROVADOS
     const usersComSaldo = await Promise.all(
       users.map(async (u) => {
-        const transacoes = await prisma.carteira.findMany({
-          where: {
-            usuarioId: u.id,
-            status: { in: ['LIBERADO', 'PENDENTE'] }
-          },
-          select: { valor: true }
-        });
-        const saldo = transacoes.reduce((acc, t) => acc + t.valor, 0);
+        const [entradas, saques] = await Promise.all([
+          prisma.carteira.aggregate({
+            where: {
+              usuarioId: u.id,
+              status: { in: ['LIBERADO', 'PENDENTE'] }
+            },
+            _sum: { valor: true }
+          }),
+          prisma.saque.aggregate({
+            where: {
+              userId: u.id,
+              status: 'APROVADO'
+            },
+            _sum: { valor: true }
+          })
+        ]);
+        const totalEntradas = entradas._sum.valor || 0;
+        const totalSaques = saques._sum.valor || 0;
+        const saldo = totalEntradas - totalSaques;
         return { ...u, saldo };
       })
     );
