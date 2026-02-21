@@ -46,17 +46,40 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // Saldo = APROVADO (liberado) + PENDENTE
+    // Saldo = igual ao cálculo da carteira do usuário:
+    // APROVADO (liberado) + PENDENTE, apenas tipo VENDA ou VENDA_PAD, menos saques APROVADO/PROCESSANDO
     const usersComSaldo = await Promise.all(
       users.map(async (u) => {
-        const resultado = await prisma.carteira.aggregate({
-          where: {
-            usuarioId: u.id,
-            status: { in: ['APROVADO', 'PENDENTE'] }
-          },
-          _sum: { valor: true }
-        });
-        const saldo = resultado._sum.valor || 0;
+        const [aprovado, pendente, saques] = await Promise.all([
+          prisma.carteira.aggregate({
+            where: {
+              usuarioId: u.id,
+              status: 'APROVADO',
+              tipo: { in: ['VENDA', 'VENDA_PAD'] }
+            },
+            _sum: { valor: true }
+          }),
+          prisma.carteira.aggregate({
+            where: {
+              usuarioId: u.id,
+              status: 'PENDENTE',
+              tipo: { in: ['VENDA', 'VENDA_PAD'] }
+            },
+            _sum: { valor: true }
+          }),
+          prisma.saque.aggregate({
+            where: {
+              userId: u.id,
+              status: { in: ['APROVADO', 'PROCESSANDO'] }
+            },
+            _sum: { valor: true }
+          })
+        ]);
+
+        const totalAprovado = aprovado._sum.valor || 0;
+        const totalPendente = pendente._sum.valor || 0;
+        const totalSaques = saques._sum.valor || 0;
+        const saldo = (totalAprovado - totalSaques) + totalPendente;
         return { ...u, saldo };
       })
     );
