@@ -20,6 +20,7 @@ interface User {
   createdAt: string;
   _count: { produtos: number; vendas: number };
   planoTaxa?: PlanoTaxa | null;
+  saldo?: number;
 }
 
 interface CurrentUser {
@@ -265,6 +266,7 @@ export default function AdminPage() {
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Plano Taxa</th>
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Produtos</th>
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Vendas</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Saldo</th>
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Cadastro</th>
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Ações</th>
                   </tr>
@@ -286,6 +288,9 @@ export default function AdminPage() {
                       </td>
                       <td className="py-4 px-4 font-semibold text-gray-900">{user._count.produtos}</td>
                       <td className="py-4 px-4 font-semibold text-gray-900">{user._count.vendas}</td>
+                      <td className="py-4 px-4 font-semibold text-green-600">
+                        R$ {(user.saldo || 0).toFixed(2).replace('.', ',')}
+                      </td>
                       <td className="py-4 px-4 text-gray-600 text-sm">{new Date(user.createdAt).toLocaleDateString('pt-BR')}</td>
                       <td className="py-4 px-4">
                         <div className="flex gap-2">
