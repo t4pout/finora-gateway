@@ -1,7 +1,7 @@
 'use client';
 // versão 2.0
 export const dynamic = 'force-dynamic';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface PlanoOferta {
@@ -42,6 +42,9 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
   const [plano, setPlano] = useState<PlanoOferta | null>(null);
   const [loading, setLoading] = useState(true);
   const [etapa, setEtapa] = useState(1);
+  const pixelIniciado = useRef(false);
+  const initiateCheckoutDisparado = useRef(false);
+  const addPaymentDisparado = useRef(false);
   const [tempoRestante, setTempoRestante] = useState(0);
   const [buscandoCep, setBuscandoCep] = useState(false);
   const [processando, setProcessando] = useState(false);
@@ -74,24 +77,27 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
     carregarPlano();
   }, [linkUnico]);
 
-  useEffect(() => {
-    if (plano) {
-      if (typeof window !== 'undefined' && (window as any).fbq) {
-        try {
-          (window as any).fbq('track', 'InitiateCheckout', {
-            content_name: plano.nome,
-            content_ids: [plano.id],
-            content_type: 'product',
-            value: plano.preco,
-            currency: 'BRL'
-          });
-        } catch (e) { console.error('Erro pixel:', e); }
-      }
+  // InitiateCheckout - dispara uma única vez após pixel ser carregado
+  const dispararInitiateCheckout = (planoData: PlanoOferta) => {
+    if (initiateCheckoutDisparado.current) return;
+    if (typeof window !== 'undefined' && (window as any).fbq) {
+      try {
+        (window as any).fbq('track', 'InitiateCheckout', {
+          content_name: planoData.nome,
+          content_ids: [planoData.id],
+          content_type: 'product',
+          value: planoData.preco,
+          currency: 'BRL'
+        });
+        initiateCheckoutDisparado.current = true;
+        console.log('📊 Pixel: InitiateCheckout disparado');
+      } catch (e) { console.error('Erro pixel InitiateCheckout:', e); }
     }
-  }, [plano]);
+  };
 
+  // AddPaymentInfo - dispara uma única vez ao chegar na etapa 3
   useEffect(() => {
-    if (plano && etapa === 3 && formData.metodoPagamento) {
+    if (plano && etapa === 3 && !addPaymentDisparado.current) {
       if (typeof window !== 'undefined' && (window as any).fbq) {
         try {
           (window as any).fbq('track', 'AddPaymentInfo', {
@@ -99,13 +105,14 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
             content_ids: [plano.id],
             content_type: 'product',
             value: plano.preco,
-            currency: 'BRL',
-            payment_method: formData.metodoPagamento
+            currency: 'BRL'
           });
-        } catch (e) { console.error('Erro pixel:', e); }
+          addPaymentDisparado.current = true;
+          console.log('📊 Pixel: AddPaymentInfo disparado');
+        } catch (e) { console.error('Erro pixel AddPaymentInfo:', e); }
       }
     }
-  }, [etapa, formData.metodoPagamento, plano]);
+  }, [etapa, plano]);
 
   const carregarPlano = async () => {
     try {
@@ -129,6 +136,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
 
   useEffect(() => {
     if (!plano?.produto?.id) return;
+    if (pixelIniciado.current) return;
     const carregarPixels = async () => {
       try {
         const res = await fetch(`/api/produtos/${plano.produto.id}`);
@@ -152,6 +160,9 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
                 fbq('track', 'PageView');
               `;
               document.head.appendChild(script);
+              pixelIniciado.current = true;
+              // Disparar InitiateCheckout após pixel ser injetado
+              setTimeout(() => { if (plano) dispararInitiateCheckout(plano); }, 500);
             }
           });
         }
@@ -229,7 +240,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
   };
 
   const avancarEtapa1 = () => {
-    if (!formData.nome || !formData.telefone) {
+    if (!formData.nome || !formData.email || !formData.telefone) {
       alert('Preencha todos os campos obrigatórios');
       return;
     }
