@@ -1373,7 +1373,22 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
                 </div>
                 <div className="flex gap-2">
                   <button 
-                    onClick={() => setModalPixel({ aberto: true, pixel })} 
+                    onClick={() => {
+  setFormPixel({
+    titulo: pixel.titulo,
+    plataforma: pixel.plataforma,
+    pixelId: pixel.pixelId,
+    tokenAPI: pixel.tokenAPI || '',
+    eventoCheckout: pixel.eventoCheckout,
+    eventoCompra: pixel.eventoCompra,
+    eventoPAD: pixel.eventoPAD,
+    condicaoPix: pixel.condicaoPix,
+    condicaoBoleto: pixel.condicaoBoleto,
+    condicaoPAD: pixel.condicaoPAD,
+    condicaoPagamentoAprovado: pixel.condicaoPagamentoAprovado
+  });
+  setModalPixel({ aberto: true, pixel });
+}} 
                     className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
                   >
                     <Edit size={16} />
