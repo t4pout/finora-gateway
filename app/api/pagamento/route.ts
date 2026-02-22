@@ -67,9 +67,11 @@ export async function POST(request: NextRequest) {
         const areaCode = telLimpo.substring(0, 2);
         const number = telLimpo.substring(2);
 
-        const picpayBody = {
-          paymentSource: 'GATEWAY',
-          merchantChargeId: venda.id,
+        const merchantChargeId = venda.id.replace(/[^a-zA-Z0-9-]/g, '').substring(0, 36);
+
+const picpayBody = {
+  paymentSource: 'GATEWAY',
+  merchantChargeId: merchantChargeId,
           customer: {
             name: compradorNome,
             email: compradorEmail || 'contato@finorapayments.com',
@@ -88,7 +90,7 @@ export async function POST(request: NextRequest) {
           }]
         };
 
-        const picpayResponse = await fetch(`${PICPAY_API}/charge/pix`, {
+        const picpayResponse = await fetch(`${PICPAY_API}/api/v1/charge/pix`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
