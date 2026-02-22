@@ -10,7 +10,7 @@ export async function getPicPayToken(): Promise<string> {
     return cachedToken;
   }
 
-  const response = await fetch('https://api.picpay.com/oauth2/token', {
+  const response = await fetch('https://checkout-api.picpay.com/oauth2/token', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

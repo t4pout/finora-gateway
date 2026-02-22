@@ -4,7 +4,7 @@ import { getPicPayToken } from '@/lib/picpay-token';
 
 const PAGGPIX_TOKEN = process.env.PAGGPIX_TOKEN;
 const PAGGPIX_API = 'https://public-api.paggpix.com';
-const PICPAY_API = 'https://api.picpay.com';
+const PICPAY_API = 'https://checkout-api.picpay.com';
 
 export async function POST(request: NextRequest) {
   try {
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
           }]
         };
 
-        const picpayResponse = await fetch(`${PICPAY_API}/v1/charge/pix`, {
+        const picpayResponse = await fetch(`${PICPAY_API}/charge/pix`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
