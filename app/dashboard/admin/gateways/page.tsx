@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/app/components/Sidebar';
-import { CreditCard, Save, CheckCircle } from 'lucide-react';
+import { CreditCard, CheckCircle } from 'lucide-react';
 
 interface CurrentUser {
   nome: string;
@@ -78,14 +78,19 @@ export default function GatewaysPage() {
   };
 
   const getGatewaysDisponiveis = (metodo: string) => {
-    if (metodo === 'PIX') return ['PAGGPIX', 'MERCADOPAGO'];
+    if (metodo === 'PIX') return ['PAGGPIX', 'MERCADOPAGO', 'PICPAY'];
     if (metodo === 'BOLETO') return ['MERCADOPAGO'];
-    if (metodo === 'CARTAO') return ['MERCADOPAGO'];
+    if (metodo === 'CARTAO') return ['MERCADOPAGO', 'PICPAY'];
     return [];
   };
 
   const getNomeGateway = (gateway: string) => {
-    const nomes: any = { PAGGPIX: 'PaggPix', MERCADOPAGO: 'Mercado Pago', ASAAS: 'Asaas' };
+    const nomes: any = {
+      PAGGPIX: 'PaggPix',
+      MERCADOPAGO: 'Mercado Pago',
+      PICPAY: 'PicPay',
+      ASAAS: 'Asaas'
+    };
     return nomes[gateway] || gateway;
   };
 
@@ -147,7 +152,6 @@ export default function GatewaysPage() {
 
           <div className="space-y-4">
             {configs.map((config) => {
-              const cor = getCorMetodo(config.metodo);
               const gateways = getGatewaysDisponiveis(config.metodo);
               return (
                 <div key={config.metodo} className="bg-white rounded-xl border border-gray-200 p-6">
@@ -201,6 +205,10 @@ export default function GatewaysPage() {
               <div className="flex justify-between py-2 border-b border-gray-200">
                 <span className="text-gray-600">Mercado Pago</span>
                 <span className="text-gray-900 font-medium">PIX, Boleto, Cartão</span>
+              </div>
+              <div className="flex justify-between py-2">
+                <span className="text-gray-600">PicPay</span>
+                <span className="text-gray-900 font-medium">PIX, Cartão</span>
               </div>
             </div>
           </div>
