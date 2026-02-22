@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getPicPayToken } from '@/lib/picpay-token';
 
 const PAGGPIX_TOKEN = process.env.PAGGPIX_TOKEN;
 const PAGGPIX_API = 'https://public-api.paggpix.com';
+const PICPAY_API = 'https://api.picpay.com';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { planoId, compradorNome, compradorEmail, compradorCpf, compradorTel, cep, rua, numero, complemento, bairro, cidade, estado, metodoPagamento } = body;
 
-    // Buscar plano e produto
     const plano = await prisma.planoOferta.findUnique({
       where: { id: planoId },
       include: { produto: true }
@@ -19,15 +20,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Plano não encontrado ou inativo' }, { status: 404 });
     }
 
-    // Buscar configuração de gateway
     const configPix = await prisma.configuracaoGateway.findUnique({ where: { metodo: 'PIX' } });
     const configBoleto = await prisma.configuracaoGateway.findUnique({ where: { metodo: 'BOLETO' } });
+    const configCartao = await prisma.configuracaoGateway.findUnique({ where: { metodo: 'CARTAO' } });
     const gatewayPix = configPix?.gateway || 'PAGGPIX';
     const gatewayBoleto = configBoleto?.gateway || 'MERCADOPAGO';
+    const gatewayCartao = configCartao?.gateway || 'PICPAY';
 
-    console.log(`🔧 Gateway PIX: ${gatewayPix} | Gateway Boleto: ${gatewayBoleto}`);
+    console.log(`🔧 Gateway PIX: ${gatewayPix} | Boleto: ${gatewayBoleto} | Cartão: ${gatewayCartao}`);
 
-    // PRIMEIRO: Criar venda no banco
     const venda = await prisma.venda.create({
       data: {
         valor: plano.preco,
@@ -37,30 +38,97 @@ export async function POST(request: NextRequest) {
         compradorEmail,
         compradorCpf,
         compradorTel,
-        cep,
-        rua,
-        numero,
-        complemento,
-        bairro,
-        cidade,
-        estado,
+        cep, rua, numero, complemento, bairro, cidade, estado,
         nomePlano: plano.nome,
         produtoId: plano.produtoId,
         vendedorId: plano.produto.userId
       }
     });
 
-    console.log('✅ Venda criada:', venda);
+    console.log('✅ Venda criada:', venda.id);
 
     let pixId = null;
     let qrCode = null;
     let copiaECola = null;
 
-    // SEGUNDO: Criar cobrança baseado no método de pagamento
+    // ==========================================
+    // PIX
+    // ==========================================
     if (metodoPagamento === 'PIX') {
 
-      if (gatewayPix === 'MERCADOPAGO') {
-        // PIX via Mercado Pago
+      if (gatewayPix === 'PICPAY') {
+        console.log('💚 Gerando PIX via PicPay...');
+
+        const token = await getPicPayToken();
+        const valorCentavos = Math.round(plano.preco * 100);
+
+        // Preparar telefone
+        const telLimpo = compradorTel?.replace(/\D/g, '') || '11999999999';
+        const areaCode = telLimpo.substring(0, 2);
+        const number = telLimpo.substring(2);
+
+        const picpayBody = {
+          paymentSource: 'GATEWAY',
+          merchantChargeId: venda.id,
+          customer: {
+            name: compradorNome,
+            email: compradorEmail || 'contato@finorapayments.com',
+            documentType: (compradorCpf?.replace(/\D/g, '').length === 14) ? 'CNPJ' : 'CPF',
+            document: compradorCpf?.replace(/\D/g, '') || '00000000000',
+            phone: {
+              countryCode: '55',
+              areaCode,
+              number,
+              type: 'MOBILE'
+            }
+          },
+          transactions: [{
+            amount: valorCentavos,
+            pix: { expiration: 3600 }
+          }]
+        };
+
+        const picpayResponse = await fetch(`${PICPAY_API}/v1/charge/pix`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(picpayBody)
+        });
+
+        const picpayText = await picpayResponse.text();
+        console.log('📥 Resposta PicPay PIX:', picpayText);
+
+        if (!picpayResponse.ok) {
+          console.error('❌ Erro PicPay PIX:', picpayText);
+          return NextResponse.json({ error: 'Erro ao gerar PIX via PicPay', details: picpayText }, { status: 500 });
+        }
+
+        const picpayResult = JSON.parse(picpayText);
+        const pixData = picpayResult.transactions?.[0]?.pix;
+
+        if (!pixData) {
+          return NextResponse.json({ error: 'Erro ao obter QR Code PIX do PicPay' }, { status: 500 });
+        }
+
+        // Salvar paymentLinkId no pixId para o webhook identificar
+        const chargeId = picpayResult.id || picpayResult.merchantChargeId;
+
+        await prisma.venda.update({
+          where: { id: venda.id },
+          data: {
+            pixId: chargeId,
+            pixQrCode: pixData.qrCodeBase64,
+            pixCopiaECola: pixData.qrCode
+          }
+        });
+
+        pixId = chargeId;
+        qrCode = pixData.qrCodeBase64;
+        copiaECola = pixData.qrCode;
+
+      } else if (gatewayPix === 'MERCADOPAGO') {
         console.log('🟢 Gerando PIX via Mercado Pago...');
         const { MercadoPagoConfig, Payment } = require('mercadopago');
         const client = new MercadoPagoConfig({ accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN || '' });
@@ -84,27 +152,25 @@ export async function POST(request: NextRequest) {
           }
         });
 
-        console.log('📥 Resultado MP PIX:', JSON.stringify(result, null, 2));
-
-        const pixData = result.point_of_interaction?.transaction_data;
-        if (pixData) {
+        const pixDataMP = result.point_of_interaction?.transaction_data;
+        if (pixDataMP) {
           await prisma.venda.update({
             where: { id: venda.id },
             data: {
-              pixQrCode: pixData.qr_code_base64 || null,
-              pixCopiaECola: pixData.qr_code || null,
+              pixQrCode: pixDataMP.qr_code_base64 || null,
+              pixCopiaECola: pixDataMP.qr_code || null,
               pixId: String(result.id)
             }
           });
-          qrCode = pixData.qr_code_base64;
-          copiaECola = pixData.qr_code;
+          qrCode = pixDataMP.qr_code_base64;
+          copiaECola = pixDataMP.qr_code;
           pixId = String(result.id);
         } else {
           return NextResponse.json({ error: 'Erro ao gerar PIX via Mercado Pago' }, { status: 500 });
         }
 
       } else {
-        // PIX via PaggPix (padrão)
+        // PaggPix (padrão)
         const paggpixData = {
           cnpj: "35254464000109",
           value: plano.preco.toFixed(2),
@@ -112,30 +178,18 @@ export async function POST(request: NextRequest) {
           external_id: venda.id
         };
 
-        console.log('Enviando para PaggPix:', paggpixData);
-
         const paggpixResponse = await fetch(`${PAGGPIX_API}/payments`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${PAGGPIX_TOKEN}`
-          },
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${PAGGPIX_TOKEN}` },
           body: JSON.stringify(paggpixData)
         });
 
         const responseText = await paggpixResponse.text();
-        console.log('Resposta PaggPix:', responseText);
-
         if (!paggpixResponse.ok) {
-          console.error('Erro PaggPix:', responseText);
-          return NextResponse.json({
-            error: 'Erro ao criar cobrança PIX',
-            details: responseText
-          }, { status: 500 });
+          return NextResponse.json({ error: 'Erro ao criar cobrança PIX', details: responseText }, { status: 500 });
         }
 
         const paggpixResult = JSON.parse(responseText);
-
         await prisma.venda.update({
           where: { id: venda.id },
           data: {
@@ -150,9 +204,11 @@ export async function POST(request: NextRequest) {
         copiaECola = paggpixResult.pix_code;
       }
 
+    // ==========================================
+    // BOLETO
+    // ==========================================
     } else if (metodoPagamento === 'BOLETO') {
       console.log('💳 Gerando boleto via Mercado Pago...');
-
       const { MercadoPagoConfig, Payment } = require('mercadopago');
       const client = new MercadoPagoConfig({ accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN || '' });
       const paymentMP = new Payment(client);
@@ -183,8 +239,6 @@ export async function POST(request: NextRequest) {
 
       const result = await paymentMP.create({ body: paymentData });
 
-      console.log('📥 Resultado Mercado Pago:', JSON.stringify(result, null, 2));
-
       if (result.status === 'pending' && result.transaction_details?.external_resource_url) {
         await prisma.venda.update({
           where: { id: venda.id },
@@ -193,34 +247,20 @@ export async function POST(request: NextRequest) {
             boletoBarcode: result.barcode?.content || null
           }
         });
-        console.log('✅ Boleto gerado:', result.transaction_details.external_resource_url);
       } else {
-        console.error('❌ Erro ao gerar boleto. Status:', result.status);
-        return NextResponse.json({
-          error: 'Erro ao gerar boleto',
-          details: result.status_detail || 'Status: ' + result.status
-        }, { status: 500 });
+        return NextResponse.json({ error: 'Erro ao gerar boleto', details: result.status_detail }, { status: 500 });
       }
     }
 
-    // Buscar produto e vendedor para notificações
+    // Notificações Telegram
     const produto = await prisma.produto.findUnique({
       where: { id: plano.produtoId },
-      include: {
-        user: {
-          select: {
-            id: true,
-            nome: true,
-            telegramBotToken: true,
-            telegramChatId: true
-          }
-        }
-      }
+      include: { user: { select: { id: true, nome: true, telegramBotToken: true, telegramChatId: true } } }
     });
 
-    const statusPagamento = venda.metodoPagamento === 'PIX'
+    const statusPagamento = metodoPagamento === 'PIX'
       ? '🟢 PIX Gerado - Aguardando pagamento'
-      : venda.metodoPagamento === 'BOLETO'
+      : metodoPagamento === 'BOLETO'
       ? '🟡 Boleto Gerado - Aguardando pagamento'
       : '💳 Cartão - Processando';
 
@@ -238,11 +278,7 @@ export async function POST(request: NextRequest) {
         await fetch(`${request.nextUrl.origin}/api/telegram/notificar`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            botToken: produto.user.telegramBotToken,
-            chatId: produto.user.telegramChatId,
-            mensagem: mensagemVendaGerada
-          })
+          body: JSON.stringify({ botToken: produto.user.telegramBotToken, chatId: produto.user.telegramChatId, mensagem: mensagemVendaGerada })
         });
       } catch (e) { console.error('Erro notificação vendedor:', e); }
     }
@@ -252,29 +288,22 @@ export async function POST(request: NextRequest) {
         await fetch(`${request.nextUrl.origin}/api/telegram/notificar`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            botToken: process.env.TELEGRAM_BOT_TOKEN,
-            chatId: process.env.TELEGRAM_CHAT_ID,
-            mensagem: mensagemVendaGerada + `\n\n🧑‍💼 Vendedor: ${produto?.user?.nome || 'N/A'}`
-          })
+          body: JSON.stringify({ botToken: process.env.TELEGRAM_BOT_TOKEN, chatId: process.env.TELEGRAM_CHAT_ID, mensagem: mensagemVendaGerada + `\n\n🧑‍💼 Vendedor: ${produto?.user?.nome || 'N/A'}` })
         });
       } catch (e) { console.error('Erro notificação geral:', e); }
     }
 
     return NextResponse.json({
       vendaId: venda.id,
-      pixId: pixId,
-      qrCode: qrCode,
-      copiaECola: copiaECola,
+      pixId,
+      qrCode,
+      copiaECola,
       valor: plano.preco,
       metodoPagamento: venda.metodoPagamento
     });
 
   } catch (error: any) {
     console.error('Erro ao criar pagamento:', error);
-    return NextResponse.json({
-      error: 'Erro ao processar pagamento',
-      details: error.message
-    }, { status: 500 });
+    return NextResponse.json({ error: 'Erro ao processar pagamento', details: error.message }, { status: 500 });
   }
 }
