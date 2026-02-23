@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
-
 const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'sua-chave-secreta-super-segura';
-
 function verificarToken(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
@@ -15,7 +13,6 @@ function verificarToken(request: NextRequest) {
     return null;
   }
 }
-
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -25,19 +22,15 @@ export async function PATCH(
     if (!userId) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
-
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { role: true }
     });
-
     if (user?.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Acesso negado' }, { status: 403 });
     }
-
     const { id } = await params;
     const { status, comprovante, motivoRejeicao } = await request.json();
-
     const saque = await prisma.saque.update({
       where: { id },
       data: {
@@ -47,7 +40,6 @@ export async function PATCH(
         dataAprovacao: status === 'APROVADO' ? new Date() : null
       }
     });
-
     return NextResponse.json({ success: true, saque });
   } catch (error) {
     console.error('Erro:', error);
