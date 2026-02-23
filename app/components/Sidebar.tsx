@@ -8,7 +8,7 @@ import { usePathname } from 'next/navigation';
 import {
   Home, Package, DollarSign, LogOut, ShoppingBag,
   BarChart3, Zap, Wallet, Shield,
-  ChevronDown, Clock
+  ChevronDown, Clock, TrendingUp
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -22,6 +22,7 @@ interface SidebarProps {
 export default function Sidebar({ user, onLogout }: SidebarProps) {
   const pathname = usePathname();
   const [vendasOpen, setVendasOpen] = useState(false);
+  const [adminOpen, setAdminOpen] = useState(false);
 
   const isActive = (path: string) => pathname === path;
   const isActivePrefix = (path: string) => pathname.startsWith(path);
@@ -191,6 +192,79 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
           </div>
         </Link>
 
+        {/* Menu Admin expandível */}
+        {user?.role === 'ADMIN' && (
+          <>
+            <div className="border-t border-gray-200 my-2"></div>
+            <div>
+              <button
+                onClick={() => setAdminOpen(!adminOpen)}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-lg font-semibold transition ${
+                  isActivePrefix('/dashboard/admin')
+                    ? 'bg-purple-50 text-purple-600'
+                    : 'text-purple-600 hover:bg-purple-50'
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <Shield size={20} />
+                  <span>Admin</span>
+                </div>
+                <ChevronDown size={16} className={`transition-transform ${adminOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {adminOpen && (
+                <div className="ml-4 mt-1 space-y-1">
+                  <Link href="/dashboard/admin">
+                    <div className={`flex items-center space-x-3 px-4 py-2 rounded-lg text-sm transition ${
+                      isActive('/dashboard/admin')
+                        ? 'bg-purple-50 text-purple-600 font-semibold'
+                        : 'text-gray-600 hover:bg-gray-50'
+                    }`}>
+                      <span>🏠 Painel</span>
+                    </div>
+                  </Link>
+                  <Link href="/dashboard/admin/receita">
+                    <div className={`flex items-center space-x-3 px-4 py-2 rounded-lg text-sm transition ${
+                      isActive('/dashboard/admin/receita')
+                        ? 'bg-purple-50 text-purple-600 font-semibold'
+                        : 'text-gray-600 hover:bg-gray-50'
+                    }`}>
+                      <span>💰 Receita</span>
+                    </div>
+                  </Link>
+                  <Link href="/dashboard/admin/taxas">
+                    <div className={`flex items-center space-x-3 px-4 py-2 rounded-lg text-sm transition ${
+                      isActivePrefix('/dashboard/admin/taxas')
+                        ? 'bg-purple-50 text-purple-600 font-semibold'
+                        : 'text-gray-600 hover:bg-gray-50'
+                    }`}>
+                      <span>% Taxas</span>
+                    </div>
+                  </Link>
+                  <Link href="/dashboard/admin/saques">
+                    <div className={`flex items-center space-x-3 px-4 py-2 rounded-lg text-sm transition ${
+                      isActivePrefix('/dashboard/admin/saques')
+                        ? 'bg-purple-50 text-purple-600 font-semibold'
+                        : 'text-gray-600 hover:bg-gray-50'
+                    }`}>
+                      <span>💸 Saques</span>
+                    </div>
+                  </Link>
+                  <Link href="/dashboard/admin/gateways">
+                    <div className={`flex items-center space-x-3 px-4 py-2 rounded-lg text-sm transition ${
+                      isActive('/dashboard/admin/gateways')
+                        ? 'bg-purple-50 text-purple-600 font-semibold'
+                        : 'text-gray-600 hover:bg-gray-50'
+                    }`}>
+                      <span>⚡ Gateways</span>
+                    </div>
+                  </Link>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
         <div className="border-t border-gray-200 my-4"></div>
 
         <button
@@ -201,21 +275,6 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
           <span>Sair</span>
         </button>
       </nav>
-
-      {user?.role === 'ADMIN' && (
-        <div className="p-4 border-t border-gray-200">
-          <Link href="/dashboard/admin">
-            <div className={`flex items-center justify-center space-x-3 px-4 py-3 rounded-xl font-semibold transition ${
-              isActivePrefix('/dashboard/admin')
-                ? 'bg-purple-600 text-white shadow-lg'
-                : 'bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 shadow-md hover:shadow-lg'
-            }`}>
-              <Shield size={20} />
-              <span>Painel Administrativo</span>
-            </div>
-          </Link>
-        </div>
-      )}
 
       <div className="p-4 border-t border-gray-200">
         <div className="text-xs text-gray-500 text-center">© 2026 Finora</div>
