@@ -95,7 +95,7 @@ export async function PATCH(
         checkoutCpfObrigatorio: body.checkoutCpfObrigatorio,
         checkoutTelObrigatorio: body.checkoutTelObrigatorio,
         checkoutPedirEndereco: body.checkoutPedirEndereco,
-        checkoutVersao: body.checkoutVersao,
+        ...(body.checkoutVersao !== undefined && { checkoutVersao: body.checkoutVersao }),
         checkoutPadBanner: body.checkoutPadBanner,
         checkoutPadLogoSuperior: body.checkoutPadLogoSuperior,
         checkoutPadLogoInferior: body.checkoutPadLogoInferior,
