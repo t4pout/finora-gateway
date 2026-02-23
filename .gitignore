@@ -53,3 +53,4 @@ node_modules
 public/uploads/*
 !public/uploads/.gitignore
 .vercel
+.env*.local

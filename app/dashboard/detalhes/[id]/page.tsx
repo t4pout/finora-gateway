@@ -152,7 +152,8 @@ const [formPixel, setFormPixel] = useState({
     checkoutMetodoPreferencial: 'PIX',
     checkoutCpfObrigatorio: true,
     checkoutTelObrigatorio: true,
-    checkoutPedirEndereco: true
+    checkoutPedirEndereco: true,
+    checkoutVersao: 'v1'
   });
 
   useEffect(() => {
@@ -618,7 +619,8 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
             checkoutMetodoPreferencial: data.plano.checkoutMetodoPreferencial || 'PIX',
             checkoutCpfObrigatorio: data.plano.checkoutCpfObrigatorio ? true : false,
             checkoutTelObrigatorio: data.plano.checkoutTelObrigatorio ? true : false,
-            checkoutPedirEndereco: data.plano.checkoutPedirEndereco ? true : false
+            checkoutPedirEndereco: data.plano.checkoutPedirEndereco ? true : false,
+            checkoutVersao: data.plano.checkoutVersao || 'v1'
           });
         } else {
           // PAD
@@ -681,6 +683,7 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
       dados.checkoutCpfObrigatorio = configPlano.checkoutCpfObrigatorio;
       dados.checkoutTelObrigatorio = configPlano.checkoutTelObrigatorio;
       dados.checkoutPedirEndereco = configPlano.checkoutPedirEndereco;
+      dados.checkoutVersao = configPlano.checkoutVersao || 'v1';
     } else {
       // PAD
       dados.checkoutPadBanner = configPlano.checkoutBanner;
@@ -1209,6 +1212,33 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
 </h3>
                     
                     <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-4">
+
+                      {modalConfig.tipo === 'NORMAL' && (
+                        <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                          <h4 className="font-bold text-gray-900 mb-3">🖥️ Versão do Checkout</h4>
+                          <div className="grid grid-cols-2 gap-3">
+                            <button
+                              type="button"
+                              onClick={() => setConfigPlano({...configPlano, checkoutVersao: 'v1'})}
+                              className={`p-4 rounded-xl border-2 text-left transition ${!configPlano.checkoutVersao || configPlano.checkoutVersao === 'v1' ? 'border-purple-600 bg-purple-50' : 'border-gray-200 hover:border-purple-300'}`}
+                            >
+                              <div className="text-2xl mb-2">🟣</div>
+                              <div className="font-bold text-gray-900">Versão 1</div>
+                              <div className="text-xs text-gray-500 mt-1">Layout clássico com card central e gradiente</div>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setConfigPlano({...configPlano, checkoutVersao: 'v2'})}
+                              className={`p-4 rounded-xl border-2 text-left transition ${configPlano.checkoutVersao === 'v2' ? 'border-green-600 bg-green-50' : 'border-gray-200 hover:border-green-300'}`}
+                            >
+                              <div className="text-2xl mb-2">🟢</div>
+                              <div className="font-bold text-gray-900">Versão 2</div>
+                              <div className="text-xs text-gray-500 mt-1">Layout moderno com steps numerados e fundo cinza</div>
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
                       <div className="space-y-4">
                         <h4 className="font-bold text-gray-900">🎨 Imagens</h4>
                         <div>

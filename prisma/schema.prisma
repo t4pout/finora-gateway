@@ -221,6 +221,7 @@ model PlanoOferta {
   checkoutPadIntervaloPop       Int?     @default(8)
   checkoutPadProvaSocialGenero  String?  @default("AMBOS")
   checkoutProvaSocialGenero  String?  @default("AMBOS")
+  checkoutVersao             String?  @default("v1")
   produtoId                  String
   createdAt                  DateTime @default(now())
   updatedAt                  DateTime @updatedAt
