@@ -115,8 +115,8 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
 
   const carregarPlano = async () => {
     try {
-      const res = await fetch(`/api/planos/link/${linkUnico}?includeOrderBumps=true`);
-      if (!res.ok) throw new Error('Plano não encontrado');
+      const res = await fetch('/api/planos/link/' + linkUnico + '?includeOrderBumps=true');
+      if (!res.ok) throw new Error('Plano nao encontrado');
       const data = await res.json();
       setPlano(data.plano);
       if (data.plano.checkoutCronometro && data.plano.checkoutTempoMinutos) {
@@ -128,7 +128,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
       setLoading(false);
     } catch (error) {
       console.error('Erro ao carregar plano:', error);
-      alert('Plano não encontrado');
+      alert('Plano nao encontrado');
       router.push('/');
     }
   };
@@ -138,7 +138,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
     if (pixelIniciado.current) return;
     const carregarPixels = async () => {
       try {
-        const res = await fetch(`/api/produtos/${plano.produto.id}`);
+        const res = await fetch('/api/produtos/' + plano.produto.id);
         if (!res.ok) return;
         const data = await res.json();
         const produto = data.produto;
@@ -184,9 +184,9 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
 
   useEffect(() => {
     if (!plano?.checkoutProvaSocial || !plano.checkoutIntervaloPop) return;
-    const nomesMasculinos = ['João', 'Pedro', 'Carlos', 'Rafael', 'Lucas', 'Felipe', 'Bruno', 'Marcelo'];
+    const nomesMasculinos = ['Joao', 'Pedro', 'Carlos', 'Rafael', 'Lucas', 'Felipe', 'Bruno', 'Marcelo'];
     const nomesFemininos = ['Maria', 'Ana', 'Julia', 'Beatriz', 'Camila', 'Larissa', 'Fernanda', 'Paula'];
-    const cidades = ['São Paulo', 'Rio de Janeiro', 'Belo Horizonte', 'Brasília', 'Curitiba', 'Porto Alegre'];
+    const cidades = ['Sao Paulo', 'Rio de Janeiro', 'Belo Horizonte', 'Brasilia', 'Curitiba', 'Porto Alegre'];
     const mostrarPopup = () => {
       let nome = '';
       if (plano.checkoutProvaSocialGenero === 'HOMENS') nome = nomesMasculinos[Math.floor(Math.random() * nomesMasculinos.length)];
@@ -196,7 +196,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
       const minutosAtras = Math.floor(Math.random() * 30) + 1;
       const popup = document.createElement('div');
       popup.className = 'popup-prova-social';
-      popup.innerHTML = `<div class="popup-conteudo"><div class="popup-icone">✓</div><div class="popup-texto"><p class="popup-nome">${nome} de ${cidade}</p><p class="popup-acao">Acabou de comprar</p><p class="popup-tempo">há ${minutosAtras} minutos</p></div></div>`;
+      popup.innerHTML = '<div class="popup-conteudo"><div class="popup-icone">&#10003;</div><div class="popup-texto"><p class="popup-nome">' + nome + ' de ' + cidade + '</p><p class="popup-acao">Acabou de comprar</p><p class="popup-tempo">ha ' + minutosAtras + ' minutos</p></div></div>';
       document.body.appendChild(popup);
       setTimeout(() => { popup.classList.add('popup-saindo'); setTimeout(() => popup.remove(), 300); }, 5000);
     };
@@ -207,13 +207,13 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
   const formatarTempo = (segundos: number) => {
     const mins = Math.floor(segundos / 60);
     const secs = segundos % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return mins.toString().padStart(2, '0') + ':' + secs.toString().padStart(2, '0');
   };
 
   const buscarCEP = async (cep: string) => {
     setBuscandoCep(true);
     try {
-      const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const res = await fetch('https://viacep.com.br/ws/' + cep + '/json/');
       const data = await res.json();
       if (!data.erro) {
         setFormData(prev => ({ ...prev, rua: data.logradouro || '', bairro: data.bairro || '', cidade: data.localidade || '', estado: data.uf || '' }));
@@ -239,11 +239,11 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
 
   const avancarEtapa1 = () => {
     if (!formData.nome || !formData.email || !formData.telefone) {
-      alert('Preencha todos os campos obrigatórios');
+      alert('Preencha todos os campos obrigatorios');
       return;
     }
     if (!formData.cpf || !validarCPF(formData.cpf)) {
-      alert('CPF inválido! Por favor, verifique o número digitado.');
+      alert('CPF invalido! Por favor, verifique o numero digitado.');
       return;
     }
     setEtapa(plano?.checkoutPedirEndereco ? 2 : 3);
@@ -251,11 +251,11 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
 
   const finalizarPedido = async () => {
     if (!formData.nome || !formData.email || !formData.telefone) {
-      alert('Preencha todos os campos obrigatórios');
+      alert('Preencha todos os campos obrigatorios');
       return;
     }
     if (!formData.cpf || !validarCPF(formData.cpf)) {
-      alert('CPF inválido! Por favor, verifique o número digitado.');
+      alert('CPF invalido! Por favor, verifique o numero digitado.');
       return;
     }
     setProcessando(true);
@@ -266,7 +266,6 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
         body: JSON.stringify({
           planoId: plano?.id,
           orderBumpIds: orderBumpsSelecionados,
-          compradorNome: formData.nome, compradorEmail: formData.email,
           compradorNome: formData.nome,
           compradorEmail: formData.email,
           compradorCpf: formData.cpf,
@@ -283,7 +282,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
       });
       if (res.ok) {
         const data = await res.json();
-        router.push(`/pedido/${data.vendaId}`);
+        router.push('/pedido/' + data.vendaId);
       } else {
         const errorData = await res.json();
         alert('Erro ao processar pedido: ' + (errorData.error || 'Erro desconhecido'));
@@ -301,10 +300,9 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
   }
 
   if (!plano) {
-    return <div className="loading-container"><p className="error-text">Plano não encontrado</p></div>;
+    return <div className="loading-container"><p className="error-text">Plano nao encontrado</p></div>;
   }
 
-  // ROTEAMENTO DE VERSÕES
   if (plano.checkoutVersao === 'v2') {
     return (
       <CheckoutV2Component
@@ -326,9 +324,13 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
   const corPrimaria = plano.checkoutCorPrimaria || '#8b5cf6';
   const corSecundaria = plano.checkoutCorSecundaria || '#667eea';
 
+  const totalComBumps = plano.preco + (plano.orderBumps
+    ? plano.orderBumps.filter(ob => orderBumpsSelecionados.includes(ob.orderBump.id)).reduce((acc, ob) => acc + ob.orderBump.preco, 0)
+    : 0);
+
   return (
     <>
-      <div className="checkout-container" style={{ background: `linear-gradient(135deg, ${corSecundaria} 0%, ${corPrimaria} 100%)` }}>
+      <div className="checkout-container" style={{ background: 'linear-gradient(135deg, ' + corSecundaria + ' 0%, ' + corPrimaria + ' 100%)' }}>
         <div className="checkout-wrapper">
           {plano.checkoutBanner && (
             <div className="banner-container">
@@ -342,7 +344,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
           )}
           {plano.checkoutCronometro && tempoRestante > 0 && (
             <div className="cronometro-urgencia">
-              <p className="cronometro-mensagem">{plano.checkoutMensagemUrgencia || '⏰ Oferta expira em:'}</p>
+              <p className="cronometro-mensagem">{plano.checkoutMensagemUrgencia || 'Oferta expira em:'}</p>
               <p className="cronometro-tempo">{formatarTempo(tempoRestante)}</p>
             </div>
           )}
@@ -353,17 +355,17 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
               <div className="plano-preco" style={{ color: corPrimaria }}>R$ {plano.preco.toFixed(2)}</div>
             </div>
             <div className="progress-bar">
-              <div className={`progress-step ${etapa >= 1 ? 'active' : ''}`}>
+              <div className={etapa >= 1 ? 'progress-step active' : 'progress-step'}>
                 <div className="step-circle">1</div>
                 <span className="step-label">Dados</span>
               </div>
-              <div className={`progress-line ${etapa >= 2 ? 'active' : ''}`}></div>
-              <div className={`progress-step ${etapa >= 2 ? 'active' : ''}`}>
+              <div className={etapa >= 2 ? 'progress-line active' : 'progress-line'}></div>
+              <div className={etapa >= 2 ? 'progress-step active' : 'progress-step'}>
                 <div className="step-circle">2</div>
-                <span className="step-label">Endereço</span>
+                <span className="step-label">Endereco</span>
               </div>
-              <div className={`progress-line ${etapa >= 3 ? 'active' : ''}`}></div>
-              <div className={`progress-step ${etapa >= 3 ? 'active' : ''}`}>
+              <div className={etapa >= 3 ? 'progress-line active' : 'progress-line'}></div>
+              <div className={etapa >= 3 ? 'progress-step active' : 'progress-step'}>
                 <div className="step-circle">3</div>
                 <span className="step-label">Pagamento</span>
               </div>
@@ -403,7 +405,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
                     </div>
                   </div>
                   <button onClick={avancarEtapa1} className="btn-primary" style={{ backgroundColor: corPrimaria }}>
-                    Continuar →
+                    Continuar
                   </button>
                 </div>
               )}
@@ -419,7 +421,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
                   </div>
                   <div className="form-row">
                     <div className="form-group">
-                      <label>Número *</label>
+                      <label>Numero *</label>
                       <input type="text" value={formData.numero} onChange={(e) => setFormData({ ...formData, numero: e.target.value })} placeholder="123" className="form-input" />
                     </div>
                     <div className="form-group">
@@ -442,8 +444,8 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
                     </div>
                   </div>
                   <div className="btn-row">
-                    <button onClick={() => setEtapa(1)} className="btn-secondary">← Voltar</button>
-                    <button onClick={() => setEtapa(3)} className="btn-primary" style={{ backgroundColor: corPrimaria }}>Continuar →</button>
+                    <button onClick={() => setEtapa(1)} className="btn-secondary">Voltar</button>
+                    <button onClick={() => setEtapa(3)} className="btn-primary" style={{ backgroundColor: corPrimaria }}>Continuar</button>
                   </div>
                 </div>
               )}
@@ -460,9 +462,12 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
                   )}
                   {plano.orderBumps && plano.orderBumps.length > 0 && (
                     <div className="ob-container">
-                      <p className="ob-titulo">⚡ Adicione ao seu pedido:</p>
+                      <p className="ob-titulo">Adicione ao seu pedido:</p>
                       {plano.orderBumps.map((ob) => (
-                        <label key={ob.orderBump.id} className={`ob-card ${orderBumpsSelecionados.includes(ob.orderBump.id) ? 'ob-card-ativo' : ''}`}>
+                        <label
+                          key={ob.orderBump.id}
+                          className={orderBumpsSelecionados.includes(ob.orderBump.id) ? 'ob-card ob-card-ativo' : 'ob-card'}
+                        >
                           <input
                             type="checkbox"
                             checked={orderBumpsSelecionados.includes(ob.orderBump.id)}
@@ -475,53 +480,71 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
                             }}
                             className="ob-checkbox"
                           />
-                          {ob.orderBump.imagem ? (
+                          {ob.orderBump.imagem && (
                             <img src={ob.orderBump.imagem} alt={ob.orderBump.titulo} className="ob-imagem" />
-                          ) : null}
+                          )}
                           <div className="ob-info">
                             <div className="ob-nome">{ob.orderBump.titulo}</div>
-                            {ob.orderBump.descricao ? <div className="ob-desc">{ob.orderBump.descricao}</div> : null}
-                          </div>}
-                          </div>}
+                            {ob.orderBump.descricao && (
+                              <div className="ob-desc">{ob.orderBump.descricao}</div>
+                            )}
                           </div>
                           <div className="ob-preco">+ R$ {ob.orderBump.preco.toFixed(2).replace('.', ',')}</div>
                         </label>
                       ))}
                       {orderBumpsSelecionados.length > 0 && (
                         <div className="ob-total">
-                          Total com adicionais: <strong>R$ {(plano.preco + plano.orderBumps.filter(ob => orderBumpsSelecionados.includes(ob.orderBump.id)).reduce((acc, ob) => acc + ob.orderBump.preco, 0)).toFixed(2).replace('.', ',')}</strong>
+                          Total com adicionais: <strong>R$ {totalComBumps.toFixed(2).replace('.', ',')}</strong>
                         </div>
                       )}
                     </div>
                   )}
-                  <p className="section-title">Escolha o método de pagamento:</p>
+                  <p className="section-title">Escolha o metodo de pagamento:</p>
                   <div className="payment-methods">
                     {plano.checkoutAceitaPix && (
-                      <button onClick={() => setFormData({ ...formData, metodoPagamento: 'PIX' })} className={`payment-card ${formData.metodoPagamento === 'PIX' ? 'active' : ''}`} style={formData.metodoPagamento === 'PIX' ? { borderColor: corPrimaria, backgroundColor: `${corPrimaria}15` } : {}}>
-                        <div className="payment-icon"><img src="https://logodownload.org/wp-content/uploads/2020/02/pix-bc-logo-0.png" alt="PIX" style={{ width: '80px', height: '80px', objectFit: 'contain' }} /></div>
+                      <button
+                        onClick={() => setFormData({ ...formData, metodoPagamento: 'PIX' })}
+                        className={formData.metodoPagamento === 'PIX' ? 'payment-card active' : 'payment-card'}
+                        style={formData.metodoPagamento === 'PIX' ? { borderColor: corPrimaria, backgroundColor: corPrimaria + '15' } : {}}
+                      >
+                        <div className="payment-icon">
+                          <img src="https://logodownload.org/wp-content/uploads/2020/02/pix-bc-logo-0.png" alt="PIX" style={{ width: '80px', height: '80px', objectFit: 'contain' }} />
+                        </div>
                         <div className="payment-name">PIX</div>
-                        <div className="payment-desc">Aprovação instantânea</div>
+                        <div className="payment-desc">Aprovacao instantanea</div>
                       </button>
                     )}
                     {plano.checkoutAceitaCartao && (
-                      <button onClick={() => setFormData({ ...formData, metodoPagamento: 'CARTAO' })} className={`payment-card ${formData.metodoPagamento === 'CARTAO' ? 'active' : ''}`} style={formData.metodoPagamento === 'CARTAO' ? { borderColor: corPrimaria, backgroundColor: `${corPrimaria}15` } : {}}>
-                        <div className="payment-icon">💳</div>
-                        <div className="payment-name">Cartão</div>
-                        <div className="payment-desc">Crédito ou débito</div>
+                      <button
+                        onClick={() => setFormData({ ...formData, metodoPagamento: 'CARTAO' })}
+                        className={formData.metodoPagamento === 'CARTAO' ? 'payment-card active' : 'payment-card'}
+                        style={formData.metodoPagamento === 'CARTAO' ? { borderColor: corPrimaria, backgroundColor: corPrimaria + '15' } : {}}
+                      >
+                        <div className="payment-icon">&#128179;</div>
+                        <div className="payment-name">Cartao</div>
+                        <div className="payment-desc">Credito ou debito</div>
                       </button>
                     )}
                     {plano.checkoutAceitaBoleto && (
-                      <button onClick={() => setFormData({ ...formData, metodoPagamento: 'BOLETO' })} className={`payment-card ${formData.metodoPagamento === 'BOLETO' ? 'active' : ''}`} style={formData.metodoPagamento === 'BOLETO' ? { borderColor: corPrimaria, backgroundColor: `${corPrimaria}15` } : {}}>
-                        <div className="payment-icon">📄</div>
+                      <button
+                        onClick={() => setFormData({ ...formData, metodoPagamento: 'BOLETO' })}
+                        className={formData.metodoPagamento === 'BOLETO' ? 'payment-card active' : 'payment-card'}
+                        style={formData.metodoPagamento === 'BOLETO' ? { borderColor: corPrimaria, backgroundColor: corPrimaria + '15' } : {}}
+                      >
+                        <div className="payment-icon">&#128196;</div>
                         <div className="payment-name">Boleto</div>
-                        <div className="payment-desc">Pague em até 3 dias</div>
+                        <div className="payment-desc">Pague em ate 3 dias</div>
                       </button>
                     )}
                   </div>
                   <div className="btn-row">
-                    <button onClick={() => setEtapa(plano.checkoutPedirEndereco ? 2 : 1)} className="btn-secondary">← Voltar</button>
+                    <button onClick={() => setEtapa(plano.checkoutPedirEndereco ? 2 : 1)} className="btn-secondary">Voltar</button>
                     <button onClick={finalizarPedido} disabled={processando} className="btn-primary btn-finalizar" style={{ backgroundColor: corPrimaria }}>
-                      {processando ? (<><span className="spinner-small"></span> Processando...</>) : (<>🔒 Finalizar Pedido</>)}
+                      {processando ? (
+                        <span className="spinner-small"></span>
+                      ) : (
+                        'Finalizar Pedido'
+                      )}
                     </button>
                   </div>
                 </div>
@@ -589,7 +612,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
         .btn-secondary { padding: 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 16px; font-weight: 600; color: #6b7280; background: white; cursor: pointer; transition: all 0.3s; }
         .btn-secondary:hover { border-color: #d1d5db; background: #f9fafb; }
         .btn-finalizar { font-size: 18px; padding: 18px; }
-        .spinner-small { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        .spinner-small { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
         .logo-inferior { text-align: center; margin-top: 32px; opacity: 0.7; }
         .logo-inferior img { height: 48px; }
         .loading-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
