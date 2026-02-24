@@ -671,7 +671,7 @@ const exportarParaExcel = async () => {
                     {vendaSelecionada.orderBumpsNomes.map((nome, i) => (
                       <div key={i} className="flex items-center justify-between bg-white rounded-lg px-4 py-2 border border-purple-200">
                         <span className="text-gray-900 font-medium">{nome}</span>
-                        <span className="text-purple-600">✅</span>
+                        <span className="text-purple-600 text-lg">+</span>
                       </div>
                     ))}
                   </div>
