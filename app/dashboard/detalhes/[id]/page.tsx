@@ -598,16 +598,13 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
 
  const carregarOrderBumps = async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) return;
-      const res = await fetch('/api/order-bumps', {
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
+      const userData = localStorage.getItem('user');
+      if (!userData) return;
+      const user = JSON.parse(userData);
+      const res = await fetch(`/api/order-bumps?userId=${user.id}`);
       if (res.ok) {
         const data = await res.json();
         setOrderBumps(data.orderBumps || []);
-      } else {
-        console.error('Erro order bumps:', res.status, await res.text());
       }
     } catch (e) { console.error(e); }
   };
@@ -1625,13 +1622,14 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
                         <button onClick={() => setModalOrderBump({ aberto: false, ob: null })} className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold">Cancelar</button>
                         <button onClick={async () => {
                           if (!formOrderBump.titulo || !formOrderBump.preco) { alert('Preencha título e preço'); return; }
-                          const token = localStorage.getItem('token');
+                          const userData = localStorage.getItem('user');
+                          const userObj = userData ? JSON.parse(userData) : {};
                           const url = modalOrderBump.ob ? `/api/order-bumps/${modalOrderBump.ob.id}` : '/api/order-bumps';
                           const method = modalOrderBump.ob ? 'PATCH' : 'POST';
                           await fetch(url, {
                             method,
-                            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-                            body: JSON.stringify(formOrderBump)
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ ...formOrderBump, userId: userObj.id })
                           });
                           alert(modalOrderBump.ob ? 'Atualizado!' : 'Criado!');
                           setModalOrderBump({ aberto: false, ob: null });
