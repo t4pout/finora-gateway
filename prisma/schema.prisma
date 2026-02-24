@@ -269,8 +269,11 @@ model Venda {
   bairro          String?
   cidade          String?
   estado          String?
-  nomePlano       String?
-  produtoId       String
+  nomePlano          String?
+  orderBumpsIds      String[]
+  orderBumpsNomes    String[]
+  orderBumpsValor    Float?   @default(0)
+  produtoId          String
   vendedorId      String
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt

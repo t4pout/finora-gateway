@@ -26,6 +26,8 @@ interface Venda {
   pixQrCode?: string;
   pixCopiaECola?: string;
   boletoUrl?: string;
+  orderBumpsNomes?: string[];
+  orderBumpsValor?: number;
   createdAt: string;
   produto: {
     nome: string;
@@ -634,8 +636,12 @@ const exportarParaExcel = async () => {
                   <div>
                     <label className="text-sm text-gray-600">Valor</label>
                     <p className="text-2xl font-bold text-gray-900">R$ {vendaSelecionada.valor.toFixed(2).replace('.', ',')}</p>
+                    {vendaSelecionada.orderBumpsValor && vendaSelecionada.orderBumpsValor > 0 ? (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Produto: R$ {(vendaSelecionada.valor - vendaSelecionada.orderBumpsValor).toFixed(2).replace('.', ',')} + Order Bumps: R$ {vendaSelecionada.orderBumpsValor.toFixed(2).replace('.', ',')}
+                      </p>
+                    ) : null}
                   </div>
-                  <div>
                     <label className="text-sm text-gray-600">Método de Pagamento</label>
                     <p className="font-semibold text-gray-900">{vendaSelecionada.metodoPagamento}</p>
                   </div>
@@ -657,6 +663,24 @@ const exportarParaExcel = async () => {
                   </div>
                 </div>
               </div>
+
+              {vendaSelecionada.orderBumpsNomes && vendaSelecionada.orderBumpsNomes.length > 0 && (
+                <div className="bg-purple-50 rounded-xl p-4">
+                  <h3 className="font-semibold text-purple-900 mb-3">⚡ Order Bumps Adicionados</h3>
+                  <div className="space-y-2">
+                    {vendaSelecionada.orderBumpsNomes.map((nome, i) => (
+                      <div key={i} className="flex items-center justify-between bg-white rounded-lg px-4 py-2 border border-purple-200">
+                        <span className="text-gray-900 font-medium">{nome}</span>
+                        <span className="text-purple-600">✅</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-purple-200 flex justify-between">
+                    <span className="font-semibold text-purple-900">Total Order Bumps:</span>
+                    <span className="font-bold text-purple-700">R$ {vendaSelecionada.orderBumpsValor?.toFixed(2).replace('.', ',')}</span>
+                  </div>
+                </div>
+              )}
 
               {vendaSelecionada.boletoUrl && (
                 <div>

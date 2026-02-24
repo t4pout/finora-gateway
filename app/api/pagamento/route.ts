@@ -23,11 +23,16 @@ export async function POST(request: NextRequest) {
 
     // Calcular valor total com order bumps
     let valorTotal = plano.preco;
+    let orderBumpsNomes: string[] = [];
+    let orderBumpsValor = 0;
+
     if (orderBumpIds && orderBumpIds.length > 0) {
       const obs = await prisma.orderBump.findMany({
         where: { id: { in: orderBumpIds } }
       });
-      valorTotal += obs.reduce((acc: number, ob: any) => acc + ob.preco, 0);
+      orderBumpsValor = obs.reduce((acc: number, ob: any) => acc + ob.preco, 0);
+      orderBumpsNomes = obs.map((ob: any) => `${ob.titulo} (R$ ${ob.preco.toFixed(2).replace('.', ',')})`);
+      valorTotal += orderBumpsValor;
     }
 
     const configPix = await prisma.configuracaoGateway.findUnique({ where: { metodo: 'PIX' } });
@@ -50,6 +55,9 @@ export async function POST(request: NextRequest) {
         compradorTel,
         cep, rua, numero, complemento, bairro, cidade, estado,
         nomePlano: plano.nome,
+        orderBumpsIds: orderBumpIds || [],
+        orderBumpsNomes,
+        orderBumpsValor,
         produtoId: plano.produtoId,
         vendedorId: plano.produto.userId
       }
