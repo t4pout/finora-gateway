@@ -666,18 +666,21 @@ const exportarParaExcel = async () => {
 
               {vendaSelecionada.orderBumpsNomes && vendaSelecionada.orderBumpsNomes.length > 0 && (
                 <div className="bg-purple-50 rounded-xl p-4">
-                  <h3 className="font-semibold text-purple-900 mb-3">⚡ Order Bumps Adicionados</h3>
+                  <h3 className="font-semibold text-purple-900 mb-3">Order Bumps Adicionados</h3>
                   <div className="space-y-2">
                     {vendaSelecionada.orderBumpsNomes.map((nome, i) => (
                       <div key={i} className="flex items-center justify-between bg-white rounded-lg px-4 py-2 border border-purple-200">
                         <span className="text-gray-900 font-medium">{nome}</span>
-                        <span className="text-purple-600 text-lg">+</span>
                       </div>
                     ))}
                   </div>
                   <div className="mt-3 pt-3 border-t border-purple-200 flex justify-between">
                     <span className="font-semibold text-purple-900">Total Order Bumps:</span>
-                    <span className="font-bold text-purple-700">R$ {vendaSelecionada.orderBumpsValor ? vendaSelecionada.orderBumpsValor.toFixed(2).replace('.', ',') : '0,00'}</span>
+                    <span className="font-bold text-purple-700">
+                      {vendaSelecionada.orderBumpsValor
+                        ? "R$ " + vendaSelecionada.orderBumpsValor.toFixed(2).replace(".", ",")
+                        : "R$ 0,00"}
+                    </span>
                   </div>
                 </div>
               )}
