@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getPicPayToken } from '@/lib/picpay-token';
+import { enviarEmailPedidoCriado } from '@/lib/email';
 
 const PAGGPIX_TOKEN = process.env.PAGGPIX_TOKEN;
 const PAGGPIX_API = 'https://public-api.paggpix.com';
@@ -253,6 +254,18 @@ const picpayBody = {
         return NextResponse.json({ error: 'Erro ao gerar boleto', details: result.status_detail }, { status: 500 });
       }
     }
+   // Email para o comprador
+    try {
+      await enviarEmailPedidoCriado({
+        compradorNome,
+        compradorEmail,
+        produtoNome: plano.produto.nome,
+        planoNome: plano.nome,
+        valor: plano.preco,
+        metodoPagamento: metodoPagamento || 'PIX',
+        pedidoId: venda.id
+      });
+    } catch (e) { console.error('Erro ao enviar email pedido criado:', e); }
 
     // Notificações Telegram
     const produto = await prisma.produto.findUnique({
