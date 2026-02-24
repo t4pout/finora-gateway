@@ -358,8 +358,7 @@ const carregarPlanos = async () => {
       alert('❌ Erro ao salvar');
     }
   } catch (error) {
-    console.error('Erro
- ao salvar:', error);
+    console.error('Erro ao salvar:', error);
     alert('❌ Erro ao salvar');
   }
 };
