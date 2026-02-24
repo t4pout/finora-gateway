@@ -29,6 +29,7 @@ interface PlanoOferta {
   checkoutCpfObrigatorio?: boolean;
   checkoutTelObrigatorio?: boolean;
   checkoutPedirEndereco?: boolean;
+  orderBumps?: { orderBump: { id: string; titulo: string; descricao: string | null; preco: number } }[];
   produto: {
     id: string;
     nome: string;
@@ -49,6 +50,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
   const [tempoRestante, setTempoRestante] = useState(0);
   const [buscandoCep, setBuscandoCep] = useState(false);
   const [processando, setProcessando] = useState(false);
+  const [orderBumpsSelecionados, setOrderBumpsSelecionados] = useState<string[]>([]);
 
   const [formData, setFormData] = useState({
     nome: '',
@@ -113,7 +115,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
 
   const carregarPlano = async () => {
     try {
-      const res = await fetch(`/api/planos/link/${linkUnico}`);
+      const res = await fetch(`/api/planos/link/${linkUnico}?includeOrderBumps=true`);
       if (!res.ok) throw new Error('Plano não encontrado');
       const data = await res.json();
       setPlano(data.plano);
@@ -263,6 +265,8 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           planoId: plano?.id,
+          orderBumpIds: orderBumpsSelecionados,
+          compradorNome: formData.nome, compradorEmail: formData.email,
           compradorNome: formData.nome,
           compradorEmail: formData.email,
           compradorCpf: formData.cpf,
@@ -454,6 +458,37 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
                       </div>
                     </div>
                   )}
+                  {plano.orderBumps && plano.orderBumps.length > 0 && (
+                    <div className="ob-container">
+                      <p className="ob-titulo">⚡ Adicione ao seu pedido:</p>
+                      {plano.orderBumps.map((ob) => (
+                        <label key={ob.orderBump.id} className={`ob-card ${orderBumpsSelecionados.includes(ob.orderBump.id) ? 'ob-card-ativo' : ''}`}>
+                          <input
+                            type="checkbox"
+                            checked={orderBumpsSelecionados.includes(ob.orderBump.id)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setOrderBumpsSelecionados([...orderBumpsSelecionados, ob.orderBump.id]);
+                              } else {
+                                setOrderBumpsSelecionados(orderBumpsSelecionados.filter(id => id !== ob.orderBump.id));
+                              }
+                            }}
+                            className="ob-checkbox"
+                          />
+                          <div className="ob-info">
+                            <div className="ob-nome">{ob.orderBump.titulo}</div>
+                            {ob.orderBump.descricao && <div className="ob-desc">{ob.orderBump.descricao}</div>}
+                          </div>
+                          <div className="ob-preco">+ R$ {ob.orderBump.preco.toFixed(2).replace('.', ',')}</div>
+                        </label>
+                      ))}
+                      {orderBumpsSelecionados.length > 0 && (
+                        <div className="ob-total">
+                          Total com adicionais: <strong>R$ {(plano.preco + plano.orderBumps.filter(ob => orderBumpsSelecionados.includes(ob.orderBump.id)).reduce((acc, ob) => acc + ob.orderBump.preco, 0)).toFixed(2).replace('.', ',')}</strong>
+                        </div>
+                      )}
+                    </div>
+                  )}
                   <p className="section-title">Escolha o método de pagamento:</p>
                   <div className="payment-methods">
                     {plano.checkoutAceitaPix && (
@@ -566,6 +601,17 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
         .popup-nome { font-weight: 600; color: #111827; margin-bottom: 4px; }
         .popup-acao { font-size: 14px; color: #6b7280; margin-bottom: 2px; }
         .popup-tempo { font-size: 12px; color: #9ca3af; }
+        .ob-container { display: flex; flex-direction: column; gap: 10px; margin-bottom: 8px; }
+        .ob-titulo { font-size: 16px; font-weight: 700; color: #111827; margin-bottom: 4px; }
+        .ob-card { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border: 2px solid #e5e7eb; border-radius: 12px; cursor: pointer; transition: all 0.2s; background: white; }
+        .ob-card:hover { border-color: #8b5cf6; }
+        .ob-card-ativo { border-color: #8b5cf6; background: #f5f3ff; }
+        .ob-checkbox { width: 20px; height: 20px; flex-shrink: 0; accent-color: #8b5cf6; cursor: pointer; }
+        .ob-info { flex: 1; }
+        .ob-nome { font-weight: 700; color: #111827; font-size: 15px; }
+        .ob-desc { font-size: 13px; color: #6b7280; margin-top: 2px; }
+        .ob-preco { font-weight: 700; color: #8b5cf6; font-size: 16px; white-space: nowrap; }
+        .ob-total { padding: 12px 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; color: #166534; font-size: 15px; text-align: center; }
         @media (max-width: 640px) {
           .checkout-container { padding: 12px; }
           .card-header { padding: 24px 20px; }

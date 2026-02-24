@@ -23,7 +23,7 @@ export async function GET(
 
     console.log('🔍 Buscando plano por link único:', linkUnico);
 
-    const plano = await prisma.planoOferta.findUnique({
+     const plano = await prisma.planoOferta.findUnique({
       where: { linkUnico },
       include: {
         produto: {
@@ -32,6 +32,11 @@ export async function GET(
             nome: true,
             descricao: true,
             imagem: true
+          }
+        },
+        orderBumps: {
+          include: {
+            orderBump: true
           }
         }
       }

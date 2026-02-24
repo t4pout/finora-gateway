@@ -39,7 +39,8 @@ model User {
   transacoes            Transacao[]
   planoTaxa             PlanoTaxa?             @relation(fields: [planoTaxaId], references: [id])
   vendas                Venda[]                @relation("VendedorVendas")
-  carteiras   Carteira[]  @relation("CarteiraUsuario")
+  carteiras             Carteira[]             @relation("CarteiraUsuario")
+  orderBumps            OrderBump[]
   pedidosPAD            PedidoPAD[]
   @@map("User")
 }
@@ -222,6 +223,7 @@ model PlanoOferta {
   checkoutPadProvaSocialGenero  String?  @default("AMBOS")
   checkoutProvaSocialGenero  String?  @default("AMBOS")
   checkoutVersao             String?  @default("v1")
+  orderBumps                 PlanoOrderBump[]
   produtoId                  String
   createdAt                  DateTime @default(now())
   updatedAt                  DateTime @updatedAt
@@ -454,6 +456,31 @@ model PixelConversao {
   produto           Produto  @relation(fields: [produtoId], references: [id])
   
   @@map("PixelConversao")
+}
+ model OrderBump {
+  id          String   @id @default(cuid())
+  userId      String
+  titulo      String
+  descricao   String?
+  preco       Float
+  imagem      String?
+  ativo       Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planos      PlanoOrderBump[]
+
+  @@map("OrderBump")
+}
+
+model PlanoOrderBump {
+  planoId     String
+  orderBumpId String
+  plano       PlanoOferta @relation(fields: [planoId], references: [id], onDelete: Cascade)
+  orderBump   OrderBump   @relation(fields: [orderBumpId], references: [id], onDelete: Cascade)
+
+  @@id([planoId, orderBumpId])
+  @@map("PlanoOrderBump")
 }
 
 

@@ -115,6 +115,10 @@ const [formPixel, setFormPixel] = useState({
 });
   const [modalPlano, setModalPlano] = useState<{ aberto: boolean; plano: any }>({ aberto: false, plano: null });
   const [modalConfig, setModalConfig] = useState<{ aberto: boolean; planoId: string | null; tipo: 'NORMAL' | 'PAD' }>({ aberto: false, planoId: null, tipo: 'NORMAL' });
+const [orderBumps, setOrderBumps] = useState<any[]>([]);
+const [modalOrderBump, setModalOrderBump] = useState<{ aberto: boolean; ob: any }>({ aberto: false, ob: null });
+const [formOrderBump, setFormOrderBump] = useState({ titulo: '', descricao: '', preco: '' });
+const [orderBumpsSelecionados, setOrderBumpsSelecionados] = useState<string[]>([]);
     const carregarPixels = async () => {
   try {
     console.log('🔍 Carregando pixels para produto:', produtoId);
@@ -159,6 +163,9 @@ const [formPixel, setFormPixel] = useState({
   useEffect(() => {
     if (modalConfig.aberto && modalConfig.planoId) {
       carregarConfigPlano(modalConfig.planoId);
+      if (modalConfig.tipo === 'NORMAL') {
+        carregarOrderBumpsDePlano(modalConfig.planoId);
+      }
     }
   }, [modalConfig]);
 
@@ -184,6 +191,7 @@ const [formPixel, setFormPixel] = useState({
     carregarConfigCheckout();
     carregarPlanos();
     carregarPixels();
+    carregarOrderBumps();
   }, [produtoId, router]);
 
   const carregarDados = async () => {
@@ -350,7 +358,8 @@ const carregarPlanos = async () => {
       alert('❌ Erro ao salvar');
     }
   } catch (error) {
-    console.error('Erro ao salvar:', error);
+    console.error('Erro
+ ao salvar:', error);
     alert('❌ Erro ao salvar');
   }
 };
@@ -588,6 +597,32 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
   }
 };
 
+  const carregarOrderBumps = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/order-bumps', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setOrderBumps(data.orderBumps || []);
+      }
+    } catch (e) { console.error(e); }
+  };
+
+  const carregarOrderBumpsDePlano = async (planoId: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`/api/planos/${planoId}/order-bumps`, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setOrderBumpsSelecionados(data.orderBumpIds || []);
+      }
+    } catch (e) { console.error(e); }
+  };
+
   const carregarConfigPlano = async (planoId: string) => {
   try {
     const token = localStorage.getItem('token');
@@ -707,6 +742,14 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
       },
       body: JSON.stringify(dados)
     });
+
+    if (modalConfig.tipo === 'NORMAL') {
+      await fetch(`/api/planos/${modalConfig.planoId}/order-bumps`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ orderBumpIds: orderBumpsSelecionados })
+      });
+    }
     
     alert(`✅ Configurações do Checkout ${modalConfig.tipo === 'NORMAL' ? 'Normal' : 'PAD'} salvas!`);
     setModalConfig({ aberto: false, planoId: null, tipo: 'NORMAL' });
@@ -786,6 +829,7 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
               <button onClick={() => setAbaSelecionada('campanhas')} className={`py-4 px-2 border-b-2 font-semibold transition ${abaSelecionada === 'campanhas' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>📢 Campanhas</button>
               <button onClick={() => setAbaSelecionada('checkout')} className={`py-4 px-2 border-b-2 font-semibold transition ${abaSelecionada === 'checkout' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>🎨 Checkout</button>
                <button onClick={() => setAbaSelecionada('pixels')} className={`py-4 px-2 border-b-2 font-semibold transition ${abaSelecionada === 'pixels' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>📊 Pixels</button>
+               <button onClick={() => setAbaSelecionada('orderbumps')} className={`py-4 px-2 border-b-2 font-semibold transition ${abaSelecionada === 'orderbumps' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>⚡ Order Bumps</button>
             </div>
           </div>
         </div>
@@ -1340,6 +1384,41 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
                       </div>
                     </div>
 
+                    {modalConfig.tipo === 'NORMAL' && (
+                        <div className="pt-4 border-t">
+                          <h4 className="font-bold text-gray-900 mb-4">⚡ Order Bumps</h4>
+                          {orderBumps.length === 0 ? (
+                            <div className="p-4 bg-gray-50 rounded-lg text-center text-gray-600 text-sm">
+                              Nenhum order bump cadastrado. Crie na aba ⚡ Order Bumps.
+                            </div>
+                          ) : (
+                            <div className="space-y-2">
+                              {orderBumps.map((ob) => (
+                                <label key={ob.id} className="flex items-center space-x-3 p-4 border-2 rounded-xl cursor-pointer hover:border-purple-300 transition">
+                                  <input
+                                    type="checkbox"
+                                    checked={orderBumpsSelecionados.includes(ob.id)}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        setOrderBumpsSelecionados([...orderBumpsSelecionados, ob.id]);
+                                      } else {
+                                        setOrderBumpsSelecionados(orderBumpsSelecionados.filter(id => id !== ob.id));
+                                      }
+                                    }}
+                                    className="w-5 h-5"
+                                  />
+                                  <div className="flex-1">
+                                    <div className="font-semibold text-gray-900">{ob.titulo}</div>
+                                    {ob.descricao && <div className="text-sm text-gray-600">{ob.descricao}</div>}
+                                  </div>
+                                  <div className="text-purple-600 font-bold">+ R$ {ob.preco.toFixed(2).replace('.', ',')}</div>
+                                </label>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
                     <div className="flex gap-3 pt-6 border-t mt-6">
                       <button type="button" onClick={() => setModalConfig({ aberto: false, planoId: null })} className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition">
                         Cancelar
@@ -1471,8 +1550,102 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
     </div>
   </div>
 )}
-{/* MODAL CRIAR/EDITAR PIXEL */}
-{modalPixel.aberto && (
+{abaSelecionada === 'orderbumps' && (
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-white rounded-xl border border-gray-200 p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">⚡ Order Bumps</h2>
+                    <p className="text-gray-600">Crie adicionais para aumentar o ticket médio</p>
+                  </div>
+                  <button onClick={() => { setFormOrderBump({ titulo: '', descricao: '', preco: '' }); setModalOrderBump({ aberto: true, ob: null }); }} className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition flex items-center space-x-2">
+                    <Plus size={20} /><span>Novo Order Bump</span>
+                  </button>
+                </div>
+
+                {orderBumps.length === 0 ? (
+                  <div className="text-center py-16 bg-gray-50 rounded-xl">
+                    <div className="text-6xl mb-4">⚡</div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">Nenhum order bump cadastrado</h3>
+                    <p className="text-gray-600 mb-6">Crie adicionais como frete rápido, garantia estendida, produtos complementares</p>
+                    <button onClick={() => setModalOrderBump({ aberto: true, ob: null })} className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">
+                      Criar Primeiro Order Bump
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {orderBumps.map((ob) => (
+                      <div key={ob.id} className="border-2 border-gray-200 rounded-xl p-6 hover:border-purple-400 transition">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <h3 className="text-lg font-bold text-gray-900">{ob.titulo}</h3>
+                            {ob.descricao && <p className="text-gray-600 text-sm mt-1">{ob.descricao}</p>}
+                            <div className="text-xl font-bold text-purple-600 mt-2">+ R$ {ob.preco.toFixed(2).replace('.', ',')}</div>
+                          </div>
+                          <div className="flex gap-2">
+                            <button onClick={() => { setFormOrderBump({ titulo: ob.titulo, descricao: ob.descricao || '', preco: ob.preco.toString() }); setModalOrderBump({ aberto: true, ob }); }} className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                              <Edit size={16} />
+                            </button>
+                            <button onClick={async () => {
+                              if (!confirm('Excluir este order bump?')) return;
+                              const token = localStorage.getItem('token');
+                              await fetch(`/api/order-bumps/${ob.id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } });
+                              carregarOrderBumps();
+                            }} className="px-4 py-2 border-2 border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition">
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {modalOrderBump.aberto && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setModalOrderBump({ aberto: false, ob: null })}>
+                  <div className="bg-white rounded-2xl p-8 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-6">{modalOrderBump.ob ? 'Editar Order Bump' : 'Novo Order Bump'}</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-900 mb-2">Título *</label>
+                        <input type="text" value={formOrderBump.titulo} onChange={(e) => setFormOrderBump({...formOrderBump, titulo: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="Ex: Frete Rápido, Garantia Estendida..." />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-900 mb-2">Descrição</label>
+                        <textarea rows={3} value={formOrderBump.descricao} onChange={(e) => setFormOrderBump({...formOrderBump, descricao: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="Descreva o adicional..." />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-900 mb-2">Preço (R$) *</label>
+                        <input type="number" step="0.01" value={formOrderBump.preco} onChange={(e) => setFormOrderBump({...formOrderBump, preco: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="0.00" />
+                      </div>
+                      <div className="flex gap-3 pt-4">
+                        <button onClick={() => setModalOrderBump({ aberto: false, ob: null })} className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold">Cancelar</button>
+                        <button onClick={async () => {
+                          if (!formOrderBump.titulo || !formOrderBump.preco) { alert('Preencha título e preço'); return; }
+                          const token = localStorage.getItem('token');
+                          const url = modalOrderBump.ob ? `/api/order-bumps/${modalOrderBump.ob.id}` : '/api/order-bumps';
+                          const method = modalOrderBump.ob ? 'PATCH' : 'POST';
+                          await fetch(url, {
+                            method,
+                            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                            body: JSON.stringify(formOrderBump)
+                          });
+                          alert(modalOrderBump.ob ? 'Atualizado!' : 'Criado!');
+                          setModalOrderBump({ aberto: false, ob: null });
+                          carregarOrderBumps();
+                        }} className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">
+                          {modalOrderBump.ob ? 'Salvar' : 'Criar'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+{/* MODAL CRIAR/EDITAR PIXEL */}{modalPixel.aberto && (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto" onClick={() => setModalPixel({ aberto: false, pixel: null })}>
     <div className="bg-white rounded-2xl p-8 max-w-2xl w-full my-8" onClick={(e) => e.stopPropagation()}>
       <h3 className="text-2xl font-bold text-gray-900 mb-6">
