@@ -596,15 +596,18 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
   }
 };
 
-  const carregarOrderBumps = async () => {
+ const carregarOrderBumps = async () => {
     try {
       const token = localStorage.getItem('token');
+      if (!token) return;
       const res = await fetch('/api/order-bumps', {
         headers: { 'Authorization': 'Bearer ' + token }
       });
       if (res.ok) {
         const data = await res.json();
         setOrderBumps(data.orderBumps || []);
+      } else {
+        console.error('Erro order bumps:', res.status, await res.text());
       }
     } catch (e) { console.error(e); }
   };
