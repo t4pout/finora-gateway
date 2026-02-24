@@ -677,7 +677,7 @@ const exportarParaExcel = async () => {
                   </div>
                   <div className="mt-3 pt-3 border-t border-purple-200 flex justify-between">
                     <span className="font-semibold text-purple-900">Total Order Bumps:</span>
-                    <span className="font-bold text-purple-700">R$ {vendaSelecionada.orderBumpsValor?.toFixed(2).replace('.', ',')}</span>
+                    <span className="font-bold text-purple-700">R$ {vendaSelecionada.orderBumpsValor ? vendaSelecionada.orderBumpsValor.toFixed(2).replace('.', ',') : '0,00'}</span>
                   </div>
                 </div>
               )}
