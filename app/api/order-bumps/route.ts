@@ -7,7 +7,8 @@ function getUserId(request: NextRequest) {
   if (!token) return null;
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
-    return decoded.userId || decoded.id;
+    console.log('🔍 JWT decoded:', JSON.stringify(decoded));
+    return decoded.userId || decoded.id || decoded.sub;
   } catch { return null; }
 }
 
