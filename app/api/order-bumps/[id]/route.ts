@@ -11,39 +11,40 @@ function getUserId(request: NextRequest) {
   } catch { return null; }
 }
 
-export async function GET(request: NextRequest) {
+export async function PATCH(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     const userId = getUserId(request);
     if (!userId) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
 
-    const orderBumps = await prisma.orderBump.findMany({
-      where: { userId, ativo: true },
-      orderBy: { createdAt: 'desc' }
+    const { id } = await context.params;
+    const body = await request.json();
+
+    await prisma.orderBump.updateMany({
+      where: { id, userId },
+      data: {
+        titulo: body.titulo,
+        descricao: body.descricao,
+        preco: body.preco ? parseFloat(body.preco) : undefined,
+        imagem: body.imagem,
+        ativo: body.ativo
+      }
     });
 
-    return NextResponse.json({ orderBumps });
+    return NextResponse.json({ success: true });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     const userId = getUserId(request);
     if (!userId) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
 
-    const body = await request.json();
-    const { titulo, descricao, preco, imagem } = body;
+    const { id } = await context.params;
+    await prisma.orderBump.deleteMany({ where: { id, userId } });
 
-    if (!titulo || !preco) {
-      return NextResponse.json({ error: 'Título e preço são obrigatórios' }, { status: 400 });
-    }
-
-    const orderBump = await prisma.orderBump.create({
-      data: { userId, titulo, descricao, preco: parseFloat(preco), imagem }
-    });
-
-    return NextResponse.json({ orderBump });
+    return NextResponse.json({ success: true });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
