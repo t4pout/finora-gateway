@@ -10,7 +10,7 @@ const PICPAY_API = 'https://checkout-api.picpay.com';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { planoId, compradorNome, compradorEmail, compradorCpf, compradorTel, cep, rua, numero, complemento, bairro, cidade, estado, metodoPagamento } = body;
+    const { planoId, compradorNome, compradorEmail, compradorCpf, compradorTel, cep, rua, numero, complemento, bairro, cidade, estado, metodoPagamento, orderBumpIds } = body;
 
     const plano = await prisma.planoOferta.findUnique({
       where: { id: planoId },
@@ -19,6 +19,15 @@ export async function POST(request: NextRequest) {
 
     if (!plano || !plano.ativo) {
       return NextResponse.json({ error: 'Plano não encontrado ou inativo' }, { status: 404 });
+    }
+
+    // Calcular valor total com order bumps
+    let valorTotal = plano.preco;
+    if (orderBumpIds && orderBumpIds.length > 0) {
+      const obs = await prisma.orderBump.findMany({
+        where: { id: { in: orderBumpIds } }
+      });
+      valorTotal += obs.reduce((acc: number, ob: any) => acc + ob.preco, 0);
     }
 
     const configPix = await prisma.configuracaoGateway.findUnique({ where: { metodo: 'PIX' } });
@@ -32,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     const venda = await prisma.venda.create({
       data: {
-        valor: plano.preco,
+        valor: valorTotal,
         status: 'PENDENTE',
         metodoPagamento: metodoPagamento || 'PIX',
         compradorNome,
@@ -139,7 +148,7 @@ const picpayBody = {
 
         const result = await paymentMP.create({
           body: {
-            transaction_amount: plano.preco,
+            transaction_amount: valorTotal,
             description: `${plano.nome} - ${plano.produto.nome}`,
             payment_method_id: 'pix',
             payer: {
@@ -176,7 +185,7 @@ const picpayBody = {
         // PaggPix (padrão)
         const paggpixData = {
           cnpj: "35254464000109",
-          value: plano.preco.toFixed(2),
+          value: valorTotal.toFixed(2),
           description: `${plano.nome} - ${plano.produto.nome}`,
           external_id: venda.id
         };
@@ -217,7 +226,7 @@ const picpayBody = {
       const paymentMP = new Payment(client);
 
       const paymentData = {
-        transaction_amount: plano.preco,
+        transaction_amount: valorTotal,
         description: `${plano.nome} - ${plano.produto.nome}`,
         payment_method_id: 'bolbradesco',
         payer: {
