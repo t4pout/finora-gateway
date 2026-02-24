@@ -29,7 +29,7 @@ interface PlanoOferta {
   checkoutCpfObrigatorio?: boolean;
   checkoutTelObrigatorio?: boolean;
   checkoutPedirEndereco?: boolean;
-  orderBumps?: { orderBump: { id: string; titulo: string; descricao: string | null; preco: number } }[];
+  orderBumps?: { orderBump: { id: string; titulo: string; descricao: string | null; preco: number; imagem: string | null } }[];
   produto: {
     id: string;
     nome: string;
@@ -475,9 +475,13 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
                             }}
                             className="ob-checkbox"
                           />
+                          {ob.orderBump.imagem && (
+                            <img src={ob.orderBump.imagem} alt={ob.orderBump.titulo} className="ob-imagem" />
+                          )}
                           <div className="ob-info">
                             <div className="ob-nome">{ob.orderBump.titulo}</div>
                             {ob.orderBump.descricao && <div className="ob-desc">{ob.orderBump.descricao}</div>}
+                          </div>}
                           </div>
                           <div className="ob-preco">+ R$ {ob.orderBump.preco.toFixed(2).replace('.', ',')}</div>
                         </label>
@@ -601,17 +605,18 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
         .popup-nome { font-weight: 600; color: #111827; margin-bottom: 4px; }
         .popup-acao { font-size: 14px; color: #6b7280; margin-bottom: 2px; }
         .popup-tempo { font-size: 12px; color: #9ca3af; }
-        .ob-container { display: flex; flex-direction: column; gap: 10px; margin-bottom: 8px; }
+        .ob-container { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
         .ob-titulo { font-size: 16px; font-weight: 700; color: #111827; margin-bottom: 4px; }
-        .ob-card { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border: 2px solid #e5e7eb; border-radius: 12px; cursor: pointer; transition: all 0.2s; background: white; }
-        .ob-card:hover { border-color: #8b5cf6; }
-        .ob-card-ativo { border-color: #8b5cf6; background: #f5f3ff; }
-        .ob-checkbox { width: 20px; height: 20px; flex-shrink: 0; accent-color: #8b5cf6; cursor: pointer; }
+        .ob-card { display: flex; align-items: center; gap: 14px; padding: 16px 18px; border: 2px solid #e5e7eb; border-radius: 16px; cursor: pointer; transition: all 0.2s; background: white; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+        .ob-card:hover { border-color: #8b5cf6; box-shadow: 0 4px 12px rgba(139,92,246,0.15); transform: translateY(-1px); }
+        .ob-card-ativo { border-color: #8b5cf6; background: #f5f3ff; box-shadow: 0 4px 12px rgba(139,92,246,0.2); }
+        .ob-checkbox { width: 22px; height: 22px; flex-shrink: 0; accent-color: #8b5cf6; cursor: pointer; }
+        .ob-imagem { width: 56px; height: 56px; border-radius: 10px; object-fit: cover; flex-shrink: 0; border: 1px solid #e5e7eb; }
         .ob-info { flex: 1; }
         .ob-nome { font-weight: 700; color: #111827; font-size: 15px; }
-        .ob-desc { font-size: 13px; color: #6b7280; margin-top: 2px; }
-        .ob-preco { font-weight: 700; color: #8b5cf6; font-size: 16px; white-space: nowrap; }
-        .ob-total { padding: 12px 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; color: #166534; font-size: 15px; text-align: center; }
+        .ob-desc { font-size: 13px; color: #6b7280; margin-top: 3px; line-height: 1.4; }
+        .ob-preco { font-weight: 800; color: #8b5cf6; font-size: 17px; white-space: nowrap; }
+        .ob-total { padding: 14px 18px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; color: #166534; font-size: 15px; text-align: center; font-weight: 600; }
         @media (max-width: 640px) {
           .checkout-container { padding: 12px; }
           .card-header { padding: 24px 20px; }

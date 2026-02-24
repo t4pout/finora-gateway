@@ -117,7 +117,7 @@ const [formPixel, setFormPixel] = useState({
   const [modalConfig, setModalConfig] = useState<{ aberto: boolean; planoId: string | null; tipo: 'NORMAL' | 'PAD' }>({ aberto: false, planoId: null, tipo: 'NORMAL' });
 const [orderBumps, setOrderBumps] = useState<any[]>([]);
 const [modalOrderBump, setModalOrderBump] = useState<{ aberto: boolean; ob: any }>({ aberto: false, ob: null });
-const [formOrderBump, setFormOrderBump] = useState({ titulo: '', descricao: '', preco: '' });
+const [formOrderBump, setFormOrderBump] = useState({ titulo: '', descricao: '', preco: '', imagem: '' });
 const [orderBumpsSelecionados, setOrderBumpsSelecionados] = useState<string[]>([]);
     const carregarPixels = async () => {
   try {
@@ -1618,6 +1618,21 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
                         <label className="block text-sm font-semibold text-gray-900 mb-2">Preço (R$) *</label>
                         <input type="number" step="0.01" value={formOrderBump.preco} onChange={(e) => setFormOrderBump({...formOrderBump, preco: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="0.00" />
                       </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-900 mb-2">Imagem do Produto</label>
+                        <input type="file" accept="image/*" onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const fd = new FormData();
+                          fd.append('file', file);
+                          const res = await fetch('/api/upload', { method: 'POST', body: fd });
+                          const data = await res.json();
+                          if (data.url) setFormOrderBump({...formOrderBump, imagem: data.url});
+                        }} className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer" />
+                        {(formOrderBump as any).imagem && (
+                          <img src={(formOrderBump as any).imagem} className="mt-2 w-20 h-20 object-cover rounded-lg border" />
+                        )}
+                      </div>	
                       <div className="flex gap-3 pt-4">
                         <button onClick={() => setModalOrderBump({ aberto: false, ob: null })} className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold">Cancelar</button>
                         <button onClick={async () => {
