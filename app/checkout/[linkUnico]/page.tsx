@@ -475,12 +475,13 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
                             }}
                             className="ob-checkbox"
                           />
-                          {ob.orderBump.imagem && (
+                          {ob.orderBump.imagem ? (
                             <img src={ob.orderBump.imagem} alt={ob.orderBump.titulo} className="ob-imagem" />
-                          )}
+                          ) : null}
                           <div className="ob-info">
                             <div className="ob-nome">{ob.orderBump.titulo}</div>
-                            {ob.orderBump.descricao && <div className="ob-desc">{ob.orderBump.descricao}</div>}
+                            {ob.orderBump.descricao ? <div className="ob-desc">{ob.orderBump.descricao}</div> : null}
+                          </div>}
                           </div>}
                           </div>
                           <div className="ob-preco">+ R$ {ob.orderBump.preco.toFixed(2).replace('.', ',')}</div>
