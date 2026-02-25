@@ -31,6 +31,8 @@ export default function PagamentoSucessoContent() {
 
   const carregarPixelsEDispararPurchase = async (produtoId: string, pedidoData: any) => {
     if (purchaseDisparado.current) return;
+    const chaveStorage = 'purchase_disparado_' + pedidoId;
+    if (typeof window !== 'undefined' && sessionStorage.getItem(chaveStorage)) return;
     try {
       const res = await fetch(`/api/produtos/${produtoId}`);
       if (!res.ok) return;
@@ -71,7 +73,8 @@ export default function PagamentoSucessoContent() {
                     currency: 'BRL'
                   });
                   purchaseDisparado.current = true;
-                  console.log('📊 Pixel: Purchase disparado');
+                  if (typeof window !== 'undefined') sessionStorage.setItem('purchase_disparado_' + pedidoId, '1');
+                  console.log('Purchase disparado');
                 } catch (e) { console.error('Erro pixel Purchase:', e); }
               }
             }, 800);
