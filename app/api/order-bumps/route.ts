@@ -24,14 +24,12 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { userId, titulo, descricao, preco } = body;
-
+    const { userId, titulo, descricao, preco, imagem } = body;
     if (!userId || !titulo || !preco) {
       return NextResponse.json({ error: 'userId, título e preço são obrigatórios' }, { status: 400 });
     }
-
     const orderBump = await prisma.orderBump.create({
-      data: { userId, titulo, descricao, preco: parseFloat(preco) }
+      data: { userId, titulo, descricao, preco: parseFloat(preco), imagem: imagem || null }
     });
 
     return NextResponse.json({ orderBump });

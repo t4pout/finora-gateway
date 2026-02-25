@@ -12,6 +12,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
         titulo: body.titulo,
         descricao: body.descricao,
         preco: body.preco ? parseFloat(body.preco) : undefined,
+        imagem: body.imagem,
         ativo: body.ativo
       }
     });
