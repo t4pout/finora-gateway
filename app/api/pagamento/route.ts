@@ -260,7 +260,10 @@ const picpayBody = {
           })
         });
 
-        const customerData = await customerRes.json();
+        const customerText = await customerRes.text();
+        console.log('Appmax customer resposta:', customerText);
+        let customerData: any = {};
+        try { customerData = JSON.parse(customerText); } catch(e) { return NextResponse.json({ error: 'Appmax retornou resposta invalida', details: customerText.substring(0, 200) }, { status: 500 }); }
         if (!customerRes.ok || !customerData.data?.id) {
           return NextResponse.json({ error: 'Erro ao criar cliente Appmax', details: customerData }, { status: 500 });
         }
