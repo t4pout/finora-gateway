@@ -89,7 +89,7 @@ export default function GatewaysPage() {
       PAGGPIX: 'PaggPix',
       MERCADOPAGO: 'Mercado Pago',
       PICPAY: 'PicPay',
-      ASAAS: 'Asaas'
+      ASAAS: 'Asaas',
       APPMAX: 'Appmax'
     };
     return nomes[gateway] || gateway;
