@@ -6,6 +6,8 @@ import { enviarEmailPedidoCriado } from '@/lib/email';
 const PAGGPIX_TOKEN = process.env.PAGGPIX_TOKEN;
 const PAGGPIX_API = 'https://public-api.paggpix.com';
 const PICPAY_API = 'https://checkout-api.picpay.com';
+const APPMAX_API = 'https://sandbox.appmax.com.br/api/v3';
+const APPMAX_TOKEN = process.env.APPMAX_ACCESS_TOKEN;
 
 export async function POST(request: NextRequest) {
   try {
@@ -227,8 +229,195 @@ const picpayBody = {
     // ==========================================
     // BOLETO
     // ==========================================
+    } else if (metodoPagamento === 'CARTAO') {
+      if (gatewayCartao === 'APPMAX') {
+        console.log('Gerando cartao via Appmax...');
+        // Cartao requer dados do cartao vindos do frontend
+        const { cartaoNumero, cartaoCvv, cartaoMes, cartaoAno, cartaoNome, parcelas } = body;
+
+        const nomePartes = compradorNome.split(' ');
+        const firstname = nomePartes[0];
+        const lastname = nomePartes.slice(1).join(' ') || firstname;
+
+        // Criar cliente
+        const customerRes = await fetch(APPMAX_API + '/customer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            'access-token': APPMAX_TOKEN,
+            firstname,
+            lastname,
+            email: compradorEmail,
+            telephone: compradorTel?.replace(/\D/g, '') || '11999999999',
+            postcode: cep?.replace(/\D/g, '') || '',
+            address_street: rua || 'Rua',
+            address_street_number: numero || 'SN',
+            address_street_complement: complemento || '',
+            address_street_district: bairro || 'Centro',
+            address_city: cidade || 'Sao Paulo',
+            address_state: estado || 'SP',
+            ip: request.headers.get('x-forwarded-for') || '127.0.0.1'
+          })
+        });
+
+        const customerData = await customerRes.json();
+        if (!customerRes.ok || !customerData.data?.id) {
+          return NextResponse.json({ error: 'Erro ao criar cliente Appmax', details: customerData }, { status: 500 });
+        }
+        const customerId = customerData.data.id;
+
+        // Criar pedido
+        const orderRes = await fetch(APPMAX_API + '/order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            'access-token': APPMAX_TOKEN,
+            customer_id: customerId,
+            total: valorTotal,
+            products: [{ sku: plano.id.substring(0, 20), name: plano.nome, qty: 1 }]
+          })
+        });
+
+        const orderData = await orderRes.json();
+        if (!orderRes.ok || !orderData.data?.id) {
+          return NextResponse.json({ error: 'Erro ao criar pedido Appmax', details: orderData }, { status: 500 });
+        }
+        const orderId = orderData.data.id;
+
+        // Processar cartao
+        const cartaoRes = await fetch(APPMAX_API + '/payment/credit-card', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            'access-token': APPMAX_TOKEN,
+            cart: { order_id: orderId },
+            customer: { customer_id: customerId },
+            payment: {
+              CreditCard: {
+                number: cartaoNumero?.replace(/\D/g, ''),
+                cvv: cartaoCvv,
+                month: parseInt(cartaoMes),
+                year: parseInt(cartaoAno),
+                document_number: compradorCpf?.replace(/\D/g, '') || '00000000000',
+                name: cartaoNome || compradorNome,
+                installments: parcelas || 1
+              }
+            }
+          })
+        });
+
+        const cartaoData = await cartaoRes.json();
+        console.log('Appmax cartao resposta:', JSON.stringify(cartaoData));
+
+        if (!cartaoRes.ok) {
+          return NextResponse.json({ error: 'Erro ao processar cartao Appmax', details: cartaoData }, { status: 500 });
+        }
+
+        const statusCartao = cartaoData.data?.status || 'pending';
+        await prisma.venda.update({
+          where: { id: venda.id },
+          data: {
+            status: statusCartao === 'approved' ? 'PAGO' : 'PENDENTE',
+            pixId: String(orderId)
+          }
+        });
+
+      } else {
+        console.log('Cartao via Mercado Pago - nao implementado ainda');
+      }
+
     } else if (metodoPagamento === 'BOLETO') {
-      console.log('💳 Gerando boleto via Mercado Pago...');
+      if (gatewayBoleto === 'APPMAX') {
+        console.log('Gerando boleto via Appmax...');
+
+        // Passo 1: Criar cliente
+        const nomePartes = compradorNome.split(' ');
+        const firstname = nomePartes[0];
+        const lastname = nomePartes.slice(1).join(' ') || firstname;
+
+        const customerRes = await fetch(APPMAX_API + '/customer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            'access-token': APPMAX_TOKEN,
+            firstname,
+            lastname,
+            email: compradorEmail,
+            telephone: compradorTel?.replace(/\D/g, '') || '11999999999',
+            postcode: cep?.replace(/\D/g, '') || '',
+            address_street: rua || 'Rua',
+            address_street_number: numero || 'SN',
+            address_street_complement: complemento || '',
+            address_street_district: bairro || 'Centro',
+            address_city: cidade || 'Sao Paulo',
+            address_state: estado || 'SP',
+            ip: request.headers.get('x-forwarded-for') || '127.0.0.1'
+          })
+        });
+
+        const customerData = await customerRes.json();
+        if (!customerRes.ok || !customerData.data?.id) {
+          console.error('Erro Appmax criar cliente:', customerData);
+          return NextResponse.json({ error: 'Erro ao criar cliente Appmax', details: customerData }, { status: 500 });
+        }
+        const customerId = customerData.data.id;
+
+        // Passo 2: Criar pedido
+        const orderRes = await fetch(APPMAX_API + '/order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            'access-token': APPMAX_TOKEN,
+            customer_id: customerId,
+            total: valorTotal,
+            products: [{ sku: plano.id.substring(0, 20), name: plano.nome, qty: 1 }]
+          })
+        });
+
+        const orderData = await orderRes.json();
+        if (!orderRes.ok || !orderData.data?.id) {
+          console.error('Erro Appmax criar pedido:', orderData);
+          return NextResponse.json({ error: 'Erro ao criar pedido Appmax', details: orderData }, { status: 500 });
+        }
+        const orderId = orderData.data.id;
+
+        // Passo 3: Gerar boleto
+        const boletoRes = await fetch(APPMAX_API + '/payment/boleto', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            'access-token': APPMAX_TOKEN,
+            cart: { order_id: orderId },
+            customer: { customer_id: customerId },
+            payment: {
+              Boleto: {
+                document_number: compradorCpf?.replace(/\D/g, '') || '00000000000'
+              }
+            }
+          })
+        });
+
+        const boletoData = await boletoRes.json();
+        console.log('Appmax boleto resposta:', JSON.stringify(boletoData));
+
+        if (!boletoRes.ok) {
+          return NextResponse.json({ error: 'Erro ao gerar boleto Appmax', details: boletoData }, { status: 500 });
+        }
+
+        const boletoUrl = boletoData.data?.boleto_url || boletoData.data?.url || null;
+        const boletoBarcode = boletoData.data?.boleto_barcode || boletoData.data?.barcode || null;
+
+        await prisma.venda.update({
+          where: { id: venda.id },
+          data: {
+            boletoUrl,
+            boletoBarcode,
+            pixId: String(orderId)
+          }
+        });
+
+      } else {
+        console.log('Gerando boleto via Mercado Pago...');
       const { MercadoPagoConfig, Payment } = require('mercadopago');
       const client = new MercadoPagoConfig({ accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN || '' });
       const paymentMP = new Payment(client);
@@ -270,6 +459,7 @@ const picpayBody = {
       } else {
         return NextResponse.json({ error: 'Erro ao gerar boleto', details: result.status_detail }, { status: 500 });
       }
+      } // fecha else APPMAX boleto
     }
    // Email para o comprador
     try {
@@ -283,6 +473,26 @@ const picpayBody = {
         pedidoId: venda.id
       });
     } catch (e) { console.error('Erro ao enviar email pedido criado:', e); }
+
+    // Disparar AddPaymentInfo via CAPI
+    try {
+      const pixelsProduto = await prisma.pixel.findMany({ where: { produtoId: plano.produtoId, plataforma: 'FACEBOOK', ativo: true } });
+      for (const px of pixelsProduto) {
+        if (px.pixelId && px.accessToken) {
+          const { dispararEventoCAPI } = await import('@/lib/facebook-capi');
+          await dispararEventoCAPI({
+            pixelId: px.pixelId,
+            accessToken: px.accessToken,
+            eventName: 'AddPaymentInfo',
+            value: valorTotal,
+            contentName: plano.nome,
+            contentIds: [plano.produtoId],
+            email: compradorEmail,
+            phone: compradorTel
+          });
+        }
+      }
+    } catch (e) { console.error('Erro CAPI AddPaymentInfo:', e); }
 
     // Notificações Telegram
     const produto = await prisma.produto.findUnique({

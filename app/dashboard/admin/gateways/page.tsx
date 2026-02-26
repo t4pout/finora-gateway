@@ -79,8 +79,8 @@ export default function GatewaysPage() {
 
   const getGatewaysDisponiveis = (metodo: string) => {
     if (metodo === 'PIX') return ['PAGGPIX', 'MERCADOPAGO', 'PICPAY'];
-    if (metodo === 'BOLETO') return ['MERCADOPAGO'];
-    if (metodo === 'CARTAO') return ['MERCADOPAGO', 'PICPAY'];
+    if (metodo === 'BOLETO') return ['MERCADOPAGO', 'APPMAX'];
+    if (metodo === 'CARTAO') return ['MERCADOPAGO', 'PICPAY', 'APPMAX'];
     return [];
   };
 
@@ -90,6 +90,7 @@ export default function GatewaysPage() {
       MERCADOPAGO: 'Mercado Pago',
       PICPAY: 'PicPay',
       ASAAS: 'Asaas'
+      APPMAX: 'Appmax'
     };
     return nomes[gateway] || gateway;
   };
@@ -206,9 +207,13 @@ export default function GatewaysPage() {
                 <span className="text-gray-600">Mercado Pago</span>
                 <span className="text-gray-900 font-medium">PIX, Boleto, Cartão</span>
               </div>
-              <div className="flex justify-between py-2">
+              <div className="flex justify-between py-2 border-b border-gray-200">
                 <span className="text-gray-600">PicPay</span>
                 <span className="text-gray-900 font-medium">PIX, Cartão</span>
+              </div>
+              <div className="flex justify-between py-2">
+                <span className="text-gray-600">Appmax</span>
+                <span className="text-gray-900 font-medium">Cartão, Boleto</span>
               </div>
             </div>
           </div>
