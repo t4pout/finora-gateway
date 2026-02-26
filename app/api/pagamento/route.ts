@@ -290,7 +290,13 @@ const picpayBody = {
         // Processar cartao
         const cartaoRes = await fetch(APPMAX_API + '/payment/credit-card', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'application/json',
+            'Origin': 'https://finorapayments.com',
+            'Referer': 'https://finorapayments.com/'
+          },
           body: JSON.stringify({
             'access-token': APPMAX_TOKEN,
             cart: { order_id: orderId },
@@ -340,7 +346,14 @@ const picpayBody = {
 
         const customerRes = await fetch(APPMAX_API + '/customer', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'application/json',
+            'Accept-Language': 'pt-BR,pt;q=0.9',
+            'Origin': 'https://finorapayments.com',
+            'Referer': 'https://finorapayments.com/'
+          },
           body: JSON.stringify({
             'access-token': APPMAX_TOKEN,
             firstname,
@@ -368,7 +381,13 @@ const picpayBody = {
         // Passo 2: Criar pedido
         const orderRes = await fetch(APPMAX_API + '/order', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'application/json',
+            'Origin': 'https://finorapayments.com',
+            'Referer': 'https://finorapayments.com/'
+          },
           body: JSON.stringify({
             'access-token': APPMAX_TOKEN,
             customer_id: customerId,
