@@ -6,7 +6,7 @@ import { enviarEmailPedidoCriado } from '@/lib/email';
 const PAGGPIX_TOKEN = process.env.PAGGPIX_TOKEN;
 const PAGGPIX_API = 'https://public-api.paggpix.com';
 const PICPAY_API = 'https://checkout-api.picpay.com';
-const APPMAX_API = 'https://sandbox.appmax.com.br/api/v3';
+const APPMAX_API = 'https://app.appmax.com.br/api/v3';
 const APPMAX_TOKEN = process.env.APPMAX_ACCESS_TOKEN;
 
 export async function POST(request: NextRequest) {
