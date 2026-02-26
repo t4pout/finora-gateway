@@ -17,6 +17,7 @@ interface PlanoOferta {
   checkoutAceitaBoleto?: boolean;
   checkoutPedirEndereco?: boolean;
   produto: { id: string; nome: string; descricao: string; imagem: string; };
+  orderBumps?: { orderBump: { id: string; titulo: string; descricao: string | null; preco: number; imagem: string | null } }[];
 }
 
 interface Props {
@@ -31,10 +32,16 @@ interface Props {
   finalizarPedido: () => void;
   validarCPF: (cpf: string) => boolean;
   formatarTempo: (s: number) => string;
+  orderBumpsSelecionados: string[];
+  setOrderBumpsSelecionados: (ids: string[]) => void;
 }
 
-export default function CheckoutV2({ plano, formData, setFormData, etapa, setEtapa, processando, buscandoCep, tempoRestante, finalizarPedido, validarCPF, formatarTempo }: Props) {
+export default function CheckoutV2({ plano, formData, setFormData, etapa, setEtapa, processando, buscandoCep, tempoRestante, finalizarPedido, validarCPF, formatarTempo, orderBumpsSelecionados, setOrderBumpsSelecionados }: Props) {
   const cor = plano.checkoutCorPrimaria || '#16a34a';
+
+  const totalComBumps = plano.preco + (plano.orderBumps
+    ? plano.orderBumps.filter(ob => orderBumpsSelecionados.includes(ob.orderBump.id)).reduce((acc, ob) => acc + ob.orderBump.preco, 0)
+    : 0);
 
   const avancarEtapa1 = () => {
     if (!formData.nome || !formData.email || !formData.telefone) { alert('Preencha todos os campos obrigatórios'); return; }
@@ -169,6 +176,34 @@ export default function CheckoutV2({ plano, formData, setFormData, etapa, setEta
                   </div>
                 )}
 
+                {plano.orderBumps && plano.orderBumps.length > 0 && (
+                  <div className="v2-ob-container">
+                    <p className="v2-ob-titulo">Adicione ao seu pedido:</p>
+                    {plano.orderBumps.map((ob) => (
+                      <label key={ob.orderBump.id} className={orderBumpsSelecionados.includes(ob.orderBump.id) ? 'v2-ob-card v2-ob-ativo' : 'v2-ob-card'} style={orderBumpsSelecionados.includes(ob.orderBump.id) ? { borderColor: cor, background: cor + '10' } : {}}>
+                        <input
+                          type="checkbox"
+                          checked={orderBumpsSelecionados.includes(ob.orderBump.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) setOrderBumpsSelecionados([...orderBumpsSelecionados, ob.orderBump.id]);
+                            else setOrderBumpsSelecionados(orderBumpsSelecionados.filter(id => id !== ob.orderBump.id));
+                          }}
+                          className="v2-ob-checkbox"
+                        />
+                        {ob.orderBump.imagem && <img src={ob.orderBump.imagem} alt={ob.orderBump.titulo} className="v2-ob-imagem" />}
+                        <div className="v2-ob-info">
+                          <div className="v2-ob-nome">{ob.orderBump.titulo}</div>
+                          {ob.orderBump.descricao && <div className="v2-ob-desc">{ob.orderBump.descricao}</div>}
+                        </div>
+                        <div className="v2-ob-preco" style={{ color: cor }}>+ R$ {ob.orderBump.preco.toFixed(2).replace('.', ',')}</div>
+                      </label>
+                    ))}
+                    {orderBumpsSelecionados.length > 0 && (
+                      <div className="v2-ob-total">Total com adicionais: <strong>R$ {totalComBumps.toFixed(2).replace('.', ',')}</strong></div>
+                    )}
+                  </div>
+                )}
+
                 {plano.checkoutAceitaPix && (
                   <button onClick={() => setFormData({...formData, metodoPagamento: 'PIX'})} className={`v2-metodo ${formData.metodoPagamento === 'PIX' ? 'v2-metodo-ativo' : ''}`} style={formData.metodoPagamento === 'PIX' ? { borderColor: cor, background: `${cor}10` } : {}}>
                     <img src="https://logodownload.org/wp-content/uploads/2020/02/pix-bc-logo-0.png" alt="PIX" style={{width:'40px', height:'40px', objectFit:'contain'}} />
@@ -259,6 +294,18 @@ export default function CheckoutV2({ plano, formData, setFormData, etapa, setEta
         .v2-metodo-nome { font-size: 15px; font-weight: 700; color: #111827; margin-bottom: 3px; }
         .v2-metodo-desc { font-size: 12px; color: #6b7280; }
         .v2-check { margin-left: auto; font-size: 22px; font-weight: bold; }
+        .v2-ob-container { display: flex; flex-direction: column; gap: 10px; }
+        .v2-ob-titulo { font-size: 15px; font-weight: 700; color: #111827; }
+        .v2-ob-card { display: flex; align-items: center; gap: 12px; padding: 14px; border: 2px solid #e5e7eb; border-radius: 12px; cursor: pointer; transition: all 0.2s; background: white; }
+        .v2-ob-card:hover { border-color: #9ca3af; }
+        .v2-ob-ativo { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .v2-ob-checkbox { width: 20px; height: 20px; flex-shrink: 0; cursor: pointer; }
+        .v2-ob-imagem { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+        .v2-ob-info { flex: 1; }
+        .v2-ob-nome { font-size: 14px; font-weight: 700; color: #111827; }
+        .v2-ob-desc { font-size: 12px; color: #6b7280; margin-top: 2px; }
+        .v2-ob-preco { font-size: 15px; font-weight: 800; white-space: nowrap; }
+        .v2-ob-total { padding: 12px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; color: #166534; font-size: 14px; text-align: center; }
         .v2-logo-bottom { text-align: center; margin-top: 20px; opacity: 0.6; }
         .v2-logo-bottom img { height: 40px; }
         @media (max-width: 640px) {

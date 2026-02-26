@@ -346,6 +346,8 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
         finalizarPedido={finalizarPedido}
         validarCPF={validarCPF}
         formatarTempo={formatarTempo}
+        orderBumpsSelecionados={orderBumpsSelecionados}
+        setOrderBumpsSelecionados={setOrderBumpsSelecionados}
       />
     );
   }
