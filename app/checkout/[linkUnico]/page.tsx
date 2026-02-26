@@ -67,6 +67,27 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
     metodoPagamento: 'PIX'
   });
 
+  const [cartaoData, setCartaoData] = useState({
+    numero: '',
+    nome: '',
+    mes: '',
+    ano: '',
+    cvv: '',
+    parcelas: '1'
+  });
+
+  const [gatewayCartao, setGatewayCartao] = useState('MERCADOPAGO');
+
+  useEffect(() => {
+    fetch('/api/configuracoes-gateway')
+      .then(r => r.json())
+      .then(data => {
+        const cfg = data.configs?.find((c: any) => c.metodo === 'CARTAO');
+        if (cfg) setGatewayCartao(cfg.gateway);
+      })
+      .catch(() => {});
+  }, []);
+
   useEffect(() => {
     const loadParams = async () => {
       const resolvedParams = await params;
@@ -277,7 +298,15 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
           bairro: formData.bairro,
           cidade: formData.cidade,
           estado: formData.estado,
-          metodoPagamento: formData.metodoPagamento
+          metodoPagamento: formData.metodoPagamento,
+          ...(formData.metodoPagamento === 'CARTAO' && gatewayCartao === 'APPMAX' ? {
+            cartaoNumero: cartaoData.numero.replace(/\D/g, ''),
+            cartaoNome: cartaoData.nome,
+            cartaoMes: cartaoData.mes,
+            cartaoAno: cartaoData.ano,
+            cartaoCvv: cartaoData.cvv,
+            parcelas: parseInt(cartaoData.parcelas)
+          } : {})
         })
       });
       if (res.ok) {
@@ -537,6 +566,83 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
                       </button>
                     )}
                   </div>
+                  {formData.metodoPagamento === 'CARTAO' && gatewayCartao === 'APPMAX' && (
+                    <div className="cartao-form">
+                      <p className="section-title" style={{ marginBottom: '16px' }}>Dados do Cartao:</p>
+                      <div className="form-group">
+                        <label>Numero do Cartao *</label>
+                        <input
+                          type="text"
+                          value={cartaoData.numero}
+                          onChange={(e) => {
+                            let v = e.target.value.replace(/\D/g, '').slice(0, 16);
+                            v = v.replace(/(\d{4})(?=\d)/g, '$1 ');
+                            setCartaoData({ ...cartaoData, numero: v });
+                          }}
+                          placeholder="0000 0000 0000 0000"
+                          className="form-input"
+                          maxLength={19}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Nome no Cartao *</label>
+                        <input
+                          type="text"
+                          value={cartaoData.nome}
+                          onChange={(e) => setCartaoData({ ...cartaoData, nome: e.target.value.toUpperCase() })}
+                          placeholder="NOME COMO NO CARTAO"
+                          className="form-input"
+                        />
+                      </div>
+                      <div className="form-row">
+                        <div className="form-group">
+                          <label>Mes *</label>
+                          <input
+                            type="text"
+                            value={cartaoData.mes}
+                            onChange={(e) => setCartaoData({ ...cartaoData, mes: e.target.value.replace(/\D/g, '').slice(0, 2) })}
+                            placeholder="MM"
+                            className="form-input"
+                            maxLength={2}
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label>Ano *</label>
+                          <input
+                            type="text"
+                            value={cartaoData.ano}
+                            onChange={(e) => setCartaoData({ ...cartaoData, ano: e.target.value.replace(/\D/g, '').slice(0, 2) })}
+                            placeholder="AA"
+                            className="form-input"
+                            maxLength={2}
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label>CVV *</label>
+                          <input
+                            type="text"
+                            value={cartaoData.cvv}
+                            onChange={(e) => setCartaoData({ ...cartaoData, cvv: e.target.value.replace(/\D/g, '').slice(0, 4) })}
+                            placeholder="000"
+                            className="form-input"
+                            maxLength={4}
+                          />
+                        </div>
+                      </div>
+                      <div className="form-group">
+                        <label>Parcelas</label>
+                        <select
+                          value={cartaoData.parcelas}
+                          onChange={(e) => setCartaoData({ ...cartaoData, parcelas: e.target.value })}
+                          className="form-input"
+                        >
+                          {[1,2,3,4,5,6,7,8,9,10,11,12].map(n => (
+                            <option key={n} value={n}>{n}x de R$ {(totalComBumps / n).toFixed(2).replace('.', ',')}{n === 1 ? ' sem juros' : ''}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  )}
                   <div className="btn-row">
                     <button onClick={() => setEtapa(plano.checkoutPedirEndereco ? 2 : 1)} className="btn-secondary">Voltar</button>
                     <button onClick={finalizarPedido} disabled={processando} className="btn-primary btn-finalizar" style={{ backgroundColor: corPrimaria }}>
@@ -640,6 +746,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
         .ob-nome { font-weight: 700; color: #111827; font-size: 15px; }
         .ob-desc { font-size: 13px; color: #6b7280; margin-top: 3px; line-height: 1.4; }
         .ob-preco { font-weight: 800; color: #8b5cf6; font-size: 17px; white-space: nowrap; }
+        .cartao-form { background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 16px; padding: 20px; margin-bottom: 8px; }
         .ob-total { padding: 14px 18px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; color: #166534; font-size: 15px; text-align: center; font-weight: 600; }
         @media (max-width: 640px) {
           .checkout-container { padding: 12px; }
