@@ -8,8 +8,6 @@ export default function PagamentoSucessoContent() {
   const searchParams = useSearchParams();
   const [pedido, setPedido] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const purchaseDisparado = useRef(false);
-
   const pedidoId = searchParams?.get('pedido');
 
   useEffect(() => {
@@ -19,72 +17,10 @@ export default function PagamentoSucessoContent() {
         .then(data => {
           setPedido(data);
           setLoading(false);
-          // Carregar pixels e disparar Purchase
-          if (data?.venda?.produtoId || data?.produto?.id) {
-            const produtoId = data?.produto?.id || data?.venda?.produtoId;
-            carregarPixelsEDispararPurchase(produtoId, data);
-          }
         })
         .catch(() => setLoading(false));
     }
   }, [pedidoId]);
-
-  const carregarPixelsEDispararPurchase = async (produtoId: string, pedidoData: any) => {
-    if (purchaseDisparado.current) return;
-    const chaveStorage = 'purchase_disparado_' + pedidoId;
-    if (typeof window !== 'undefined' && sessionStorage.getItem(chaveStorage)) return;
-    try {
-      const res = await fetch(`/api/produtos/${produtoId}`);
-      if (!res.ok) return;
-      const data = await res.json();
-      const produto = data.produto;
-
-      if (produto.pixels && produto.pixels.length > 0) {
-        produto.pixels.forEach((pixel: any) => {
-          if (pixel.plataforma === 'FACEBOOK' && pixel.pixelId) {
-            // Injetar pixel se ainda não foi injetado
-            if (!(window as any).fbq) {
-              const script = document.createElement('script');
-              script.innerHTML = `
-                !function(f,b,e,v,n,t,s)
-                {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-                n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-                if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-                n.queue=[];t=b.createElement(e);t.async=!0;
-                t.src=v;s=b.getElementsByTagName(e)[0];
-                s.parentNode.insertBefore(t,s)}(window, document,'script',
-                'https://connect.facebook.net/en_US/fbevents.js');
-                fbq('init', '${pixel.pixelId}');
-                fbq('track', 'PageView');
-              `;
-              document.head.appendChild(script);
-            }
-
-            // Disparar Purchase após 800ms para garantir fbq carregado
-            setTimeout(() => {
-              if (purchaseDisparado.current) return;
-              if (typeof window !== 'undefined' && (window as any).fbq) {
-                try {
-                  (window as any).fbq('track', 'Purchase', {
-                    content_name: pedidoData?.produto?.nome || '',
-                    content_ids: [produtoId],
-                    content_type: 'product',
-                    value: pedidoData?.valor || pedidoData?.venda?.valor || 0,
-                    currency: 'BRL'
-                  });
-                  purchaseDisparado.current = true;
-                  if (typeof window !== 'undefined') sessionStorage.setItem('purchase_disparado_' + pedidoId, '1');
-                  console.log('Purchase disparado');
-                } catch (e) { console.error('Erro pixel Purchase:', e); }
-              }
-            }, 800);
-          }
-        });
-      }
-    } catch (error) {
-      console.error('Erro ao carregar pixels:', error);
-    }
-  };
 
   if (loading) {
     return (
