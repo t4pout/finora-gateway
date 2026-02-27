@@ -28,6 +28,7 @@ interface Venda {
   orderBumpsNomes?: string[];
   orderBumpsValor?: number;
   createdAt: string;
+  nomePlano?: string;
   produto: {
     nome: string;
   };
@@ -174,6 +175,10 @@ export default function VendasPage() {
         'Valor Liquido': venda.transacoes && venda.transacoes.length > 0 ? venda.transacoes[0].valor.toFixed(2) : '-',
         'Status': venda.status,
         'Pagamento': venda.metodoPagamento,
+        'Quantidade': venda.nomePlano ? (venda.nomePlano.match(/^(\d+)/)?.[1] || '-') : '-',
+        'Plano': venda.nomePlano || '-',
+        'Order Bumps': venda.orderBumpsNomes && venda.orderBumpsNomes.length > 0 ? venda.orderBumpsNomes.join(' | ') : '-',
+        'Valor Order Bumps': venda.orderBumpsValor && venda.orderBumpsValor > 0 ? venda.orderBumpsValor.toFixed(2) : '-',
         'CEP': venda.cep || '-',
         'Endereco': venda.rua ? venda.rua + ', ' + venda.numero : '-',
         'Bairro': venda.bairro || '-',
