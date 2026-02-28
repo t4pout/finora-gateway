@@ -248,7 +248,7 @@ const picpayBody = {
         });
 
         const venitText = await venitRes.text();
-        console.log('Venit resposta:', venitText);
+        console.log('Venit resposta COMPLETA:', venitText);
 
         if (!venitRes.ok) {
           return NextResponse.json({ error: 'Erro ao gerar PIX via Venit', details: venitText }, { status: 500 });
