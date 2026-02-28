@@ -261,7 +261,7 @@ const picpayBody = {
           return NextResponse.json({ error: 'Erro ao obter QR Code Venit' }, { status: 500 });
         }
 
-        await prisma.venda.update({
+       await prisma.venda.update({
           where: { id: venda.id },
           data: {
             pixId: venitResult.id,
@@ -273,6 +273,7 @@ const picpayBody = {
         pixId = venitResult.id;
         copiaECola = pixVenit.qrcode;
         qrCode = null;
+        console.log('Venit PIX gerado com sucesso! ID:', venitResult.id);
 
       } else {
         // PaggPix (padrão)

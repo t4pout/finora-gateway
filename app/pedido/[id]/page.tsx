@@ -164,21 +164,34 @@ export default function PedidoPage({ params }: { params: Promise<{ id: string }>
           </div>
         )}
 
-        {venda.metodoPagamento === 'PIX' && venda.pixQrCode && (
+        {venda.metodoPagamento === 'PIX' && venda.pixCopiaECola && (
           <div className="bg-white rounded-2xl border-2 border-gray-200 p-8 mb-6">
             <h2 className="text-xl font-bold text-gray-900 mb-6 text-center">
               📱 Escaneie o QR Code para pagar
             </h2>
 
-            <div className="flex justify-center mb-6">
-              <div className="bg-white p-4 rounded-xl border-4 border-purple-600">
-                <img 
-                  src={venda.pixQrCode.startsWith('data:') ? venda.pixQrCode : `data:image/png;base64,${venda.pixQrCode}`}
-                  alt="QR Code PIX" 
-                  className="w-64 h-64 object-contain"
-                />
+            {venda.pixQrCode && (
+              <div className="flex justify-center mb-6">
+                <div className="bg-white p-4 rounded-xl border-4 border-purple-600">
+                  <img 
+                    src={venda.pixQrCode.startsWith('data:') ? venda.pixQrCode : `data:image/png;base64,${venda.pixQrCode}`}
+                    alt="QR Code PIX" 
+                    className="w-64 h-64 object-contain"
+                  />
+                </div>
               </div>
-            </div>
+            )}
+            {!venda.pixQrCode && venda.pixCopiaECola && (
+              <div className="flex justify-center mb-6">
+                <div className="bg-white p-4 rounded-xl border-4 border-purple-600">
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${encodeURIComponent(venda.pixCopiaECola)}`}
+                    alt="QR Code PIX"
+                    className="w-64 h-64 object-contain"
+                  />
+                </div>
+              </div>
+            )}
 
             <div className="mb-6">
               <label className="block text-sm font-semibold text-gray-900 mb-2">
