@@ -78,7 +78,7 @@ export default function GatewaysPage() {
   };
 
   const getGatewaysDisponiveis = (metodo: string) => {
-    if (metodo === 'PIX') return ['PAGGPIX', 'MERCADOPAGO', 'PICPAY'];
+    if (metodo === 'PIX') return ['PAGGPIX', 'MERCADOPAGO', 'PICPAY', 'VENIT'];
     if (metodo === 'BOLETO') return ['MERCADOPAGO', 'APPMAX'];
     if (metodo === 'CARTAO') return ['MERCADOPAGO', 'PICPAY', 'APPMAX'];
     return [];
@@ -90,7 +90,8 @@ export default function GatewaysPage() {
       MERCADOPAGO: 'Mercado Pago',
       PICPAY: 'PicPay',
       ASAAS: 'Asaas',
-      APPMAX: 'Appmax'
+      APPMAX: 'Appmax',
+      VENIT: 'Venit'
     };
     return nomes[gateway] || gateway;
   };
@@ -167,7 +168,7 @@ export default function GatewaysPage() {
 
                     <div className="flex items-center space-x-3">
                       <select
-                        defaultValue={config.gateway}
+                        value={config.gateway}
                         onChange={(e) => {
                           const novoGateway = e.target.value;
                           if (novoGateway !== config.gateway) {
