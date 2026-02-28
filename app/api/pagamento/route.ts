@@ -241,7 +241,8 @@ const picpayBody = {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'authorization': VENIT_AUTH
+            'authorization': VENIT_AUTH,
+            'x-api-key': VENIT_SECRET
           },
           body: JSON.stringify(venitBody)
         });
