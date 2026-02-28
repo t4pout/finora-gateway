@@ -9,7 +9,10 @@ const PICPAY_API = 'https://checkout-api.picpay.com';
 const APPMAX_API = 'https://app.appmax.com.br/api/v3';
 const APPMAX_TOKEN = process.env.APPMAX_ACCESS_TOKEN;
 const VENIT_API = 'https://api.venitip.com.br/functions/v1';
-const VENIT_AUTH = 'Basic ' + Buffer.from((process.env.VENIT_SECRET_KEY || '') + ':' + (process.env.VENIT_COMPANY_ID || '')).toString('base64');
+const VENIT_SECRET = process.env.VENIT_SECRET_KEY || '';
+const VENIT_COMPANY = process.env.VENIT_COMPANY_ID || '';
+const VENIT_AUTH = 'Basic ' + Buffer.from(VENIT_SECRET + ':' + VENIT_COMPANY).toString('base64');
+console.log('Venit auth montado - Secret:', VENIT_SECRET.substring(0, 10) + '... | Company:', VENIT_COMPANY.substring(0, 8) + '...');
 
 export async function POST(request: NextRequest) {
   try {
