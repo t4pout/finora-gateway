@@ -8,6 +8,8 @@ const PAGGPIX_API = 'https://public-api.paggpix.com';
 const PICPAY_API = 'https://checkout-api.picpay.com';
 const APPMAX_API = 'https://app.appmax.com.br/api/v3';
 const APPMAX_TOKEN = process.env.APPMAX_ACCESS_TOKEN;
+const VENIT_API = 'https://api.venitip.com.br/functions/v1';
+const VENIT_AUTH = 'Basic ' + Buffer.from((process.env.VENIT_SECRET_KEY || '') + ':' + (process.env.VENIT_COMPANY_ID || '')).toString('base64');
 
 export async function POST(request: NextRequest) {
   try {
@@ -190,6 +192,83 @@ const picpayBody = {
         } else {
           return NextResponse.json({ error: 'Erro ao gerar PIX via Mercado Pago' }, { status: 500 });
         }
+
+      } else if (gatewayPix === 'VENIT') {
+        console.log('💜 Gerando PIX via Venit...');
+
+        const valorCentavos = Math.round(valorTotal * 100);
+        const telLimpo = compradorTel?.replace(/\D/g, '') || '11999999999';
+
+        const venitBody = {
+          paymentMethod: 'PIX',
+          amount: valorCentavos,
+          description: plano.nome + ' - ' + plano.produto.nome,
+          externalRef: venda.id,
+          postbackUrl: 'https://finorapayments.com/api/webhook/venit',
+          ip: request.headers.get('x-forwarded-for') || '127.0.0.1',
+          customer: {
+            name: compradorNome,
+            email: compradorEmail || 'contato@finorapayments.com',
+            phone: telLimpo,
+            document: {
+              type: 'CPF',
+              number: compradorCpf?.replace(/\D/g, '') || '00000000000'
+            },
+            address: {
+              street: rua || 'Rua',
+              streetNumber: numero || 'SN',
+              complement: complemento || '',
+              zipCode: cep?.replace(/\D/g, '') || '01001000',
+              neighborhood: bairro || 'Centro',
+              city: cidade || 'Sao Paulo',
+              state: estado || 'SP',
+              country: 'BR'
+            }
+          },
+          items: [{
+            title: plano.nome,
+            unitPrice: valorCentavos,
+            quantity: 1,
+            externalRef: plano.id.substring(0, 50)
+          }],
+          pix: { expiresInMinutes: 60 }
+        };
+
+        const venitRes = await fetch(VENIT_API + '/transactions/pix', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'authorization': VENIT_AUTH
+          },
+          body: JSON.stringify(venitBody)
+        });
+
+        const venitText = await venitRes.text();
+        console.log('Venit resposta:', venitText);
+
+        if (!venitRes.ok) {
+          return NextResponse.json({ error: 'Erro ao gerar PIX via Venit', details: venitText }, { status: 500 });
+        }
+
+        const venitResult = JSON.parse(venitText);
+        const pixVenit = venitResult.pix;
+
+        if (!pixVenit?.qrcode) {
+          return NextResponse.json({ error: 'Erro ao obter QR Code Venit' }, { status: 500 });
+        }
+
+        await prisma.venda.update({
+          where: { id: venda.id },
+          data: {
+            pixId: venitResult.id,
+            pixCopiaECola: pixVenit.qrcode,
+            pixQrCode: null
+          }
+        });
+
+        pixId = venitResult.id;
+        copiaECola = pixVenit.qrcode;
+        qrCode = null;
 
       } else {
         // PaggPix (padrão)
