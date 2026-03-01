@@ -282,7 +282,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
 
   const tokenizarCartaoMP = async (): Promise<string | null> => {
     try {
-      const mp = new (window as any).MercadoPago(process.env.NEXT_PUBLIC_MP_PUBLIC_KEY || 'APP_USR-f4a20f19-bebf-4369-95af-171915a3a4cc');
+      const mp = new (window as any).MercadoPago('APP_USR-f4a20f19-bebf-4369-95af-171915a3a4cc');
       const token = await mp.createCardToken({
         cardNumber: cartaoData.numero.replace(/\D/g, ''),
         cardholderName: cartaoData.nome,
@@ -295,7 +295,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
       return token.id;
     } catch (e: any) {
       console.error('Erro tokenizar cartao MP:', e);
-      alert('Erro ao processar cartão: ' + (e?.message || 'verifique os dados'));
+      alert('Erro ao processar cartao: ' + (e?.message || 'verifique os dados'));
       return null;
     }
   };
@@ -311,40 +311,56 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
     }
     setProcessando(true);
     try {
+      const base = {
+        planoId: plano?.id,
+        orderBumpIds: orderBumpsSelecionados,
+        compradorNome: formData.nome,
+        compradorEmail: formData.email,
+        compradorCpf: formData.cpf,
+        compradorTel: formData.telefone,
+        cep: formData.cep,
+        rua: formData.rua,
+        numero: formData.numero,
+        complemento: formData.complemento,
+        bairro: formData.bairro,
+        cidade: formData.cidade,
+        estado: formData.estado,
+        metodoPagamento: formData.metodoPagamento,
+      };
+
+      let payload: any = base;
+
+      if (formData.metodoPagamento === 'CARTAO') {
+        if (gatewayCartao === 'APPMAX') {
+          payload = {
+            ...base,
+            cartaoNumero: cartaoData.numero.replace(/\D/g, ''),
+            cartaoNome: cartaoData.nome,
+            cartaoMes: cartaoData.mes,
+            cartaoAno: cartaoData.ano,
+            cartaoCvv: cartaoData.cvv,
+            parcelas: parseInt(cartaoData.parcelas)
+          };
+        } else {
+          const token = await tokenizarCartaoMP();
+          if (!token) {
+            setProcessando(false);
+            return;
+          }
+          payload = {
+            ...base,
+            mpToken: token,
+            parcelas: parseInt(cartaoData.parcelas)
+          };
+        }
+      }
+
       const res = await fetch('/api/pagamento', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        const payloadCartao = await (async () => {
-          const base = {
-            planoId: plano?.id,
-            orderBumpIds: orderBumpsSelecionados,
-            compradorNome: formData.nome,
-            compradorEmail: formData.email,
-            compradorCpf: formData.cpf,
-            compradorTel: formData.telefone,
-            cep: formData.cep,
-            rua: formData.rua,
-            numero: formData.numero,
-            complemento: formData.complemento,
-            bairro: formData.bairro,
-            cidade: formData.cidade,
-            estado: formData.estado,
-            metodoPagamento: formData.metodoPagamento,
-          };
-          if (formData.metodoPagamento === 'CARTAO') {
-            if (gatewayCartao === 'APPMAX') {
-              return { ...base, cartaoNumero: cartaoData.numero.replace(/\D/g, ''), cartaoNome: cartaoData.nome, cartaoMes: cartaoData.mes, cartaoAno: cartaoData.ano, cartaoCvv: cartaoData.cvv, parcelas: parseInt(cartaoData.parcelas) };
-            } else {
-              const token = await tokenizarCartaoMP();
-              if (!token) { setProcessando(false); return null; }
-              return { ...base, mpToken: token, parcelas: parseInt(cartaoData.parcelas) };
-            }
-          }
-          return base;
-        })();
-      if (!payloadCartao) { setProcessando(false); return; }
-      body: JSON.stringify(payloadCartao)
+        body: JSON.stringify(payload)
       });
+
       if (res.ok) {
         const data = await res.json();
         router.push('/pedido/' + data.vendaId);
