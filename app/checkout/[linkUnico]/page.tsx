@@ -287,7 +287,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
         cardNumber: cartaoData.numero.replace(/\D/g, ''),
         cardholderName: cartaoData.nome,
         cardExpirationMonth: cartaoData.mes,
-        cardExpirationYear: '20' + cartaoData.ano,
+        cardExpirationYear: cartaoData.ano.length === 2 ? '20' + cartaoData.ano : cartaoData.ano,
         securityCode: cartaoData.cvv,
         identificationType: 'CPF',
         identificationNumber: formData.cpf.replace(/\D/g, '')
@@ -314,7 +314,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
       const res = await fetch('/api/pagamento', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(await (async () => {
+        const payloadCartao = await (async () => {
           const base = {
             planoId: plano?.id,
             orderBumpIds: orderBumpsSelecionados,
@@ -341,7 +341,9 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
             }
           }
           return base;
-        })())
+        })();
+      if (!payloadCartao) { setProcessando(false); return; }
+      body: JSON.stringify(payloadCartao)
       });
       if (res.ok) {
         const data = await res.json();
