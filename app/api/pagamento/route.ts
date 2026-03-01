@@ -415,8 +415,52 @@ const picpayBody = {
           }
         });
 
-      } else {
-        console.log('Cartao via Mercado Pago - nao implementado ainda');
+     } else {
+        console.log('💳 Gerando cartao via Mercado Pago...');
+        const { mpToken, parcelas } = body;
+
+        if (!mpToken) {
+          return NextResponse.json({ error: 'Token do cartao nao fornecido' }, { status: 400 });
+        }
+
+        const { MercadoPagoConfig, Payment } = require('mercadopago');
+        const client = new MercadoPagoConfig({ accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN || '' });
+        const paymentMP = new Payment(client);
+
+        const result = await paymentMP.create({
+          body: {
+            transaction_amount: valorTotal,
+            description: `${plano.nome} - ${plano.produto.nome}`,
+            installments: parcelas || 1,
+            token: mpToken,
+            payer: {
+              email: compradorEmail || 'contato@finorapayments.com',
+              first_name: compradorNome.split(' ')[0],
+              last_name: compradorNome.split(' ').slice(1).join(' ') || compradorNome.split(' ')[0],
+              identification: {
+                type: 'CPF',
+                number: compradorCpf?.replace(/\D/g, '') || '00000000000'
+              }
+            },
+            external_reference: venda.id
+          }
+        });
+
+        console.log('MP cartao resposta:', result.status, result.status_detail);
+
+        if (result.status === 'approved') {
+          await prisma.venda.update({
+            where: { id: venda.id },
+            data: { status: 'PAGO', pixId: String(result.id) }
+          });
+        } else if (result.status === 'in_process' || result.status === 'pending') {
+          await prisma.venda.update({
+            where: { id: venda.id },
+            data: { pixId: String(result.id) }
+          });
+        } else {
+          return NextResponse.json({ error: 'Cartao recusado: ' + result.status_detail }, { status: 400 });
+        }
       }
 
     } else if (metodoPagamento === 'BOLETO') {

@@ -77,6 +77,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
   });
 
   const [gatewayCartao, setGatewayCartao] = useState('MERCADOPAGO');
+  const [mpReady, setMpReady] = useState(false);
 
   useEffect(() => {
     fetch('/api/configuracoes-gateway')
@@ -87,6 +88,15 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
       })
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (gatewayCartao !== 'MERCADOPAGO') return;
+    if ((window as any).MercadoPago) { setMpReady(true); return; }
+    const script = document.createElement('script');
+    script.src = 'https://sdk.mercadopago.com/js/v2';
+    script.onload = () => setMpReady(true);
+    document.head.appendChild(script);
+  }, [gatewayCartao]);
 
   useEffect(() => {
     const loadParams = async () => {
@@ -270,6 +280,26 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
     setEtapa(plano?.checkoutPedirEndereco ? 2 : 3);
   };
 
+  const tokenizarCartaoMP = async (): Promise<string | null> => {
+    try {
+      const mp = new (window as any).MercadoPago(process.env.NEXT_PUBLIC_MP_PUBLIC_KEY || 'APP_USR-f4a20f19-bebf-4369-95af-171915a3a4cc');
+      const token = await mp.createCardToken({
+        cardNumber: cartaoData.numero.replace(/\D/g, ''),
+        cardholderName: cartaoData.nome,
+        cardExpirationMonth: cartaoData.mes,
+        cardExpirationYear: '20' + cartaoData.ano,
+        securityCode: cartaoData.cvv,
+        identificationType: 'CPF',
+        identificationNumber: formData.cpf.replace(/\D/g, '')
+      });
+      return token.id;
+    } catch (e: any) {
+      console.error('Erro tokenizar cartao MP:', e);
+      alert('Erro ao processar cartão: ' + (e?.message || 'verifique os dados'));
+      return null;
+    }
+  };
+
   const finalizarPedido = async () => {
     if (!formData.nome || !formData.email || !formData.telefone) {
       alert('Preencha todos os campos obrigatorios');
@@ -284,30 +314,34 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
       const res = await fetch('/api/pagamento', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          planoId: plano?.id,
-          orderBumpIds: orderBumpsSelecionados,
-          compradorNome: formData.nome,
-          compradorEmail: formData.email,
-          compradorCpf: formData.cpf,
-          compradorTel: formData.telefone,
-          cep: formData.cep,
-          rua: formData.rua,
-          numero: formData.numero,
-          complemento: formData.complemento,
-          bairro: formData.bairro,
-          cidade: formData.cidade,
-          estado: formData.estado,
-          metodoPagamento: formData.metodoPagamento,
-          ...(formData.metodoPagamento === 'CARTAO' && gatewayCartao === 'APPMAX' ? {
-            cartaoNumero: cartaoData.numero.replace(/\D/g, ''),
-            cartaoNome: cartaoData.nome,
-            cartaoMes: cartaoData.mes,
-            cartaoAno: cartaoData.ano,
-            cartaoCvv: cartaoData.cvv,
-            parcelas: parseInt(cartaoData.parcelas)
-          } : {})
-        })
+        body: JSON.stringify(await (async () => {
+          const base = {
+            planoId: plano?.id,
+            orderBumpIds: orderBumpsSelecionados,
+            compradorNome: formData.nome,
+            compradorEmail: formData.email,
+            compradorCpf: formData.cpf,
+            compradorTel: formData.telefone,
+            cep: formData.cep,
+            rua: formData.rua,
+            numero: formData.numero,
+            complemento: formData.complemento,
+            bairro: formData.bairro,
+            cidade: formData.cidade,
+            estado: formData.estado,
+            metodoPagamento: formData.metodoPagamento,
+          };
+          if (formData.metodoPagamento === 'CARTAO') {
+            if (gatewayCartao === 'APPMAX') {
+              return { ...base, cartaoNumero: cartaoData.numero.replace(/\D/g, ''), cartaoNome: cartaoData.nome, cartaoMes: cartaoData.mes, cartaoAno: cartaoData.ano, cartaoCvv: cartaoData.cvv, parcelas: parseInt(cartaoData.parcelas) };
+            } else {
+              const token = await tokenizarCartaoMP();
+              if (!token) { setProcessando(false); return null; }
+              return { ...base, mpToken: token, parcelas: parseInt(cartaoData.parcelas) };
+            }
+          }
+          return base;
+        })())
       });
       if (res.ok) {
         const data = await res.json();
@@ -568,7 +602,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
                       </button>
                     )}
                   </div>
-                  {formData.metodoPagamento === 'CARTAO' && gatewayCartao === 'APPMAX' && (
+                  {formData.metodoPagamento === 'CARTAO' && (gatewayCartao === 'APPMAX' || gatewayCartao === 'MERCADOPAGO') && (
                     <div className="cartao-form">
                       <p className="section-title" style={{ marginBottom: '16px' }}>Dados do Cartao:</p>
                       <div className="form-group">
