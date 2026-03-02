@@ -100,6 +100,28 @@ export async function POST(request: NextRequest) {
 
       console.log('✅ Venda normal marcada como PAGO:', referenceId);
 
+      // CAPI Purchase
+      try {
+        if (vendaExistente.produtoId) {
+          const pixels = await prisma.pixel.findMany({ where: { produtoId: vendaExistente.produtoId, plataforma: 'FACEBOOK', ativo: true } });
+          for (const px of pixels) {
+            if ((px as any).pixelId && (px as any).accessToken) {
+              const { dispararEventoCAPI } = await import('@/lib/facebook-capi');
+              await dispararEventoCAPI({
+                pixelId: (px as any).pixelId,
+                accessToken: (px as any).accessToken,
+                eventName: 'Purchase',
+                value: vendaExistente.valor,
+                contentName: vendaExistente.nomePlano || '',
+                contentIds: [vendaExistente.produtoId],
+                email: vendaExistente.compradorEmail,
+                phone: vendaExistente.compradorTel || ''
+              });
+            }
+          }
+        }
+      } catch (e) { console.error('Erro CAPI Purchase MP:', e); }
+
       // Processar carteira do vendedor
       try {
         await fetch(`${protocol}://${origin}/api/vendas/marcar-pago`, {
