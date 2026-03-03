@@ -9,6 +9,7 @@ export default function PagamentoSucessoContent() {
   const [pedido, setPedido] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const pedidoId = searchParams?.get('pedido');
+  const purchaseDisparado = useRef(false);
 
   useEffect(() => {
     if (pedidoId) {
@@ -17,6 +18,20 @@ export default function PagamentoSucessoContent() {
         .then(data => {
           setPedido(data);
           setLoading(false);
+
+          // Disparar Purchase no frontend
+          if (!purchaseDisparado.current && typeof window !== 'undefined' && (window as any).fbq) {
+            try {
+              (window as any).fbq('track', 'Purchase', {
+                value: data.venda?.valor || data.valor,
+                currency: 'BRL',
+                content_name: data.venda?.nomePlano || data.produto?.nome || '',
+                content_ids: [data.venda?.produtoId || ''],
+                content_type: 'product'
+              });
+              purchaseDisparado.current = true;
+            } catch (e) { console.error('Erro pixel Purchase:', e); }
+          }
         })
         .catch(() => setLoading(false));
     }
