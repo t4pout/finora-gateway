@@ -104,6 +104,7 @@ export async function POST(request: NextRequest) {
       try {
         if (vendaExistente.produtoId) {
           const pixels = await prisma.pixel.findMany({ where: { produtoId: vendaExistente.produtoId, plataforma: 'FACEBOOK', ativo: true } });
+          console.log('Pixels encontrados para CAPI:', pixels.length, JSON.stringify(pixels.map((p: any) => ({ id: p.id, pixelId: p.pixelId, ativo: p.ativo }))));
           for (const px of pixels) {
             if ((px as any).pixelId && (px as any).accessToken) {
               const { dispararEventoCAPI } = await import('@/lib/facebook-capi');
