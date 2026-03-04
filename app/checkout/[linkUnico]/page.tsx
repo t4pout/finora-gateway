@@ -331,7 +331,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
       let payload: any = base;
 
       if (formData.metodoPagamento === 'CARTAO') {
-        if (gatewayCartao === 'APPMAX') {
+        if (gatewayCartao === 'APPMAX' || gatewayCartao === 'CIELO') {
           payload = {
             ...base,
             cartaoNumero: cartaoData.numero.replace(/\D/g, ''),
@@ -620,7 +620,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
                       </button>
                     )}
                   </div>
-                  {formData.metodoPagamento === 'CARTAO' && (gatewayCartao === 'APPMAX' || gatewayCartao === 'MERCADOPAGO') && (
+                  {formData.metodoPagamento === 'CARTAO' && (gatewayCartao === 'APPMAX' || gatewayCartao === 'MERCADOPAGO' || gatewayCartao === 'CIELO') && (
                     <div className="cartao-form">
                       <p className="section-title" style={{ marginBottom: '16px' }}>Dados do Cartao:</p>
                       <div className="form-group">
