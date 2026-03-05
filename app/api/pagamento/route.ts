@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getPicPayToken } from '@/lib/picpay-token';
 import { enviarEmailPedidoCriado } from '@/lib/email';
+import { HttpsProxyAgent } from 'https-proxy-agent';
 
 const PAGGPIX_TOKEN = process.env.PAGGPIX_TOKEN;
 const PAGGPIX_API = 'https://public-api.paggpix.com';
@@ -15,7 +16,11 @@ const VENIT_AUTH = 'Basic ' + Buffer.from(VENIT_SECRET + ':' + VENIT_COMPANY).to
 const CIELO_API = 'https://api.cieloecommerce.cielo.com.br/1';
 const CIELO_MERCHANT_ID = process.env.CIELO_MERCHANT_ID || '';
 const CIELO_MERCHANT_KEY = process.env.CIELO_MERCHANT_KEY || '';
+const FIXIE_URL = process.env.FIXIE_URL || '';
+const appmaxAgent = FIXIE_URL ? new HttpsProxyAgent(FIXIE_URL) : undefined;
+
 console.log('Venit auth montado - Secret:', VENIT_SECRET.substring(0, 10) + '... | Company:', VENIT_COMPANY.substring(0, 8) + '...');
+console.log('Fixie proxy:', FIXIE_URL ? '✅ configurado' : '❌ não configurado');
 
 export async function POST(request: NextRequest) {
   try {
@@ -262,8 +267,6 @@ export async function POST(request: NextRequest) {
 
         if (paymentStatus === 2) {
           await prisma.venda.update({ where: { id: venda.id }, data: { status: 'PAGO', pixId: paymentId } });
-
-          // CAPI Purchase imediato
           try {
             const pixels = await (prisma as any).pixel.findMany({ where: { produtoId: plano.produtoId, plataforma: 'FACEBOOK', ativo: true } });
             for (const px of pixels) {
@@ -273,7 +276,6 @@ export async function POST(request: NextRequest) {
               }
             }
           } catch (e) { console.error('Erro CAPI Purchase Cielo:', e); }
-
         } else if (paymentStatus === 1) {
           await prisma.venda.update({ where: { id: venda.id }, data: { status: 'PENDENTE', pixId: paymentId } });
         } else {
@@ -281,41 +283,67 @@ export async function POST(request: NextRequest) {
         }
 
       } else if (gatewayCartao === 'APPMAX') {
-        console.log('Gerando cartao via Appmax...');
+        console.log('💳 Gerando cartao via Appmax (proxy Fixie)...');
         const { cartaoNumero, cartaoCvv, cartaoMes, cartaoAno, cartaoNome, parcelas } = body;
         const nomePartes = compradorNome.split(' ');
         const firstname = nomePartes[0];
         const lastname = nomePartes.slice(1).join(' ') || firstname;
 
+        // 1. Criar cliente
         const customerRes = await fetch(APPMAX_API + '/customer', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 'access-token': APPMAX_TOKEN, firstname, lastname, email: compradorEmail, telephone: compradorTel?.replace(/\D/g, '') || '11999999999', postcode: cep?.replace(/\D/g, '') || '', address_street: rua || 'Rua', address_street_number: numero || 'SN', address_street_complement: complemento || '', address_street_district: bairro || 'Centro', address_city: cidade || 'Sao Paulo', address_state: estado || 'SP', ip: request.headers.get('x-forwarded-for') || '127.0.0.1' })
+          headers: {
+            'Content-Type': 'application/json',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'application/json',
+            'Origin': 'https://finorapayments.com',
+            'Referer': 'https://finorapayments.com/'
+          },
+          body: JSON.stringify({ 'access-token': APPMAX_TOKEN, firstname, lastname, email: compradorEmail, telephone: compradorTel?.replace(/\D/g, '') || '11999999999', postcode: cep?.replace(/\D/g, '') || '', address_street: rua || 'Rua', address_street_number: numero || 'SN', address_street_complement: complemento || '', address_street_district: bairro || 'Centro', address_city: cidade || 'Sao Paulo', address_state: estado || 'SP', ip: request.headers.get('x-forwarded-for') || '127.0.0.1' }),
+          ...(appmaxAgent && { agent: appmaxAgent } as any)
         });
 
         const customerText = await customerRes.text();
+        console.log('Appmax customer resposta:', customerText);
         let customerData: any = {};
         try { customerData = JSON.parse(customerText); } catch(e) { return NextResponse.json({ error: 'Appmax retornou resposta invalida', details: customerText.substring(0, 200) }, { status: 500 }); }
         if (!customerRes.ok || !customerData.data?.id) return NextResponse.json({ error: 'Erro ao criar cliente Appmax', details: customerData }, { status: 500 });
         const customerId = customerData.data.id;
 
+        // 2. Criar pedido
         const orderRes = await fetch(APPMAX_API + '/order', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 'access-token': APPMAX_TOKEN, customer_id: customerId, total: valorTotal, products: [{ sku: plano.id.substring(0, 20), name: plano.nome, qty: 1 }] })
+          headers: {
+            'Content-Type': 'application/json',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'application/json',
+            'Origin': 'https://finorapayments.com',
+            'Referer': 'https://finorapayments.com/'
+          },
+          body: JSON.stringify({ 'access-token': APPMAX_TOKEN, customer_id: customerId, total: valorTotal, products: [{ sku: plano.id.substring(0, 20), name: plano.nome, qty: 1 }] }),
+          ...(appmaxAgent && { agent: appmaxAgent } as any)
         });
 
         const orderData = await orderRes.json();
         if (!orderRes.ok || !orderData.data?.id) return NextResponse.json({ error: 'Erro ao criar pedido Appmax', details: orderData }, { status: 500 });
         const orderId = orderData.data.id;
 
+        // 3. Processar cartão
         const cartaoRes = await fetch(APPMAX_API + '/payment/credit-card', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json', 'Origin': 'https://finorapayments.com', 'Referer': 'https://finorapayments.com/' },
-          body: JSON.stringify({ 'access-token': APPMAX_TOKEN, cart: { order_id: orderId }, customer: { customer_id: customerId }, payment: { CreditCard: { number: cartaoNumero?.replace(/\D/g, ''), cvv: cartaoCvv, month: parseInt(cartaoMes), year: parseInt(cartaoAno), document_number: compradorCpf?.replace(/\D/g, '') || '00000000000', name: cartaoNome || compradorNome, installments: parcelas || 1 } } })
+          headers: {
+            'Content-Type': 'application/json',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'application/json',
+            'Origin': 'https://finorapayments.com',
+            'Referer': 'https://finorapayments.com/'
+          },
+          body: JSON.stringify({ 'access-token': APPMAX_TOKEN, cart: { order_id: orderId }, customer: { customer_id: customerId }, payment: { CreditCard: { number: cartaoNumero?.replace(/\D/g, ''), cvv: cartaoCvv, month: parseInt(cartaoMes), year: parseInt(cartaoAno), document_number: compradorCpf?.replace(/\D/g, '') || '00000000000', name: cartaoNome || compradorNome, installments: parcelas || 1 } } }),
+          ...(appmaxAgent && { agent: appmaxAgent } as any)
         });
 
         const cartaoData = await cartaoRes.json();
+        console.log('Appmax cartao resposta:', JSON.stringify(cartaoData));
         if (!cartaoRes.ok) return NextResponse.json({ error: 'Erro ao processar cartao Appmax', details: cartaoData }, { status: 500 });
         const statusCartao = cartaoData.data?.status || 'pending';
         await prisma.venda.update({ where: { id: venda.id }, data: { status: statusCartao === 'approved' ? 'PAGO' : 'PENDENTE', pixId: String(orderId) } });
@@ -354,38 +382,63 @@ export async function POST(request: NextRequest) {
     // ==========================================
     } else if (metodoPagamento === 'BOLETO') {
       if (gatewayBoleto === 'APPMAX') {
-        console.log('Gerando boleto via Appmax...');
+        console.log('📄 Gerando boleto via Appmax (proxy Fixie)...');
         const nomePartes = compradorNome.split(' ');
         const firstname = nomePartes[0];
         const lastname = nomePartes.slice(1).join(' ') || firstname;
 
+        // 1. Criar cliente
         const customerRes = await fetch(APPMAX_API + '/customer', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json', 'Origin': 'https://finorapayments.com', 'Referer': 'https://finorapayments.com/' },
-          body: JSON.stringify({ 'access-token': APPMAX_TOKEN, firstname, lastname, email: compradorEmail, telephone: compradorTel?.replace(/\D/g, '') || '11999999999', postcode: cep?.replace(/\D/g, '') || '', address_street: rua || 'Rua', address_street_number: numero || 'SN', address_street_complement: complemento || '', address_street_district: bairro || 'Centro', address_city: cidade || 'Sao Paulo', address_state: estado || 'SP', ip: request.headers.get('x-forwarded-for') || '127.0.0.1' })
+          headers: {
+            'Content-Type': 'application/json',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'application/json',
+            'Origin': 'https://finorapayments.com',
+            'Referer': 'https://finorapayments.com/'
+          },
+          body: JSON.stringify({ 'access-token': APPMAX_TOKEN, firstname, lastname, email: compradorEmail, telephone: compradorTel?.replace(/\D/g, '') || '11999999999', postcode: cep?.replace(/\D/g, '') || '', address_street: rua || 'Rua', address_street_number: numero || 'SN', address_street_complement: complemento || '', address_street_district: bairro || 'Centro', address_city: cidade || 'Sao Paulo', address_state: estado || 'SP', ip: request.headers.get('x-forwarded-for') || '127.0.0.1' }),
+          ...(appmaxAgent && { agent: appmaxAgent } as any)
         });
 
         const customerData = await customerRes.json();
         if (!customerRes.ok || !customerData.data?.id) return NextResponse.json({ error: 'Erro ao criar cliente Appmax', details: customerData }, { status: 500 });
         const customerId = customerData.data.id;
 
+        // 2. Criar pedido
         const orderRes = await fetch(APPMAX_API + '/order', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json', 'Origin': 'https://finorapayments.com', 'Referer': 'https://finorapayments.com/' },
-          body: JSON.stringify({ 'access-token': APPMAX_TOKEN, customer_id: customerId, total: valorTotal, products: [{ sku: plano.id.substring(0, 20), name: plano.nome, qty: 1 }] })
+          headers: {
+            'Content-Type': 'application/json',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'application/json',
+            'Origin': 'https://finorapayments.com',
+            'Referer': 'https://finorapayments.com/'
+          },
+          body: JSON.stringify({ 'access-token': APPMAX_TOKEN, customer_id: customerId, total: valorTotal, products: [{ sku: plano.id.substring(0, 20), name: plano.nome, qty: 1 }] }),
+          ...(appmaxAgent && { agent: appmaxAgent } as any)
         });
 
         const orderData = await orderRes.json();
         if (!orderRes.ok || !orderData.data?.id) return NextResponse.json({ error: 'Erro ao criar pedido Appmax', details: orderData }, { status: 500 });
         const orderId = orderData.data.id;
 
+        // 3. Gerar boleto
         const boletoRes = await fetch(APPMAX_API + '/payment/boleto', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 'access-token': APPMAX_TOKEN, cart: { order_id: orderId }, customer: { customer_id: customerId }, payment: { Boleto: { document_number: compradorCpf?.replace(/\D/g, '') || '00000000000' } } })
+          headers: {
+            'Content-Type': 'application/json',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'application/json',
+            'Origin': 'https://finorapayments.com',
+            'Referer': 'https://finorapayments.com/'
+          },
+          body: JSON.stringify({ 'access-token': APPMAX_TOKEN, cart: { order_id: orderId }, customer: { customer_id: customerId }, payment: { Boleto: { document_number: compradorCpf?.replace(/\D/g, '') || '00000000000' } } }),
+          ...(appmaxAgent && { agent: appmaxAgent } as any)
         });
 
         const boletoData = await boletoRes.json();
+        console.log('Appmax boleto resposta:', JSON.stringify(boletoData));
         if (!boletoRes.ok) return NextResponse.json({ error: 'Erro ao gerar boleto Appmax', details: boletoData }, { status: 500 });
 
         await prisma.venda.update({ where: { id: venda.id }, data: { boletoUrl: boletoData.data?.boleto_url || boletoData.data?.url || null, boletoBarcode: boletoData.data?.boleto_barcode || boletoData.data?.barcode || null, pixId: String(orderId) } });
