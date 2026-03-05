@@ -33,6 +33,7 @@ interface Venda {
     nome: string;
   };
   transacoes?: { valor: number }[];
+  vendedor?: { nome: string };
 }
 
 interface User {
@@ -183,7 +184,8 @@ export default function VendasPage() {
         'Endereco': venda.rua ? venda.rua + ', ' + venda.numero : '-',
         'Bairro': venda.bairro || '-',
         'Cidade': venda.cidade || '-',
-        'Estado': venda.estado || '-'
+        'Estado': venda.estado || '-',
+        'Vendedor': venda.vendedor?.nome || '-'
       }));
       const ws = XLSX.utils.json_to_sheet(dadosExportacao);
       const wb = XLSX.utils.book_new();

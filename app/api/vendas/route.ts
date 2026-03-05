@@ -262,6 +262,11 @@ export async function GET(request: NextRequest) {
             nome: true
           }
         },
+        vendedor: {
+          select: {
+            nome: true
+          }
+        },
          transacoes: {
           select: {
             valor: true
