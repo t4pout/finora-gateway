@@ -1,10 +1,10 @@
 ﻿'use client';
 
 import Sidebar from '@/app/components/Sidebar';
-
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { DollarSign, ShoppingBag, BarChart3, Filter, Calendar, Eye, X, Download } from 'lucide-react';
+import { agoraBrasil, toBrasil, formatarData, formatarHora, formatarDataHora, inicioDiaBrasil, fimDiaBrasil, inicioDiasAtras, isOntem, parseDateInput } from '@/lib/date-brasil';
 
 interface Venda {
   id: string;
@@ -29,11 +29,9 @@ interface Venda {
   orderBumpsValor?: number;
   createdAt: string;
   nomePlano?: string;
-  produto: {
-    nome: string;
-  };
-  transacoes?: { valor: number }[];
+  produto: { nome: string };
   vendedor?: { nome: string };
+  transacoes?: { valor: number }[];
 }
 
 interface User {
@@ -58,10 +56,7 @@ export default function VendasPage() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
-    if (!token) {
-      router.push('/auth/login');
-      return;
-    }
+    if (!token) { router.push('/auth/login'); return; }
     if (userData) setUser(JSON.parse(userData));
     carregarVendas();
   }, [router]);
@@ -70,9 +65,7 @@ export default function VendasPage() {
     try {
       const token = localStorage.getItem('token');
       const url = mostrarTodas ? '/api/vendas?todas=true' : '/api/vendas';
-      const response = await fetch(url, {
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
+      const response = await fetch(url, { headers: { 'Authorization': 'Bearer ' + token } });
       if (response.ok) {
         const data = await response.json();
         setVendas(data.vendas || []);
@@ -92,62 +85,41 @@ export default function VendasPage() {
     router.push('/');
   };
 
-  const abrirDetalhes = (venda: Venda) => {
-    setVendaSelecionada(venda);
-    setModalAberto(true);
-  };
-
-  const fecharModal = () => {
-    setModalAberto(false);
-    setVendaSelecionada(null);
-  };
-
-  const getDataInicio = () => {
-    const hoje = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
-    hoje.setHours(0, 0, 0, 0);
-    switch (filtroData) {
-      case 'HOJE': return hoje;
-      case 'ONTEM': { const d = new Date(hoje); d.setDate(d.getDate() - 1); return d; }
-      case '7D': { const d = new Date(hoje); d.setDate(d.getDate() - 7); return d; }
-      case '14D': { const d = new Date(hoje); d.setDate(d.getDate() - 14); return d; }
-      case '30D': { const d = new Date(hoje); d.setDate(d.getDate() - 30); return d; }
-      default: return null;
-    }
-  };
+  const abrirDetalhes = (venda: Venda) => { setVendaSelecionada(venda); setModalAberto(true); };
+  const fecharModal = () => { setModalAberto(false); setVendaSelecionada(null); };
 
   const vendasFiltradas = vendas.filter(v => {
     if (filtroStatus !== 'TODAS' && v.status !== filtroStatus) return false;
 
     if (dataInicio || dataFim) {
-      const dataVendaOriginal = new Date(v.createdAt);
-      const offsetBrasilia = -3 * 60;
-      const offsetLocal = dataVendaOriginal.getTimezoneOffset();
-      const diffMinutos = offsetBrasilia - offsetLocal;
-      const dataVendaBrasil = new Date(dataVendaOriginal.getTime() + (diffMinutos * 60 * 1000));
-      const dataVendaNormalizada = new Date(dataVendaBrasil.getFullYear(), dataVendaBrasil.getMonth(), dataVendaBrasil.getDate(), 0, 0, 0, 0);
-
+      const dataVenda = toBrasil(v.createdAt);
+      dataVenda.setHours(0, 0, 0, 0);
       if (dataInicio) {
-        const [a, m, d] = dataInicio.split('-').map(Number);
-        if (dataVendaNormalizada < new Date(a, m - 1, d, 0, 0, 0, 0)) return false;
+        const inicio = parseDateInput(dataInicio);
+        if (dataVenda < inicio) return false;
       }
       if (dataFim) {
-        const [a, m, d] = dataFim.split('-').map(Number);
-        if (dataVendaNormalizada > new Date(a, m - 1, d, 23, 59, 59, 999)) return false;
+        const fim = parseDateInput(dataFim);
+        fim.setHours(23, 59, 59, 999);
+        if (dataVenda > fim) return false;
       }
       return true;
     }
 
     if (filtroData === 'ONTEM') {
-      const hoje = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+      return isOntem(v.createdAt);
+    } else if (filtroData === 'HOJE') {
+      const dataVenda = toBrasil(v.createdAt);
+      dataVenda.setHours(0, 0, 0, 0);
+      const hoje = agoraBrasil();
       hoje.setHours(0, 0, 0, 0);
-      const ontem = new Date(hoje);
-      ontem.setDate(ontem.getDate() - 1);
-      const dataVendaBrasil = new Date(new Date(v.createdAt).toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
-      dataVendaBrasil.setHours(0, 0, 0, 0);
-      if (dataVendaBrasil.getTime() !== ontem.getTime()) return false;
-    } else if (filtroData !== 'TODAS' && filtroData !== 'PERSONALIZADO') {
-      const inicio = getDataInicio();
-      if (inicio && new Date(v.createdAt) < inicio) return false;
+      return dataVenda.getTime() === hoje.getTime();
+    } else if (filtroData === '7D') {
+      return toBrasil(v.createdAt) >= inicioDiasAtras(7);
+    } else if (filtroData === '14D') {
+      return toBrasil(v.createdAt) >= inicioDiasAtras(14);
+    } else if (filtroData === '30D') {
+      return toBrasil(v.createdAt) >= inicioDiasAtras(30);
     }
 
     return true;
@@ -165,8 +137,8 @@ export default function VendasPage() {
     try {
       const XLSX = await import('xlsx');
       const dadosExportacao = vendasFiltradas.map(venda => ({
-        'Data': new Date(venda.createdAt).toLocaleDateString('pt-BR'),
-        'Hora': new Date(venda.createdAt).toLocaleTimeString('pt-BR'),
+        'Data': formatarData(venda.createdAt),
+        'Hora': formatarHora(venda.createdAt),
         'Produto': venda.produto.nome,
         'Cliente': venda.compradorNome,
         'Email': venda.compradorEmail,
@@ -223,10 +195,7 @@ export default function VendasPage() {
               <p className="text-sm text-gray-500">Gerencie todas as suas vendas</p>
             </div>
             <div className="flex items-center gap-3">
-              <button
-                onClick={exportarParaExcel}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2"
-              >
+              <button onClick={exportarParaExcel} className="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2">
                 <Download size={20} />
                 Exportar Excel
               </button>
@@ -331,9 +300,7 @@ export default function VendasPage() {
                   <span className="text-gray-500">ate</span>
                   <input type="date" value={dataFim} onChange={(e) => { setDataFim(e.target.value); setFiltroData('PERSONALIZADO'); }} className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-600 outline-none" />
                   {(dataInicio || dataFim) && (
-                    <button onClick={() => { setDataInicio(''); setDataFim(''); setFiltroData('TODAS'); }} className="px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-sm font-semibold hover:bg-red-200 transition">
-                      Limpar
-                    </button>
+                    <button onClick={() => { setDataInicio(''); setDataFim(''); setFiltroData('TODAS'); }} className="px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-sm font-semibold hover:bg-red-200 transition">Limpar</button>
                   )}
                 </div>
               </div>
@@ -358,16 +325,12 @@ export default function VendasPage() {
                 <tbody>
                   {vendasFiltradas.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="py-12 text-center text-gray-500">
-                        Nenhuma venda encontrada com os filtros selecionados
-                      </td>
+                      <td colSpan={8} className="py-12 text-center text-gray-500">Nenhuma venda encontrada com os filtros selecionados</td>
                     </tr>
                   ) : (
                     vendasFiltradas.map((venda) => (
                       <tr key={venda.id} className="border-b border-gray-100 hover:bg-gray-50">
-                        <td className="py-4 px-4 text-sm text-gray-600">
-                          {new Date(venda.createdAt).toLocaleDateString('pt-BR')}
-                        </td>
+                        <td className="py-4 px-4 text-sm text-gray-600">{formatarData(venda.createdAt)}</td>
                         <td className="py-4 px-4">
                           <div className="font-semibold text-gray-900">{venda.produto.nome}</div>
                         </td>
@@ -375,13 +338,9 @@ export default function VendasPage() {
                           <div className="text-sm text-gray-900">{venda.compradorNome}</div>
                           <div className="text-xs text-gray-500">{venda.compradorEmail}</div>
                         </td>
-                        <td className="py-4 px-4 font-semibold text-gray-900">
-                          R$ {venda.valor.toFixed(2).replace('.', ',')}
-                        </td>
+                        <td className="py-4 px-4 font-semibold text-gray-900">R$ {venda.valor.toFixed(2).replace('.', ',')}</td>
                         <td className="py-4 px-4 font-semibold text-green-600">
-                          {venda.transacoes && venda.transacoes.length > 0
-                            ? 'R$ ' + venda.transacoes[0].valor.toFixed(2).replace('.', ',')
-                            : '-'}
+                          {venda.transacoes && venda.transacoes.length > 0 ? 'R$ ' + venda.transacoes[0].valor.toFixed(2).replace('.', ',') : '-'}
                         </td>
                         <td className="py-4 px-4">
                           <span className={'inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold ' + (venda.status === 'PAGO' ? 'bg-green-100 text-green-700' : venda.status === 'PENDENTE' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700')}>
@@ -410,43 +369,22 @@ export default function VendasPage() {
           <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
               <h2 className="text-2xl font-bold text-gray-900">Detalhes da Venda</h2>
-              <button onClick={fecharModal} className="p-2 hover:bg-gray-100 rounded-lg transition">
-                <X size={24} />
-              </button>
+              <button onClick={fecharModal} className="p-2 hover:bg-gray-100 rounded-lg transition"><X size={24} /></button>
             </div>
-
             <div className="p-6 space-y-6">
               <div className="bg-purple-50 rounded-xl p-4">
                 <h3 className="font-semibold text-purple-900 mb-2">Produto</h3>
                 <p className="text-lg font-bold text-purple-700">{vendaSelecionada.produto.nome}</p>
                 <p className="text-sm text-purple-600">ID: {vendaSelecionada.id.substring(0, 8)}</p>
               </div>
-
               <div>
                 <h3 className="font-semibold text-gray-900 mb-3">Dados do Cliente</h3>
                 <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm text-gray-600">Nome</label>
-                    <p className="font-semibold text-gray-900">{vendaSelecionada.compradorNome}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm text-gray-600">Email</label>
-                    <p className="font-semibold text-gray-900">{vendaSelecionada.compradorEmail}</p>
-                  </div>
-                  {vendaSelecionada.compradorCpf && (
-                    <div>
-                      <label className="text-sm text-gray-600">CPF</label>
-                      <p className="font-semibold text-gray-900">{vendaSelecionada.compradorCpf}</p>
-                    </div>
-                  )}
-                  {vendaSelecionada.compradorTel && (
-                    <div>
-                      <label className="text-sm text-gray-600">Telefone</label>
-                      <p className="font-semibold text-gray-900">{vendaSelecionada.compradorTel}</p>
-                    </div>
-                  )}
+                  <div><label className="text-sm text-gray-600">Nome</label><p className="font-semibold text-gray-900">{vendaSelecionada.compradorNome}</p></div>
+                  <div><label className="text-sm text-gray-600">Email</label><p className="font-semibold text-gray-900">{vendaSelecionada.compradorEmail}</p></div>
+                  {vendaSelecionada.compradorCpf && <div><label className="text-sm text-gray-600">CPF</label><p className="font-semibold text-gray-900">{vendaSelecionada.compradorCpf}</p></div>}
+                  {vendaSelecionada.compradorTel && <div><label className="text-sm text-gray-600">Telefone</label><p className="font-semibold text-gray-900">{vendaSelecionada.compradorTel}</p></div>}
                 </div>
-
                 {vendaSelecionada.metodoPagamento === 'PIX' && vendaSelecionada.pixCopiaECola && vendaSelecionada.status === 'PENDENTE' && (
                   <div className="mt-4 bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4">
                     <div className="flex items-center gap-2 mb-2">
@@ -454,15 +392,8 @@ export default function VendasPage() {
                     </div>
                     <p className="text-xs text-yellow-700 mb-2">Use este codigo PIX para enviar ao cliente via WhatsApp:</p>
                     <div className="relative">
-                      <div className="bg-white p-3 rounded-lg font-mono text-xs break-all border border-yellow-300">
-                        {vendaSelecionada.pixCopiaECola}
-                      </div>
-                      <button
-                        onClick={() => { navigator.clipboard.writeText(vendaSelecionada.pixCopiaECola!); alert('Codigo PIX copiado!'); }}
-                        className="absolute top-2 right-2 px-3 py-1.5 bg-yellow-600 text-white text-xs font-semibold rounded-lg hover:bg-yellow-700 transition"
-                      >
-                        Copiar
-                      </button>
+                      <div className="bg-white p-3 rounded-lg font-mono text-xs break-all border border-yellow-300">{vendaSelecionada.pixCopiaECola}</div>
+                      <button onClick={() => { navigator.clipboard.writeText(vendaSelecionada.pixCopiaECola!); alert('Codigo PIX copiado!'); }} className="absolute top-2 right-2 px-3 py-1.5 bg-yellow-600 text-white text-xs font-semibold rounded-lg hover:bg-yellow-700 transition">Copiar</button>
                     </div>
                     <div className="mt-3 flex gap-2">
                       <button
@@ -472,54 +403,25 @@ export default function VendasPage() {
                           window.open('https://wa.me/55' + telefone + '?text=' + encodeURIComponent(mensagem), '_blank');
                         }}
                         className="flex-1 px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition"
-                      >
-                        Cobrar via WhatsApp
-                      </button>
-                      <button
-                        onClick={() => { navigator.clipboard.writeText(vendaSelecionada.pixCopiaECola!); alert('Codigo PIX copiado!'); }}
-                        className="px-4 py-2 bg-yellow-600 text-white font-semibold rounded-lg hover:bg-yellow-700 transition"
-                      >
-                        Copiar Codigo
-                      </button>
+                      >Cobrar via WhatsApp</button>
+                      <button onClick={() => { navigator.clipboard.writeText(vendaSelecionada.pixCopiaECola!); alert('Codigo PIX copiado!'); }} className="px-4 py-2 bg-yellow-600 text-white font-semibold rounded-lg hover:bg-yellow-700 transition">Copiar Codigo</button>
                     </div>
                   </div>
                 )}
               </div>
-
               {vendaSelecionada.cep && (
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-3">Endereco</h3>
                   <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm text-gray-600">CEP</label>
-                      <p className="font-semibold text-gray-900">{vendaSelecionada.cep}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm text-gray-600">Rua</label>
-                      <p className="font-semibold text-gray-900">{vendaSelecionada.rua}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm text-gray-600">Numero</label>
-                      <p className="font-semibold text-gray-900">{vendaSelecionada.numero}</p>
-                    </div>
-                    {vendaSelecionada.complemento && (
-                      <div>
-                        <label className="text-sm text-gray-600">Complemento</label>
-                        <p className="font-semibold text-gray-900">{vendaSelecionada.complemento}</p>
-                      </div>
-                    )}
-                    <div>
-                      <label className="text-sm text-gray-600">Bairro</label>
-                      <p className="font-semibold text-gray-900">{vendaSelecionada.bairro}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm text-gray-600">Cidade/UF</label>
-                      <p className="font-semibold text-gray-900">{vendaSelecionada.cidade} - {vendaSelecionada.estado}</p>
-                    </div>
+                    <div><label className="text-sm text-gray-600">CEP</label><p className="font-semibold text-gray-900">{vendaSelecionada.cep}</p></div>
+                    <div><label className="text-sm text-gray-600">Rua</label><p className="font-semibold text-gray-900">{vendaSelecionada.rua}</p></div>
+                    <div><label className="text-sm text-gray-600">Numero</label><p className="font-semibold text-gray-900">{vendaSelecionada.numero}</p></div>
+                    {vendaSelecionada.complemento && <div><label className="text-sm text-gray-600">Complemento</label><p className="font-semibold text-gray-900">{vendaSelecionada.complemento}</p></div>}
+                    <div><label className="text-sm text-gray-600">Bairro</label><p className="font-semibold text-gray-900">{vendaSelecionada.bairro}</p></div>
+                    <div><label className="text-sm text-gray-600">Cidade/UF</label><p className="font-semibold text-gray-900">{vendaSelecionada.cidade} - {vendaSelecionada.estado}</p></div>
                   </div>
                 </div>
               )}
-
               <div>
                 <h3 className="font-semibold text-gray-900 mb-3">Informacoes da Venda</h3>
                 <div className="grid md:grid-cols-2 gap-4">
@@ -527,30 +429,20 @@ export default function VendasPage() {
                     <label className="text-sm text-gray-600">Valor Total</label>
                     <p className="text-2xl font-bold text-gray-900">R$ {vendaSelecionada.valor.toFixed(2).replace('.', ',')}</p>
                     {vendaSelecionada.orderBumpsValor && vendaSelecionada.orderBumpsValor > 0 && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        {'Produto: R$ ' + (vendaSelecionada.valor - vendaSelecionada.orderBumpsValor).toFixed(2).replace('.', ',') + ' + Order Bumps: R$ ' + vendaSelecionada.orderBumpsValor.toFixed(2).replace('.', ',')}
-                      </p>
+                      <p className="text-xs text-gray-500 mt-1">{'Produto: R$ ' + (vendaSelecionada.valor - vendaSelecionada.orderBumpsValor).toFixed(2).replace('.', ',') + ' + Order Bumps: R$ ' + vendaSelecionada.orderBumpsValor.toFixed(2).replace('.', ',')}</p>
                     )}
                   </div>
-                  <div>
-                    <label className="text-sm text-gray-600">Metodo de Pagamento</label>
-                    <p className="font-semibold text-gray-900">{vendaSelecionada.metodoPagamento}</p>
-                  </div>
+                  <div><label className="text-sm text-gray-600">Metodo de Pagamento</label><p className="font-semibold text-gray-900">{vendaSelecionada.metodoPagamento}</p></div>
                   <div>
                     <label className="text-sm text-gray-600">Status</label>
-                    <span className={'inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold ' + (vendaSelecionada.status === 'PAGO' ? 'bg-green-100 text-green-700' : vendaSelecionada.status === 'PENDENTE' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700')}>
-                      {vendaSelecionada.status}
-                    </span>
+                    <span className={'inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold ' + (vendaSelecionada.status === 'PAGO' ? 'bg-green-100 text-green-700' : vendaSelecionada.status === 'PENDENTE' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700')}>{vendaSelecionada.status}</span>
                   </div>
-                  <div>
-                    <label className="text-sm text-gray-600">Data</label>
-                    <p className="font-semibold text-gray-900">
-                      {new Date(vendaSelecionada.createdAt).toLocaleString('pt-BR')}
-                    </p>
-                  </div>
+                  <div><label className="text-sm text-gray-600">Data</label><p className="font-semibold text-gray-900">{formatarDataHora(vendaSelecionada.createdAt)}</p></div>
+                  {vendaSelecionada.vendedor && (
+                    <div><label className="text-sm text-gray-600">Vendedor</label><p className="font-semibold text-gray-900">{vendaSelecionada.vendedor.nome}</p></div>
+                  )}
                 </div>
               </div>
-
               {vendaSelecionada.orderBumpsNomes && vendaSelecionada.orderBumpsNomes.length > 0 && (
                 <div className="bg-purple-50 rounded-xl p-4">
                   <h3 className="font-semibold text-purple-900 mb-3">Order Bumps Adicionados</h3>
@@ -563,24 +455,14 @@ export default function VendasPage() {
                   </div>
                   <div className="mt-3 pt-3 border-t border-purple-200 flex justify-between">
                     <span className="font-semibold text-purple-900">Total Order Bumps:</span>
-                    <span className="font-bold text-purple-700">
-                      {'R$ ' + (vendaSelecionada.orderBumpsValor ? vendaSelecionada.orderBumpsValor.toFixed(2).replace('.', ',') : '0,00')}
-                    </span>
+                    <span className="font-bold text-purple-700">{'R$ ' + (vendaSelecionada.orderBumpsValor ? vendaSelecionada.orderBumpsValor.toFixed(2).replace('.', ',') : '0,00')}</span>
                   </div>
                 </div>
               )}
-
               {vendaSelecionada.boletoUrl && (
                 <div>
                   <label className="text-sm text-gray-600 mb-2 block">Boleto</label>
-                  <a
-                    href={vendaSelecionada.boletoUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
-                  >
-                    Ver Boleto
-                  </a>
+                  <a href={vendaSelecionada.boletoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">Ver Boleto</a>
                 </div>
               )}
             </div>
