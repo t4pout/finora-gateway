@@ -35,9 +35,18 @@ export async function GET(request: NextRequest) {
     }
 
     const produtos = await prisma.produto.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' }
-    });
+  where: { userId },
+  orderBy: { createdAt: 'desc' },
+  include: {
+    planos: {
+      where: { ativo: true },
+      select: { id: true, nome: true, linkUnico: true }
+    },
+    paginasOfertas: {
+      select: { id: true, nome: true, link: true }
+    }
+  }
+});
 
     return NextResponse.json({
       success: true,

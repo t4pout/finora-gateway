@@ -14,6 +14,7 @@ interface Produto {
   id: string;
   nome: string;
   planos: { id: string; nome: string; linkUnico: string }[];
+  paginasOfertas: { id: string; nome: string; link: string }[];
 }
 
 interface LinkGerado {
@@ -29,6 +30,7 @@ export default function LinksPage() {
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [produtoSelecionado, setProdutoSelecionado] = useState('');
   const [planoSelecionado, setPlanoSelecionado] = useState('');
+  const [paginaSelecionada, setPaginaSelecionada] = useState('');
   const [utmSource, setUtmSource] = useState('');
   const [utmMedium, setUtmMedium] = useState('');
   const [utmCampaign, setUtmCampaign] = useState('');
@@ -74,14 +76,24 @@ export default function LinksPage() {
     ? produtos.find(p => p.id === produtoSelecionado)?.planos || []
     : [];
 
+  const paginasDisponiveis = produtoSelecionado
+    ? produtos.find(p => p.id === produtoSelecionado)?.paginasOfertas || []
+    : [];
+
   const gerarLink = () => {
-    if (!planoSelecionado) { alert('Selecione um produto e plano'); return; }
     if (!utmSource) { alert('utm_source é obrigatório'); return; }
 
-    const plano = planosDisponiveis.find(p => p.id === planoSelecionado);
-    if (!plano) return;
-
-    const base = `https://finorapayments.com/checkout/${plano.linkUnico}`;
+    let base = '';
+    if (paginaSelecionada) {
+      base = paginaSelecionada;
+    } else if (planoSelecionado) {
+      const plano = planosDisponiveis.find(p => p.id === planoSelecionado);
+      if (!plano) return;
+      base = `https://finorapayments.com/checkout/${plano.linkUnico}`;
+    } else {
+      alert('Selecione uma página de vendas ou um plano/checkout');
+      return;
+    }
     const params = new URLSearchParams();
     params.set('utm_source', utmSource.trim());
     if (utmMedium.trim()) params.set('utm_medium', utmMedium.trim());
@@ -156,20 +168,35 @@ export default function LinksPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Plano / Checkout *</label>
-                <select
-                  value={planoSelecionado}
-                  onChange={(e) => setPlanoSelecionado(e.target.value)}
-                  disabled={!produtoSelecionado}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none bg-white text-gray-900 disabled:opacity-50"
-                >
-                  <option value="">Selecione um plano</option>
-                  {planosDisponiveis.map(p => (
-                    <option key={p.id} value={p.id}>{p.nome}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
+                <div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">Página de Vendas</label>
+  <select
+    value={paginaSelecionada}
+    onChange={(e) => { setPaginaSelecionada(e.target.value); setPlanoSelecionado(''); }}
+    disabled={!produtoSelecionado}
+    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none bg-white text-gray-900 disabled:opacity-50"
+  >
+    <option value="">Selecione uma página</option>
+    {paginasDisponiveis.map(p => (
+      <option key={p.id} value={p.link}>{p.nome}</option>
+    ))}
+  </select>
+  <p className="text-xs text-gray-400 mt-1">Ou escolha direto o checkout abaixo</p>
+</div>
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">Plano / Checkout direto</label>
+  <select
+    value={planoSelecionado}
+    onChange={(e) => { setPlanoSelecionado(e.target.value); setPaginaSelecionada(''); }}
+    disabled={!produtoSelecionado}
+    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none bg-white text-gray-900 disabled:opacity-50"
+  >
+    <option value="">Selecione um plano</option>
+    {planosDisponiveis.map(p => (
+      <option key={p.id} value={p.id}>{p.nome}</option>
+    ))}
+  </select>
+</div>
 
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">Plataforma (atalho)</label>
