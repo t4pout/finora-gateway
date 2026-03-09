@@ -32,6 +32,9 @@ interface Venda {
   produto: { nome: string };
   vendedor?: { nome: string };
   transacoes?: { valor: number }[];
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
 }
 
 interface Produto {
@@ -369,7 +372,8 @@ export default function VendasPage() {
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Valor Liquido</th>
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Status</th>
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Pagamento</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Acoes</th>
+<th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Origem</th>
+<th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Acoes</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -399,8 +403,17 @@ export default function VendasPage() {
                           </span>
                         </td>
                         <td className="py-4 px-4 text-sm text-gray-600">{venda.metodoPagamento}</td>
-                        <td className="py-4 px-4">
-                          <button onClick={() => abrirDetalhes(venda)} className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition" title="Ver detalhes">
+<td className="py-4 px-4">
+  {venda.utmSource ? (
+    <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+      {venda.utmSource}
+    </span>
+  ) : (
+    <span className="text-gray-400 text-xs">—</span>
+  )}
+</td>
+<td className="py-4 px-4">
+  <button onClick={() => abrirDetalhes(venda)} className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition" title="Ver detalhes">
                             <Eye size={20} />
                           </button>
                         </td>
@@ -533,9 +546,16 @@ export default function VendasPage() {
                     <span className={'inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold ' + (vendaSelecionada.status === 'PAGO' ? 'bg-green-100 text-green-700' : vendaSelecionada.status === 'PENDENTE' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700')}>{vendaSelecionada.status}</span>
                   </div>
                   <div><label className="text-sm text-gray-600">Data</label><p className="font-semibold text-gray-900">{formatarDataHora(vendaSelecionada.createdAt)}</p></div>
-                  {vendaSelecionada.vendedor && (
-                    <div><label className="text-sm text-gray-600">Vendedor</label><p className="font-semibold text-gray-900">{vendaSelecionada.vendedor.nome}</p></div>
-                  )}
+                  {vendaSelecionada.utmSource && (
+  <div className="md:col-span-2">
+    <label className="text-sm text-gray-600">Origem da Campanha (UTM)</label>
+    <div className="flex flex-wrap gap-2 mt-1">
+      <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-md text-sm font-medium border border-blue-200">source: {vendaSelecionada.utmSource}</span>
+      {vendaSelecionada.utmMedium && <span className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-md text-sm font-medium border border-indigo-200">medium: {vendaSelecionada.utmMedium}</span>}
+      {vendaSelecionada.utmCampaign && <span className="px-3 py-1 bg-violet-50 text-violet-700 rounded-md text-sm font-medium border border-violet-200">campaign: {vendaSelecionada.utmCampaign}</span>}
+    </div>
+  </div>
+)}
                 </div>
               </div>
               {vendaSelecionada.orderBumpsNomes && vendaSelecionada.orderBumpsNomes.length > 0 && (

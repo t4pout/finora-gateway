@@ -273,6 +273,9 @@ model Venda {
   orderBumpsIds      String[]
   orderBumpsNomes    String[]
   orderBumpsValor    Float?   @default(0)
+  utmSource          String?
+  utmMedium          String?
+  utmCampaign        String?
   produtoId          String
   vendedorId      String
   createdAt       DateTime    @default(now())

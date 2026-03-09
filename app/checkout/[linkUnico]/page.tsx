@@ -1,6 +1,7 @@
 'use client';
 export const dynamic = 'force-dynamic';
 import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import CheckoutV2Component from './checkout-v2-component';
 
@@ -40,6 +41,10 @@ interface PlanoOferta {
 
 export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUnico: string }> }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const utmSource = searchParams.get('utm_source') || '';
+  const utmMedium = searchParams.get('utm_medium') || '';
+  const utmCampaign = searchParams.get('utm_campaign') || '';
   const [linkUnico, setLinkUnico] = useState('');
   const [plano, setPlano] = useState<PlanoOferta | null>(null);
   const [loading, setLoading] = useState(true);
@@ -326,6 +331,9 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
         cidade: formData.cidade,
         estado: formData.estado,
         metodoPagamento: formData.metodoPagamento,
+        utmSource,
+        utmMedium,
+        utmCampaign,
       };
 
       let payload: any = base;
@@ -358,7 +366,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
       const res = await fetch('/api/pagamento', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload)       
       });
 
       if (res.ok) {

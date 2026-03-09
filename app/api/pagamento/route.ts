@@ -68,6 +68,9 @@ export async function POST(request: NextRequest) {
         orderBumpsNomes, orderBumpsValor,
         produtoId: plano.produtoId,
         vendedorId: plano.produto.userId
+        utmSource: body.utmSource || null,
+        utmMedium: body.utmMedium || null,
+        utmCampaign: body.utmCampaign || null,
       }
     });
 
