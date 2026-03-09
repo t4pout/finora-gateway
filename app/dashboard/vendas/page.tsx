@@ -3,7 +3,7 @@
 import Sidebar from '@/app/components/Sidebar';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { DollarSign, ShoppingBag, BarChart3, Filter, Calendar, Eye, X, Download } from 'lucide-react';
+import { DollarSign, ShoppingBag, BarChart3, Filter, Calendar, Eye, X, Download, ChevronLeft, ChevronRight } from 'lucide-react';
 import { agoraBrasil, toBrasil, formatarData, formatarHora, formatarDataHora, inicioDiaBrasil, fimDiaBrasil, inicioDiasAtras, isOntem, parseDateInput } from '@/lib/date-brasil';
 
 interface Venda {
@@ -34,24 +34,34 @@ interface Venda {
   transacoes?: { valor: number }[];
 }
 
+interface Produto {
+  id: string;
+  nome: string;
+}
+
 interface User {
   nome: string;
   role?: string;
 }
 
+const ITENS_POR_PAGINA = 25;
+
 export default function VendasPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [vendas, setVendas] = useState<Venda[]>([]);
+  const [produtos, setProdutos] = useState<Produto[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtroStatus, setFiltroStatus] = useState('TODAS');
   const [filtroData, setFiltroData] = useState('TODAS');
+  const [filtroProduto, setFiltroProduto] = useState('TODOS');
   const [vendaSelecionada, setVendaSelecionada] = useState<Venda | null>(null);
   const [modalAberto, setModalAberto] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [mostrandoTodas, setMostrandoTodas] = useState(false);
   const [dataInicio, setDataInicio] = useState('');
   const [dataFim, setDataFim] = useState('');
+  const [paginaAtual, setPaginaAtual] = useState(1);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -59,6 +69,7 @@ export default function VendasPage() {
     if (!token) { router.push('/auth/login'); return; }
     if (userData) setUser(JSON.parse(userData));
     carregarVendas();
+    carregarProdutos();
   }, [router]);
 
   const carregarVendas = async (mostrarTodas: boolean = false) => {
@@ -79,6 +90,19 @@ export default function VendasPage() {
     }
   };
 
+  const carregarProdutos = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/produtos', { headers: { 'Authorization': 'Bearer ' + token } });
+      if (response.ok) {
+        const data = await response.json();
+        setProdutos(data.produtos || []);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar produtos:', error);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -88,8 +112,13 @@ export default function VendasPage() {
   const abrirDetalhes = (venda: Venda) => { setVendaSelecionada(venda); setModalAberto(true); };
   const fecharModal = () => { setModalAberto(false); setVendaSelecionada(null); };
 
+  // Helper: aplica mudança de filtro e reseta página
+  const mudarFiltro = (fn: () => void) => { fn(); setPaginaAtual(1); };
+
   const vendasFiltradas = vendas.filter(v => {
     if (filtroStatus !== 'TODAS' && v.status !== filtroStatus) return false;
+
+    if (filtroProduto !== 'TODOS' && v.produto.nome !== filtroProduto) return false;
 
     if (dataInicio || dataFim) {
       const dataVenda = toBrasil(v.createdAt);
@@ -124,6 +153,11 @@ export default function VendasPage() {
 
     return true;
   });
+
+  // Paginação
+  const totalPaginas = Math.ceil(vendasFiltradas.length / ITENS_POR_PAGINA);
+  const indiceInicio = (paginaAtual - 1) * ITENS_POR_PAGINA;
+  const vendasPagina = vendasFiltradas.slice(indiceInicio, indiceInicio + ITENS_POR_PAGINA);
 
   const totalVendas = vendasFiltradas.reduce((acc, v) => acc + v.valor, 0);
   const totalPagas = vendasFiltradas.filter(v => v.status === 'PAGO').length;
@@ -201,7 +235,7 @@ export default function VendasPage() {
               </button>
               {isAdmin && (
                 <button
-                  onClick={() => { const n = !mostrandoTodas; setMostrandoTodas(n); carregarVendas(n); }}
+                  onClick={() => { const n = !mostrandoTodas; setMostrandoTodas(n); carregarVendas(n); setPaginaAtual(1); }}
                   className={'px-4 py-2 font-semibold rounded-lg transition flex items-center gap-2 ' + (mostrandoTodas ? 'bg-orange-600 text-white hover:bg-orange-700' : 'bg-gray-600 text-white hover:bg-gray-700')}
                 >
                   {mostrandoTodas ? 'Ver Minhas Vendas' : 'Ver Todas as Vendas'}
@@ -275,32 +309,48 @@ export default function VendasPage() {
               <Filter size={20} className="text-gray-600" />
               <span className="font-semibold text-gray-900">Filtros</span>
             </div>
+
+            {/* Filtro por Produto */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Produto</label>
+              <select
+                value={filtroProduto}
+                onChange={(e) => mudarFiltro(() => setFiltroProduto(e.target.value))}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900 bg-white min-w-[220px]"
+              >
+                <option value="TODOS">Todos os produtos</option>
+                {produtos.map(p => (
+                  <option key={p.id} value={p.nome}>{p.nome}</option>
+                ))}
+              </select>
+            </div>
+
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
               <div className="flex gap-2">
-                <button onClick={() => setFiltroStatus('TODAS')} className={'px-4 py-2 rounded-lg font-semibold transition ' + (filtroStatus === 'TODAS' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300')}>Todas</button>
-                <button onClick={() => setFiltroStatus('PENDENTE')} className={'px-4 py-2 rounded-lg font-semibold transition ' + (filtroStatus === 'PENDENTE' ? 'bg-yellow-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300')}>Pendente</button>
-                <button onClick={() => setFiltroStatus('PAGO')} className={'px-4 py-2 rounded-lg font-semibold transition ' + (filtroStatus === 'PAGO' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300')}>Paga</button>
-                <button onClick={() => setFiltroStatus('CANCELADA')} className={'px-4 py-2 rounded-lg font-semibold transition ' + (filtroStatus === 'CANCELADA' ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300')}>Cancelada</button>
+                <button onClick={() => mudarFiltro(() => setFiltroStatus('TODAS'))} className={'px-4 py-2 rounded-lg font-semibold transition ' + (filtroStatus === 'TODAS' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300')}>Todas</button>
+                <button onClick={() => mudarFiltro(() => setFiltroStatus('PENDENTE'))} className={'px-4 py-2 rounded-lg font-semibold transition ' + (filtroStatus === 'PENDENTE' ? 'bg-yellow-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300')}>Pendente</button>
+                <button onClick={() => mudarFiltro(() => setFiltroStatus('PAGO'))} className={'px-4 py-2 rounded-lg font-semibold transition ' + (filtroStatus === 'PAGO' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300')}>Paga</button>
+                <button onClick={() => mudarFiltro(() => setFiltroStatus('CANCELADA'))} className={'px-4 py-2 rounded-lg font-semibold transition ' + (filtroStatus === 'CANCELADA' ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300')}>Cancelada</button>
               </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Periodo</label>
               <div className="flex flex-wrap items-center gap-2">
-                <button onClick={() => { setFiltroData('TODAS'); setDataInicio(''); setDataFim(''); }} className={'px-3 py-1.5 rounded-lg text-sm font-semibold transition ' + (filtroData === 'TODAS' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')}>Todas</button>
-                <button onClick={() => { setFiltroData('HOJE'); setDataInicio(''); setDataFim(''); }} className={'px-3 py-1.5 rounded-lg text-sm font-semibold transition ' + (filtroData === 'HOJE' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')}>Hoje</button>
-                <button onClick={() => { setFiltroData('ONTEM'); setDataInicio(''); setDataFim(''); }} className={'px-3 py-1.5 rounded-lg text-sm font-semibold transition ' + (filtroData === 'ONTEM' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')}>Ontem</button>
-                <button onClick={() => { setFiltroData('7D'); setDataInicio(''); setDataFim(''); }} className={'px-3 py-1.5 rounded-lg text-sm font-semibold transition ' + (filtroData === '7D' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')}>7 dias</button>
-                <button onClick={() => { setFiltroData('14D'); setDataInicio(''); setDataFim(''); }} className={'px-3 py-1.5 rounded-lg text-sm font-semibold transition ' + (filtroData === '14D' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')}>14 dias</button>
-                <button onClick={() => { setFiltroData('30D'); setDataInicio(''); setDataFim(''); }} className={'px-3 py-1.5 rounded-lg text-sm font-semibold transition ' + (filtroData === '30D' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')}>30 dias</button>
+                <button onClick={() => mudarFiltro(() => { setFiltroData('TODAS'); setDataInicio(''); setDataFim(''); })} className={'px-3 py-1.5 rounded-lg text-sm font-semibold transition ' + (filtroData === 'TODAS' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')}>Todas</button>
+                <button onClick={() => mudarFiltro(() => { setFiltroData('HOJE'); setDataInicio(''); setDataFim(''); })} className={'px-3 py-1.5 rounded-lg text-sm font-semibold transition ' + (filtroData === 'HOJE' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')}>Hoje</button>
+                <button onClick={() => mudarFiltro(() => { setFiltroData('ONTEM'); setDataInicio(''); setDataFim(''); })} className={'px-3 py-1.5 rounded-lg text-sm font-semibold transition ' + (filtroData === 'ONTEM' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')}>Ontem</button>
+                <button onClick={() => mudarFiltro(() => { setFiltroData('7D'); setDataInicio(''); setDataFim(''); })} className={'px-3 py-1.5 rounded-lg text-sm font-semibold transition ' + (filtroData === '7D' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')}>7 dias</button>
+                <button onClick={() => mudarFiltro(() => { setFiltroData('14D'); setDataInicio(''); setDataFim(''); })} className={'px-3 py-1.5 rounded-lg text-sm font-semibold transition ' + (filtroData === '14D' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')}>14 dias</button>
+                <button onClick={() => mudarFiltro(() => { setFiltroData('30D'); setDataInicio(''); setDataFim(''); })} className={'px-3 py-1.5 rounded-lg text-sm font-semibold transition ' + (filtroData === '30D' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')}>30 dias</button>
                 <div className="flex items-center gap-2 ml-4 border-l border-gray-300 pl-4">
                   <Calendar size={18} className="text-gray-600" />
                   <span className="text-sm text-gray-600">Data especifica:</span>
-                  <input type="date" value={dataInicio} onChange={(e) => { setDataInicio(e.target.value); setFiltroData('PERSONALIZADO'); }} className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-600 outline-none" />
+                  <input type="date" value={dataInicio} onChange={(e) => mudarFiltro(() => { setDataInicio(e.target.value); setFiltroData('PERSONALIZADO'); })} className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-600 outline-none" />
                   <span className="text-gray-500">ate</span>
-                  <input type="date" value={dataFim} onChange={(e) => { setDataFim(e.target.value); setFiltroData('PERSONALIZADO'); }} className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-600 outline-none" />
+                  <input type="date" value={dataFim} onChange={(e) => mudarFiltro(() => { setDataFim(e.target.value); setFiltroData('PERSONALIZADO'); })} className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-600 outline-none" />
                   {(dataInicio || dataFim) && (
-                    <button onClick={() => { setDataInicio(''); setDataFim(''); setFiltroData('TODAS'); }} className="px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-sm font-semibold hover:bg-red-200 transition">Limpar</button>
+                    <button onClick={() => mudarFiltro(() => { setDataInicio(''); setDataFim(''); setFiltroData('TODAS'); })} className="px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-sm font-semibold hover:bg-red-200 transition">Limpar</button>
                   )}
                 </div>
               </div>
@@ -323,12 +373,12 @@ export default function VendasPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {vendasFiltradas.length === 0 ? (
+                  {vendasPagina.length === 0 ? (
                     <tr>
                       <td colSpan={8} className="py-12 text-center text-gray-500">Nenhuma venda encontrada com os filtros selecionados</td>
                     </tr>
                   ) : (
-                    vendasFiltradas.map((venda) => (
+                    vendasPagina.map((venda) => (
                       <tr key={venda.id} className="border-b border-gray-100 hover:bg-gray-50">
                         <td className="py-4 px-4 text-sm text-gray-600">{formatarData(venda.createdAt)}</td>
                         <td className="py-4 px-4">
@@ -360,6 +410,51 @@ export default function VendasPage() {
                 </tbody>
               </table>
             </div>
+
+            {/* Paginação */}
+            {totalPaginas > 1 && (
+              <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50">
+                <span className="text-sm text-gray-600">
+                  Mostrando {indiceInicio + 1}–{Math.min(indiceInicio + ITENS_POR_PAGINA, vendasFiltradas.length)} de {vendasFiltradas.length} vendas
+                </span>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setPaginaAtual(p => Math.max(1, p - 1))}
+                    disabled={paginaAtual === 1}
+                    className="p-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+                  {Array.from({ length: totalPaginas }, (_, i) => i + 1)
+                    .filter(p => p === 1 || p === totalPaginas || Math.abs(p - paginaAtual) <= 2)
+                    .reduce((acc: (number | string)[], p, idx, arr) => {
+                      if (idx > 0 && (p as number) - (arr[idx - 1] as number) > 1) acc.push('...');
+                      acc.push(p);
+                      return acc;
+                    }, [])
+                    .map((p, idx) =>
+                      p === '...' ? (
+                        <span key={'dots' + idx} className="px-2 text-gray-400 text-sm">...</span>
+                      ) : (
+                        <button
+                          key={p}
+                          onClick={() => setPaginaAtual(p as number)}
+                          className={'px-3 py-1.5 rounded-lg text-sm font-semibold transition ' + (paginaAtual === p ? 'bg-purple-600 text-white' : 'border border-gray-300 text-gray-700 hover:bg-white')}
+                        >
+                          {p}
+                        </button>
+                      )
+                    )}
+                  <button
+                    onClick={() => setPaginaAtual(p => Math.min(totalPaginas, p + 1))}
+                    disabled={paginaAtual === totalPaginas}
+                    className="p-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </main>
