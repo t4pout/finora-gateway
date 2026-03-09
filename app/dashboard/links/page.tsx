@@ -168,8 +168,7 @@ export default function LinksPage() {
                 </select>
               </div>
               <div>
-                <div>
-  <label className="block text-sm font-medium text-gray-700 mb-2">Página de Vendas</label>
+               <label className="block text-sm font-medium text-gray-700 mb-2">Página de Vendas</label>
   <select
     value={paginaSelecionada}
     onChange={(e) => { setPaginaSelecionada(e.target.value); setPlanoSelecionado(''); }}
