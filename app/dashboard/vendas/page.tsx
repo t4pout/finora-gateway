@@ -123,7 +123,7 @@ export default function VendasPage() {
     if (filtroStatus !== 'TODAS' && v.status !== filtroStatus) return false;
     if (busca.trim()) {
       const b = busca.trim().toLowerCase();
-      const matchNome = v.compradorNome?.toLowerCase().includes(b);
+      const matchNome = v.compradorNome?.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(b.normalize('NFD').replace(/[\u0300-\u036f]/g, ''));
       const matchCpf = v.compradorCpf?.replace(/\D/g, '').includes(b.replace(/\D/g, ''));
       const matchId = v.id?.toLowerCase().includes(b);
       if (!matchNome && !matchCpf && !matchId) return false;
