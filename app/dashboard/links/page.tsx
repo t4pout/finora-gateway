@@ -29,6 +29,7 @@ export default function LinksPage() {
   const [user, setUser] = useState<User | null>(null);
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [produtoSelecionado, setProdutoSelecionado] = useState('');
+  const [tipoLink, setTipoLink] = useState('');
   const [planoSelecionado, setPlanoSelecionado] = useState('');
   const [paginaSelecionada, setPaginaSelecionada] = useState('');
   const [utmSource, setUtmSource] = useState('');
@@ -84,16 +85,19 @@ export default function LinksPage() {
     if (!utmSource) { alert('utm_source é obrigatório'); return; }
 
     let base = '';
-    if (paginaSelecionada) {
+    if (tipoLink === 'pagina') {
+      if (!paginaSelecionada) { alert('Selecione uma página de vendas'); return; }
       base = paginaSelecionada;
-    } else if (planoSelecionado) {
+    } else if (tipoLink === 'checkout') {
+      if (!planoSelecionado) { alert('Selecione um plano'); return; }
       const plano = planosDisponiveis.find(p => p.id === planoSelecionado);
       if (!plano) return;
       base = `https://finorapayments.com/checkout/${plano.linkUnico}`;
     } else {
-      alert('Selecione uma página de vendas ou um plano/checkout');
+      alert('Selecione o tipo de link');
       return;
     }
+
     const params = new URLSearchParams();
     params.set('utm_source', utmSource.trim());
     if (utmMedium.trim()) params.set('utm_medium', utmMedium.trim());
@@ -153,111 +157,150 @@ export default function LinksPage() {
           <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
             <h2 className="text-lg font-bold text-gray-900 mb-6">Gerar novo link</h2>
 
-            <div className="grid md:grid-cols-2 gap-4 mb-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Produto *</label>
+            {/* Produto */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Produto *</label>
+              <select
+                value={produtoSelecionado}
+                onChange={(e) => { setProdutoSelecionado(e.target.value); setPlanoSelecionado(''); setPaginaSelecionada(''); setTipoLink(''); }}
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none bg-white text-gray-900"
+              >
+                <option value="">Selecione um produto</option>
+                {produtos.map(p => (
+                  <option key={p.id} value={p.id}>{p.nome}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Tipo de link */}
+            {produtoSelecionado && (
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-3">Tipo de Link *</label>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <button
+                    type="button"
+                    onClick={() => { setTipoLink('pagina'); setPlanoSelecionado(''); }}
+                    className={`p-4 rounded-xl border-2 text-left transition ${tipoLink === 'pagina' ? 'border-purple-600 bg-purple-50' : 'border-gray-200 hover:border-purple-300'}`}
+                  >
+                    <div className="text-2xl mb-2">🌐</div>
+                    <div className="font-bold text-gray-900">Página de Vendas</div>
+                    <div className="text-xs text-gray-500 mt-1">Link para sua página de vendas. O script repassa os UTMs para o checkout.</div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setTipoLink('checkout'); setPaginaSelecionada(''); }}
+                    className={`p-4 rounded-xl border-2 text-left transition ${tipoLink === 'checkout' ? 'border-purple-600 bg-purple-50' : 'border-gray-200 hover:border-purple-300'}`}
+                  >
+                    <div className="text-2xl mb-2">🛒</div>
+                    <div className="font-bold text-gray-900">Checkout Direto</div>
+                    <div className="text-xs text-gray-500 mt-1">Link direto para o checkout da Finora com UTMs na URL.</div>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Página de vendas */}
+            {tipoLink === 'pagina' && (
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Página de Vendas *</label>
                 <select
-                  value={produtoSelecionado}
-                  onChange={(e) => { setProdutoSelecionado(e.target.value); setPlanoSelecionado(''); }}
+                  value={paginaSelecionada}
+                  onChange={(e) => setPaginaSelecionada(e.target.value)}
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none bg-white text-gray-900"
                 >
-                  <option value="">Selecione um produto</option>
-                  {produtos.map(p => (
+                  <option value="">Selecione uma página</option>
+                  {paginasDisponiveis.map(p => (
+                    <option key={p.id} value={p.link}>{p.nome}</option>
+                  ))}
+                </select>
+                {paginasDisponiveis.length === 0 && (
+                  <p className="text-xs text-orange-500 mt-1">⚠️ Nenhuma página cadastrada. Adicione em Produtos → Páginas.</p>
+                )}
+              </div>
+            )}
+
+            {/* Checkout direto */}
+            {tipoLink === 'checkout' && (
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Plano / Checkout *</label>
+                <select
+                  value={planoSelecionado}
+                  onChange={(e) => setPlanoSelecionado(e.target.value)}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none bg-white text-gray-900"
+                >
+                  <option value="">Selecione um plano</option>
+                  {planosDisponiveis.map(p => (
                     <option key={p.id} value={p.id}>{p.nome}</option>
                   ))}
                 </select>
               </div>
-              <div>
-               <label className="block text-sm font-medium text-gray-700 mb-2">Página de Vendas</label>
-  <select
-    value={paginaSelecionada}
-    onChange={(e) => { setPaginaSelecionada(e.target.value); setPlanoSelecionado(''); }}
-    disabled={!produtoSelecionado}
-    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none bg-white text-gray-900 disabled:opacity-50"
-  >
-    <option value="">Selecione uma página</option>
-    {paginasDisponiveis.map(p => (
-      <option key={p.id} value={p.link}>{p.nome}</option>
-    ))}
-  </select>
-  <p className="text-xs text-gray-400 mt-1">Ou escolha direto o checkout abaixo</p>
-</div>
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-2">Plano / Checkout direto</label>
-  <select
-    value={planoSelecionado}
-    onChange={(e) => { setPlanoSelecionado(e.target.value); setPaginaSelecionada(''); }}
-    disabled={!produtoSelecionado}
-    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none bg-white text-gray-900 disabled:opacity-50"
-  >
-    <option value="">Selecione um plano</option>
-    {planosDisponiveis.map(p => (
-      <option key={p.id} value={p.id}>{p.nome}</option>
-    ))}
-  </select>
-</div>
-            </div>
+            )}
 
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Plataforma (atalho)</label>
-              <div className="flex flex-wrap gap-2">
-                {presets.map(p => (
-                  <button
-                    key={p.label}
-                    onClick={() => { setUtmSource(p.source); setUtmMedium(p.medium); }}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition ${
-                      utmSource === p.source && utmMedium === p.medium
-                        ? 'bg-purple-600 text-white border-purple-600'
-                        : 'bg-white text-gray-700 border-gray-300 hover:border-purple-400'
-                    }`}
-                  >
-                    {p.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-4 mb-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">utm_source <span className="text-red-500">*</span></label>
-                <input type="text" value={utmSource} onChange={(e) => setUtmSource(e.target.value)} placeholder="ex: facebook" className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900" />
-                <p className="text-xs text-gray-400 mt-1">Origem do tráfego</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">utm_medium</label>
-                <input type="text" value={utmMedium} onChange={(e) => setUtmMedium(e.target.value)} placeholder="ex: cpc" className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900" />
-                <p className="text-xs text-gray-400 mt-1">Tipo de mídia</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">utm_campaign</label>
-                <input type="text" value={utmCampaign} onChange={(e) => setUtmCampaign(e.target.value)} placeholder="ex: lancamento-maio" className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900" />
-                <p className="text-xs text-gray-400 mt-1">Nome da campanha</p>
-              </div>
-            </div>
-
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Nome para identificar este link</label>
-              <input type="text" value={nomeCampanha} onChange={(e) => setNomeCampanha(e.target.value)} placeholder="ex: Facebook Ads - Lançamento Maio" className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900" />
-            </div>
-
-            <button onClick={gerarLink} className="w-full py-3 bg-purple-600 text-white font-bold rounded-lg hover:bg-purple-700 transition flex items-center justify-center gap-2">
-              <Link2 size={20} />
-              Gerar Link com UTM
-            </button>
-
-            {linkGerado && (
-              <div className="mt-6 bg-green-50 border border-green-200 rounded-xl p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-green-700 font-semibold text-sm">✅ Link gerado com sucesso!</span>
-                  <button onClick={() => copiar(linkGerado)} className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 transition">
-                    {copiado ? <Check size={16} /> : <Copy size={16} />}
-                    {copiado ? 'Copiado!' : 'Copiar'}
-                  </button>
+            {/* Presets e UTMs — só mostrar após escolher tipo */}
+            {tipoLink && (
+              <>
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Plataforma (atalho)</label>
+                  <div className="flex flex-wrap gap-2">
+                    {presets.map(p => (
+                      <button
+                        key={p.label}
+                        onClick={() => { setUtmSource(p.source); setUtmMedium(p.medium); }}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition ${
+                          utmSource === p.source && utmMedium === p.medium
+                            ? 'bg-purple-600 text-white border-purple-600'
+                            : 'bg-white text-gray-700 border-gray-300 hover:border-purple-400'
+                        }`}
+                      >
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div className="bg-white border border-green-200 rounded-lg px-4 py-3 font-mono text-sm text-gray-800 break-all">
-                  {linkGerado}
+
+                <div className="grid md:grid-cols-3 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">utm_source <span className="text-red-500">*</span></label>
+                    <input type="text" value={utmSource} onChange={(e) => setUtmSource(e.target.value)} placeholder="ex: facebook" className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900" />
+                    <p className="text-xs text-gray-400 mt-1">Origem do tráfego</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">utm_medium</label>
+                    <input type="text" value={utmMedium} onChange={(e) => setUtmMedium(e.target.value)} placeholder="ex: cpc" className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900" />
+                    <p className="text-xs text-gray-400 mt-1">Tipo de mídia</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">utm_campaign</label>
+                    <input type="text" value={utmCampaign} onChange={(e) => setUtmCampaign(e.target.value)} placeholder="ex: lancamento-maio" className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900" />
+                    <p className="text-xs text-gray-400 mt-1">Nome da campanha</p>
+                  </div>
                 </div>
-              </div>
+
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Nome para identificar este link</label>
+                  <input type="text" value={nomeCampanha} onChange={(e) => setNomeCampanha(e.target.value)} placeholder="ex: Facebook Ads - Lançamento Maio" className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900" />
+                </div>
+
+                <button onClick={gerarLink} className="w-full py-3 bg-purple-600 text-white font-bold rounded-lg hover:bg-purple-700 transition flex items-center justify-center gap-2">
+                  <Link2 size={20} />
+                  Gerar Link com UTM
+                </button>
+
+                {linkGerado && (
+                  <div className="mt-6 bg-green-50 border border-green-200 rounded-xl p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-green-700 font-semibold text-sm">✅ Link gerado com sucesso!</span>
+                      <button onClick={() => copiar(linkGerado)} className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 transition">
+                        {copiado ? <Check size={16} /> : <Copy size={16} />}
+                        {copiado ? 'Copiado!' : 'Copiar'}
+                      </button>
+                    </div>
+                    <div className="bg-white border border-green-200 rounded-lg px-4 py-3 font-mono text-sm text-gray-800 break-all">
+                      {linkGerado}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
 
