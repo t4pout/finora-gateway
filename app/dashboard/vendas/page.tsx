@@ -65,7 +65,8 @@ export default function VendasPage() {
   const [dataInicio, setDataInicio] = useState('');
   const [dataFim, setDataFim] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
-
+  const [busca, setBusca] = useState('');
+   
   useEffect(() => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
@@ -120,6 +121,13 @@ export default function VendasPage() {
 
   const vendasFiltradas = vendas.filter(v => {
     if (filtroStatus !== 'TODAS' && v.status !== filtroStatus) return false;
+    if (busca.trim()) {
+      const b = busca.trim().toLowerCase();
+      const matchNome = v.compradorNome?.toLowerCase().includes(b);
+      const matchCpf = v.compradorCpf?.replace(/\D/g, '').includes(b.replace(/\D/g, ''));
+      const matchId = v.id?.toLowerCase().includes(b);
+      if (!matchNome && !matchCpf && !matchId) return false;
+    }
 
     if (filtroProduto !== 'TODOS' && v.produto.nome !== filtroProduto) return false;
 
@@ -311,6 +319,16 @@ export default function VendasPage() {
             <div className="flex items-center gap-4 mb-4">
               <Filter size={20} className="text-gray-600" />
               <span className="font-semibold text-gray-900">Filtros</span>
+            </div>
+           <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Buscar</label>
+              <input
+                type="text"
+                value={busca}
+                onChange={(e) => mudarFiltro(() => setBusca(e.target.value))}
+                placeholder="Nome do cliente, CPF ou ID da venda..."
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900"
+              />
             </div>
 
             {/* Filtro por Produto */}
