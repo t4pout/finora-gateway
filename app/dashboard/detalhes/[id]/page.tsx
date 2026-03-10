@@ -829,6 +829,7 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
               <button onClick={() => setAbaSelecionada('checkout')} className={`py-4 px-2 border-b-2 font-semibold transition ${abaSelecionada === 'checkout' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>🎨 Checkout</button>
                <button onClick={() => setAbaSelecionada('pixels')} className={`py-4 px-2 border-b-2 font-semibold transition ${abaSelecionada === 'pixels' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>📊 Pixels</button>
                <button onClick={() => setAbaSelecionada('orderbumps')} className={`py-4 px-2 border-b-2 font-semibold transition ${abaSelecionada === 'orderbumps' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>⚡ Order Bumps</button>
+<button onClick={() => setAbaSelecionada('links')} className={`py-4 px-2 border-b-2 font-semibold transition ${abaSelecionada === 'links' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>🔗 Links UTM</button>
             </div>
           </div>
         </div>
@@ -1659,7 +1660,19 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
               )}
             </div>
           )}
-
+{abaSelecionada === 'links' && (
+  <div className="max-w-4xl mx-auto">
+    <div className="bg-white rounded-xl border border-gray-200 p-8">
+      <div className="flex items-center gap-3 mb-6">
+        <h2 className="text-2xl font-bold text-gray-900">🔗 Links UTM</h2>
+      </div>
+      <p className="text-gray-600 mb-6">Gere links rastreados para suas campanhas. Acesse a página completa de gerador de links:</p>
+      <a href="/dashboard/links" className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">
+        🔗 Abrir Gerador de Links UTM
+      </a>
+    </div>
+  </div>
+)}
 {/* MODAL CRIAR/EDITAR PIXEL */}{modalPixel.aberto && (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto" onClick={() => setModalPixel({ aberto: false, pixel: null })}>
     <div className="bg-white rounded-2xl p-8 max-w-2xl w-full my-8" onClick={(e) => e.stopPropagation()}>

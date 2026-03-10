@@ -191,17 +191,7 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
             <span>Testes A/B</span>
           </div>
         </Link>
-        <Link href="/dashboard/links">
-  <div className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition ${
-    isActive('/dashboard/links')
-      ? 'bg-purple-50 text-purple-600 font-semibold'
-      : 'text-gray-700 hover:bg-gray-50'
-  }`}>
-    <Link2 size={20} />
-    <span>Links UTM</span>
-  </div>
-</Link>
-
+        
         {/* Menu Admin expandível */}
         {user?.role === 'ADMIN' && (
           <>
