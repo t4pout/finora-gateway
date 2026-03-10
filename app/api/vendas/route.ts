@@ -267,7 +267,7 @@ export async function GET(request: NextRequest) {
             nome: true
           }
         },
-         transacoes: {
+        transacoes: {
           select: {
             valor: true
           }

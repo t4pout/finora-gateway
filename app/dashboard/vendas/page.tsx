@@ -325,7 +325,7 @@ export default function VendasPage() {
               <input
                 type="text"
                 value={busca}
-                onChange={(e) => mudarFiltro(() => setBusca(e.target.value))}
+                onChange={(e) => { setBusca(e.target.value); setPaginaAtual(1); }}
                 placeholder="Nome do cliente, CPF ou ID da venda..."
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900"
               />
