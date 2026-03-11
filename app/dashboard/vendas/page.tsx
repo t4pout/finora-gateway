@@ -142,24 +142,23 @@ export default function VendasPage() {
         const fim = parseDateInput(dataFim);
         fim.setHours(23, 59, 59, 999);
         if (dataVenda > fim) return false;
+        }
       }
-      return true;
-    }
 
     if (filtroData === 'ONTEM') {
-      return isOntem(v.createdAt);
+      if (!isOntem(v.createdAt)) return false;
     } else if (filtroData === 'HOJE') {
       const dataVenda = toBrasil(v.createdAt);
       dataVenda.setHours(0, 0, 0, 0);
       const hoje = agoraBrasil();
       hoje.setHours(0, 0, 0, 0);
-      return dataVenda.getTime() === hoje.getTime();
+      if (dataVenda.getTime() !== hoje.getTime()) return false;
     } else if (filtroData === '7D') {
-      return toBrasil(v.createdAt) >= inicioDiasAtras(7);
+      if (toBrasil(v.createdAt) < inicioDiasAtras(7)) return false;
     } else if (filtroData === '14D') {
-      return toBrasil(v.createdAt) >= inicioDiasAtras(14);
+      if (toBrasil(v.createdAt) < inicioDiasAtras(14)) return false;
     } else if (filtroData === '30D') {
-      return toBrasil(v.createdAt) >= inicioDiasAtras(30);
+      if (toBrasil(v.createdAt) < inicioDiasAtras(30)) return false;
     }
 
     return true;
