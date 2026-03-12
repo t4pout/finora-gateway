@@ -123,8 +123,9 @@ export default function VendasPage() {
     if (filtroStatus !== 'TODAS' && v.status !== filtroStatus) return false;
     if (busca.trim()) {
       const b = busca.trim().toLowerCase();
-      if (busca.trim()) console.log('nome no banco:', v.compradorNome);
-      const matchNome = v.compradorNome?.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(b.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''));
+      const nomeNorm = v.compradorNome?.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') ?? '';
+      const bNorm = b.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const matchNome = nomeNorm.includes(bNorm);
       const matchCpf = v.compradorCpf?.replace(/\D/g, '').includes(b.replace(/\D/g, ''));
       const matchId = v.id?.toLowerCase().includes(b);
       if (!matchNome && !matchCpf && !matchId) return false;
