@@ -166,7 +166,7 @@ export default function VendasPage() {
 
     return true;
     });
-  }, [vendas, busca, filtroStatus, filtroProduto, dataInicio, dataFim, filtroData]);
+  }, [vendas, busca, buscaAtiva, filtroStatus, filtroProduto, dataInicio, dataFim, filtroData]);
 
   // Paginação
   const totalPaginas = Math.ceil(vendasFiltradas.length / ITENS_POR_PAGINA);
@@ -328,7 +328,8 @@ export default function VendasPage() {
               <input
                 type="text"
                 value={busca}
-                onChange={(e) => setBusca(e.target.value)}
+                onChange={(e) => { setBusca(e.target.value); setBuscaAtiva(e.target.value); setPaginaAtual(1); }}
+onInput={(e) => { const v = (e.target as HTMLInputElement).value; setBusca(v); setBuscaAtiva(v); setPaginaAtual(1); }}
 onKeyDown={(e) => { if (e.key === 'Enter') { setBuscaAtiva(busca); setPaginaAtual(1); } }}
                 placeholder="Nome do cliente, CPF ou ID da venda..."
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900"
