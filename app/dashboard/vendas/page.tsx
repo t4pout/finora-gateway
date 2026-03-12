@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import Sidebar from '@/app/components/Sidebar';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { DollarSign, ShoppingBag, BarChart3, Filter, Calendar, Eye, X, Download, ChevronLeft, ChevronRight } from 'lucide-react';
 import { agoraBrasil, toBrasil, formatarData, formatarHora, formatarDataHora, inicioDiaBrasil, fimDiaBrasil, inicioDiasAtras, isOntem, parseDateInput } from '@/lib/date-brasil';
@@ -119,7 +119,7 @@ export default function VendasPage() {
   // Helper: aplica mudança de filtro e reseta página
   const mudarFiltro = (fn: () => void) => { fn(); setPaginaAtual(1); };
 
-  const vendasFiltradas = (() => {
+  const vendasFiltradas = useMemo(() => {
     const buscaNorm = busca.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     return vendas.filter(v => {
     if (filtroStatus !== 'TODAS' && v.status !== filtroStatus) return false;
@@ -165,7 +165,7 @@ export default function VendasPage() {
 
     return true;
     });
-  })();
+  }, [vendas, busca, filtroStatus, filtroProduto, dataInicio, dataFim, filtroData]);
 
   // Paginação
   const totalPaginas = Math.ceil(vendasFiltradas.length / ITENS_POR_PAGINA);
