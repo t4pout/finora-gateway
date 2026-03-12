@@ -66,6 +66,7 @@ export default function VendasPage() {
   const [dataFim, setDataFim] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [busca, setBusca] = useState('');
+  const [buscaAtiva, setBuscaAtiva] = useState('');
    
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -120,7 +121,7 @@ export default function VendasPage() {
   const mudarFiltro = (fn: () => void) => { fn(); setPaginaAtual(1); };
 
   const vendasFiltradas = useMemo(() => {
-    const buscaNorm = busca.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const buscaNorm = buscaAtiva.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     return vendas.filter(v => {
     if (filtroStatus !== 'TODAS' && v.status !== filtroStatus) return false;
     if (buscaNorm) {
@@ -327,10 +328,17 @@ export default function VendasPage() {
               <input
                 type="text"
                 value={busca}
-                onChange={(e) => { setBusca(e.target.value); setPaginaAtual(1); }} onInput={(e) => { setBusca((e.target as HTMLInputElement).value); setPaginaAtual(1); }}
+                onChange={(e) => setBusca(e.target.value)}
+onKeyDown={(e) => { if (e.key === 'Enter') { setBuscaAtiva(busca); setPaginaAtual(1); } }}
                 placeholder="Nome do cliente, CPF ou ID da venda..."
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900"
               />
+              <button
+                onClick={() => { setBuscaAtiva(busca); setPaginaAtual(1); }}
+                className="mt-2 px-6 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition"
+              >
+                Buscar
+              </button>
             </div>
 
             {/* Filtro por Produto */}
