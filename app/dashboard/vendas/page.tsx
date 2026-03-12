@@ -119,16 +119,16 @@ export default function VendasPage() {
   // Helper: aplica mudança de filtro e reseta página
   const mudarFiltro = (fn: () => void) => { fn(); setPaginaAtual(1); };
 
-  const vendasFiltradas = vendas.filter(v => {
+  const vendasFiltradas = (() => {
+    const buscaNorm = busca.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    return vendas.filter(v => {
     if (filtroStatus !== 'TODAS' && v.status !== filtroStatus) return false;
-    if (busca.trim()) {
-      const b = busca.trim().toLowerCase();
-      const nomeNorm = v.compradorNome?.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') ?? '';
-      const bNorm = b.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-      const matchNome = nomeNorm.includes(bNorm);
-      const matchCpf = v.compradorCpf?.replace(/\D/g, '').includes(b.replace(/\D/g, ''));
-      const matchId = v.id?.toLowerCase().includes(b);
-      if (!matchNome && !matchCpf && !matchId) return false;
+    if (buscaNorm) {
+      const nomeNorm = (v.compradorNome ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const cpfNorm = (v.compradorCpf ?? '').replace(/\D/g, '');
+      const idNorm = (v.id ?? '').toLowerCase();
+      const buscaCpf = busca.trim().replace(/\D/g, '');
+      if (!nomeNorm.includes(buscaNorm) && !cpfNorm.includes(buscaCpf) && !idNorm.includes(buscaNorm)) return false;
     }
 
     if (filtroProduto !== 'TODOS' && v.produto.nome !== filtroProduto) return false;
@@ -164,7 +164,8 @@ export default function VendasPage() {
     }
 
     return true;
-  });
+    });
+  })();
 
   // Paginação
   const totalPaginas = Math.ceil(vendasFiltradas.length / ITENS_POR_PAGINA);
