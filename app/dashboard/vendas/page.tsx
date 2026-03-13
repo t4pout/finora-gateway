@@ -122,6 +122,7 @@ export default function VendasPage() {
   const mudarFiltro = (fn: () => void) => { fn(); setPaginaAtual(1); };
 
   useEffect(() => {
+    console.log('FILTRO RODANDO, busca:', busca, 'vendas:', vendas.length);
     const resultado = (() => {
     const buscaNorm = busca.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     return vendas.filter(v => {
