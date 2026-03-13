@@ -67,7 +67,7 @@ export default function VendasPage() {
   const [dataFim, setDataFim] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [busca, setBusca] = useState('');
-  const [vendasExibidas, setVendasExibidas] = useState<Venda[]>([]);
+  const [vendasExibidas, setVendasExibidas] = useState<Venda[]>(vendas);
    
   useEffect(() => {
     const token = localStorage.getItem('token');
