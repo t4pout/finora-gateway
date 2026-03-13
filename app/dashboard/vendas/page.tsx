@@ -123,6 +123,7 @@ export default function VendasPage() {
 
   useEffect(() => {
     console.log('FILTRO RODANDO, busca:', busca, 'vendas:', vendas.length);
+    console.log('PRIMEIRO NOME:', vendas[0]?.compradorNome);
     const resultado = (() => {
     const buscaNorm = busca.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     return vendas.filter(v => {
@@ -170,6 +171,7 @@ export default function VendasPage() {
     return true;
     });
   })();
+    console.log('RESULTADO:', resultado.length);
     setVendasExibidas(resultado);
   }, [vendas, busca, filtroStatus, filtroProduto, dataInicio, dataFim, filtroData]);
 
