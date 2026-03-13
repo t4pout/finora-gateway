@@ -126,6 +126,7 @@ export default function VendasPage() {
     console.log('PRIMEIRO NOME:', vendas[0]?.compradorNome);
     const resultado = (() => {
     const buscaNorm = busca.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (buscaNorm) console.log('buscaNorm:', buscaNorm, 'exemplo nome:', (vendas[0]?.compradorNome ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''));
     return vendas.filter(v => {
     if (filtroStatus !== 'TODAS' && v.status !== filtroStatus) return false;
     if (buscaNorm) {
