@@ -1,8 +1,7 @@
 ﻿'use client';
 
-import dynamic from 'next/dynamic';
 import Sidebar from '@/app/components/Sidebar';
-import { useEffect, useState, useMemo, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { DollarSign, ShoppingBag, BarChart3, Filter, Calendar, Eye, X, Download, ChevronLeft, ChevronRight } from 'lucide-react';
 import { agoraBrasil, toBrasil, formatarData, formatarHora, formatarDataHora, inicioDiaBrasil, fimDiaBrasil, inicioDiasAtras, isOntem, parseDateInput } from '@/lib/date-brasil';
@@ -50,6 +49,10 @@ interface User {
 
 const ITENS_POR_PAGINA = 25;
 
+function normStr(s: string) {
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
 export default function VendasPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
@@ -67,8 +70,7 @@ export default function VendasPage() {
   const [dataFim, setDataFim] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [busca, setBusca] = useState('');
-  const [vendasExibidas, setVendasExibidas] = useState<Venda[]>(vendas);
-   
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
@@ -118,22 +120,18 @@ export default function VendasPage() {
   const abrirDetalhes = (venda: Venda) => { setVendaSelecionada(venda); setModalAberto(true); };
   const fecharModal = () => { setModalAberto(false); setVendaSelecionada(null); };
 
-  // Helper: aplica mudança de filtro e reseta página
   const mudarFiltro = (fn: () => void) => { fn(); setPaginaAtual(1); };
 
-  useEffect(() => {
-    console.log('FILTRO RODANDO, busca:', busca, 'vendas:', vendas.length);
-    console.log('PRIMEIRO NOME:', vendas[0]?.compradorNome);
-    const resultado = (() => {
-    const buscaNorm = busca.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    if (buscaNorm) console.log('buscaNorm:', buscaNorm, 'exemplo nome:', (vendas[0]?.compradorNome ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''));
-    return vendas.filter(v => {
+  const vendasFiltradas = vendas.filter(v => {
     if (filtroStatus !== 'TODAS' && v.status !== filtroStatus) return false;
-    if (buscaNorm) {
-      const nomeNorm = (v.compradorNome ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+    const buscaTrim = busca.trim();
+    if (buscaTrim) {
+      const buscaNorm = normStr(buscaTrim);
+      const nomeNorm = normStr(v.compradorNome ?? '');
       const cpfNorm = (v.compradorCpf ?? '').replace(/\D/g, '');
+      const buscaCpf = buscaTrim.replace(/\D/g, '');
       const idNorm = (v.id ?? '').toLowerCase();
-      const buscaCpf = busca.trim().replace(/\D/g, '');
       if (!nomeNorm.includes(buscaNorm) && !cpfNorm.includes(buscaCpf) && !idNorm.includes(buscaNorm)) return false;
     }
 
@@ -150,8 +148,8 @@ export default function VendasPage() {
         const fim = parseDateInput(dataFim);
         fim.setHours(23, 59, 59, 999);
         if (dataVenda > fim) return false;
-        }
       }
+    }
 
     if (filtroData === 'ONTEM') {
       if (!isOntem(v.createdAt)) return false;
@@ -170,15 +168,8 @@ export default function VendasPage() {
     }
 
     return true;
-    });
-  })();
-    console.log('RESULTADO:', resultado.length);
-    setVendasExibidas(resultado);
-  }, [vendas, busca, filtroStatus, filtroProduto, dataInicio, dataFim, filtroData]);
+  });
 
-  const vendasFiltradas = vendasExibidas;
-
-  // Paginação
   const totalPaginas = Math.ceil(vendasFiltradas.length / ITENS_POR_PAGINA);
   const indiceInicio = (paginaAtual - 1) * ITENS_POR_PAGINA;
   const vendasPagina = vendasFiltradas.slice(indiceInicio, indiceInicio + ITENS_POR_PAGINA);
@@ -333,19 +324,17 @@ export default function VendasPage() {
               <Filter size={20} className="text-gray-600" />
               <span className="font-semibold text-gray-900">Filtros</span>
             </div>
-           <div className="mb-4">
+            <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">Buscar</label>
               <input
                 type="text"
                 value={busca}
                 onChange={(e) => { setBusca(e.target.value); setPaginaAtual(1); }}
-                onKeyUp={(e) => { setBusca((e.target as HTMLInputElement).value); setPaginaAtual(1); }}
                 placeholder="Nome do cliente, CPF ou ID da venda..."
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900"
               />
             </div>
 
-            {/* Filtro por Produto */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">Produto</label>
               <select
@@ -404,14 +393,14 @@ export default function VendasPage() {
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Valor Liquido</th>
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Status</th>
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Pagamento</th>
-<th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Origem</th>
-<th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Acoes</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Origem</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Acoes</th>
                   </tr>
                 </thead>
                 <tbody>
                   {vendasPagina.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="py-12 text-center text-gray-500">Nenhuma venda encontrada com os filtros selecionados</td>
+                      <td colSpan={9} className="py-12 text-center text-gray-500">Nenhuma venda encontrada com os filtros selecionados</td>
                     </tr>
                   ) : (
                     vendasPagina.map((venda) => (
@@ -435,17 +424,17 @@ export default function VendasPage() {
                           </span>
                         </td>
                         <td className="py-4 px-4 text-sm text-gray-600">{venda.metodoPagamento}</td>
-<td className="py-4 px-4">
-  {venda.utmSource ? (
-    <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
-      {venda.utmSource}
-    </span>
-  ) : (
-    <span className="text-gray-400 text-xs">—</span>
-  )}
-</td>
-<td className="py-4 px-4">
-  <button onClick={() => abrirDetalhes(venda)} className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition" title="Ver detalhes">
+                        <td className="py-4 px-4">
+                          {venda.utmSource ? (
+                            <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+                              {venda.utmSource}
+                            </span>
+                          ) : (
+                            <span className="text-gray-400 text-xs">—</span>
+                          )}
+                        </td>
+                        <td className="py-4 px-4">
+                          <button onClick={() => abrirDetalhes(venda)} className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition" title="Ver detalhes">
                             <Eye size={20} />
                           </button>
                         </td>
@@ -456,7 +445,6 @@ export default function VendasPage() {
               </table>
             </div>
 
-            {/* Paginação */}
             {totalPaginas > 1 && (
               <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50">
                 <span className="text-sm text-gray-600">
@@ -579,15 +567,15 @@ export default function VendasPage() {
                   </div>
                   <div><label className="text-sm text-gray-600">Data</label><p className="font-semibold text-gray-900">{formatarDataHora(vendaSelecionada.createdAt)}</p></div>
                   {vendaSelecionada.utmSource && (
-  <div className="md:col-span-2">
-    <label className="text-sm text-gray-600">Origem da Campanha (UTM)</label>
-    <div className="flex flex-wrap gap-2 mt-1">
-      <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-md text-sm font-medium border border-blue-200">source: {vendaSelecionada.utmSource}</span>
-      {vendaSelecionada.utmMedium && <span className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-md text-sm font-medium border border-indigo-200">medium: {vendaSelecionada.utmMedium}</span>}
-      {vendaSelecionada.utmCampaign && <span className="px-3 py-1 bg-violet-50 text-violet-700 rounded-md text-sm font-medium border border-violet-200">campaign: {vendaSelecionada.utmCampaign}</span>}
-    </div>
-  </div>
-)}
+                    <div className="md:col-span-2">
+                      <label className="text-sm text-gray-600">Origem da Campanha (UTM)</label>
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-md text-sm font-medium border border-blue-200">source: {vendaSelecionada.utmSource}</span>
+                        {vendaSelecionada.utmMedium && <span className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-md text-sm font-medium border border-indigo-200">medium: {vendaSelecionada.utmMedium}</span>}
+                        {vendaSelecionada.utmCampaign && <span className="px-3 py-1 bg-violet-50 text-violet-700 rounded-md text-sm font-medium border border-violet-200">campaign: {vendaSelecionada.utmCampaign}</span>}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
               {vendaSelecionada.orderBumpsNomes && vendaSelecionada.orderBumpsNomes.length > 0 && (
