@@ -329,10 +329,9 @@ export default function VendasPage() {
                 value={busca}
                 onChange={(e) => { setBusca(e.target.value); setPaginaAtual(1); }}
 onInput={(e) => { setBusca((e.target as HTMLInputElement).value); setPaginaAtual(1); }}
-                className="mt-2 px-6 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition"
-              >
-                Buscar
-              </button>
+                placeholder="Nome do cliente, CPF ou ID da venda..."
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900"
+              />
             </div>
 
             {/* Filtro por Produto */}
