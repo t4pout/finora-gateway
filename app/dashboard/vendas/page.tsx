@@ -1,7 +1,8 @@
 ﻿'use client';
 
+import dynamic from 'next/dynamic';
 import Sidebar from '@/app/components/Sidebar';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { DollarSign, ShoppingBag, BarChart3, Filter, Calendar, Eye, X, Download, ChevronLeft, ChevronRight } from 'lucide-react';
 import { agoraBrasil, toBrasil, formatarData, formatarHora, formatarDataHora, inicioDiaBrasil, fimDiaBrasil, inicioDiasAtras, isOntem, parseDateInput } from '@/lib/date-brasil';
@@ -327,8 +328,8 @@ export default function VendasPage() {
               <input
                 type="text"
                 value={busca}
+                ref={(el) => { if (el) el.oninput = (e) => { const v = (e.target as HTMLInputElement).value; setBusca(v); setPaginaAtual(1); }; }}
                 onChange={(e) => { setBusca(e.target.value); setPaginaAtual(1); }}
-onInput={(e) => { setBusca((e.target as HTMLInputElement).value); setPaginaAtual(1); }}
                 placeholder="Nome do cliente, CPF ou ID da venda..."
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900"
               />
