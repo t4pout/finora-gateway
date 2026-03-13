@@ -67,6 +67,7 @@ export default function VendasPage() {
   const [dataFim, setDataFim] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [busca, setBusca] = useState('');
+  const [vendasExibidas, setVendasExibidas] = useState<Venda[]>([]);
    
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -120,7 +121,8 @@ export default function VendasPage() {
   // Helper: aplica mudança de filtro e reseta página
   const mudarFiltro = (fn: () => void) => { fn(); setPaginaAtual(1); };
 
-  const vendasFiltradas = useMemo(() => {
+  useEffect(() => {
+    const resultado = (() => {
     const buscaNorm = busca.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     return vendas.filter(v => {
     if (filtroStatus !== 'TODAS' && v.status !== filtroStatus) return false;
@@ -166,7 +168,11 @@ export default function VendasPage() {
 
     return true;
     });
+  })();
+    setVendasExibidas(resultado);
   }, [vendas, busca, filtroStatus, filtroProduto, dataInicio, dataFim, filtroData]);
+
+  const vendasFiltradas = vendasExibidas;
 
   // Paginação
   const totalPaginas = Math.ceil(vendasFiltradas.length / ITENS_POR_PAGINA);
