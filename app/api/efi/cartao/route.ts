@@ -4,7 +4,7 @@ import efipay from '@/lib/efi';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { valor, nome, cpf, email, parcelas, paymentToken, descricao } = body;
+    const { valor, nome, cpf, email, parcelas, cartaoNumero, cartaoNome, cartaoMes, cartaoAno, cartaoCvv, descricao } = body;
 
     const chargeBody = {
       items: [{
@@ -15,21 +15,26 @@ export async function POST(req: NextRequest) {
       customer: {
         name: nome,
         cpf: cpf.replace(/\D/g, ''),
-        email,
+        email: email || 'contato@finorapayments.com',
         birth: '1990-01-01',
         phone_number: '11999999999',
       },
       payment: {
         credit_card: {
           installments: parcelas || 1,
-          payment_token: paymentToken,
+          credit_card: {
+            number: cartaoNumero?.replace(/\D/g, ''),
+            holder: cartaoNome || nome,
+            expiration: cartaoMes + '/' + (cartaoAno?.length === 2 ? '20' + cartaoAno : cartaoAno),
+            cvv: cartaoCvv,
+          },
           billing_address: {
             street: 'Rua Exemplo',
             number: '123',
             neighborhood: 'Centro',
-            zipcode: '00000000',
-            city: 'Cidade',
-            state: 'MG',
+            zipcode: '01001000',
+            city: 'Sao Paulo',
+            state: 'SP',
           },
         },
       },
@@ -40,7 +45,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       chargeId: charge.data.charge_id,
       status: charge.data.status,
-      parcelas: charge.data.payment.credit_card.installments,
     });
   } catch (error: any) {
     console.error('Erro Cartão Efi:', error);
