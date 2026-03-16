@@ -6,6 +6,8 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { valor, nome, cpf, email, parcelas, cartaoNumero, cartaoNome, cartaoMes, cartaoAno, cartaoCvv, descricao } = body;
 
+    const params = {};
+
     const chargeBody = {
       items: [{
         name: descricao || 'Pagamento Finora',
@@ -21,6 +23,13 @@ export async function POST(req: NextRequest) {
       },
       payment: {
         credit_card: {
+          customer: {
+            name: nome,
+            cpf: cpf.replace(/\D/g, ''),
+            email: email || 'contato@finorapayments.com',
+            birth: '1990-01-01',
+            phone_number: '11999999999',
+          },
           installments: parcelas || 1,
           credit_card: {
             number: cartaoNumero?.replace(/\D/g, ''),
@@ -40,7 +49,7 @@ export async function POST(req: NextRequest) {
       },
     };
 
-    const charge = await efipay.createOneStepCharge([], chargeBody);
+    const charge = await efipay.createOneStepCharge(params, chargeBody);
 
     return NextResponse.json({
       chargeId: charge.data.charge_id,
