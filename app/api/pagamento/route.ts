@@ -195,6 +195,18 @@ export async function POST(request: NextRequest) {
         pixId = venitResult.id; copiaECola = pixVenit.qrcode; qrCode = null;
         console.log('Venit PIX gerado com sucesso! ID:', venitResult.id);
 
+      } else if (gatewayPix === 'EFI') {
+        console.log('🟢 Gerando PIX via Efi Bank...');
+        const efiRes = await fetch(`${request.nextUrl.origin}/api/efi/pix`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ valor: valorTotal, nome: compradorNome, cpf: compradorCpf, descricao: plano.nome })
+        });
+        const efiData = await efiRes.json();
+        if (!efiRes.ok) return NextResponse.json({ error: 'Erro ao gerar PIX Efi', details: efiData }, { status: 500 });
+        await prisma.venda.update({ where: { id: venda.id }, data: { pixTxid: efiData.txid, pixQrCode: efiData.qrCodeImagem, pixCopiaECola: efiData.pixCopiaECola } });
+        pixId = efiData.txid; qrCode = efiData.qrCodeImagem; copiaECola = efiData.pixCopiaECola;
+
       } else {
         // PaggPix (padrão)
         const paggpixData = { cnpj: "35254464000109", value: valorTotal.toFixed(2), description: `${plano.nome} - ${plano.produto.nome}`, external_id: venda.id };
@@ -351,6 +363,30 @@ export async function POST(request: NextRequest) {
         const statusCartao = cartaoData.data?.status || 'pending';
         await prisma.venda.update({ where: { id: venda.id }, data: { status: statusCartao === 'approved' ? 'PAGO' : 'PENDENTE', pixId: String(orderId) } });
 
+      } else if (gatewayCartao === 'EFI') {
+        console.log('💳 Gerando cartão via Efi Bank...');
+        const { cartaoNumero, cartaoCvv, cartaoMes, cartaoAno, cartaoNome, parcelas } = body;
+        const efiRes = await fetch(`${request.nextUrl.origin}/api/efi/cartao`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ valor: valorTotal, nome: compradorNome, cpf: compradorCpf, email: compradorEmail, parcelas: parseInt(parcelas) || 1, paymentToken: cartaoNumero, descricao: plano.nome })
+        });
+        const efiData = await efiRes.json();
+        if (!efiRes.ok) return NextResponse.json({ error: 'Erro ao processar cartão Efi', details: efiData }, { status: 500 });
+        await prisma.venda.update({ where: { id: venda.id }, data: { status: efiData.status === 'paid' ? 'PAGO' : 'PENDENTE', efiChargeId: String(efiData.chargeId) } });
+
+      } else if (gatewayCartao === 'EFI') {
+        console.log('💳 Gerando cartão via Efi Bank...');
+        const { cartaoNumero, cartaoCvv, cartaoMes, cartaoAno, cartaoNome, parcelas } = body;
+        const efiRes = await fetch(`${request.nextUrl.origin}/api/efi/cartao`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ valor: valorTotal, nome: compradorNome, cpf: compradorCpf, email: compradorEmail, parcelas: parseInt(parcelas) || 1, paymentToken: cartaoNumero, descricao: plano.nome })
+        });
+        const efiData = await efiRes.json();
+        if (!efiRes.ok) return NextResponse.json({ error: 'Erro ao processar cartão Efi', details: efiData }, { status: 500 });
+        await prisma.venda.update({ where: { id: venda.id }, data: { status: efiData.status === 'paid' ? 'PAGO' : 'PENDENTE', efiChargeId: String(efiData.chargeId) } });
+
       } else {
         console.log('💳 Gerando cartao via Mercado Pago...');
         const { mpToken, parcelas } = body;
@@ -445,6 +481,17 @@ export async function POST(request: NextRequest) {
         if (!boletoRes.ok) return NextResponse.json({ error: 'Erro ao gerar boleto Appmax', details: boletoData }, { status: 500 });
 
         await prisma.venda.update({ where: { id: venda.id }, data: { boletoUrl: boletoData.data?.boleto_url || boletoData.data?.url || null, boletoBarcode: boletoData.data?.boleto_barcode || boletoData.data?.barcode || null, pixId: String(orderId) } });
+
+      } else if (gatewayBoleto === 'EFI') {
+        console.log('📄 Gerando boleto via Efi Bank...');
+        const efiRes = await fetch(`${request.nextUrl.origin}/api/efi/boleto`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ valor: valorTotal, nome: compradorNome, cpf: compradorCpf, email: compradorEmail, cep, rua, numero, bairro, cidade, estado, descricao: plano.nome })
+        });
+        const efiData = await efiRes.json();
+        if (!efiRes.ok) return NextResponse.json({ error: 'Erro ao gerar boleto Efi', details: efiData }, { status: 500 });
+        await prisma.venda.update({ where: { id: venda.id }, data: { boletoUrl: efiData.boletoUrl, boletoBarcode: efiData.barcode, efiChargeId: String(efiData.chargeId) } });
 
       } else {
         console.log('Gerando boleto via Mercado Pago...');
