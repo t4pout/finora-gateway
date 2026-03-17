@@ -15,13 +15,6 @@ export async function POST(req: NextRequest) {
         value: Math.round(Number(valor) * 100),
         amount: 1,
       }],
-      customer: {
-        name: nomeCompleto,
-        cpf: cpf.replace(/\D/g, ''),
-        email: email || 'contato@finorapayments.com',
-        birth: '1990-01-01',
-        phone_number: '11999999999',
-      },
       payment: {
         credit_card: {
           customer: {
