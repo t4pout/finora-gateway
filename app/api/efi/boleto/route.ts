@@ -45,8 +45,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       chargeId: charge.data.charge_id,
-      boletoUrl: charge.data.payment?.banking_billet?.link || null,
-      barcode: charge.data.payment?.banking_billet?.barcode || null,
+      boletoUrl: charge.data.link || charge.data.billet_link || null,
+      barcode: charge.data.barcode || null,
       status: charge.data.status,
     });
   } catch (error: any) {
