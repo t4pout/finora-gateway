@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
 
     const cobBody = {
       calendario: { expiracao: 3600 },
-      devedor: { cpf, nome },
+      devedor: { cpf: cpf.replace(/\D/g, ''), nome },
       valor: { original: Number(valor).toFixed(2) },
       chave: process.env.EFI_PIX_KEY!,
       solicitacaoPagador: descricao || 'Pagamento Finora',
