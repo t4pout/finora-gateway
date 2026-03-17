@@ -381,7 +381,7 @@ export async function POST(request: NextRequest) {
         const efiRes = await fetch(`${request.nextUrl.origin}/api/efi/cartao`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ valor: valorTotal, nome: compradorNome, cpf: compradorCpf, email: compradorEmail, parcelas: parseInt(parcelas) || 1, paymentToken: cartaoNumero, descricao: plano.nome })
+          body: JSON.stringify({ valor: valorTotal, nome: compradorNome, cpf: compradorCpf, email: compradorEmail, parcelas: parseInt(parcelas) || 1, efiToken: body.efiToken, cartaoNome, descricao: plano.nome })
         });
         const efiData = await efiRes.json();
         if (!efiRes.ok) return NextResponse.json({ error: 'Erro ao processar cartão Efi', details: efiData }, { status: 500 });

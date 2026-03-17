@@ -285,6 +285,36 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
     setEtapa(plano?.checkoutPedirEndereco ? 2 : 3);
   };
 
+  const tokenizarCartaoEfi = async (): Promise<string | null> => {
+    try {
+      const EfiPay = (await import('payment-token-efi')).default;
+      const brand = await EfiPay.CreditCard
+        .setCardNumber(cartaoData.numero.replace(/\D/g, ''))
+        .verifyCardBrand();
+
+      const result = await EfiPay.CreditCard
+        .setAccount('9c8d6bfb47ba6bdefda7a3fdd114591c')
+        .setEnvironment('production')
+        .setCreditCardData({
+          brand,
+          number: cartaoData.numero.replace(/\D/g, ''),
+          cvv: cartaoData.cvv,
+          expirationMonth: cartaoData.mes,
+          expirationYear: cartaoData.ano.length === 2 ? '20' + cartaoData.ano : cartaoData.ano,
+          holderName: cartaoData.nome,
+          holderDocument: formData.cpf.replace(/\D/g, ''),
+          reuse: false,
+        })
+        .getPaymentToken();
+
+      return result.payment_token;
+    } catch (e: any) {
+      console.error('Erro tokenizar cartao Efi:', e);
+      alert('Erro ao processar cartão: ' + (e?.error_description || e?.message || 'verifique os dados'));
+      return null;
+    }
+  };
+
   const tokenizarCartaoMP = async (): Promise<string | null> => {
     try {
       const mp = new (window as any).MercadoPago('APP_USR-f4a20f19-bebf-4369-95af-171915a3a4cc');
@@ -339,7 +369,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
       let payload: any = base;
 
       if (formData.metodoPagamento === 'CARTAO') {
-        if (gatewayCartao === 'APPMAX' || gatewayCartao === 'CIELO' || gatewayCartao === 'EFI') {
+        if (gatewayCartao === 'APPMAX' || gatewayCartao === 'CIELO') {
           payload = {
             ...base,
             cartaoNumero: cartaoData.numero.replace(/\D/g, ''),
@@ -350,16 +380,26 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
             parcelas: parseInt(cartaoData.parcelas)
           };
         } else {
-          const token = await tokenizarCartaoMP();
-          if (!token) {
-            setProcessando(false);
-            return;
+          if (gatewayCartao === 'EFI') {
+            const efiToken = await tokenizarCartaoEfi();
+            if (!efiToken) { setProcessando(false); return; }
+            payload = {
+              ...base,
+              efiToken,
+              cartaoNome: cartaoData.nome,
+              cartaoMes: cartaoData.mes,
+              cartaoAno: cartaoData.ano,
+              parcelas: parseInt(cartaoData.parcelas)
+            };
+          } else {
+            const token = await tokenizarCartaoMP();
+            if (!token) { setProcessando(false); return; }
+            payload = {
+              ...base,
+              mpToken: token,
+              parcelas: parseInt(cartaoData.parcelas)
+            };
           }
-          payload = {
-            ...base,
-            mpToken: token,
-            parcelas: parseInt(cartaoData.parcelas)
-          };
         }
       }
 

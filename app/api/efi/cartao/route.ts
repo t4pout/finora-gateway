@@ -4,7 +4,7 @@ import efipay from '@/lib/efi';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { valor, nome, cpf, email, parcelas, cartaoNumero, cartaoNome, cartaoMes, cartaoAno, cartaoCvv, descricao } = body;
+    const { valor, nome, cpf, email, parcelas, efiToken, cartaoNome, descricao } = body;
 
     const params = {};
 
@@ -31,12 +31,7 @@ export async function POST(req: NextRequest) {
             phone_number: '11999999999',
           },
           installments: parcelas || 1,
-          credit_card: {
-            number: cartaoNumero?.replace(/\D/g, ''),
-            holder: cartaoNome || nome,
-            expiration: cartaoMes + '/' + (cartaoAno?.length === 2 ? '20' + cartaoAno : cartaoAno),
-            cvv: cartaoCvv,
-          },
+          payment_token: efiToken,
           billing_address: {
             street: 'Rua Exemplo',
             number: '123',
