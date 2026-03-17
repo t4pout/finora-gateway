@@ -5,6 +5,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { valor, nome, cpf, email, parcelas, efiToken, cartaoNome, descricao } = body;
+    console.log('EFI cartao body recebido:', JSON.stringify({ valor, nome, efiToken: efiToken ? 'PRESENTE' : 'AUSENTE', parcelas }));
 
     const params = {};
 
