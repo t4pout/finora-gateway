@@ -5,9 +5,8 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { valor, nome, cpf, email, parcelas, efiToken, cartaoNome, descricao } = body;
-    console.log('EFI cartao body recebido:', JSON.stringify({ valor, nome, efiToken: efiToken ? 'PRESENTE' : 'AUSENTE', parcelas }));
 
-    const params = {};
+    console.log('EFI cartao - token:', efiToken ? 'PRESENTE' : 'AUSENTE');
 
     const chargeBody = {
       items: [{
@@ -30,22 +29,25 @@ export async function POST(req: NextRequest) {
             email: email || 'contato@finorapayments.com',
             birth: '1990-01-01',
             phone_number: '11999999999',
+            billing_address: {
+              street: 'Rua Exemplo',
+              number: '123',
+              neighborhood: 'Centro',
+              zipcode: '01001000',
+              city: 'Sao Paulo',
+              complement: '',
+              state: 'SP',
+            },
           },
-          installments: parcelas || 1,
+          installments: parseInt(parcelas) || 1,
           payment_token: efiToken,
-          billing_address: {
-            street: 'Rua Exemplo',
-            number: '123',
-            neighborhood: 'Centro',
-            zipcode: '01001000',
-            city: 'Sao Paulo',
-            state: 'SP',
-          },
         },
       },
     };
 
-    const charge = await efipay.createOneStepCharge(params, chargeBody);
+    console.log('EFI chargeBody:', JSON.stringify(chargeBody));
+
+    const charge = await efipay.createOneStepCharge([], chargeBody);
 
     return NextResponse.json({
       chargeId: charge.data.charge_id,
