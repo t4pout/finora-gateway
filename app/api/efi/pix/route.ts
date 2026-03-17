@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     };
 
     const cob = await efipay.pixCreateImmediateCharge([], cobBody);
-    const qrcode = await efipay.pixGenerateQRCode([], { id: cob.loc.id });
+    const qrcode = await efipay.pixGenerateQRCode([{ id: cob.loc.id }], {});
 
     return NextResponse.json({
       txid: cob.txid,
