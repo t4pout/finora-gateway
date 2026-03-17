@@ -371,7 +371,7 @@ export async function POST(request: NextRequest) {
         });
         const efiData = await efiRes.json();
         if (!efiRes.ok) return NextResponse.json({ error: 'Erro ao processar cartão Efi', details: efiData }, { status: 500 });
-        await prisma.venda.update({ where: { id: venda.id }, data: { status: efiData.status === 'paid' ? 'PAGO' : 'PENDENTE', efiChargeId: String(efiData.chargeId) } });
+        await prisma.venda.update({ where: { id: venda.id }, data: { status: (efiData.status === 'paid' || efiData.status === 'approved') ? 'PAGO' : 'PENDENTE', efiChargeId: String(efiData.chargeId) } });
 
       } else {
         console.log('💳 Gerando cartao via Mercado Pago...');
