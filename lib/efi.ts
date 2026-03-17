@@ -4,10 +4,17 @@ import fs from 'fs';
 
 const certBase64 = process.env.EFI_CERT_BASE64;
 
-let certificate: string | Buffer;
+let certificate: Buffer | string;
 
 if (certBase64) {
-  certificate = Buffer.from(certBase64.replace(/-----BEGIN CERTIFICATE-----/g, '').replace(/-----END CERTIFICATE-----/g, '').replace(/\s/g, ''), 'base64');
+  const cleaned = certBase64
+    .replace(/-----BEGIN CERTIFICATE-----/g, '')
+    .replace(/-----END CERTIFICATE-----/g, '')
+    .replace(/\r\n/g, '')
+    .replace(/\n/g, '')
+    .replace(/\r/g, '')
+    .trim();
+  certificate = Buffer.from(cleaned, 'base64');
 } else {
   certificate = path.resolve(process.cwd(), 'certs/producao-886484-finora payments.p12');
 }
