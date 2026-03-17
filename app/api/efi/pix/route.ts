@@ -15,7 +15,15 @@ export async function POST(req: NextRequest) {
     };
 
     const cob = await efipay.pixCreateImmediateCharge([], cobBody);
-    const qrcode = await efipay.pixGenerateQRCode([{ id: cob.loc.id }], {});
+    console.log('EFI PIX cob:', JSON.stringify(cob));
+
+    const locId = cob.loc?.id;
+    if (!locId) {
+      return NextResponse.json({ error: 'Erro ao obter loc.id do PIX' }, { status: 500 });
+    }
+
+    const qrcode = await efipay.pixGenerateQRCode({ id: locId }, {});
+    console.log('EFI PIX qrcode:', JSON.stringify(qrcode));
 
     return NextResponse.json({
       txid: cob.txid,
