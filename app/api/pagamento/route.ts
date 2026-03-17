@@ -304,7 +304,6 @@ export async function POST(request: NextRequest) {
         const firstname = nomePartes[0];
         const lastname = nomePartes.slice(1).join(' ') || firstname;
 
-        // 1. Criar cliente
         const customerRes = await fetch(APPMAX_API + '/customer', {
           method: 'POST',
           headers: {
@@ -325,7 +324,6 @@ export async function POST(request: NextRequest) {
         if (!customerRes.ok || !customerData.data?.id) return NextResponse.json({ error: 'Erro ao criar cliente Appmax', details: customerData }, { status: 500 });
         const customerId = customerData.data.id;
 
-        // 2. Criar pedido
         const orderRes = await fetch(APPMAX_API + '/order', {
           method: 'POST',
           headers: {
@@ -343,7 +341,6 @@ export async function POST(request: NextRequest) {
         if (!orderRes.ok || !orderData.data?.id) return NextResponse.json({ error: 'Erro ao criar pedido Appmax', details: orderData }, { status: 500 });
         const orderId = orderData.data.id;
 
-        // 3. Processar cartão
         const cartaoRes = await fetch(APPMAX_API + '/payment/credit-card', {
           method: 'POST',
           headers: {
@@ -365,24 +362,12 @@ export async function POST(request: NextRequest) {
 
       } else if (gatewayCartao === 'EFI') {
         console.log('💳 Gerando cartão via Efi Bank...');
-        const { cartaoNumero, cartaoCvv, cartaoMes, cartaoAno, cartaoNome, parcelas, efiToken } = body;
+        const { cartaoNome, parcelas, efiToken } = body;
         console.log('EFI token no pagamento:', efiToken ? 'PRESENTE' : 'AUSENTE');
         const efiRes = await fetch(`${request.nextUrl.origin}/api/efi/cartao`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ valor: valorTotal, nome: compradorNome, cpf: compradorCpf, email: compradorEmail, parcelas: parseInt(parcelas) || 1, efiToken, cartaoNome, descricao: plano.nome })
-        });
-        const efiData = await efiRes.json();
-        if (!efiRes.ok) return NextResponse.json({ error: 'Erro ao processar cartão Efi', details: efiData }, { status: 500 });
-        await prisma.venda.update({ where: { id: venda.id }, data: { status: efiData.status === 'paid' ? 'PAGO' : 'PENDENTE', efiChargeId: String(efiData.chargeId) } });
-
-      } else if (gatewayCartao === 'EFI') {
-        console.log('💳 Gerando cartão via Efi Bank...');
-        const { cartaoNumero, cartaoCvv, cartaoMes, cartaoAno, cartaoNome, parcelas } = body;
-        const efiRes = await fetch(`${request.nextUrl.origin}/api/efi/cartao`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ valor: valorTotal, nome: compradorNome, cpf: compradorCpf, email: compradorEmail, parcelas: parseInt(parcelas) || 1, efiToken: body.efiToken, cartaoNome, descricao: plano.nome })
         });
         const efiData = await efiRes.json();
         if (!efiRes.ok) return NextResponse.json({ error: 'Erro ao processar cartão Efi', details: efiData }, { status: 500 });
@@ -427,7 +412,6 @@ export async function POST(request: NextRequest) {
         const firstname = nomePartes[0];
         const lastname = nomePartes.slice(1).join(' ') || firstname;
 
-        // 1. Criar cliente
         const customerRes = await fetch(APPMAX_API + '/customer', {
           method: 'POST',
           headers: {
@@ -445,7 +429,6 @@ export async function POST(request: NextRequest) {
         if (!customerRes.ok || !customerData.data?.id) return NextResponse.json({ error: 'Erro ao criar cliente Appmax', details: customerData }, { status: 500 });
         const customerId = customerData.data.id;
 
-        // 2. Criar pedido
         const orderRes = await fetch(APPMAX_API + '/order', {
           method: 'POST',
           headers: {
@@ -463,7 +446,6 @@ export async function POST(request: NextRequest) {
         if (!orderRes.ok || !orderData.data?.id) return NextResponse.json({ error: 'Erro ao criar pedido Appmax', details: orderData }, { status: 500 });
         const orderId = orderData.data.id;
 
-        // 3. Gerar boleto
         const boletoRes = await fetch(APPMAX_API + '/payment/boleto', {
           method: 'POST',
           headers: {
@@ -524,12 +506,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Email
     try {
       await enviarEmailPedidoCriado({ compradorNome, compradorEmail, produtoNome: plano.produto.nome, planoNome: plano.nome, valor: plano.preco, metodoPagamento: metodoPagamento || 'PIX', pedidoId: venda.id });
     } catch (e) { console.error('Erro ao enviar email pedido criado:', e); }
 
-    // CAPI AddPaymentInfo
     try {
       const pixelsProduto = await (prisma as any).pixel.findMany({ where: { produtoId: plano.produtoId, plataforma: 'FACEBOOK', ativo: true } });
       for (const px of pixelsProduto) {
@@ -540,7 +520,6 @@ export async function POST(request: NextRequest) {
       }
     } catch (e) { console.error('Erro CAPI AddPaymentInfo:', e); }
 
-    // Telegram
     const produto = await prisma.produto.findUnique({
       where: { id: plano.produtoId },
       include: { user: { select: { id: true, nome: true, telegramBotToken: true, telegramChatId: true } } }
