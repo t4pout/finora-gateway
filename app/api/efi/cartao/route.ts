@@ -7,6 +7,7 @@ export async function POST(req: NextRequest) {
     const { valor, nome, cpf, email, parcelas, efiToken, cartaoNome, descricao } = body;
 
     console.log('EFI cartao - token:', efiToken ? 'PRESENTE' : 'AUSENTE');
+    const nomeCompleto = nome.trim().includes(' ') ? nome.trim() : nome.trim() + ' Pagador';
 
     const chargeBody = {
       items: [{
@@ -15,7 +16,7 @@ export async function POST(req: NextRequest) {
         amount: 1,
       }],
       customer: {
-        name: nome,
+        name: nomeCompleto,
         cpf: cpf.replace(/\D/g, ''),
         email: email || 'contato@finorapayments.com',
         birth: '1990-01-01',
@@ -24,7 +25,7 @@ export async function POST(req: NextRequest) {
       payment: {
         credit_card: {
           customer: {
-            name: nome,
+            name: nomeCompleto,
             cpf: cpf.replace(/\D/g, ''),
             email: email || 'contato@finorapayments.com',
             birth: '1990-01-01',
