@@ -43,6 +43,7 @@ export async function POST(req: NextRequest) {
 
     const charge = await efipay.createOneStepCharge([], chargeBody);
 
+    console.log('EFI charge resposta:', JSON.stringify(charge.data));
     return NextResponse.json({
       chargeId: charge.data.charge_id,
       status: charge.data.status,
