@@ -4,8 +4,7 @@ import { prisma } from '@/lib/prisma';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    console.log('Webhook Efi recebido:', JSON.stringify(body));
-    console.log('Webhook Efi headers:', JSON.stringify(Object.fromEntries(req.headers)));
+    console.log('Webhook Efi recebido COMPLETO:', JSON.stringify(body));
 
     // Webhook PIX
     if (body.pix) {
