@@ -43,6 +43,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function GET() {
-  return NextResponse.json({ ok: true });
+export async function GET(req: NextRequest) {
+  console.log('Webhook Efi GET recebido - validação');
+  return new NextResponse('', { status: 200 });
 }
