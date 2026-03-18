@@ -284,6 +284,7 @@ export async function POST(request: NextRequest) {
         if (paymentStatus === 2) {
           await prisma.venda.update({ where: { id: venda.id }, data: { status: 'PAGO', pixId: paymentId } });
           try { await enviarParaPagah({ ...venda, produto: plano.produto }); } catch(e) { console.error('Erro Pagah Cielo:', e); }
+          try { await fetch(`${request.nextUrl.origin}/api/vendas/marcar-pago`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ vendaId: venda.id }) }); } catch(e) { console.error('Erro carteira Cielo:', e); }
           try {
             const pixels = await (prisma as any).pixel.findMany({ where: { produtoId: plano.produtoId, plataforma: 'FACEBOOK', ativo: true } });
             for (const px of pixels) {
@@ -375,7 +376,10 @@ export async function POST(request: NextRequest) {
         if (!efiRes.ok) return NextResponse.json({ error: 'Erro ao processar cartão Efi', details: efiData }, { status: 500 });
         const statusEfi = (efiData.status === 'paid' || efiData.status === 'approved') ? 'PAGO' : 'PENDENTE';
         await prisma.venda.update({ where: { id: venda.id }, data: { status: statusEfi, efiChargeId: String(efiData.chargeId) } });
-        if (statusEfi === 'PAGO') { try { await enviarParaPagah({ ...venda, produto: plano.produto }); } catch(e) { console.error('Erro Pagah Efi:', e); } }
+        if (statusEfi === 'PAGO') {
+          try { await enviarParaPagah({ ...venda, produto: plano.produto }); } catch(e) { console.error('Erro Pagah Efi:', e); }
+          try { await fetch(`${request.nextUrl.origin}/api/vendas/marcar-pago`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ vendaId: venda.id }) }); } catch(e) { console.error('Erro carteira Efi:', e); }
+        }
 
       } else {
         console.log('💳 Gerando cartao via Mercado Pago...');
@@ -400,6 +404,7 @@ export async function POST(request: NextRequest) {
         if (result.status === 'approved') {
           await prisma.venda.update({ where: { id: venda.id }, data: { status: 'PAGO', pixId: String(result.id) } });
           try { await enviarParaPagah({ ...venda, produto: plano.produto }); } catch(e) { console.error('Erro Pagah MP:', e); }
+          try { await fetch(`${request.nextUrl.origin}/api/vendas/marcar-pago`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ vendaId: venda.id }) }); } catch(e) { console.error('Erro carteira MP:', e); }
         } else if (result.status === 'in_process' || result.status === 'pending') {
           await prisma.venda.update({ where: { id: venda.id }, data: { pixId: String(result.id) } });
         } else {
