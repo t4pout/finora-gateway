@@ -93,7 +93,13 @@ export async function POST(req: NextRequest) {
     if (body.pix) {
       for (const pix of body.pix) {
         const txid = pix.txid;
-        console.log(`PIX confirmado: txid=${txid} valor=${pix.valor}`);
+        const valor = pix.valor;
+        console.log(`PIX confirmado: txid=${txid} valor=${valor}`);
+        // Só processa se tiver valor real (webhook real do Efi sempre tem valor)
+        if (!valor || valor === '0') {
+          console.log(`PIX ignorado - valor inválido: ${valor}`);
+          continue;
+        }
         const venda = await prisma.venda.findFirst({ where: { pixTxid: txid } });
         if (venda) await processarVendaPaga(venda.id);
       }
