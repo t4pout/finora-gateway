@@ -5,6 +5,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     console.log('Webhook Efi recebido:', JSON.stringify(body));
+    console.log('Webhook Efi headers:', JSON.stringify(Object.fromEntries(req.headers)));
 
     // Webhook PIX
     if (body.pix) {
