@@ -30,13 +30,14 @@ export async function GET(req: NextRequest) {
         const efipay = createEfiPay();
         const cob = await efipay.pixDetailCharge({ txid: venda.pixTxid! }, {});
         if (cob.status === 'CONCLUIDA') {
-          await fetch(`${protocol}://${origin}/api/efi/webhook`, {
+          const webhookRes = await fetch(`${protocol}://${origin}/api/efi/webhook`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ pix: [{ txid: venda.pixTxid, valor: '1', horario: new Date().toISOString() }] })
           });
+          const webhookData = await webhookRes.json();
           atualizadas++;
-          console.log(`✅ Cron: PIX confirmado ${venda.id}`);
+          console.log(`✅ Cron: PIX confirmado ${venda.id} - webhook: ${JSON.stringify(webhookData)}`);
         }
       } catch (e) {
         console.error(`Erro ao verificar PIX ${venda.pixTxid}:`, e);
