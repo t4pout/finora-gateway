@@ -21,8 +21,8 @@ export async function GET(req: NextRequest) {
     });
 
     console.log(`🔍 Cron: verificando ${vendasPendentes.length} PIX pendentes...`);
-
-    let atualizadas = 0;
+     
+    let atualizadas = 0; 
     const origin = req.headers.get('host') || 'finorapayments.com';
     const protocol = 'https';
 
