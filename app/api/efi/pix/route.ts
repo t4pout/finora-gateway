@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import efipay from '@/lib/efi';
+import { createEfiPay } from '@/lib/efi';
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,6 +14,7 @@ export async function POST(req: NextRequest) {
       solicitacaoPagador: descricao || 'Pagamento Finora',
     };
 
+    const efipay = createEfiPay();
     const cob = await efipay.pixCreateImmediateCharge([], cobBody);
     console.log('EFI PIX cob:', JSON.stringify(cob));
 

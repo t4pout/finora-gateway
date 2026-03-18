@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import efipay from '@/lib/efi';
+import { createEfiPay } from '@/lib/efi';
 
 export async function GET(req: NextRequest) {
   const secret = req.headers.get('authorization');
@@ -27,6 +27,7 @@ export async function GET(req: NextRequest) {
 
     for (const venda of vendasPendentes) {
       try {
+        const efipay = createEfiPay();
         const cob = await efipay.pixDetailCharge({ txid: venda.pixTxid! }, {});
         if (cob.status === 'CONCLUIDA') {
           await fetch(`${protocol}://${origin}/api/efi/webhook`, {

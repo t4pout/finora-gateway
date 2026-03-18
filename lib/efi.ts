@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import os from 'os';
 
-function getEfiPay() {
+export function createEfiPay() {
   let certificatePath: string;
 
   const certBase64 = process.env.EFI_CERT_BASE64;
@@ -17,7 +17,7 @@ function getEfiPay() {
       .replace(/\r/g, '')
       .trim();
     const certBuffer = Buffer.from(cleaned, 'base64');
-    const tempPath = path.join(os.tmpdir(), 'efi_cert_' + Date.now() + '.p12');
+    const tempPath = path.join(os.tmpdir(), 'efi_cert.p12');
     fs.writeFileSync(tempPath, certBuffer);
     certificatePath = tempPath;
   } else {
@@ -32,4 +32,4 @@ function getEfiPay() {
   });
 }
 
-export default getEfiPay();
+export default createEfiPay();
