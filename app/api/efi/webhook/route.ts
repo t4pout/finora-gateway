@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
       // CAPI Purchase
       try {
         if (venda.produtoId) {
-          const pixels = await (prisma as any).pixel.findMany({
+          const pixels = await (prisma as any).pixel?.findMany({
             where: { produtoId: venda.produtoId, plataforma: 'FACEBOOK', ativo: true }
           });
           for (const px of pixels) {
