@@ -19,20 +19,23 @@ export async function GET(req: NextRequest) {
       select: { id: true, pixTxid: true }
     });
 
-    console.log(`🔍 Verificando ${vendasPendentes.length} PIX pendentes...`);
+    console.log(`🔍 Cron: verificando ${vendasPendentes.length} PIX pendentes...`);
 
     let atualizadas = 0;
+    const origin = req.headers.get('host') || 'finorapayments.com';
+    const protocol = 'https';
 
     for (const venda of vendasPendentes) {
       try {
         const cob = await efipay.pixDetailCharge({ txid: venda.pixTxid! }, {});
         if (cob.status === 'CONCLUIDA') {
-          await prisma.venda.update({
-            where: { id: venda.id },
-            data: { status: 'PAGO' }
+          await fetch(`${protocol}://${origin}/api/efi/webhook`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pix: [{ txid: venda.pixTxid, valor: '0', horario: new Date().toISOString() }] })
           });
           atualizadas++;
-          console.log(`✅ PIX confirmado via cron: ${venda.id}`);
+          console.log(`✅ Cron: PIX confirmado ${venda.id}`);
         }
       } catch (e) {
         console.error(`Erro ao verificar PIX ${venda.pixTxid}:`, e);

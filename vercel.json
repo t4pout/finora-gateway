@@ -1,8 +1,11 @@
-{
-  "crons": [
+"crons": [
     {
       "path": "/api/cron/liberar-saldos",
       "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron/verificar-pix",
+      "schedule": "* * * * *"
     }
   ]
 }
