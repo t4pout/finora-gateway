@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import efipay from '@/lib/efi';
+import { createEfiPay } from '@/lib/efi';
 
 export async function POST(req: NextRequest) {
   try {
@@ -33,13 +33,13 @@ export async function POST(req: NextRequest) {
             },
           },
           expire_at: expireAt,
-          notification_url: 'https://www.finorapayments.com/api/efi/webhook',
         },
       },
     };
 
     console.log('EFI boleto body:', JSON.stringify(chargeBody));
 
+    const efipay = createEfiPay();
     const charge = await efipay.createOneStepCharge([], chargeBody);
 
     console.log('EFI boleto resposta:', JSON.stringify(charge.data));
