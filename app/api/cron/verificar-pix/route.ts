@@ -14,6 +14,7 @@ export async function GET(req: NextRequest) {
         status: 'PENDENTE',
         metodoPagamento: 'PIX',
         pixTxid: { not: null },
+        pixId: null,
         createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
       },
       select: { id: true, pixTxid: true }
