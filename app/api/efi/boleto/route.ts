@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
             },
           },
           expire_at: expireAt,
+          notification_url: 'https://www.finorapayments.com/api/efi/webhook',
         },
       },
     };
