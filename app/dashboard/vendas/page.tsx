@@ -62,6 +62,7 @@ export default function VendasPage() {
   const [filtroStatus, setFiltroStatus] = useState('TODAS');
   const [filtroData, setFiltroData] = useState('TODAS');
   const [filtroProduto, setFiltroProduto] = useState('TODOS');
+  const [filtroMetodo, setFiltroMetodo] = useState('TODOS');
   const [vendaSelecionada, setVendaSelecionada] = useState<Venda | null>(null);
   const [modalAberto, setModalAberto] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -124,6 +125,7 @@ export default function VendasPage() {
 
   const vendasFiltradas = vendas.filter(v => {
     if (filtroStatus !== 'TODAS' && v.status !== filtroStatus) return false;
+    if (filtroMetodo !== 'TODOS' && v.metodoPagamento !== filtroMetodo) return false;
 
     const buscaTrim = busca.trim();
     if (buscaTrim) {
@@ -358,6 +360,17 @@ export default function VendasPage() {
                 <button onClick={() => mudarFiltro(() => setFiltroStatus('CANCELADA'))} className={'px-4 py-2 rounded-lg font-semibold transition ' + (filtroStatus === 'CANCELADA' ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300')}>Cancelada</button>
               </div>
             </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Método de Pagamento</label>
+              <div className="flex gap-2">
+                <button onClick={() => mudarFiltro(() => setFiltroMetodo('TODOS'))} className={'px-4 py-2 rounded-lg font-semibold transition ' + (filtroMetodo === 'TODOS' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300')}>Todos</button>
+                <button onClick={() => mudarFiltro(() => setFiltroMetodo('PIX'))} className={'px-4 py-2 rounded-lg font-semibold transition ' + (filtroMetodo === 'PIX' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300')}>PIX</button>
+                <button onClick={() => mudarFiltro(() => setFiltroMetodo('CARTAO'))} className={'px-4 py-2 rounded-lg font-semibold transition ' + (filtroMetodo === 'CARTAO' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300')}>Cartão</button>
+                <button onClick={() => mudarFiltro(() => setFiltroMetodo('BOLETO'))} className={'px-4 py-2 rounded-lg font-semibold transition ' + (filtroMetodo === 'BOLETO' ? 'bg-orange-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300')}>Boleto</button>
+              </div>
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Periodo</label>
               <div className="flex flex-wrap items-center gap-2">
@@ -394,13 +407,14 @@ export default function VendasPage() {
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Status</th>
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Pagamento</th>
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Origem</th>
+                    {mostrandoTodas && <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Vendedor</th>}
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Acoes</th>
                   </tr>
                 </thead>
                 <tbody>
                   {vendasPagina.length === 0 ? (
                     <tr>
-                      <td colSpan={9} className="py-12 text-center text-gray-500">Nenhuma venda encontrada com os filtros selecionados</td>
+                      <td colSpan={mostrandoTodas ? 10 : 9} className="py-12 text-center text-gray-500">Nenhuma venda encontrada com os filtros selecionados</td>
                     </tr>
                   ) : (
                     vendasPagina.map((venda) => (
@@ -433,6 +447,11 @@ export default function VendasPage() {
                             <span className="text-gray-400 text-xs">—</span>
                           )}
                         </td>
+                        {mostrandoTodas && (
+                          <td className="py-4 px-4 text-sm text-gray-700 font-medium">
+                            {venda.vendedor?.nome || '—'}
+                          </td>
+                        )}
                         <td className="py-4 px-4">
                           <button onClick={() => abrirDetalhes(venda)} className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition" title="Ver detalhes">
                             <Eye size={20} />
@@ -566,6 +585,9 @@ export default function VendasPage() {
                     <span className={'inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold ' + (vendaSelecionada.status === 'PAGO' ? 'bg-green-100 text-green-700' : vendaSelecionada.status === 'PENDENTE' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700')}>{vendaSelecionada.status}</span>
                   </div>
                   <div><label className="text-sm text-gray-600">Data</label><p className="font-semibold text-gray-900">{formatarDataHora(vendaSelecionada.createdAt)}</p></div>
+                  {vendaSelecionada.vendedor && (
+                    <div><label className="text-sm text-gray-600">Vendedor</label><p className="font-semibold text-gray-900">{vendaSelecionada.vendedor.nome}</p></div>
+                  )}
                   {vendaSelecionada.utmSource && (
                     <div className="md:col-span-2">
                       <label className="text-sm text-gray-600">Origem da Campanha (UTM)</label>
