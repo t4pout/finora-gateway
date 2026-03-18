@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
           await fetch(`${protocol}://${origin}/api/efi/webhook`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ pix: [{ txid: venda.pixTxid, valor: '0', horario: new Date().toISOString() }] })
+            body: JSON.stringify({ pix: [{ txid: venda.pixTxid, valor: '1', horario: new Date().toISOString() }] })
           });
           atualizadas++;
           console.log(`✅ Cron: PIX confirmado ${venda.id}`);
