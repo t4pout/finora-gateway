@@ -60,7 +60,7 @@ export default function VendasPage() {
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtroStatus, setFiltroStatus] = useState('TODAS');
-  const [filtroData, setFiltroData] = useState('TODAS');
+  const [filtroData, setFiltroData] = useState('HOJE');
   const [filtroProduto, setFiltroProduto] = useState('TODOS');
   const [filtroMetodo, setFiltroMetodo] = useState('TODOS');
   const [vendaSelecionada, setVendaSelecionada] = useState<Venda | null>(null);
