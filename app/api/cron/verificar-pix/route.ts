@@ -14,23 +14,14 @@ export async function GET(req: NextRequest) {
         status: 'PENDENTE',
         metodoPagamento: 'PIX',
         pixTxid: { not: null },
-        pixQrCode: null,
-        updatedAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
       },
       select: { id: true, pixTxid: true }
     });
 
     console.log(`🔍 Cron: verificando ${vendasPendentes.length} PIX pendentes...`);
-    console.log('Query result raw:', JSON.stringify(vendasPendentes.slice(0, 3)));
-    
-    // Debug: contar total sem filtro de data
-    const totalPendentes = await prisma.venda.count({
-      where: { status: 'PENDENTE', metodoPagamento: 'PIX', pixTxid: { not: null } }
-    });
-    console.log('Total PIX pendentes sem filtro de data:', totalPendentes);
-     
-    let atualizadas = 0; 
-    const origin = req.headers.get('host') || 'finorapayments.com';
+
+    let atualizadas = 0;
+    const origin = 'www.finorapayments.com';
     const protocol = 'https';
 
     for (const venda of vendasPendentes) {
@@ -38,17 +29,19 @@ export async function GET(req: NextRequest) {
         const efipay = createEfiPay();
         const cob = await efipay.pixDetailCharge({ txid: venda.pixTxid! }, {});
         if (cob.status === 'CONCLUIDA') {
-          const webhookRes = await fetch(`${protocol}://${origin}/api/efi/webhook`, {
+          await fetch(`${protocol}://${origin}/api/efi/webhook`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ pix: [{ txid: venda.pixTxid, valor: '1', horario: new Date().toISOString() }] })
           });
-          const webhookData = await webhookRes.json();
           atualizadas++;
-          console.log(`✅ Cron: PIX confirmado ${venda.id} - webhook: ${JSON.stringify(webhookData)}`);
+          console.log(`✅ Cron: PIX confirmado ${venda.id}`);
         }
-      } catch (e) {
-        console.error(`Erro ao verificar PIX ${venda.pixTxid}:`, e);
+      } catch (e: any) {
+        // Ignora erros de PIX não encontrado no Efi (outros gateways)
+        if (!e.message?.includes('404') && !e.message?.includes('not found')) {
+          console.error(`Erro ao verificar PIX ${venda.pixTxid}:`, e.message);
+        }
       }
     }
 
