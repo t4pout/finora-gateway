@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
         metodoPagamento: 'PIX',
         pixTxid: { not: null },
         pixQrCode: null,
-        createdAt: { gte: new Date(Date.now() - 2 * 60 * 60 * 1000) }
+        updatedAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
       },
       select: { id: true, pixTxid: true }
     });
