@@ -21,6 +21,13 @@ export async function GET(req: NextRequest) {
     });
 
     console.log(`🔍 Cron: verificando ${vendasPendentes.length} PIX pendentes...`);
+    console.log('Query result raw:', JSON.stringify(vendasPendentes.slice(0, 3)));
+    
+    // Debug: contar total sem filtro de data
+    const totalPendentes = await prisma.venda.count({
+      where: { status: 'PENDENTE', metodoPagamento: 'PIX', pixTxid: { not: null } }
+    });
+    console.log('Total PIX pendentes sem filtro de data:', totalPendentes);
      
     let atualizadas = 0; 
     const origin = req.headers.get('host') || 'finorapayments.com';
