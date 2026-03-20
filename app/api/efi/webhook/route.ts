@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
       try {
         if (venda.produtoId) {
           const pixels = await prisma.pixelConversao.findMany({
-            where: { produtoId: venda.produtoId, plataforma: 'FACEBOOK', ativo: true }
+            where: { produtoId: venda.produtoId, plataforma: 'FACEBOOK', status: 'ATIVO' }
           }).catch(() => []);
           for (const px of pixels) {
             if (px.pixelId && px.accessToken) {

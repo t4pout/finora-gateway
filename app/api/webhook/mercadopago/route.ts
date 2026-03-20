@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
       // CAPI Purchase
       try {
         if (vendaExistente.produtoId) {
-          const pixels = await prisma.pixel.findMany({ where: { produtoId: vendaExistente.produtoId, plataforma: 'FACEBOOK', ativo: true } });
+          const pixels = await prisma.pixelConversao.findMany({ where: { produtoId: vendaExistente.produtoId, plataforma: 'FACEBOOK', status: 'ATIVO' } });
           console.log('Pixels encontrados para CAPI:', pixels.length, JSON.stringify(pixels.map((p: any) => ({ id: p.id, pixelId: p.pixelId, ativo: p.ativo }))));
           for (const px of pixels) {
             if ((px as any).pixelId && (px as any).accessToken) {

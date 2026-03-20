@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     const dispararCAPI = async (produtoId: string, valor: number, nome: string, email: string, tel: string) => {
       try {
         const pixels = await prisma.pixel.findMany({
-          where: { produtoId, plataforma: 'FACEBOOK', ativo: true }
+          where: { produtoId, plataforma: 'FACEBOOK', status: 'ATIVO' }
         });
         for (const px of pixels) {
           if ((px as any).pixelId && (px as any).accessToken) {

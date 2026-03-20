@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
     // CAPI Purchase
     try {
       if (venda.produtoId) {
-        const pixels = await prisma.pixel.findMany({ where: { produtoId: venda.produtoId, plataforma: 'FACEBOOK', ativo: true } });
+        const pixels = await prisma.pixelConversao.findMany({ where: { produtoId: venda.produtoId, plataforma: 'FACEBOOK', status: 'ATIVO' } });
         for (const px of pixels) {
           if ((px as any).pixelId && (px as any).accessToken) {
             const { dispararEventoCAPI } = await import('@/lib/facebook-capi');
