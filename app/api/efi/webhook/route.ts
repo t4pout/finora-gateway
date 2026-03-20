@@ -86,7 +86,36 @@ export async function POST(req: NextRequest) {
         await enviarTelegram(process.env.TELEGRAM_BOT_TOKEN, process.env.TELEGRAM_CHAT_ID, mensagem + `\n\n🧑‍💼 Vendedor: ${vendedor?.nome || 'N/A'}`);
       }
 
+      // Etiqueta Google Apps Script (apenas produtos físicos)
+      try {
+        if (venda.produto?.tipo === 'FISICO' && process.env.GOOGLE_APPS_SCRIPT_URL) {
+          await fetch(process.env.GOOGLE_APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              status: 'PAGO',
+              tipo: 'FISICO',
+              compradorNome: venda.compradorNome,
+              rua: venda.rua,
+              numero: venda.numero,
+              complemento: venda.complemento,
+              bairro: venda.bairro,
+              cidade: venda.cidade,
+              estado: venda.estado,
+              cep: venda.cep,
+              produto: venda.nomePlano || venda.produto?.nome || ''
+            })
+          });
+          console.log('✅ Etiqueta enviada para Google Apps Script');
+        }
+      } catch (e) { console.error('Erro etiqueta GAS:', e); }
+
       console.log(`✅ Venda ${vendaId} processada com sucesso!`);
+```
+
+Salva e depois:
+```
+cd C:\GatewayPagamentos\frontend && git add -A && git commit -m "feat: adiciona geração de etiqueta via Google Apps Script no webhook Efi" && git push
     };
 
     // Webhook PIX
