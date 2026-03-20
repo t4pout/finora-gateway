@@ -286,7 +286,7 @@ export async function POST(request: NextRequest) {
           try { await enviarParaPagah({ ...venda, produto: plano.produto }); } catch(e) { console.error('Erro Pagah Cielo:', e); }
           try { await fetch(`${request.nextUrl.origin}/api/vendas/marcar-pago`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ vendaId: venda.id }) }); } catch(e) { console.error('Erro carteira Cielo:', e); }
           try {
-            const pixels = await (prisma as any).pixel.findMany({ where: { produtoId: plano.produtoId, plataforma: 'FACEBOOK', ativo: true } });
+            const pixels = await prisma.pixelConversao.findMany({ where: { produtoId: plano.produtoId, plataforma: 'FACEBOOK', ativo: true } });
             for (const px of pixels) {
               if (px.pixelId && px.accessToken) {
                 const { dispararEventoCAPI } = await import('@/lib/facebook-capi');
@@ -521,7 +521,7 @@ export async function POST(request: NextRequest) {
     } catch (e) { console.error('Erro ao enviar email pedido criado:', e); }
 
     try {
-      const pixelsProduto = await (prisma as any).pixel.findMany({ where: { produtoId: plano.produtoId, plataforma: 'FACEBOOK', ativo: true } });
+      const pixelsProduto = await prisma.pixelConversao.findMany({ where: { produtoId: plano.produtoId, plataforma: 'FACEBOOK', ativo: true } });
       for (const px of pixelsProduto) {
         if (px.pixelId && px.accessToken) {
           const { dispararEventoCAPI } = await import('@/lib/facebook-capi');
