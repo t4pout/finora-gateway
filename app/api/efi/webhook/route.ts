@@ -111,11 +111,6 @@ export async function POST(req: NextRequest) {
       } catch (e) { console.error('Erro etiqueta GAS:', e); }
 
       console.log(`✅ Venda ${vendaId} processada com sucesso!`);
-```
-
-Salva e depois:
-```
-cd C:\GatewayPagamentos\frontend && git add -A && git commit -m "feat: adiciona geração de etiqueta via Google Apps Script no webhook Efi" && git push
     };
 
     // Webhook PIX
