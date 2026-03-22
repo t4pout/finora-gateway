@@ -74,15 +74,15 @@ export async function POST(request: NextRequest) {
       try {
         if (venda.produtoId) {
           const pixels = await (prisma as any).pixel.findMany({
-            where: { produtoId: venda.produtoId, plataforma: 'FACEBOOK', ativo: true }
+            where: { produtoId: venda.produtoId, plataforma: 'FACEBOOK', status: 'ATIVO' }
           });
           console.log('Pixels encontrados:', pixels.length);
           for (const px of pixels) {
-            if (px.pixelId && px.accessToken) {
+            if (px.pixelId && px.tokenAPI) {
               const { dispararEventoCAPI } = await import('@/lib/facebook-capi');
               await dispararEventoCAPI({
                 pixelId: px.pixelId,
-                accessToken: px.accessToken,
+                accessToken: px.tokenAPI,
                 eventName: 'Purchase',
                 value: venda.valor,
                 contentName: venda.nomePlano || '',

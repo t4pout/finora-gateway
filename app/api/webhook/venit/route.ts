@@ -76,11 +76,11 @@ export async function POST(request: NextRequest) {
       if (venda.produtoId) {
         const pixels = await prisma.pixelConversao.findMany({ where: { produtoId: venda.produtoId, plataforma: 'FACEBOOK', status: 'ATIVO' } });
         for (const px of pixels) {
-          if ((px as any).pixelId && (px as any).accessToken) {
+          if ((px as any).pixelId && (px as any).tokenAPI) {
             const { dispararEventoCAPI } = await import('@/lib/facebook-capi');
             await dispararEventoCAPI({
               pixelId: (px as any).pixelId,
-              accessToken: (px as any).accessToken,
+              accessToken: (px as any).tokenAPI,
               eventName: 'Purchase',
               value: venda.valor,
               contentName: venda.nomePlano || '',
