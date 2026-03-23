@@ -280,14 +280,12 @@ const carregarEstatisticas = async () => {
                   </div>
                   <div className="text-xs text-gray-600">Cartão</div>
                 </div>
-                  <div className="text-xs text-gray-600">Pix</div>
+                 <div className="text-xs text-gray-600">Pix</div>
                 </div>
                 <div className="text-center">
                   <div className="w-16 h-16 mx-auto mb-2 rounded-full border-4 border-purple-200 flex items-center justify-center">
-                    <span className="text-lg font-bold text-purple-600">{stats.taxasAprovacao.pix}%</span>
+                    <span className="text-lg font-bold text-purple-600">{stats.taxasAprovacao.boleto}%</span>
                   </div>
-                  <div className="text-xs text-gray-600">Pix</div>
-                </div>
                   <div className="text-xs text-gray-600">Boleto</div>
                 </div>
               </div>
