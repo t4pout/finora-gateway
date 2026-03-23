@@ -43,9 +43,25 @@ export default function CheckoutV2({ plano, formData, setFormData, etapa, setEta
     ? plano.orderBumps.filter(ob => orderBumpsSelecionados.includes(ob.orderBump.id)).reduce((acc, ob) => acc + ob.orderBump.preco, 0)
     : 0);
 
-  const avancarEtapa1 = () => {
+  const avancarEtapa1 = async () => {
     if (!formData.nome || !formData.email || !formData.telefone) { alert('Preencha todos os campos obrigatórios'); return; }
     if (!formData.cpf || !validarCPF(formData.cpf)) { alert('CPF inválido!'); return; }
+    try {
+      await fetch('/api/carrinho-abandonado', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          compradorNome: formData.nome,
+          compradorEmail: formData.email,
+          compradorTel: formData.telefone,
+          compradorCpf: formData.cpf,
+          planoId: plano?.id,
+          utmSource: '',
+          utmMedium: '',
+          utmCampaign: ''
+        })
+      });
+    } catch (e) { console.error('Erro ao salvar carrinho:', e); }
     setEtapa(plano?.checkoutPedirEndereco ? 2 : 3);
   };
 

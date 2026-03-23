@@ -550,6 +550,14 @@ export async function POST(request: NextRequest) {
       } catch (e) { console.error('Erro notificação geral:', e); }
     }
 
+    // Marcar carrinho como convertido
+    try {
+      await prisma.carrinhoAbandonado.updateMany({
+        where: { compradorEmail: body.compradorEmail, planoId: plano.id, status: 'ABANDONADO' },
+        data: { status: 'CONVERTIDO' }
+      });
+    } catch (e) { console.error('Erro ao marcar carrinho convertido:', e); }
+
     return NextResponse.json({ vendaId: venda.id, pixId, qrCode, copiaECola, valor: plano.preco, metodoPagamento: venda.metodoPagamento });
 
   } catch (error: any) {

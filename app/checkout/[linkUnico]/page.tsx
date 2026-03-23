@@ -273,7 +273,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
     return r === parseInt(c[10]);
   };
 
-  const avancarEtapa1 = () => {
+  const avancarEtapa1 = async () => {
     if (!formData.nome || !formData.email || !formData.telefone) {
       alert('Preencha todos os campos obrigatorios');
       return;
@@ -282,6 +282,23 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
       alert('CPF invalido! Por favor, verifique o numero digitado.');
       return;
     }
+    // Salvar carrinho abandonado
+    try {
+      await fetch('/api/carrinho-abandonado', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          compradorNome: formData.nome,
+          compradorEmail: formData.email,
+          compradorTel: formData.telefone,
+          compradorCpf: formData.cpf,
+          planoId: plano?.id,
+          utmSource,
+          utmMedium,
+          utmCampaign
+        })
+      });
+    } catch (e) { console.error('Erro ao salvar carrinho:', e); }
     setEtapa(plano?.checkoutPedirEndereco ? 2 : 3);
   };
 
