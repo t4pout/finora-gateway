@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     const token = authHeader.replace('Bearer ', '');
     
     const jwt = require('jsonwebtoken');
-    const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'finora-secret-super-seguro-2026-production';
+    const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'finora-secret-super-seguro-2026-production';
     
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
     
