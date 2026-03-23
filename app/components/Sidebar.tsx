@@ -120,6 +120,15 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
                   <span>🔗 Relatório UTM</span>
                 </div>
               </Link>
+                  <Link href="/dashboard/vendas/carrinhos">
+                <div className={`flex items-center space-x-3 px-4 py-2 rounded-lg text-sm transition ${
+                  isActive('/dashboard/vendas/carrinhos')
+                    ? 'bg-purple-50 text-purple-600 font-semibold'
+                    : 'text-gray-600 hover:bg-gray-50'
+                }`}>
+                  <span>🛒 Carrinhos Abandonados</span>
+                </div>
+              </Link>
             </div>
           )}
         </div>
