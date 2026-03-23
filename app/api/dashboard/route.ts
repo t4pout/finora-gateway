@@ -66,7 +66,8 @@ export async function GET(request: Request) {
         status: 'APROVADO'
       }
     });
-    const saldo = carteiras.reduce((acc, c) => acc + c.valor, 0);
+    // Faturamento = soma das vendas PAGAS no período
+    const faturamento = vendasPagas.reduce((acc, v) => acc + v.valor, 0);
 
     // Calcular formas de pagamento (TODAS as vendas)
     const vendasPorMetodo = todasVendas.reduce((acc, venda) => {
@@ -91,6 +92,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       saldo: Number(saldo.toFixed(2)),
+      faturamento: Number(faturamento.toFixed(2)),
       totalVendas: todasVendas.length,
       produtosAtivos,
       afiliadosAtivos,
