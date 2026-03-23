@@ -14,6 +14,7 @@ export async function GET(request: Request) {
     const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'finora-secret-super-seguro-2026-production';
     
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
+    console.log('Dashboard userId:', decoded.userId);
     
     // Calcular data inicial baseada no período
     const { searchParams } = new URL(request.url);
