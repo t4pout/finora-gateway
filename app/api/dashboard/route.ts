@@ -68,6 +68,7 @@ export async function GET(request: Request) {
       }
     });
     // Faturamento = soma das vendas PAGAS no período
+    const saldo = carteiras.reduce((acc, c) => acc + c.valor, 0);
     const faturamento = vendasPagas.reduce((acc, v) => acc + v.valor, 0);
 
     // Calcular formas de pagamento (TODAS as vendas)
