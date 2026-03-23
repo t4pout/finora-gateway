@@ -20,7 +20,6 @@ export default function DashboardPage() {
   const [userVerificacao, setUserVerificacao] = useState({ verificado: false, statusVerificacao: 'PENDENTE' });
   const [stats, setStats] = useState({
     saldo: 0,
-    faturamento: 0,
     totalVendas: 0,
     produtosAtivos: 0,
     afiliadosAtivos: 0,
@@ -111,7 +110,7 @@ export default function DashboardPage() {
                 <div className="text-sm font-medium text-gray-600">Faturamento</div>
                 <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600"><Wallet size={20} /></div>
               </div>
-              <div className="text-3xl font-bold text-gray-900 mb-1">R$ {(stats as any).faturamento?.toFixed(2).replace('.', ',') || '0,00'}</div>
+              <div className="text-3xl font-bold text-gray-900 mb-1">R$ {stats.saldo.toFixed(2).replace('.', ',')}</div>
             </div>
             <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
               <div className="flex items-center justify-between mb-4">
