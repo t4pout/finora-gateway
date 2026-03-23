@@ -19,10 +19,16 @@ export async function GET(request: Request) {
     // Calcular data inicial baseada no período
     const { searchParams } = new URL(request.url);
     const periodo = searchParams.get('periodo') || 'hoje';
-    let dataInicio = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
-    
-    if (periodo === 'hoje') {
-      dataInicio.setHours(0, 0, 0, 0);
+    const agora = new Date();
+const offsetBrasilia = -3 * 60;
+const offsetLocal = agora.getTimezoneOffset();
+const diffMs = (offsetBrasilia - (-offsetLocal)) * 60 * 1000;
+let dataInicio = new Date(agora.getTime() + diffMs);
+
+if (periodo === 'hoje') {
+  dataInicio.setHours(0, 0, 0, 0);
+  dataInicio = new Date(dataInicio.getTime() - diffMs);
+
     } else if (periodo === '7d') {
       dataInicio.setDate(dataInicio.getDate() - 7);
     } else if (periodo === '14d') {
@@ -43,6 +49,7 @@ export async function GET(request: Request) {
 
     // Separar vendas pagas
     const vendasPagas = todasVendas.filter(v => v.status === 'PAGO');
+    const faturamentoPagas = vendasPagas.reduce((acc, v) => acc + v.valor, 0);
 
     // Buscar produtos ativos
     const produtosAtivos = await prisma.produto.count({
@@ -69,7 +76,7 @@ export async function GET(request: Request) {
     });
     // Faturamento = soma das vendas PAGAS no período
     const saldo = carteiras.reduce((acc, c) => acc + c.valor, 0);
-    const faturamento = vendasPagas.reduce((acc, v) => acc + v.valor, 0);
+    const faturamento = faturamentoPagas;
 
     // Calcular formas de pagamento (TODAS as vendas)
     const vendasPorMetodo = todasVendas.reduce((acc, venda) => {
