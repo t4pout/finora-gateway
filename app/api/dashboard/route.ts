@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     const token = authHeader.replace('Bearer ', '');
     
     const jwt = require('jsonwebtoken');
-    const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'finora-secret-super-seguro-2026-production';
+    const JWT_SECRET = process.env.JWT_SECRET || 'ba03c29630703ddfc70af483162e851de368c7cf9d494f0aad7882226fae7c04decffe8b8296f1bebcfe59d0600d5bc3fa77284e1c775f1ee1e571fb5de36c68';
     
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
     console.log('Dashboard userId:', decoded.userId);
@@ -91,7 +91,8 @@ export async function GET(request: Request) {
       return Math.round((dados.pagas / dados.count) * 100);
     };
 
-    return NextResponse.json({
+    console.log('Dashboard resultado:', { todasVendas: todasVendas.length, vendasPagas: vendasPagas.length });
+return NextResponse.json({
       saldo: Number(saldo.toFixed(2)),
       faturamento: Number(faturamento.toFixed(2)),
       totalVendas: todasVendas.length,
