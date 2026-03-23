@@ -178,7 +178,7 @@ export default function CarrinhosAbandonadosPage() {
                       <td className="py-4 px-4">
                         {c.status === 'ABANDONADO' && c.compradorTel && (
                           
-                             href={'https://wa.me/55' + c.compradorTel.replace(/\D/g, '') + '?text=' + encodeURIComponent('Ola ' + c.compradorNome + '! Vi que voce estava interessado em ' + c.produtoNome + '. Posso te ajudar a finalizar sua compra?')}
+                            href={'https://wa.me/55' + c.compradorTel.replace(/\D/g, '')}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="px-3 py-1.5 bg-green-600 text-white rounded-lg text-xs font-semibold hover:bg-green-700 transition"
