@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     const token = authHeader.replace('Bearer ', '');
     
     const jwt = require('jsonwebtoken');
-    const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'sua-chave-secreta-super-segura';
+    const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'sua-chave-secreta-super-segura-2026-finora';
     
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
     console.log('Dashboard userId:', decoded.userId);
