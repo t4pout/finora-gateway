@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Wallet, ShoppingCart, Package, Users, CreditCard, Smartphone, FileText, Plus, BarChart3, Handshake, Inbox } from 'lucide-react';
+import LoadingScreen from '@/app/components/LoadingScreen';
 
 interface User {
   id: string;
@@ -73,11 +74,7 @@ export default function DashboardPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-purple-600 text-xl font-semibold">Carregando...</div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   return (
