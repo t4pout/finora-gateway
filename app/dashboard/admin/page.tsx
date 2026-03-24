@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Sidebar from '@/app/components/Sidebar';
-import { Shield, Users, UserCog, Trash2, FileText, Percent, Banknote, CreditCard } from 'lucide-react';
+import Sidebar from '@/app/components/Sidebar';import { Shield, Users, UserCog, Trash2, FileText, Percent, Banknote, CreditCard } from 'lucide-react';
+import LoadingScreen from '@/app/components/LoadingScreen';
 
 interface PlanoTaxa {
   id: string;
@@ -141,7 +141,7 @@ export default function AdminPage() {
       <div className="flex h-screen bg-gray-50">
         <Sidebar user={currentUser} onLogout={handleLogout} />
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-purple-600 text-xl">Carregando...</div>
+          <LoadingScreen />
         </div>
       </div>
     );

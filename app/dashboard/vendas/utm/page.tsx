@@ -2,8 +2,8 @@
 
 import Sidebar from '@/app/components/Sidebar';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { BarChart3, TrendingUp, DollarSign, ShoppingBag } from 'lucide-react';
+import { useRouter } from 'next/navigation';import { BarChart3, TrendingUp, DollarSign, ShoppingBag } from 'lucide-react';
+import LoadingScreen from '@/app/components/LoadingScreen';
 
 interface User {
   nome: string;
@@ -107,7 +107,7 @@ export default function RelatorioUTMPage() {
     <div className="flex h-screen bg-gray-50">
       <Sidebar user={user} onLogout={handleLogout} />
       <main className="flex-1 flex items-center justify-center">
-        <div className="text-purple-600 text-xl">Carregando...</div>
+        <LoadingScreen />
       </main>
     </div>
   );

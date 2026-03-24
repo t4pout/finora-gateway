@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/app/components/Sidebar';
+import LoadingScreen from '@/app/components/LoadingScreen';
 
 interface Carrinho {
   id: string;
@@ -61,7 +62,7 @@ export default function CarrinhosAbandonadosPage() {
   const totalConvertidos = carrinhos.filter(c => c.status === 'CONVERTIDO').length;
   const taxaConversao = carrinhos.length > 0 ? ((totalConvertidos / carrinhos.length) * 100).toFixed(1) : '0';
 
-  if (loading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="text-purple-600 text-xl">Carregando...</div></div>;
+  if (loading) return <LoadingScreen />;
 
   return (
     <div className="flex h-screen bg-gray-50">

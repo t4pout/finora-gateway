@@ -5,6 +5,7 @@ import Sidebar from '@/app/components/Sidebar';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import LoadingScreen from '@/app/components/LoadingScreen';
 import { Home, Package, DollarSign, Users, LogOut, ShoppingBag, BarChart3, Zap, Wallet, Shield, TrendingUp, TrendingDown, CreditCard, Clock, Banknote , ChevronDown } from 'lucide-react';
 import { Line, Doughnut } from 'react-chartjs-2';
 import {
@@ -100,7 +101,7 @@ export default function FinanceiroPage() {
   if (loading || !stats) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-purple-600 text-xl">Carregando...</div>
+        <LoadingScreen />
       </div>
     );
   }

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
+import LoadingScreen from '@/app/components/LoadingScreen';
 
 export default function EditarProdutoPage() {
   const router = useRouter();
@@ -107,7 +108,7 @@ export default function EditarProdutoPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-purple-600 text-xl">Carregando...</div>
+        <LoadingScreen />
       </div>
     );
   }

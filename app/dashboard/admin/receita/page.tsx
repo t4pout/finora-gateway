@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/app/components/Sidebar';
+import LoadingScreen from '@/app/components/LoadingScreen';
 import {
   TrendingUp, DollarSign, ShoppingCart, Award,
   ArrowUpRight, ArrowDownRight, Clock, CheckCircle,
@@ -160,7 +161,7 @@ export default function ReceitaPage() {
     <div className="flex h-screen bg-gray-50">
       <Sidebar user={currentUser} onLogout={handleLogout} />
       <div className="flex-1 flex items-center justify-center">
-        <div className="text-purple-600 text-xl">Carregando...</div>
+        <LoadingScreen />
       </div>
     </div>
   );

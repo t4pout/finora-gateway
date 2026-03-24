@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/app/components/Sidebar';
 import { Bell, Save, TestTube, ExternalLink } from 'lucide-react';
+import LoadingScreen from '@/app/components/LoadingScreen';
 
 export default function NotificacoesPage() {
   const router = useRouter();
@@ -119,7 +120,7 @@ export default function NotificacoesPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-purple-600 text-xl">Carregando...</div>
+        <LoadingScreen />
       </div>
     );
   }

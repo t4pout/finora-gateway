@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import LoadingScreen from '@/app/components/LoadingScreen';
 import { Home, Package, DollarSign, Users, LogOut, ShoppingBag, BarChart3, Zap, Shield, FileText, Percent, Plus, Edit, Trash2, X , Banknote } from 'lucide-react';
 
 interface PlanoTaxa {
@@ -174,7 +175,7 @@ export default function TaxasAdminPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-purple-600 text-xl">Carregando...</div>
+        <LoadingScreen />
       </div>
     );
   }

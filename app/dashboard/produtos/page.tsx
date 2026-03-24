@@ -5,6 +5,7 @@ import Sidebar from '@/app/components/Sidebar';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import LoadingScreen from '@/app/components/LoadingScreen';
 import { 
   Home, 
   Package, 
@@ -91,7 +92,7 @@ export default function ProdutosPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-purple-600 text-xl">Carregando...</div>
+        <LoadingScreen />
       </div>
     );
   }

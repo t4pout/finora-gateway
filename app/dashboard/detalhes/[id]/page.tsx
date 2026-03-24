@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import LoadingScreen from '@/app/components/LoadingScreen';
 import { Home, Package, DollarSign, Users, LogOut, ShoppingBag, ArrowLeft, Edit, Trash2, Plus, Copy, Megaphone, Check, Wallet, Shield, BarChart3, Zap } from 'lucide-react';
 
 interface Produto {
@@ -764,7 +765,9 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
     router.push('/');
   };
 
-  if (loading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="text-purple-600 text-xl">Carregando...</div></div>;
+  if (loading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+<LoadingScreen />
+</div>;
   if (!produto) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="text-gray-900">Não encontrado</div></div>;
 
   return (

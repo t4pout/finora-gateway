@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/app/components/Sidebar';
 import { CreditCard, CheckCircle } from 'lucide-react';
+import LoadingScreen from '@/app/components/LoadingScreen';
 
 interface CurrentUser {
   nome: string;
@@ -117,7 +118,7 @@ export default function GatewaysPage() {
       <div className="flex h-screen bg-gray-50">
         <Sidebar user={currentUser} onLogout={handleLogout} />
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-purple-600 text-xl">Carregando...</div>
+          <LoadingScreen />
         </div>
       </div>
     );
