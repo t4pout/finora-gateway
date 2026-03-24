@@ -54,11 +54,11 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
+    console.error('Erro carrinho abandonado POST:', error.message, error.stack);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-
-export async function GET(request: NextRequest) {
+export async function GET
   try {
     const token = request.headers.get('authorization')?.replace('Bearer ', '');
     if (!token) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
