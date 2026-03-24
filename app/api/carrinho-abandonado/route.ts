@@ -9,7 +9,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { compradorNome, compradorEmail, compradorTel, compradorCpf, planoId, utmSource, utmMedium, utmCampaign } = body;
 
+    console.log('Carrinho abandonado recebido:', { compradorEmail, planoId, compradorNome });
     if (!compradorEmail || !planoId) {
+      console.log('Dados incompletos:', { compradorEmail, planoId });
       return NextResponse.json({ error: 'Dados incompletos' }, { status: 400 });
     }
 
