@@ -19,22 +19,31 @@ export async function GET(request: Request) {
     // Calcular data inicial baseada no período
     const { searchParams } = new URL(request.url);
     const periodo = searchParams.get('periodo') || 'hoje';
-    const agora = new Date();
-const offsetBrasilia = -3 * 60;
-const offsetLocal = agora.getTimezoneOffset();
-const diffMs = (offsetBrasilia - (-offsetLocal)) * 60 * 1000;
-let dataInicio = new Date(agora.getTime() + diffMs);
+    const dataInicioParam = searchParams.get('dataInicio');
+    const dataFimParam = searchParams.get('dataFim');
 
-if (periodo === 'hoje') {
-  dataInicio.setHours(0, 0, 0, 0);
-  dataInicio = new Date(dataInicio.getTime() - diffMs);
+    let dataInicio: Date;
+    let dataFim: Date | undefined;
 
-    } else if (periodo === '7d') {
-      dataInicio.setDate(dataInicio.getDate() - 7);
-    } else if (periodo === '14d') {
-      dataInicio.setDate(dataInicio.getDate() - 14);
-    } else if (periodo === '30d') {
-      dataInicio.setDate(dataInicio.getDate() - 30);
+    if (dataInicioParam) {
+      dataInicio = new Date(dataInicioParam + 'T00:00:00-03:00');
+      dataFim = dataFimParam ? new Date(dataFimParam + 'T23:59:59-03:00') : new Date();
+    } else {
+      const agora = new Date();
+      const offsetBrasilia = -3 * 60;
+      const offsetLocal = agora.getTimezoneOffset();
+      const diffMs = (offsetBrasilia - (-offsetLocal)) * 60 * 1000;
+      dataInicio = new Date(agora.getTime() + diffMs);
+      if (periodo === 'hoje') {
+        dataInicio.setHours(0, 0, 0, 0);
+        dataInicio = new Date(dataInicio.getTime() - diffMs);
+      } else if (periodo === '7d') {
+        dataInicio.setDate(dataInicio.getDate() - 7);
+      } else if (periodo === '14d') {
+        dataInicio.setDate(dataInicio.getDate() - 14);
+      } else if (periodo === '30d') {
+        dataInicio.setDate(dataInicio.getDate() - 30);
+      }
     }
 
     // Buscar TODAS as vendas do usuário no período
@@ -42,7 +51,8 @@ if (periodo === 'hoje') {
       where: {
         vendedorId: decoded.userId,
         createdAt: {
-          gte: dataInicio
+          gte: dataInicio,
+          ...(dataFim ? { lte: dataFim } : {})
         }
       }
     });

@@ -37,6 +37,8 @@ export default function DashboardPage() {
   });
   const [loading, setLoading] = useState(true);
   const [periodo, setPeriodo] = useState('hoje');
+  const [dataInicio, setDataInicio] = useState('');
+  const [dataFim, setDataFim] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -46,7 +48,7 @@ export default function DashboardPage() {
     setLoading(false);
     carregarVerificacao();
     carregarEstatisticas();
-  }, [router, periodo]);
+   }, [router, periodo, dataInicio, dataFim]);
 
   const carregarVerificacao = async () => {
     try {
@@ -62,7 +64,10 @@ export default function DashboardPage() {
   const carregarEstatisticas = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/dashboard?periodo=${periodo}`, { headers: { 'Authorization': 'Bearer ' + token } });
+      const params = new URLSearchParams({ periodo });
+if (dataInicio) params.set('dataInicio', dataInicio);
+if (dataFim) params.set('dataFim', dataFim);
+const response = await fetch(`/api/dashboard?${params.toString()}`, { headers: { 'Authorization': 'Bearer ' + token } });
       if (response.ok) { const data = await response.json(); setStats(data); }
     } catch (error) { console.error('Erro ao carregar estatísticas:', error); }
   };
@@ -87,13 +92,20 @@ export default function DashboardPage() {
               <h1 className="text-2xl font-bold text-gray-900">Olá, {user?.nome}!</h1>
               <p className="text-sm text-gray-500">Acompanhe suas vendas e métricas em tempo real</p>
             </div>
-            <div className="flex space-x-2">
+            <div className="flex items-center gap-2">
               {['Hoje', '7D', '14D', '30D'].map((p) => (
-                <button key={p} onClick={() => setPeriodo(p.toLowerCase())}
-                  className={`px-4 py-2 rounded-lg font-semibold text-sm transition ${periodo === p.toLowerCase() ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
+                <button key={p} onClick={() => { setPeriodo(p.toLowerCase()); setDataInicio(''); setDataFim(''); }}
+                  className={`px-4 py-2 rounded-lg font-semibold text-sm transition ${periodo === p.toLowerCase() && !dataInicio ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
                   {p}
                 </button>
               ))}
+              <div className="flex items-center gap-1 ml-2">
+                <input type="date" value={dataInicio} onChange={e => { setDataInicio(e.target.value); setPeriodo(''); }}
+                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 focus:ring-2 focus:ring-purple-600 outline-none" />
+                <span className="text-gray-400 text-sm">até</span>
+                <input type="date" value={dataFim} onChange={e => { setDataFim(e.target.value); setPeriodo(''); }}
+                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 focus:ring-2 focus:ring-purple-600 outline-none" />
+              </div>
             </div>
           </div>
         </header>
