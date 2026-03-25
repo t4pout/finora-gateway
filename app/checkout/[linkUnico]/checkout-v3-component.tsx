@@ -23,7 +23,7 @@ export default function CheckoutV3Component({
 }: CheckoutV3Props) {
   const [metodoPag, setMetodoPag] = useState(formData.metodoPagamento || 'PIX');
   const [erros, setErros] = useState<any>({});
-  const [enderecoAberto, setEnderecoAberto] = useState(false);
+  const [enderecoAberto, setEnderecoAberto] = useState(true);
   const [cartaoData, setCartaoData] = useState({ numero: '', nome: '', mes: '', ano: '', cvv: '', parcelas: '1' });
 
   const corPrimaria = plano.checkoutCorPrimaria || '#16a34a';
@@ -38,10 +38,13 @@ export default function CheckoutV3Component({
     if (!formData.email) e.email = 'Obrigatório';
     if (!formData.telefone) e.telefone = 'Obrigatório';
     if (!formData.cpf || !validarCPF(formData.cpf)) e.cpf = 'CPF inválido';
-    if (plano.checkoutPedirEndereco && enderecoAberto) {
+    if (plano.checkoutPedirEndereco) {
       if (!formData.cep) e.cep = 'Obrigatório';
       if (!formData.rua) e.rua = 'Obrigatório';
       if (!formData.numero) e.numero = 'Obrigatório';
+      if (!formData.bairro) e.bairro = 'Obrigatório';
+      if (!formData.cidade) e.cidade = 'Obrigatório';
+      if (!formData.estado) e.estado = 'Obrigatório';
     }
     setErros(e);
     return Object.keys(e).length === 0;
