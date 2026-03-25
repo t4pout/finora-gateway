@@ -1263,7 +1263,7 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
                       {modalConfig.tipo === 'NORMAL' && (
                         <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
                           <h4 className="font-bold text-gray-900 mb-3">🖥️ Versão do Checkout</h4>
-                          <div className="grid grid-cols-2 gap-3">
+                          <div className="grid grid-cols-3 gap-3">
                             <button
                               type="button"
                               onClick={() => setConfigPlano({...configPlano, checkoutVersao: 'v1'})}
@@ -1281,6 +1281,15 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
                               <div className="text-2xl mb-2">🟢</div>
                               <div className="font-bold text-gray-900">Versão 2</div>
                               <div className="text-xs text-gray-500 mt-1">Layout moderno com steps numerados e fundo cinza</div>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setConfigPlano({...configPlano, checkoutVersao: 'v3'})}
+                              className={`p-4 rounded-xl border-2 text-left transition ${configPlano.checkoutVersao === 'v3' ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-blue-300'}`}
+                            >
+                              <div className="text-2xl mb-2">🔵</div>
+                              <div className="font-bold text-gray-900">Versão 3</div>
+                              <div className="text-xs text-gray-500 mt-1">One-page clean e profissional</div>
                             </button>
                           </div>
                         </div>
