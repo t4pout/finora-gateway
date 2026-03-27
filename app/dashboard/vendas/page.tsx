@@ -72,6 +72,7 @@ export default function VendasPage() {
   const [dataFim, setDataFim] = useState('');
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [busca, setBusca] = useState('');
+  const [cancelando, setCancelando] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -120,6 +121,33 @@ export default function VendasPage() {
   };
 
   const abrirDetalhes = (venda: Venda) => { setVendaSelecionada(venda); setModalAberto(true); };
+
+  const cancelarVenda = async (vendaId: string) => {
+    const motivo = prompt('Motivo do cancelamento (opcional):');
+    if (motivo === null) return;
+    if (!confirm('Tem certeza que deseja cancelar esta venda? Esta ação não pode ser desfeita.')) return;
+    setCancelando(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/vendas/cancelar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ vendaId, motivo })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert('✅ Venda cancelada com sucesso!');
+        fecharModal();
+        carregarVendas(mostrandoTodas);
+      } else {
+        alert('❌ Erro: ' + data.error);
+      }
+    } catch (e) {
+      alert('❌ Erro ao cancelar venda');
+    } finally {
+      setCancelando(false);
+    }
+  };
   const fecharModal = () => { setModalAberto(false); setVendaSelecionada(null); };
 
   const mudarFiltro = (fn: () => void) => { fn(); setPaginaAtual(1); };
@@ -621,6 +649,19 @@ export default function VendasPage() {
                 <div>
                   <label className="text-sm text-gray-600 mb-2 block">Boleto</label>
                   <a href={vendaSelecionada.boletoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">Ver Boleto</a>
+                </div>
+              )}
+
+              {isAdmin && vendaSelecionada.status !== 'CANCELADO' && (
+                <div className="pt-4 border-t border-gray-200">
+                  <button
+                    onClick={() => cancelarVenda(vendaSelecionada.id)}
+                    disabled={cancelando}
+                    className="w-full px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition disabled:opacity-50"
+                  >
+                    {cancelando ? 'Cancelando...' : '🚫 Cancelar Venda'}
+                  </button>
+                  <p className="text-xs text-gray-500 text-center mt-2">Apenas admins podem cancelar vendas. O estorno ao cliente deve ser feito manualmente.</p>
                 </div>
               )}
             </div>
