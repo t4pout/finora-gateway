@@ -652,7 +652,7 @@ export default function VendasPage() {
                 </div>
               )}
 
-              {isAdmin && vendaSelecionada.status !== 'CANCELADO' && (
+              {isAdmin && vendaSelecionada.status === 'PAGO' && (
                 <div className="pt-4 border-t border-gray-200">
                   <button
                     onClick={() => cancelarVenda(vendaSelecionada.id)}
