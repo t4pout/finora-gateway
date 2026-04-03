@@ -190,3 +190,64 @@ export async function enviarEmailSaiuParaEntrega(dados: {
     console.error('❌ Erro ao enviar email saiu para entrega:', error);
   }
 }
+export async function enviarEmailEbook(dados: {
+  compradorNome: string;
+  compradorEmail: string;
+  produtoNome: string;
+  planoNome: string;
+  valor: number;
+  pedidoId: string;
+  arquivoUrl: string;
+}) {
+  try {
+    // Baixar o arquivo para enviar como anexo
+    const response = await fetch(dados.arquivoUrl);
+    const buffer = await response.arrayBuffer();
+    const base64 = Buffer.from(buffer).toString('base64');
+    const nomeArquivo = dados.produtoNome.replace(/[^a-zA-Z0-9]/g, '_') + '.pdf';
+
+    await resend.emails.send({
+      from: FROM,
+      to: dados.compradorEmail,
+      subject: `✅ Seu produto digital está aqui - ${dados.produtoNome}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9fafb; padding: 20px;">
+          <div style="background: white; border-radius: 12px; padding: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+            <div style="text-align: center; margin-bottom: 24px;">
+              <h1 style="color: #7c3aed; font-size: 24px; margin: 0;">Finora</h1>
+              <p style="color: #6b7280; margin: 4px 0 0;">Pagamentos que fluem</p>
+            </div>
+            <div style="text-align: center; margin-bottom: 24px; font-size: 48px;">📚</div>
+            <h2 style="color: #111827; font-size: 20px; text-align: center;">Seu produto está pronto!</h2>
+            <p style="color: #374151; font-size: 16px;">Olá, <strong>${dados.compradorNome}</strong>! Obrigado pela sua compra. Seu produto digital está em anexo neste email.</p>
+            
+            <div style="background: #f3f4f6; border-radius: 8px; padding: 20px; margin: 24px 0;">
+              <h3 style="color: #111827; margin: 0 0 12px;">Resumo da Compra</h3>
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr><td style="color: #6b7280; padding: 6px 0;">Produto</td><td style="color: #111827; font-weight: 600; text-align: right;">${dados.produtoNome}</td></tr>
+                <tr><td style="color: #6b7280; padding: 6px 0;">Plano</td><td style="color: #111827; font-weight: 600; text-align: right;">${dados.planoNome}</td></tr>
+                <tr><td style="color: #6b7280; padding: 6px 0;">Valor Pago</td><td style="color: #059669; font-weight: 700; font-size: 18px; text-align: right;">R$ ${dados.valor.toFixed(2).replace('.', ',')}</td></tr>
+                <tr><td style="color: #6b7280; padding: 6px 0;">Pedido</td><td style="color: #111827; font-weight: 600; text-align: right;">#${dados.pedidoId.slice(-8).toUpperCase()}</td></tr>
+              </table>
+            </div>
+
+            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+              <p style="color: #166534; margin: 0; font-size: 15px;">📎 <strong>Seu arquivo está em anexo.</strong> Salve-o em um lugar seguro pois este link pode expirar.</p>
+            </div>
+
+            <p style="color: #6b7280; font-size: 14px; text-align: center; margin-top: 32px;">Dúvidas? Entre em contato conosco.<br/>Este email foi enviado automaticamente, não responda.</p>
+          </div>
+        </div>
+      `,
+      attachments: [
+        {
+          filename: nomeArquivo,
+          content: base64,
+        }
+      ]
+    });
+    console.log('✅ Email ebook enviado para:', dados.compradorEmail);
+  } catch (error) {
+    console.error('❌ Erro ao enviar email ebook:', error);
+  }
+}

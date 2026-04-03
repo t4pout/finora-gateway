@@ -274,6 +274,9 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
     return r === parseInt(c[10]);
   };
 
+  // Se produto digital, nunca pedir endereço
+  const isProdutoDigital = plano?.produto?.tipo === 'DIGITAL';
+
   const avancarEtapa1 = async () => {
     if (!formData.nome || !formData.email || !formData.telefone) {
       alert('Preencha todos os campos obrigatorios');
@@ -300,7 +303,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
         })
       });
     } catch (e) { console.error('Erro ao salvar carrinho:', e); }
-    setEtapa(plano?.checkoutPedirEndereco ? 2 : 3);
+    setEtapa((!isProdutoDigital && plano?.checkoutPedirEndereco) ? 2 : 3);
   };
 
   const tokenizarCartaoEfi = async (): Promise<string | null> => {
@@ -783,7 +786,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
                     </div>
                   )}
                   <div className="btn-row">
-                    <button onClick={() => setEtapa(plano.checkoutPedirEndereco ? 2 : 1)} className="btn-secondary">Voltar</button>
+                    <button onClick={() => setEtapa((!isProdutoDigital && plano.checkoutPedirEndereco) ? 2 : 1)} className="btn-secondary">Voltar</button>
                     <button onClick={finalizarPedido} disabled={processando} className="btn-primary btn-finalizar" style={{ backgroundColor: corPrimaria }}>
                       {processando ? (
                         <span className="spinner-small"></span>

@@ -16,7 +16,7 @@ interface PlanoOferta {
   checkoutAceitaCartao?: boolean;
   checkoutAceitaBoleto?: boolean;
   checkoutPedirEndereco?: boolean;
-  produto: { id: string; nome: string; descricao: string; imagem: string; };
+  produto: { id: string; nome: string; descricao: string; imagem: string; tipo?: string; };
   orderBumps?: { orderBump: { id: string; titulo: string; descricao: string | null; preco: number; imagem: string | null } }[];
 }
 
@@ -62,7 +62,8 @@ export default function CheckoutV2({ plano, formData, setFormData, etapa, setEta
         })
       });
     } catch (e) { console.error('Erro ao salvar carrinho:', e); }
-    setEtapa(plano?.checkoutPedirEndereco ? 2 : 3);
+    const isProdutoDigital = plano?.produto?.tipo === 'DIGITAL';
+    setEtapa((!isProdutoDigital && plano?.checkoutPedirEndereco) ? 2 : 3);
   };
 
   return (
@@ -254,7 +255,7 @@ export default function CheckoutV2({ plano, formData, setFormData, etapa, setEta
                 )}
 
                 <div className="v2-btn-row">
-                  <button onClick={() => setEtapa(plano.checkoutPedirEndereco ? 2 : 1)} className="v2-btn-back">← Voltar</button>
+                  <button onClick={() => setEtapa((!plano?.produto?.tipo || plano.produto.tipo !== 'DIGITAL') && plano.checkoutPedirEndereco ? 2 : 1)} className="v2-btn-back">← Voltar</button>
                   <button onClick={finalizarPedido} disabled={processando} className="v2-btn v2-btn-finalizar" style={{ background: cor }}>
                     {processando ? 'Processando...' : '🔒 Finalizar Pedido'}
                   </button>

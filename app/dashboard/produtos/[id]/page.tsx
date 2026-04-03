@@ -200,6 +200,36 @@ export default function EditarProdutoPage() {
   </div>
 </div>
 
+            {formData.tipo === 'DIGITAL' && (
+              <div>
+                <label className="block text-sm font-semibold mb-2">📄 Arquivo do Produto (PDF/Ebook)</label>
+                <div className="space-y-2">
+                  <input
+                    type="file"
+                    accept=".pdf,.epub,.zip"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const formDataUpload = new FormData();
+                      formDataUpload.append('file', file);
+                      try {
+                        const res = await fetch('/api/upload', { method: 'POST', body: formDataUpload });
+                        const data = await res.json();
+                        if (data.url) { setFormData({...formData, arquivoUrl: data.url}); alert('✅ Arquivo enviado!'); }
+                      } catch { alert('❌ Erro ao enviar arquivo'); }
+                    }}
+                    className="w-full px-4 py-3 border-2 border-dashed border-blue-300 rounded-lg cursor-pointer hover:border-blue-400 transition"
+                  />
+                  {formData.arquivoUrl && (
+                    <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                      <span className="text-blue-700 text-sm font-medium">✅ Arquivo carregado</span>
+                      <a href={formData.arquivoUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 text-sm underline">Visualizar</a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold mb-2">Tipo *</label>

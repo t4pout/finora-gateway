@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { enviarEmailEbook } from '@/lib/email';
 
 export async function POST(req: NextRequest) {
   try {
@@ -109,6 +110,24 @@ export async function POST(req: NextRequest) {
           console.log('✅ Etiqueta enviada para Google Apps Script');
         }
       } catch (e) { console.error('Erro etiqueta GAS:', e); }
+
+      // Enviar ebook por email se produto digital
+      try {
+        if (venda.produto?.tipo === 'DIGITAL') {
+          const produto = await prisma.produto.findUnique({ where: { id: venda.produtoId } });
+          if (produto?.arquivoUrl) {
+            await enviarEmailEbook({
+              compradorNome: venda.compradorNome,
+              compradorEmail: venda.compradorEmail,
+              produtoNome: produto.nome,
+              planoNome: venda.nomePlano || produto.nome,
+              valor: venda.valor,
+              pedidoId: venda.id,
+              arquivoUrl: produto.arquivoUrl
+            });
+          }
+        }
+      } catch (e) { console.error('Erro ao enviar ebook:', e); }
 
       console.log(`✅ Venda ${vendaId} processada com sucesso!`);
     };
