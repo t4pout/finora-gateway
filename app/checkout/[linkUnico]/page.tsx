@@ -37,6 +37,7 @@ interface PlanoOferta {
     nome: string;
     descricao: string;
     imagem: string;
+    tipo?: string;
   };
 }
 
