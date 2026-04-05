@@ -275,10 +275,8 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
     return r === parseInt(c[10]);
   };
 
-  // Se produto digital, nunca pedir endereço
-  const isProdutoDigital = plano?.produto?.tipo === 'DIGITAL';
-
   const avancarEtapa1 = async () => {
+    const isProdutoDigital = plano?.produto?.tipo === 'DIGITAL';
     if (!formData.nome || !formData.email || !formData.telefone) {
       alert('Preencha todos os campos obrigatorios');
       return;
@@ -581,7 +579,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
                   </button>
                 </div>
               )}
-              {etapa === 2 && plano.checkoutPedirEndereco && (
+              {etapa === 2 && plano.checkoutPedirEndereco && plano.produto?.tipo !== 'DIGITAL' && (
                 <div className="form-step fade-in">
                   <div className="form-group">
                     <label>CEP * {buscandoCep && <span className="loading-cep">Buscando...</span>}</label>
@@ -787,7 +785,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
                     </div>
                   )}
                   <div className="btn-row">
-                    <button onClick={() => setEtapa((!isProdutoDigital && plano.checkoutPedirEndereco) ? 2 : 1)} className="btn-secondary">Voltar</button>
+                    <button onClick={() => setEtapa((plano.produto?.tipo !== 'DIGITAL' && plano.checkoutPedirEndereco) ? 2 : 1)} className="btn-secondary">Voltar</button>
                     <button onClick={finalizarPedido} disabled={processando} className="btn-primary btn-finalizar" style={{ backgroundColor: corPrimaria }}>
                       {processando ? (
                         <span className="spinner-small"></span>
