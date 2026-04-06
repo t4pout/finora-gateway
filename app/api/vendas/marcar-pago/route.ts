@@ -15,7 +15,15 @@ export async function POST(request: NextRequest) {
     const venda = await prisma.venda.findUnique({
       where: { id: vendaId },
       include: {
-        produto: { include: { user: { include: { planoTaxa: true } } } }
+        produto: { 
+          include: { 
+            user: { include: { planoTaxa: true } },
+            coProdutores: {
+              where: { ativo: true },
+              include: { usuario: true }
+            }
+          } 
+        }
       }
     });
     
@@ -30,33 +38,81 @@ export async function POST(request: NextRequest) {
     
     const dataLiberacao = new Date();
     dataLiberacao.setDate(dataLiberacao.getDate() + planoTaxa.prazoPixDias);
+
+    // Calcular splits de co-produção
+    let totalCoProdutores = 0;
+    const splitsCoProducao: { usuarioId: string; valor: number; nome: string }[] = [];
+
+    for (const cp of venda.produto.coProdutores) {
+      let valorCp = 0;
+      if (cp.tipo === 'PERCENTUAL') {
+        valorCp = parseFloat(((valorLiquido * cp.valor) / 100).toFixed(2));
+      } else {
+        valorCp = cp.valor;
+      }
+      totalCoProdutores += valorCp;
+      splitsCoProducao.push({ 
+        usuarioId: cp.usuarioId, 
+        valor: valorCp,
+        nome: cp.usuario.nome
+      });
+    }
+
+    // Valor final do produtor principal (descontando co-produtores)
+    const valorProdutor = parseFloat((valorLiquido - totalCoProdutores).toFixed(2));
     
-    // Criar carteira
+    // Criar carteira do produtor principal
     await prisma.carteira.create({
       data: {
         usuarioId: venda.produto.userId,
         vendaId: venda.id,
         tipo: 'VENDA',
-        valor: valorLiquido,
+        valor: valorProdutor,
         descricao: `Venda #${venda.id.substring(0,8)} - ${venda.produto.nome}`,
         status: 'PENDENTE'
       }
     });
     
-    // Criar transação
+    // Criar transação do produtor principal
     await prisma.transacao.create({
       data: {
         userId: venda.produto.userId,
         vendaId: venda.id,
         tipo: 'VENDA',
-        valor: valorLiquido,
+        valor: valorProdutor,
         status: 'PENDENTE',
         descricao: `Venda #${venda.id.substring(0,8)}`,
         dataLiberacao
       }
     });
+
+    // Criar carteira e transação para cada co-produtor
+    for (const split of splitsCoProducao) {
+      await prisma.carteira.create({
+        data: {
+          usuarioId: split.usuarioId,
+          vendaId: venda.id,
+          tipo: 'COPRODUCAO',
+          valor: split.valor,
+          descricao: `Co-produção Venda #${venda.id.substring(0,8)} - ${venda.produto.nome}`,
+          status: 'PENDENTE'
+        }
+      });
+
+      await prisma.transacao.create({
+        data: {
+          userId: split.usuarioId,
+          vendaId: venda.id,
+          tipo: 'COPRODUCAO',
+          valor: split.valor,
+          status: 'PENDENTE',
+          descricao: `Co-produção Venda #${venda.id.substring(0,8)}`,
+          dataLiberacao
+        }
+      });
+    }
     
-    return NextResponse.json({ success: true, valorLiquido });
+    return NextResponse.json({ success: true, valorLiquido: valorProdutor, coProdutores: splitsCoProducao });
     
   } catch (error) {
     return NextResponse.json({ error: String(error) }, { status: 500 });

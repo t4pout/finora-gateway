@@ -120,6 +120,70 @@ const [orderBumps, setOrderBumps] = useState<any[]>([]);
 const [modalOrderBump, setModalOrderBump] = useState<{ aberto: boolean; ob: any }>({ aberto: false, ob: null });
 const [formOrderBump, setFormOrderBump] = useState({ titulo: '', descricao: '', preco: '', imagem: '' });
 const [orderBumpsSelecionados, setOrderBumpsSelecionados] = useState<string[]>([]);
+// ===== CO-PRODUÇÃO =====
+const [coProdutores, setCoProdutores] = useState<any[]>([]);
+const [formCoProdutor, setFormCoProdutor] = useState({ email: '', tipo: 'PERCENTUAL', valor: '' });
+const [salvandoCoProdutor, setSalvandoCoProdutor] = useState(false);
+
+const carregarCoProdutores = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    const res = await fetch(`/api/coprodutores?produtoId=${produtoId}`, {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setCoProdutores(data);
+    }
+  } catch (e) { console.error(e); }
+};
+
+const handleAdicionarCoProdutor = async () => {
+  if (!formCoProdutor.email || !formCoProdutor.valor) { alert('Preencha email e valor'); return; }
+  setSalvandoCoProdutor(true);
+  try {
+    const token = localStorage.getItem('token');
+    const res = await fetch('/api/coprodutores', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ produtoId, email: formCoProdutor.email, tipo: formCoProdutor.tipo, valor: parseFloat(formCoProdutor.valor) })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      alert('✅ Co-produtor adicionado!');
+      setFormCoProdutor({ email: '', tipo: 'PERCENTUAL', valor: '' });
+      carregarCoProdutores();
+    } else {
+      alert('❌ ' + (data.error || 'Erro ao adicionar'));
+    }
+  } catch (e) { alert('❌ Erro ao adicionar'); }
+  setSalvandoCoProdutor(false);
+};
+
+const handleRemoverCoProdutor = async (id: string) => {
+  if (!confirm('Remover co-produtor?')) return;
+  try {
+    const token = localStorage.getItem('token');
+    await fetch(`/api/coprodutores?id=${id}&produtoId=${produtoId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    carregarCoProdutores();
+  } catch (e) { alert('Erro ao remover'); }
+};
+
+const handleToggleCoProdutor = async (id: string, ativo: boolean) => {
+  try {
+    const token = localStorage.getItem('token');
+    await fetch('/api/coprodutores', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ id, produtoId, ativo })
+    });
+    carregarCoProdutores();
+  } catch (e) { alert('Erro'); }
+};
+// ===== FIM CO-PRODUÇÃO =====
     const carregarPixels = async () => {
   try {
     console.log('🔍 Carregando pixels para produto:', produtoId);
@@ -193,6 +257,7 @@ const [orderBumpsSelecionados, setOrderBumpsSelecionados] = useState<string[]>([
     carregarPlanos();
     carregarPixels();
     carregarOrderBumps();
+    carregarCoProdutores();
   }, [produtoId, router]);
 
   const carregarDados = async () => {
@@ -833,6 +898,7 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
                <button onClick={() => setAbaSelecionada('pixels')} className={`py-4 px-2 border-b-2 font-semibold transition ${abaSelecionada === 'pixels' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>📊 Pixels</button>
                <button onClick={() => setAbaSelecionada('orderbumps')} className={`py-4 px-2 border-b-2 font-semibold transition ${abaSelecionada === 'orderbumps' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>⚡ Order Bumps</button>
 <button onClick={() => setAbaSelecionada('links')} className={`py-4 px-2 border-b-2 font-semibold transition ${abaSelecionada === 'links' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>🔗 Links UTM</button>
+<button onClick={() => setAbaSelecionada('coproducao')} className={`py-4 px-2 border-b-2 font-semibold transition ${abaSelecionada === 'coproducao' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>🤝 Co-produção</button>
             </div>
           </div>
         </div>
@@ -1682,6 +1748,133 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
       <a href="/dashboard/links" className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">
         🔗 Abrir Gerador de Links UTM
       </a>
+    </div>
+  </div>
+)}
+
+{abaSelecionada === 'coproducao' && (
+  <div className="max-w-4xl mx-auto">
+    <div className="bg-white rounded-xl border border-gray-200 p-8">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">🤝 Co-produção</h2>
+          <p className="text-gray-600">Divida receitas com outros produtores da Finora</p>
+        </div>
+      </div>
+
+      {/* FORMULÁRIO ADICIONAR */}
+      <div className="bg-gray-50 rounded-xl border border-gray-200 p-6 mb-8">
+        <h3 className="text-lg font-bold text-gray-900 mb-4">➕ Adicionar Co-produtor</h3>
+        <div className="grid md:grid-cols-3 gap-4 mb-4">
+          <div className="md:col-span-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Email da conta Finora *</label>
+            <input
+              type="email"
+              value={formCoProdutor.email}
+              onChange={(e) => setFormCoProdutor({...formCoProdutor, email: e.target.value})}
+              placeholder="email@exemplo.com"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Tipo *</label>
+            <select
+              value={formCoProdutor.tipo}
+              onChange={(e) => setFormCoProdutor({...formCoProdutor, tipo: e.target.value})}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900"
+            >
+              <option value="PERCENTUAL">Percentual (%)</option>
+              <option value="FIXO">Valor Fixo (R$)</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              {formCoProdutor.tipo === 'PERCENTUAL' ? 'Percentual (%)' : 'Valor (R$)'} *
+            </label>
+            <input
+              type="number"
+              step={formCoProdutor.tipo === 'PERCENTUAL' ? '1' : '0.01'}
+              min="0"
+              max={formCoProdutor.tipo === 'PERCENTUAL' ? '90' : undefined}
+              value={formCoProdutor.valor}
+              onChange={(e) => setFormCoProdutor({...formCoProdutor, valor: e.target.value})}
+              placeholder={formCoProdutor.tipo === 'PERCENTUAL' ? 'Ex: 30' : 'Ex: 50.00'}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900"
+            />
+          </div>
+        </div>
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-gray-500">
+            {formCoProdutor.tipo === 'PERCENTUAL'
+              ? '⚠️ O valor será descontado do seu lucro líquido após as taxas da plataforma.'
+              : '⚠️ Valor fixo descontado do lucro líquido a cada venda.'}
+          </p>
+          <button
+            onClick={handleAdicionarCoProdutor}
+            disabled={salvandoCoProdutor}
+            className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+          >
+            {salvandoCoProdutor ? <span>Salvando...</span> : <><Plus size={18} /><span>Adicionar</span></>}
+          </button>
+        </div>
+      </div>
+
+      {/* LISTA CO-PRODUTORES */}
+      {coProdutores.length === 0 ? (
+        <div className="text-center py-16 bg-gray-50 rounded-xl">
+          <div className="text-6xl mb-4">🤝</div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">Nenhum co-produtor cadastrado</h3>
+          <p className="text-gray-600">Adicione outros produtores da Finora para dividir as receitas automaticamente.</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <h3 className="text-lg font-bold text-gray-900">Co-produtores ativos</h3>
+          {coProdutores.map((cp) => (
+            <div key={cp.id} className={`border-2 rounded-xl p-6 transition ${cp.ativo ? 'border-purple-200 bg-purple-50' : 'border-gray-200 bg-gray-50 opacity-60'}`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-purple-200 rounded-full flex items-center justify-center">
+                    <span className="text-purple-700 font-bold text-lg">
+                      {cp.usuario.nome.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <div>
+                    <div className="font-bold text-gray-900">{cp.usuario.nome}</div>
+                    <div className="text-sm text-gray-600">{cp.usuario.email}</div>
+                    <div className="mt-1">
+                      <span className={`px-3 py-1 rounded-full text-sm font-bold ${cp.tipo === 'PERCENTUAL' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
+                        {cp.tipo === 'PERCENTUAL' ? `${cp.valor}% por venda` : `R$ ${cp.valor.toFixed(2).replace('.', ',')} por venda`}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={cp.ativo}
+                      onChange={(e) => handleToggleCoProdutor(cp.id, e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                  </label>
+                  <button
+                    onClick={() => handleRemoverCoProdutor(cp.id)}
+                    className="px-4 py-2 border-2 border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+          <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-sm text-yellow-800">
+              💡 <strong>Como funciona:</strong> A cada venda confirmada, o valor de cada co-produtor é creditado automaticamente na carteira deles. O restante vai para sua carteira.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   </div>
 )}

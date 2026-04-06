@@ -42,6 +42,8 @@ model User {
   carteiras             Carteira[]             @relation("CarteiraUsuario")
   orderBumps            OrderBump[]
   pedidosPAD            PedidoPAD[]
+  carrinhosAbandonados CarrinhoAbandonado[]
+  coProdutorEm        CoProdutorProduto[]
   @@map("User")
 }
 
@@ -183,6 +185,8 @@ model Produto {
   vendas                     Venda[]
   pedidosPAD                 PedidoPAD[]
   pixels                     PixelConversao[]
+  carrinhosAbandonados CarrinhoAbandonado[]
+  coProdutores        CoProdutorProduto[]
   @@map("Produto")
 }
 
@@ -501,4 +505,44 @@ model ConfiguracaoGateway {
   updatedAt DateTime @updatedAt
 
   @@map("ConfiguracaoGateway")
+}
+
+model CarrinhoAbandonado {
+  id              String   @id @default(cuid())
+  compradorNome   String
+  compradorEmail  String
+  compradorTel    String?
+  compradorCpf    String?
+  produtoId       String
+  produtoNome     String
+  planoId         String?
+  planoNome       String?
+  valor           Float
+  utmSource       String?
+  utmMedium       String?
+  utmCampaign     String?
+  vendedorId      String
+  status          String   @default("ABANDONADO")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  produto         Produto  @relation(fields: [produtoId], references: [id])
+  vendedor        User     @relation(fields: [vendedorId], references: [id])
+
+  @@map("CarrinhoAbandonado")
+}
+
+model CoProdutorProduto {
+  id          String   @id @default(cuid())
+  produtoId   String
+  usuarioId   String
+  tipo        String   @default("PERCENTUAL") // PERCENTUAL | FIXO
+  valor       Float
+  ativo       Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  produto     Produto  @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  usuario     User     @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@unique([produtoId, usuarioId])
+  @@map("CoProdutorProduto")
 }
