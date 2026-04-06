@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
         });
       } catch (e) { console.error('Erro carteira:', e); }
 
-      // CAPI Purchase
+      // CAPI Purchase - Facebook
       try {
         if (venda.produtoId) {
           const pixels = await prisma.pixelConversao.findMany({
@@ -95,7 +95,28 @@ export async function POST(request: NextRequest) {
             }
           }
         }
-      } catch (e) { console.error('Erro CAPI Purchase:', e); }
+      } catch (e) { console.error('Erro CAPI Purchase Facebook:', e); }
+
+      // Google Ads Conversão
+      try {
+        if (venda.produtoId) {
+          const pixelsGoogle = await prisma.pixelConversao.findMany({
+            where: { produtoId: venda.produtoId, plataforma: 'GOOGLE', status: 'ATIVO', eventoCompra: true }
+          });
+          for (const px of pixelsGoogle) {
+            if (px.pixelId) {
+              const { dispararGoogleConversao } = await import('@/lib/google-conversao');
+              await dispararGoogleConversao({
+                conversionId: px.pixelId,
+                valor: venda.valor,
+                vendaId: venda.id,
+                email: venda.compradorEmail
+              });
+              console.log('✅ Google Conversão disparada para:', px.pixelId);
+            }
+          }
+        }
+      } catch (e) { console.error('Erro Google Conversão:', e); }
 
       // Telegram
       const mensagem = `✅ <b>VENDA PAGA</b>\n\n` +
