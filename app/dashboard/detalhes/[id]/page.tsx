@@ -1942,7 +1942,7 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none"
             >
               <option value="FACEBOOK">Facebook Ads</option>
-              <option value="GOOGLE">Google Analytics</option>
+              <option value="GOOGLE">Google Ads</option>
               <option value="TIKTOK">TikTok Ads</option>
               <option value="KWAI">Kwai</option>
             </select>
