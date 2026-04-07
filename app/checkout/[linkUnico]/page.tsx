@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import CheckoutV2Component from './checkout-v2-component';
 import CheckoutV3Component from './checkout-v3-component';
+import CheckoutV4DigitalComponent from './checkout-v4-digital-component';
 
 interface PlanoOferta {
   id: string;
@@ -451,7 +452,25 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
   if (!plano) {
     return <div className="loading-container"><p className="error-text">Plano nao encontrado</p></div>;
   }
-
+   // V4 — Digital (sem endereço) — ativa automaticamente para produtos digitais
+  if (plano.checkoutVersao === 'v4' || plano.produto?.tipo === 'DIGITAL') {
+    return (
+      <CheckoutV4DigitalComponent
+        plano={plano}
+        formData={formData}
+        setFormData={setFormData}
+        processando={processando}
+        finalizarPedido={finalizarPedido}
+        validarCPF={validarCPF}
+        orderBumpsSelecionados={orderBumpsSelecionados}
+        setOrderBumpsSelecionados={setOrderBumpsSelecionados}
+        utmSource={utmSource}
+        utmMedium={utmMedium}
+        utmCampaign={utmCampaign}
+      />
+    );
+  }
+  
   if (plano.checkoutVersao === 'v3') {
     return (
       <CheckoutV3Component
