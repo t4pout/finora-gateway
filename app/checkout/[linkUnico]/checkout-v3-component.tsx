@@ -26,6 +26,7 @@ export default function CheckoutV3Component({
   const [enderecoAberto, setEnderecoAberto] = useState(true);
   const [cartaoData, setCartaoData] = useState({ numero: '', nome: '', mes: '', ano: '', cvv: '', parcelas: '1' });
 
+  const corPrimaria = plano.checkoutCorPrimaria || '#16a34a';
   const isProdutoDigital = plano?.produto?.tipo === 'DIGITAL';
 
   const totalComBumps = plano.preco + (plano.orderBumps
@@ -38,8 +39,7 @@ export default function CheckoutV3Component({
     if (!formData.email) e.email = 'Obrigatório';
     if (!formData.telefone) e.telefone = 'Obrigatório';
     if (!formData.cpf || !validarCPF(formData.cpf)) e.cpf = 'CPF inválido';
-    const isDigital = plano?.produto?.tipo === 'DIGITAL';
-    if (plano.checkoutPedirEndereco && !isDigital) {
+    if (plano.checkoutPedirEndereco && !isProdutoDigital) {
       if (!formData.cep) e.cep = 'Obrigatório';
       if (!formData.rua) e.rua = 'Obrigatório';
       if (!formData.numero) e.numero = 'Obrigatório';
@@ -159,7 +159,7 @@ export default function CheckoutV3Component({
               </div>
             </div>
 
-            {/* Endereço colapsável */}
+            {/* Endereço colapsável — apenas para produtos físicos */}
             {plano.checkoutPedirEndereco && !isProdutoDigital && (
               <div style={{ border: '2px solid #e5e5e5', borderRadius: '10px', overflow: 'hidden' }}>
                 <button type="button" onClick={() => setEnderecoAberto(!enderecoAberto)}
