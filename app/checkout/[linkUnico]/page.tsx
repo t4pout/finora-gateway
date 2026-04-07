@@ -525,20 +525,36 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
               <div className="plano-preco" style={{ color: corPrimaria }}>R$ {plano.preco.toFixed(2)}</div>
             </div>
             <div className="progress-bar">
-              <div className={etapa >= 1 ? 'progress-step active' : 'progress-step'}>
-                <div className="step-circle">1</div>
-                <span className="step-label">Dados</span>
-              </div>
-              <div className={etapa >= 2 ? 'progress-line active' : 'progress-line'}></div>
-              <div className={etapa >= 2 ? 'progress-step active' : 'progress-step'}>
-                <div className="step-circle">2</div>
-                <span className="step-label">Endereco</span>
-              </div>
-              <div className={etapa >= 3 ? 'progress-line active' : 'progress-line'}></div>
-              <div className={etapa >= 3 ? 'progress-step active' : 'progress-step'}>
-                <div className="step-circle">3</div>
-                <span className="step-label">Pagamento</span>
-              </div>
+              {plano.produto?.tipo === 'DIGITAL' || !plano.checkoutPedirEndereco ? (
+                <>
+                  <div className={etapa >= 1 ? 'progress-step active' : 'progress-step'}>
+                    <div className="step-circle">1</div>
+                    <span className="step-label">Dados</span>
+                  </div>
+                  <div className={etapa >= 3 ? 'progress-line active' : 'progress-line'}></div>
+                  <div className={etapa >= 3 ? 'progress-step active' : 'progress-step'}>
+                    <div className="step-circle">2</div>
+                    <span className="step-label">Pagamento</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className={etapa >= 1 ? 'progress-step active' : 'progress-step'}>
+                    <div className="step-circle">1</div>
+                    <span className="step-label">Dados</span>
+                  </div>
+                  <div className={etapa >= 2 ? 'progress-line active' : 'progress-line'}></div>
+                  <div className={etapa >= 2 ? 'progress-step active' : 'progress-step'}>
+                    <div className="step-circle">2</div>
+                    <span className="step-label">Endereco</span>
+                  </div>
+                  <div className={etapa >= 3 ? 'progress-line active' : 'progress-line'}></div>
+                  <div className={etapa >= 3 ? 'progress-step active' : 'progress-step'}>
+                    <div className="step-circle">3</div>
+                    <span className="step-label">Pagamento</span>
+                  </div>
+                </>
+              )}
             </div>
             <div className="form-container">
               {etapa === 1 && (
