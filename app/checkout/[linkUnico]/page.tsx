@@ -452,8 +452,8 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
   if (!plano) {
     return <div className="loading-container"><p className="error-text">Plano nao encontrado</p></div>;
   }
-   // V4 — Digital (sem endereço) — ativa automaticamente para produtos digitais
-  if (plano.checkoutVersao === 'v4' || plano.produto?.tipo === 'DIGITAL') {
+  // V4 — Digital: sempre que produto for DIGITAL, usa checkout sem endereço
+  if (plano.produto?.tipo === 'DIGITAL' || plano.checkoutVersao === 'v4') {
     return (
       <CheckoutV4DigitalComponent
         plano={plano}
