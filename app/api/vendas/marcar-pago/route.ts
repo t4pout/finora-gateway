@@ -33,11 +33,29 @@ export async function POST(request: NextRequest) {
     if (!planoTaxa) return NextResponse.json({ error: 'Sem plano de taxa' }, { status: 400 });
     
     const valorTotal = venda.valor;
-    const valorTaxa = (valorTotal * planoTaxa.pixPercentual / 100) + planoTaxa.pixFixo;
+
+    // Selecionar taxa e prazo corretos baseado no método de pagamento
+    let percentualTaxa = planoTaxa.pixPercentual;
+    let taxaFixa = planoTaxa.pixFixo;
+    let prazoDias = planoTaxa.prazoPixDias;
+
+    const metodo = venda.metodoPagamento?.toUpperCase() || 'PIX';
+
+    if (metodo === 'CARTAO' || metodo === 'CREDIT_CARD' || metodo === 'CARTÃO') {
+      percentualTaxa = planoTaxa.cartaoPercentual;
+      taxaFixa = planoTaxa.cartaoFixo;
+      prazoDias = planoTaxa.prazoCartaoDias;
+    } else if (metodo === 'BOLETO') {
+      percentualTaxa = planoTaxa.boletoPercentual;
+      taxaFixa = planoTaxa.boletoFixo;
+      prazoDias = planoTaxa.prazoBoletoDias;
+    }
+
+    const valorTaxa = (valorTotal * percentualTaxa / 100) + taxaFixa;
     const valorLiquido = valorTotal - valorTaxa;
-    
+
     const dataLiberacao = new Date();
-    dataLiberacao.setDate(dataLiberacao.getDate() + planoTaxa.prazoPixDias);
+    dataLiberacao.setDate(dataLiberacao.getDate() + prazoDias);
 
     // Calcular splits de co-produção
     let totalCoProdutores = 0;
