@@ -131,7 +131,7 @@ export default function CheckoutV2({ plano, formData, setFormData, etapa, setEta
             </div>
           )}
 
-          {etapa === 2 && plano.checkoutPedirEndereco && (
+          {etapa === 2 && plano.checkoutPedirEndereco && plano.produto?.tipo !== 'DIGITAL' && (
             <div className="v2-card">
               <div className="v2-step-title" style={{ background: cor }}>
                 <span className="v2-step-num">2</span> Endereço de Entrega

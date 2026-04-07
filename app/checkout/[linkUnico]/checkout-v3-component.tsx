@@ -38,7 +38,8 @@ export default function CheckoutV3Component({
     if (!formData.email) e.email = 'Obrigatório';
     if (!formData.telefone) e.telefone = 'Obrigatório';
     if (!formData.cpf || !validarCPF(formData.cpf)) e.cpf = 'CPF inválido';
-    if (plano.checkoutPedirEndereco) {
+    const isProdutoDigital = plano?.produto?.tipo === 'DIGITAL';
+    if (plano.checkoutPedirEndereco && !isProdutoDigital) {
       if (!formData.cep) e.cep = 'Obrigatório';
       if (!formData.rua) e.rua = 'Obrigatório';
       if (!formData.numero) e.numero = 'Obrigatório';
@@ -159,7 +160,7 @@ export default function CheckoutV3Component({
             </div>
 
             {/* Endereço colapsável */}
-            {plano.checkoutPedirEndereco && (
+            {plano.checkoutPedirEndereco && plano?.produto?.tipo !== 'DIGITAL' && (
               <div style={{ border: '2px solid #e5e5e5', borderRadius: '10px', overflow: 'hidden' }}>
                 <button type="button" onClick={() => setEnderecoAberto(!enderecoAberto)}
                   style={{ width: '100%', padding: '13px 16px', background: enderecoAberto ? '#f8f8f6' : 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '14px', fontWeight: '500', color: '#555' }}>
