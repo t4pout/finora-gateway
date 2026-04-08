@@ -174,18 +174,17 @@ export default function EditarProdutoPage() {
                       const file = e.target.files?.[0];
                       if (!file) return;
                       try {
-                        alert('⏳ Enviando arquivo, aguarde...');
                         const blob = await upload(file.name, file, {
                           access: 'public',
                           handleUploadUrl: '/api/upload-url',
                         });
                         if (blob.url) { 
-                          setFormData({...formData, arquivoUrl: blob.url}); 
-                          alert('✅ Arquivo enviado com sucesso!'); 
+                          setFormData({...formData, imagem: blob.url}); 
+                          alert('✅ Imagem enviada com sucesso!'); 
                         }
                       } catch (err) { 
                         console.error(err);
-                        alert('❌ Erro ao enviar arquivo'); 
+                        alert('❌ Erro ao enviar imagem'); 
                       }
                     }}
       className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-purple-400 transition"
@@ -208,13 +207,20 @@ export default function EditarProdutoPage() {
                     onChange={async (e) => {
                       const file = e.target.files?.[0];
                       if (!file) return;
-                      const formDataUpload = new FormData();
-                      formDataUpload.append('file', file);
                       try {
-                        const res = await fetch('/api/upload', { method: 'POST', body: formDataUpload });
-                        const data = await res.json();
-                        if (data.url) { setFormData({...formData, arquivoUrl: data.url}); alert('✅ Arquivo enviado!'); }
-                      } catch { alert('❌ Erro ao enviar arquivo'); }
+                        alert('⏳ Enviando PDF, aguarde...');
+                        const blob = await upload(file.name, file, {
+                          access: 'public',
+                          handleUploadUrl: '/api/upload-url',
+                        });
+                        if (blob.url) { 
+                          setFormData({...formData, arquivoUrl: blob.url}); 
+                          alert('✅ PDF enviado com sucesso!'); 
+                        }
+                      } catch (err) { 
+                        console.error(err);
+                        alert('❌ Erro ao enviar PDF'); 
+                      }
                     }}
                     className="w-full px-4 py-3 border-2 border-dashed border-blue-300 rounded-lg cursor-pointer hover:border-blue-400 transition"
                   />
