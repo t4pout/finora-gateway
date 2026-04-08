@@ -10,14 +10,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Nenhum arquivo enviado' }, { status: 400 });
     }
 
-    // Validar tipo de arquivo
-    if (!file.type.startsWith('image/')) {
-      return NextResponse.json({ error: 'Apenas imagens são permitidas' }, { status: 400 });
+    // Validar tipo de arquivo — aceita imagens e PDF
+    const tiposPermitidos = ['image/', 'application/pdf'];
+    const tipoValido = tiposPermitidos.some(tipo => file.type.startsWith(tipo));
+    if (!tipoValido) {
+      return NextResponse.json({ error: 'Apenas imagens e PDFs são permitidos' }, { status: 400 });
     }
-
-    // Validar tamanho (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      return NextResponse.json({ error: 'Arquivo muito grande (max 5MB)' }, { status: 400 });
+    // Validar tamanho (max 20MB para PDFs, 5MB para imagens)
+    const maxSize = file.type === 'application/pdf' ? 20 * 1024 * 1024 : 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      return NextResponse.json({ error: file.type === 'application/pdf' ? 'PDF muito grande (max 20MB)' : 'Imagem muito grande (max 5MB)' }, { status: 400 });
     }
 
     // Gerar nome único
