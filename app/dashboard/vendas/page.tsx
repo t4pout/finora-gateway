@@ -86,7 +86,7 @@ export default function VendasPage() {
   const carregarVendas = async (mostrarTodas: boolean = false) => {
     try {
       const token = localStorage.getItem('token');
-      const url = mostrarTodas ? '/api/vendas?todas=true' : '/api/vendas';
+      const url = mostrarTodas ? '/api/vendas?todas=true&limit=9999' : '/api/vendas?limit=9999';
       const response = await fetch(url, { headers: { 'Authorization': 'Bearer ' + token } });
       if (response.ok) {
         const data = await response.json();
