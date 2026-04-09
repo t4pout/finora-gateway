@@ -6,6 +6,8 @@ export const metadata: Metadata = {
   description: "Sistema de Gateway de Pagamentos",
   icons: {
     icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/favicon.ico',
   }
 };
 
@@ -17,6 +19,8 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="shortcut icon" href="/favicon.ico" />
         <script src="https://cdn.tailwindcss.com"></script>
         <script src="/fb-pixel.js" defer></script>
       </head>
