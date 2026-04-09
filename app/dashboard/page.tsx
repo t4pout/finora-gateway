@@ -39,6 +39,7 @@ export default function DashboardPage() {
   const [periodo, setPeriodo] = useState('hoje');
   const [dataInicio, setDataInicio] = useState('');
   const [dataFim, setDataFim] = useState('');
+  const [atividadesRecentes, setAtividadesRecentes] = useState<any[]>([]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -48,6 +49,7 @@ export default function DashboardPage() {
     setLoading(false);
     carregarVerificacao();
     carregarEstatisticas();
+    carregarAtividades();
    }, [router, periodo, dataInicio, dataFim]);
 
   const carregarVerificacao = async () => {
@@ -60,7 +62,20 @@ export default function DashboardPage() {
       }
     } catch (error) { console.error('Erro:', error); }
   };
-
+  
+   const carregarAtividades = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/vendas?limit=10&status=PAGO', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setAtividadesRecentes(data.vendas || []);
+      }
+    } catch (error) { console.error('Erro ao carregar atividades:', error); }
+  };
+  
   const carregarEstatisticas = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -227,12 +242,47 @@ const response = await fetch(`/api/dashboard?${params.toString()}`, { headers: {
           </div>
 
           <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Atividade Recente</h3>
-            <div className="text-center py-12">
-              <Inbox size={64} className="mx-auto text-gray-300 mb-4" />
-              <div className="text-lg font-semibold text-gray-900 mb-2">Nenhuma atividade ainda</div>
-              <div className="text-sm text-gray-500">Suas vendas e transações aparecerão aqui</div>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-900">Atividade Recente</h3>
+              <Link href="/dashboard/vendas" className="text-sm text-purple-600 hover:underline font-semibold">Ver todas →</Link>
             </div>
+            {atividadesRecentes.length === 0 ? (
+              <div className="text-center py-12">
+                <Inbox size={64} className="mx-auto text-gray-300 mb-4" />
+                <div className="text-lg font-semibold text-gray-900 mb-2">Nenhuma atividade ainda</div>
+                <div className="text-sm text-gray-500">Suas vendas e transações aparecerão aqui</div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {atividadesRecentes.map((venda: any) => (
+                  <div key={venda.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition">
+                    <div className="flex items-center space-x-4">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 ${
+                        venda.metodoPagamento === 'PIX' ? 'bg-green-500' :
+                        venda.metodoPagamento === 'CARTAO' ? 'bg-purple-500' : 'bg-orange-500'
+                      }`}>
+                        {venda.metodoPagamento === 'PIX' ? '₱' : venda.metodoPagamento === 'CARTAO' ? '💳' : '📄'}
+                      </div>
+                      <div>
+                        <div className="font-semibold text-gray-900 text-sm">{venda.compradorNome}</div>
+                        <div className="text-xs text-gray-500">{venda.nomePlano || venda.produto?.nome || 'Produto'}</div>
+                        <div className="text-xs text-gray-400">
+                          {new Date(venda.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold text-green-600 text-sm">+ R$ {venda.valor.toFixed(2).replace('.', ',')}</div>
+                      <div className={`text-xs px-2 py-1 rounded-full font-semibold mt-1 ${
+                        venda.status === 'PAGO' ? 'bg-green-100 text-green-700' :
+                        venda.status === 'PENDENTE' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'
+                      }`}>{venda.status}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           </div>
         </div>
       </main>
