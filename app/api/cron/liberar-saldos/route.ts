@@ -14,6 +14,26 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Também liberar transações com prazo 0 que ficaram como PENDENTE por erro anterior
+    const transacoesZeroDias = await prisma.transacao.findMany({
+      where: {
+        status: 'PENDENTE',
+        dataLiberacao: { lte: new Date() }
+      }
+    });
+    for (const t of transacoesZeroDias) {
+      if (t.vendaId) {
+        await prisma.carteira.updateMany({
+          where: { vendaId: t.vendaId, status: 'PENDENTE' },
+          data: { status: 'APROVADO' }
+        });
+      }
+      await prisma.transacao.update({
+        where: { id: t.id },
+        data: { status: 'APROVADO' }
+      });
+    }
+
     console.log('🕐 Iniciando liberação automática de saldos...');
     
     const agora = new Date();
