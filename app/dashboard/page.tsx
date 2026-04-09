@@ -63,15 +63,24 @@ export default function DashboardPage() {
     } catch (error) { console.error('Erro:', error); }
   };
   
-   const carregarAtividades = async () => {
+   const [paginaAtividades, setPaginaAtividades] = useState(1);
+  const [totalPaginasAtividades, setTotalPaginasAtividades] = useState(1);
+
+  const carregarAtividades = async (pagina = 1) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/vendas?limit=10&status=PAGO', {
+      const params = new URLSearchParams({ limit: '10', page: String(pagina) });
+      if (periodo) params.set('periodo', periodo);
+      if (dataInicio) params.set('dataInicio', dataInicio);
+      if (dataFim) params.set('dataFim', dataFim);
+      const response = await fetch(`/api/vendas?${params.toString()}`, {
         headers: { 'Authorization': 'Bearer ' + token }
       });
       if (response.ok) {
         const data = await response.json();
         setAtividadesRecentes(data.vendas || []);
+        setTotalPaginasAtividades(data.totalPages || 1);
+        setPaginaAtividades(pagina);
       }
     } catch (error) { console.error('Erro ao carregar atividades:', error); }
   };
@@ -244,7 +253,18 @@ const response = await fetch(`/api/dashboard?${params.toString()}`, { headers: {
           <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-gray-900">Atividade Recente</h3>
-              <Link href="/dashboard/vendas" className="text-sm text-purple-600 hover:underline font-semibold">Ver todas →</Link>
+              <div className="flex items-center gap-3">
+                {totalPaginasAtividades > 1 && (
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => carregarAtividades(paginaAtividades - 1)} disabled={paginaAtividades === 1}
+                      className="px-3 py-1 text-sm bg-gray-100 rounded-lg disabled:opacity-40 hover:bg-gray-200 transition">←</button>
+                    <span className="text-sm text-gray-500">{paginaAtividades} / {totalPaginasAtividades}</span>
+                    <button onClick={() => carregarAtividades(paginaAtividades + 1)} disabled={paginaAtividades === totalPaginasAtividades}
+                      className="px-3 py-1 text-sm bg-gray-100 rounded-lg disabled:opacity-40 hover:bg-gray-200 transition">→</button>
+                  </div>
+                )}
+                <Link href="/dashboard/vendas" className="text-sm text-purple-600 hover:underline font-semibold">Ver todas →</Link>
+              </div>
             </div>
             {atividadesRecentes.length === 0 ? (
               <div className="text-center py-12">

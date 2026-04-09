@@ -243,43 +243,70 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
-    // Buscar usuário para verificar se é admin
-    const user = await prisma.user.findUnique({
-      where: { id: userId }
-    });
+    const user = await prisma.user.findUnique({ where: { id: userId } });
 
-    // Verificar parâmetro para ver todas as vendas (somente ADMIN)
     const { searchParams } = new URL(request.url);
     const verTodas = searchParams.get('todas') === 'true';
+    const status = searchParams.get('status') || undefined;
+    const periodo = searchParams.get('periodo') || '';
+    const dataInicio = searchParams.get('dataInicio') || '';
+    const dataFim = searchParams.get('dataFim') || '';
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '20');
+    const skip = (page - 1) * limit;
 
-    // Se for admin E solicitou ver todas, mostra tudo
-    // Caso contrário, mostra apenas suas vendas
-    const vendas = await prisma.venda.findMany({
-      where: (user?.role === 'ADMIN' && verTodas) ? {} : { vendedorId: userId },
-      include: {
-        produto: {
-          select: {
-            nome: true
-          }
+    // Montar filtro de data
+    let dateFilter: any = {};
+    if (dataInicio && dataFim) {
+      dateFilter = {
+        createdAt: {
+          gte: new Date(dataInicio + 'T00:00:00.000Z'),
+          lte: new Date(dataFim + 'T23:59:59.999Z')
+        }
+      };
+    } else if (periodo) {
+      const agora = new Date();
+      const inicio = new Date();
+      if (periodo === 'hoje') {
+        inicio.setHours(0, 0, 0, 0);
+        agora.setHours(23, 59, 59, 999);
+      } else if (periodo === '7d') {
+        inicio.setDate(inicio.getDate() - 7);
+      } else if (periodo === '14d') {
+        inicio.setDate(inicio.getDate() - 14);
+      } else if (periodo === '30d') {
+        inicio.setDate(inicio.getDate() - 30);
+      }
+      dateFilter = { createdAt: { gte: inicio, lte: agora } };
+    }
+
+    const whereClause: any = {
+      ...((user?.role === 'ADMIN' && verTodas) ? {} : { vendedorId: userId }),
+      ...(status ? { status } : {}),
+      ...dateFilter
+    };
+
+    const [vendas, total] = await Promise.all([
+      prisma.venda.findMany({
+        where: whereClause,
+        include: {
+          produto: { select: { nome: true } },
+          vendedor: { select: { nome: true } },
+          transacoes: { select: { valor: true } }
         },
-        vendedor: {
-          select: {
-            nome: true
-          }
-        },
-        transacoes: {
-          select: {
-            valor: true
-          }
-        },
-        _count: false
-      },
-      orderBy: { createdAt: 'desc' }
-    });
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit
+      }),
+      prisma.venda.count({ where: whereClause })
+    ]);
 
     return NextResponse.json({ 
       success: true, 
       vendas,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
       isAdmin: user?.role === 'ADMIN',
       mostrandoTodas: (user?.role === 'ADMIN' && verTodas)
     });
