@@ -283,7 +283,6 @@ const response = await fetch(`/api/dashboard?${params.toString()}`, { headers: {
               </div>
             )}
           </div>
-          </div>
         </div>
       </main>
     </div>
