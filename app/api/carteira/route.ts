@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
     const saques = await prisma.saque.findMany({
       where: { 
         userId,
-        status: { in: ['APROVADO', 'PROCESSANDO'] }
+        status: { in: ['APROVADO', 'PROCESSANDO', 'PENDENTE'] }
       }
     });
 
