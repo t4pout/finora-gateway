@@ -374,11 +374,20 @@ export async function POST(request: NextRequest) {
         });
         const efiData = await efiRes.json();
         if (!efiRes.ok) return NextResponse.json({ error: 'Erro ao processar cartão Efi', details: efiData }, { status: 500 });
-        const statusEfi = (efiData.status === 'paid' || efiData.status === 'approved') ? 'PAGO' : 'PENDENTE';
+        let statusEfi = 'PENDENTE';
+        if (efiData.status === 'paid' || efiData.status === 'approved') {
+          statusEfi = 'PAGO';
+        } else if (efiData.status === 'canceled' || efiData.status === 'refused' || efiData.status === 'rejected' || efiData.status === 'failed' || efiData.status === 'unpaid') {
+          statusEfi = 'RECUSADA';
+        }
+
         await prisma.venda.update({ where: { id: venda.id }, data: { status: statusEfi, efiChargeId: String(efiData.chargeId) } });
+
         if (statusEfi === 'PAGO') {
           try { await enviarParaPagah({ ...venda, produto: plano.produto }); } catch(e) { console.error('Erro Pagah Efi:', e); }
           try { await fetch(`${request.nextUrl.origin}/api/vendas/marcar-pago`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ vendaId: venda.id }) }); } catch(e) { console.error('Erro carteira Efi:', e); }
+        } else if (statusEfi === 'RECUSADA') {
+          return NextResponse.json({ error: 'Cartão recusado. Verifique os dados ou tente outro cartão.' }, { status: 400 });
         }
 
       } else {
