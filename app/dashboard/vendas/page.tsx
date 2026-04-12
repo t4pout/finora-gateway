@@ -275,6 +275,9 @@ export default function VendasPage() {
               <p className="text-sm text-gray-500">Gerencie todas as suas vendas</p>
             </div>
             <div className="flex items-center gap-3">
+              <button onClick={() => carregarVendas(mostrandoTodas)} className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition flex items-center gap-2">
+                🔄 Atualizar
+              </button>
               <button onClick={exportarParaExcel} className="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2">
                 <Download size={20} />
                 Exportar Excel
