@@ -307,7 +307,7 @@ export default function AdminPage() {
                           <button onClick={() => abrirModalTaxa(user.id, user.nome, user.planoTaxa?.id)} className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition" title="Atribuir Taxa">
                             <Percent size={18} />
                           </button>
-                          <button className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition">
+                          <button onClick={() => router.push(`/dashboard/admin/usuarios/${user.id}`)} className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition" title="Editar usuário">
                             <UserCog size={18} />
                           </button>
                           <button onClick={() => excluirUsuario(user.id, user.nome)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" title="Excluir usuário">
