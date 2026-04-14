@@ -179,7 +179,7 @@ export default function EditarProdutoPage() {
                           handleUploadUrl: '/api/upload-url',
                         });
                         if (blob.url) { 
-                          setFormData({...formData, imagem: blob.url}); 
+                          setFormData(prev => ({ ...prev, imagem: blob.url })); 
                           alert('✅ Imagem enviada com sucesso!'); 
                         }
                       } catch (err) { 
@@ -214,8 +214,8 @@ export default function EditarProdutoPage() {
                           handleUploadUrl: '/api/upload-url',
                         });
                         if (blob.url) { 
-                          setFormData({...formData, arquivoUrl: blob.url}); 
-                          alert('✅ PDF enviado com sucesso!'); 
+                          setFormData(prev => ({ ...prev, arquivoUrl: blob.url })); 
+                          alert('✅ PDF enviado com sucesso! Clique em Salvar Alterações para confirmar.');
                         }
                       } catch (err) { 
                         console.error(err);
