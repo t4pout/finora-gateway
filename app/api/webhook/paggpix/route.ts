@@ -42,7 +42,11 @@ export async function POST(request: NextRequest) {
       where: { id: externalId },
       include: {
         produto: {
-          include: {
+          select: {
+            id: true,
+            nome: true,
+            tipo: true,
+            arquivoUrl: true,
             user: { select: { id: true, nome: true, telegramBotToken: true, telegramChatId: true } }
           }
         }
@@ -137,21 +141,23 @@ export async function POST(request: NextRequest) {
 
       // Enviar ebook por email se produto digital
       try {
-        if (venda.produto?.tipo === 'DIGITAL') {
-          const produto = await prisma.produto.findUnique({ where: { id: venda.produtoId } });
-          if (produto?.arquivoUrl) {
-            await enviarEmailEbook({
-              compradorNome: venda.compradorNome,
-              compradorEmail: venda.compradorEmail,
-              produtoNome: produto.nome,
-              planoNome: venda.nomePlano || produto.nome,
-              valor: venda.valor,
-              pedidoId: venda.id,
-              arquivoUrl: produto.arquivoUrl
-            });
-          }
+        console.log('🔍 Tipo do produto:', venda.produto?.tipo, '| arquivoUrl:', venda.produto?.arquivoUrl);
+        if (venda.produto?.tipo === 'DIGITAL' && venda.produto?.arquivoUrl) {
+          console.log('📧 Enviando ebook para:', venda.compradorEmail);
+          await enviarEmailEbook({
+            compradorNome: venda.compradorNome,
+            compradorEmail: venda.compradorEmail,
+            produtoNome: venda.produto.nome,
+            planoNome: venda.nomePlano || venda.produto.nome,
+            valor: venda.valor,
+            pedidoId: venda.id,
+            arquivoUrl: venda.produto.arquivoUrl
+          });
+          console.log('✅ Ebook enviado com sucesso!');
+        } else {
+          console.log('⚠️ Produto não é digital ou não tem arquivo');
         }
-      } catch (e) { console.error('Erro ao enviar ebook:', e); }
+      } catch (e) { console.error('❌ Erro ao enviar ebook:', e); }
 
       console.log('✅ Venda processada com sucesso!');
       return NextResponse.json({ received: true, message: 'Venda processada' });
