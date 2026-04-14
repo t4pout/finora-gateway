@@ -1152,9 +1152,117 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
                     </button>
                   </div>
                 ) : (
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {planos.map((plano) => (
-                      <div key={plano.id} className="border-2 border-gray-200 rounded-xl p-6 hover:border-purple-400 transition">
+                      <div key={plano.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow">
+                        {/* Header do card */}
+                        <div className="p-5 border-b border-gray-100">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex-1 min-w-0">
+                              <input
+                                type="text"
+                                defaultValue={plano.nome}
+                                onBlur={async (e) => {
+                                  if (e.target.value === plano.nome) return;
+                                  try {
+                                    const token = localStorage.getItem('token');
+                                    await fetch(`/api/planos/${plano.id}`, {
+                                      method: 'PATCH',
+                                      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                                      body: JSON.stringify({ nome: e.target.value })
+                                    });
+                                    carregarPlanos();
+                                  } catch (error) { alert('❌ Erro ao atualizar'); }
+                                }}
+                                className="text-base font-bold text-gray-900 w-full border-0 outline-none bg-transparent hover:bg-gray-50 rounded px-1 py-0.5 transition truncate"
+                              />
+                              <input
+                                type="text"
+                                defaultValue={plano.descricao || ''}
+                                placeholder="Adicionar descrição..."
+                                onBlur={async (e) => {
+                                  if (e.target.value === plano.descricao) return;
+                                  try {
+                                    const token = localStorage.getItem('token');
+                                    await fetch(`/api/planos/${plano.id}`, {
+                                      method: 'PATCH',
+                                      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                                      body: JSON.stringify({ descricao: e.target.value })
+                                    });
+                                    carregarPlanos();
+                                  } catch (error) { alert('❌ Erro ao atualizar'); }
+                                }}
+                                className="text-xs text-gray-500 w-full border-0 outline-none bg-transparent hover:bg-gray-50 rounded px-1 py-0.5 transition mt-0.5"
+                              />
+                            </div>
+                            <span className={`ml-2 flex-shrink-0 px-2 py-0.5 rounded-full text-xs font-semibold ${plano.ativo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                              {plano.ativo ? 'Ativo' : 'Inativo'}
+                            </span>
+                          </div>
+                          <div className="text-2xl font-bold text-purple-600">
+                            R$ {plano.preco.toFixed(2).replace('.', ',')}
+                          </div>
+                        </div>
+
+                        {/* Link */}
+                        <div className="px-5 py-3 bg-gray-50 border-b border-gray-100">
+                          <div className="flex items-center gap-2">
+                            <code className="flex-1 text-xs text-gray-500 truncate font-mono">
+                              /checkout/{plano.linkUnico}
+                            </code>
+                            <button
+                              onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/checkout/${plano.linkUnico}`); alert('Link copiado!'); }}
+                              className="flex-shrink-0 p-1.5 hover:bg-gray-200 rounded-lg transition"
+                              title="Copiar link"
+                            >
+                              <Copy size={14} className="text-gray-500" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Ações */}
+                        <div className="p-4 space-y-2">
+                          <div className="grid grid-cols-2 gap-2">
+                            <button
+                              onClick={() => setModalConfig({ aberto: true, planoId: plano.id, tipo: 'NORMAL' })}
+                              className="px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-xs font-semibold flex items-center justify-center gap-1"
+                            >
+                              ⚙️ Checkout Normal
+                            </button>
+                            <button
+                              onClick={() => setModalConfig({ aberto: true, planoId: plano.id, tipo: 'PAD' })}
+                              className="px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition text-xs font-semibold flex items-center justify-center gap-1"
+                            >
+                              💳 Checkout PAD
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-3 gap-2">
+                            <button
+                              onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/pad/checkout-plano/${plano.id}`); alert('Link PAD copiado!'); }}
+                              className="col-span-1 px-3 py-2 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition text-xs font-semibold flex items-center justify-center gap-1"
+                              title="Copiar link PAD"
+                            >
+                              <Copy size={13} /> PAD
+                            </button>
+                            <button
+                              onClick={() => setModalPlano({ aberto: true, plano })}
+                              className="col-span-1 px-3 py-2 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition text-xs font-semibold flex items-center justify-center gap-1"
+                              title="Editar plano"
+                            >
+                              <Edit size={13} /> Editar
+                            </button>
+                            <button
+                              onClick={() => handleExcluirPlano(plano.id)}
+                              className="col-span-1 px-3 py-2 border border-red-200 text-red-500 rounded-lg hover:bg-red-50 transition text-xs font-semibold flex items-center justify-center gap-1"
+                              title="Excluir plano"
+                            >
+                              <Trash2 size={13} /> Excluir
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex-1">
                             <input
