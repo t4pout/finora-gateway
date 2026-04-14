@@ -227,18 +227,13 @@ export default function NovoProdutoPage() {
                       if (!file) return;
                       try {
                         alert('⏳ Enviando PDF, aguarde...');
-                        const formDataUpload = new FormData();
-                        formDataUpload.append('file', file);
-                        const res = await fetch('/api/upload', {
-                          method: 'POST',
-                          body: formDataUpload
+                        const blob = await upload(file.name, file, {
+                          access: 'public',
+                          handleUploadUrl: '/api/upload-url',
                         });
-                        const data = await res.json();
-                        if (data.url) {
-                          setFormData({...formData, arquivoUrl: data.url});
+                        if (blob.url) {
+                          setFormData({...formData, arquivoUrl: blob.url});
                           alert('✅ PDF enviado com sucesso!');
-                        } else {
-                          alert('❌ Erro ao enviar PDF: ' + (data.error || 'Erro desconhecido'));
                         }
                       } catch (error) {
                         console.error(error);

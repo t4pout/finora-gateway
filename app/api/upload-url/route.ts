@@ -8,23 +8,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const jsonResponse = await handleUpload({
       body,
       request,
-      onBeforeGenerateToken: async (pathname) => {
-        // Gerar nome único no servidor para garantir
-        const ext = pathname.split('.').pop();
-        const nomeUnico = `uploads/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
-        
+      onBeforeGenerateToken: async (pathname, clientPayload, multipart) => {
         return {
           allowedContentTypes: [
             'image/jpeg', 'image/png', 'image/gif', 'image/webp',
             'application/pdf', 'application/epub+zip', 'application/zip'
           ],
           maximumSizeInBytes: 50 * 1024 * 1024,
-          pathname: nomeUnico,
-          tokenPayload: JSON.stringify({ pathname: nomeUnico }),
+          addRandomSuffix: true,
+          allowOverwrite: false,
         };
       },
       onUploadCompleted: async ({ blob }) => {
-        console.log('✅ Upload direto concluído:', blob.url);
+        console.log('✅ Upload concluído:', blob.url);
       },
     });
     return NextResponse.json(jsonResponse);
