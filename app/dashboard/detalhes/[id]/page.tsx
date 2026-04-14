@@ -98,111 +98,31 @@ export default function DetalhesProdutoPage({ params }: { params: Promise<{ id: 
     checkoutTelObrigatorio: true,
     checkoutPedirEndereco: true
   });
-const [planos, setPlanos] = useState<any[]>([]);
-const [pixels, setPixels] = useState<any[]>([]);
-const [modalPixel, setModalPixel] = useState<{ aberto: boolean; pixel: any }>({ aberto: false, pixel: null });
-const [formPixel, setFormPixel] = useState({
-  titulo: '',
-  plataforma: 'FACEBOOK',
-  pixelId: '',
-  tokenAPI: '',
-  eventoCheckout: false,
-  eventoCompra: false,
-  eventoPAD: false,
-  condicaoPix: false,
-  condicaoBoleto: false,
-  condicaoPAD: false,
-  condicaoPagamentoAprovado: false
-});
+  const [planos, setPlanos] = useState<any[]>([]);
+  const [pixels, setPixels] = useState<any[]>([]);
+  const [modalPixel, setModalPixel] = useState<{ aberto: boolean; pixel: any }>({ aberto: false, pixel: null });
+  const [formPixel, setFormPixel] = useState({
+    titulo: '',
+    plataforma: 'FACEBOOK',
+    pixelId: '',
+    tokenAPI: '',
+    eventoCheckout: false,
+    eventoCompra: false,
+    eventoPAD: false,
+    condicaoPix: false,
+    condicaoBoleto: false,
+    condicaoPAD: false,
+    condicaoPagamentoAprovado: false
+  });
   const [modalPlano, setModalPlano] = useState<{ aberto: boolean; plano: any }>({ aberto: false, plano: null });
   const [modalConfig, setModalConfig] = useState<{ aberto: boolean; planoId: string | null; tipo: 'NORMAL' | 'PAD' }>({ aberto: false, planoId: null, tipo: 'NORMAL' });
-const [orderBumps, setOrderBumps] = useState<any[]>([]);
-const [modalOrderBump, setModalOrderBump] = useState<{ aberto: boolean; ob: any }>({ aberto: false, ob: null });
-const [formOrderBump, setFormOrderBump] = useState({ titulo: '', descricao: '', preco: '', imagem: '' });
-const [orderBumpsSelecionados, setOrderBumpsSelecionados] = useState<string[]>([]);
-// ===== CO-PRODUÇÃO =====
-const [coProdutores, setCoProdutores] = useState<any[]>([]);
-const [formCoProdutor, setFormCoProdutor] = useState({ email: '', tipo: 'PERCENTUAL', valor: '' });
-const [salvandoCoProdutor, setSalvandoCoProdutor] = useState(false);
-
-const carregarCoProdutores = async () => {
-  try {
-    const token = localStorage.getItem('token');
-    const res = await fetch(`/api/coprodutores?produtoId=${produtoId}`, {
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
-    if (res.ok) {
-      const data = await res.json();
-      setCoProdutores(data);
-    }
-  } catch (e) { console.error(e); }
-};
-
-const handleAdicionarCoProdutor = async () => {
-  if (!formCoProdutor.email || !formCoProdutor.valor) { alert('Preencha email e valor'); return; }
-  setSalvandoCoProdutor(true);
-  try {
-    const token = localStorage.getItem('token');
-    const res = await fetch('/api/coprodutores', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ produtoId, email: formCoProdutor.email, tipo: formCoProdutor.tipo, valor: parseFloat(formCoProdutor.valor) })
-    });
-    const data = await res.json();
-    if (res.ok) {
-      alert('✅ Co-produtor adicionado!');
-      setFormCoProdutor({ email: '', tipo: 'PERCENTUAL', valor: '' });
-      carregarCoProdutores();
-    } else {
-      alert('❌ ' + (data.error || 'Erro ao adicionar'));
-    }
-  } catch (e) { alert('❌ Erro ao adicionar'); }
-  setSalvandoCoProdutor(false);
-};
-
-const handleRemoverCoProdutor = async (id: string) => {
-  if (!confirm('Remover co-produtor?')) return;
-  try {
-    const token = localStorage.getItem('token');
-    await fetch(`/api/coprodutores?id=${id}&produtoId=${produtoId}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
-    carregarCoProdutores();
-  } catch (e) { alert('Erro ao remover'); }
-};
-
-const handleToggleCoProdutor = async (id: string, ativo: boolean) => {
-  try {
-    const token = localStorage.getItem('token');
-    await fetch('/api/coprodutores', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ id, produtoId, ativo })
-    });
-    carregarCoProdutores();
-  } catch (e) { alert('Erro'); }
-};
-// ===== FIM CO-PRODUÇÃO =====
-    const carregarPixels = async () => {
-  try {
-    console.log('🔍 Carregando pixels para produto:', produtoId);
-    const token = localStorage.getItem('token');
-    const response = await fetch(`/api/pixels?produtoId=${produtoId}`, {
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
-    console.log('📡 Response status:', response.status);
-    if (response.ok) {
-      const data = await response.json();
-      console.log('📦 Pixels recebidos:', data);
-      setPixels(data.pixels || []);
-    } else {
-      console.error('❌ Erro na resposta:', await response.text());
-    }
-  } catch (error) {
-    console.error('❌ Erro ao carregar pixels:', error);
-  }
-};
+  const [orderBumps, setOrderBumps] = useState<any[]>([]);
+  const [modalOrderBump, setModalOrderBump] = useState<{ aberto: boolean; ob: any }>({ aberto: false, ob: null });
+  const [formOrderBump, setFormOrderBump] = useState({ titulo: '', descricao: '', preco: '', imagem: '' });
+  const [orderBumpsSelecionados, setOrderBumpsSelecionados] = useState<string[]>([]);
+  const [coProdutores, setCoProdutores] = useState<any[]>([]);
+  const [formCoProdutor, setFormCoProdutor] = useState({ email: '', tipo: 'PERCENTUAL', valor: '' });
+  const [salvandoCoProdutor, setSalvandoCoProdutor] = useState(false);
   const [configPlano, setConfigPlano] = useState({
     checkoutBanner: '',
     checkoutLogoSuperior: '',
@@ -224,13 +144,66 @@ const handleToggleCoProdutor = async (id: string, ativo: boolean) => {
     checkoutPedirEndereco: true,
     checkoutVersao: 'v1'
   });
+const carregarCoProdutores = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`/api/coprodutores?produtoId=${produtoId}`, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (res.ok) { const data = await res.json(); setCoProdutores(data); }
+    } catch (e) { console.error(e); }
+  };
+
+  const handleAdicionarCoProdutor = async () => {
+    if (!formCoProdutor.email || !formCoProdutor.valor) { alert('Preencha email e valor'); return; }
+    setSalvandoCoProdutor(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/coprodutores', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ produtoId, email: formCoProdutor.email, tipo: formCoProdutor.tipo, valor: parseFloat(formCoProdutor.valor) })
+      });
+      const data = await res.json();
+      if (res.ok) { alert('✅ Co-produtor adicionado!'); setFormCoProdutor({ email: '', tipo: 'PERCENTUAL', valor: '' }); carregarCoProdutores(); }
+      else { alert('❌ ' + (data.error || 'Erro ao adicionar')); }
+    } catch (e) { alert('❌ Erro ao adicionar'); }
+    setSalvandoCoProdutor(false);
+  };
+
+  const handleRemoverCoProdutor = async (id: string) => {
+    if (!confirm('Remover co-produtor?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      await fetch(`/api/coprodutores?id=${id}&produtoId=${produtoId}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } });
+      carregarCoProdutores();
+    } catch (e) { alert('Erro ao remover'); }
+  };
+
+  const handleToggleCoProdutor = async (id: string, ativo: boolean) => {
+    try {
+      const token = localStorage.getItem('token');
+      await fetch('/api/coprodutores', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ id, produtoId, ativo })
+      });
+      carregarCoProdutores();
+    } catch (e) { alert('Erro'); }
+  };
+
+  const carregarPixels = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/pixels?produtoId=${produtoId}`, { headers: { 'Authorization': 'Bearer ' + token } });
+      if (response.ok) { const data = await response.json(); setPixels(data.pixels || []); }
+    } catch (error) { console.error('Erro ao carregar pixels:', error); }
+  };
 
   useEffect(() => {
     if (modalConfig.aberto && modalConfig.planoId) {
       carregarConfigPlano(modalConfig.planoId);
-      if (modalConfig.tipo === 'NORMAL') {
-        carregarOrderBumpsDePlano(modalConfig.planoId);
-      }
+      if (modalConfig.tipo === 'NORMAL') carregarOrderBumpsDePlano(modalConfig.planoId);
     }
   }, [modalConfig]);
 
@@ -246,10 +219,7 @@ const handleToggleCoProdutor = async (id: string, ativo: boolean) => {
     if (!produtoId) return;
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
-    if (!token) {
-      router.push('/auth/login');
-      return;
-    }
+    if (!token) { router.push('/auth/login'); return; }
     if (userData) setUser(JSON.parse(userData));
     carregarDados();
     carregarConfigAfiliacao();
@@ -262,69 +232,35 @@ const handleToggleCoProdutor = async (id: string, ativo: boolean) => {
 
   const carregarDados = async () => {
     const token = localStorage.getItem('token');
-    
     try {
-      const res1 = await fetch(`/api/produtos/${produtoId}`, {
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
-      if (res1.ok) {
-        const data = await res1.json();
-        setProduto(data.produto);
-      }
+      const res1 = await fetch(`/api/produtos/${produtoId}`, { headers: { 'Authorization': 'Bearer ' + token } });
+      if (res1.ok) { const data = await res1.json(); setProduto(data.produto); }
     } catch (e) { console.error(e); }
-    
     try {
-      const res2 = await fetch(`/api/campanhas?produtoId=${produtoId}`, {
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
-      if (res2.ok) {
-        const data = await res2.json();
-        setCampanhas(data.campanhas || []);
-      }
+      const res2 = await fetch(`/api/campanhas?produtoId=${produtoId}`, { headers: { 'Authorization': 'Bearer ' + token } });
+      if (res2.ok) { const data = await res2.json(); setCampanhas(data.campanhas || []); }
     } catch (e) { console.error(e); }
-    
     try {
-      const res3 = await fetch(`/api/paginas-ofertas?produtoId=${produtoId}`, {
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
-      if (res3.ok) {
-        const data = await res3.json();
-        setPaginasOfertas(data.paginas || []);
-      }
+      const res3 = await fetch(`/api/paginas-ofertas?produtoId=${produtoId}`, { headers: { 'Authorization': 'Bearer ' + token } });
+      if (res3.ok) { const data = await res3.json(); setPaginasOfertas(data.paginas || []); }
     } catch (e) { console.error(e); }
-    
     setLoading(false);
   };
 
   const carregarConfigAfiliacao = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/produtos/${produtoId}/afiliacao`, {
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        if (data.produto) {
-          setConfigAfiliacao(data.produto);
-        }
-      }
-    } catch (error) {
-      console.error('Erro:', error);
-    }
+      const response = await fetch(`/api/produtos/${produtoId}/afiliacao`, { headers: { 'Authorization': 'Bearer ' + token } });
+      if (response.ok) { const data = await response.json(); if (data.produto) setConfigAfiliacao(data.produto); }
+    } catch (error) { console.error('Erro:', error); }
   };
-const carregarPlanos = async () => {
+
+  const carregarPlanos = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/planos?produtoId=${produtoId}`, {
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setPlanos(data.planos || []);
-      }
-    } catch (error) {
-      console.error('Erro ao carregar planos:', error);
-    }
+      const response = await fetch(`/api/planos?produtoId=${produtoId}`, { headers: { 'Authorization': 'Bearer ' + token } });
+      if (response.ok) { const data = await response.json(); setPlanos(data.planos || []); }
+    } catch (error) { console.error('Erro ao carregar planos:', error); }
   };
 
   const salvarConfigAfiliacao = async () => {
@@ -332,102 +268,20 @@ const carregarPlanos = async () => {
       const token = localStorage.getItem('token');
       const response = await fetch(`/api/produtos/${produtoId}/afiliacao`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
-        },
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
         body: JSON.stringify(configAfiliacao)
       });
-      if (response.ok) {
-        alert('Configurações salvas!');
-        carregarConfigAfiliacao();
-      }
-    } catch (error) {
-      alert('Erro ao salvar');
-    }
+      if (response.ok) { alert('Configurações salvas!'); carregarConfigAfiliacao(); }
+    } catch (error) { alert('Erro ao salvar'); }
   };
 
   const carregarConfigCheckout = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/produtos/${produtoId}/checkout-config`, {
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        if (data.config) {
-          setConfigCheckout(data.config);
-        }
-      }
-    } catch (error) {
-      console.error('Erro:', error);
-    }
+      const response = await fetch(`/api/produtos/${produtoId}/checkout-config`, { headers: { 'Authorization': 'Bearer ' + token } });
+      if (response.ok) { const data = await response.json(); if (data.config) setConfigCheckout(data.config); }
+    } catch (error) { console.error('Erro:', error); }
   };
-
-  const salvarConfigCheckout = async () => {
-  if (!modalConfig.planoId) return;
-  
-  try {
-    const token = localStorage.getItem('token');
-    
-    // Preparar dados baseado no tipo (NORMAL ou PAD)
-    const dados: any = {};
-    
-    if (modalConfig.tipo === 'NORMAL') {
-      dados.checkoutBanner = configCheckout.checkoutBanner;
-      dados.checkoutLogoSuperior = configCheckout.checkoutLogoSuperior;
-      dados.checkoutLogoInferior = configCheckout.checkoutLogoInferior;
-      dados.checkoutCorPrimaria = configCheckout.checkoutCorPrimaria;
-      dados.checkoutCorSecundaria = configCheckout.checkoutCorSecundaria;
-      dados.checkoutCronometro = configCheckout.checkoutCronometro;
-      dados.checkoutTempoMinutos = configCheckout.checkoutTempoMinutos;
-      dados.checkoutMensagemUrgencia = configCheckout.checkoutMensagemUrgencia;
-      dados.checkoutProvaSocial = configCheckout.checkoutProvaSocial;
-      dados.checkoutIntervaloPop = configCheckout.checkoutIntervaloPop;
-      dados.checkoutProvaSocialGenero = configCheckout.checkoutProvaSocialGenero;
-      dados.checkoutAceitaPix = configCheckout.checkoutAceitaPix;
-      dados.checkoutAceitaCartao = configCheckout.checkoutAceitaCartao;
-      dados.checkoutAceitaBoleto = configCheckout.checkoutAceitaBoleto;
-      dados.checkoutMetodoPreferencial = configCheckout.checkoutMetodoPreferencial;
-      dados.checkoutCpfObrigatorio = configCheckout.checkoutCpfObrigatorio;
-      dados.checkoutTelObrigatorio = configCheckout.checkoutTelObrigatorio;
-      dados.checkoutPedirEndereco = configCheckout.checkoutPedirEndereco;
-    } else {
-      // PAD
-      dados.checkoutPadBanner = configCheckout.checkoutBanner;
-      dados.checkoutPadLogoSuperior = configCheckout.checkoutLogoSuperior;
-      dados.checkoutPadLogoInferior = configCheckout.checkoutLogoInferior;
-      dados.checkoutPadCorPrimaria = configCheckout.checkoutCorPrimaria;
-      dados.checkoutPadCorSecundaria = configCheckout.checkoutCorSecundaria;
-      dados.checkoutPadCronometro = configCheckout.checkoutCronometro;
-      dados.checkoutPadTempoMinutos = configCheckout.checkoutTempoMinutos;
-      dados.checkoutPadMensagemUrgencia = configCheckout.checkoutMensagemUrgencia;
-      dados.checkoutPadProvaSocial = configCheckout.checkoutProvaSocial;
-      dados.checkoutPadIntervaloPop = configCheckout.checkoutIntervaloPop;
-      dados.checkoutPadProvaSocialGenero = configCheckout.checkoutProvaSocialGenero;
-    }
-    
-    const response = await fetch(`/api/planos/${modalConfig.planoId}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      },
-      body: JSON.stringify(dados)
-    });
-    
-    if (response.ok) {
-      alert(`✅ Configurações do Checkout ${modalConfig.tipo === 'NORMAL' ? 'Normal' : 'PAD'} salvas!`);
-      setModalConfig({ aberto: false, planoId: null, tipo: 'NORMAL' });
-      carregarPlanos();
-    } else {
-      alert('❌ Erro ao salvar');
-    }
-  } catch (error) {
-    console.error('Erro ao salvar:', error);
-    alert('❌ Erro ao salvar');
-  }
-};
 
   const copiarLinkAfiliacao = () => {
     const link = `${window.location.origin}/afiliacao/${configAfiliacao.linkConvite}`;
@@ -452,14 +306,8 @@ const carregarPlanos = async () => {
     if (!confirm('Excluir produto?')) return;
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`/api/produtos/${produtoId}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
-      if (res.ok) {
-        alert('Excluído!');
-        router.push('/dashboard/produtos');
-      }
+      const res = await fetch(`/api/produtos/${produtoId}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } });
+      if (res.ok) { alert('Excluído!'); router.push('/dashboard/produtos'); }
     } catch (e) { alert('Erro'); }
   };
 
@@ -472,10 +320,7 @@ const carregarPlanos = async () => {
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
         body: JSON.stringify({ ...formPagina, produtoId })
       });
-      alert('Criada!');
-      setCriandoPagina(false);
-      setFormPagina({ nome: '', link: '' });
-      carregarDados();
+      alert('Criada!'); setCriandoPagina(false); setFormPagina({ nome: '', link: '' }); carregarDados();
     } catch (e) { alert('Erro'); }
   };
 
@@ -483,12 +328,8 @@ const carregarPlanos = async () => {
     if (!confirm('Excluir?')) return;
     try {
       const token = localStorage.getItem('token');
-      await fetch(`/api/paginas-ofertas/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
-      alert('Excluída!');
-      carregarDados();
+      await fetch(`/api/paginas-ofertas/${id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } });
+      alert('Excluída!'); carregarDados();
     } catch (e) { alert('Erro'); }
   };
 
@@ -500,8 +341,7 @@ const carregarPlanos = async () => {
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
         body: JSON.stringify({ paginaId, versaoOriginalId, distribuicao })
       });
-      alert('Teste ativado!');
-      carregarDados();
+      alert('Teste ativado!'); carregarDados();
     } catch (e) { alert('Erro'); }
   };
 
@@ -514,20 +354,8 @@ const carregarPlanos = async () => {
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
         body: JSON.stringify({ ...formCampanha, produtoId })
       });
-      alert('Criada!');
-      setCriandoCampanha(false);
-      setFormCampanha({ 
-        nome: '', 
-        plataforma: 'FACEBOOK', 
-        paginaOfertaId: '',
-        testeAB: false,
-        paginaAlternativaId: '',
-        distribuicao: 50, 
-        pixelId: '', 
-        accessToken: '', 
-        eventToken: '', 
-        conversionId: '' 
-      });
+      alert('Criada!'); setCriandoCampanha(false);
+      setFormCampanha({ nome: '', plataforma: 'FACEBOOK', paginaOfertaId: '', testeAB: false, paginaAlternativaId: '', distribuicao: 50, pixelId: '', accessToken: '', eventToken: '', conversionId: '' });
       carregarDados();
     } catch (e) { alert('Erro'); }
   };
@@ -536,293 +364,184 @@ const carregarPlanos = async () => {
     if (!confirm('Excluir?')) return;
     try {
       const token = localStorage.getItem('token');
-      await fetch(`/api/campanhas/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
-      alert('Excluída!');
-      carregarDados();
+      await fetch(`/api/campanhas/${id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } });
+      alert('Excluída!'); carregarDados();
     } catch (e) { alert('Erro'); }
   };
 
-  const copiarLink = (link: string) => {
-    navigator.clipboard.writeText(link);
-    alert('Copiado!');
-  };
-const handleSalvarPlano = async (e: React.FormEvent) => {
+  const copiarLink = (link: string) => { navigator.clipboard.writeText(link); alert('Copiado!'); };
+
+  const handleSalvarPlano = async (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
     const formData = new FormData(form);
-    
-    const data = {
-      nome: formData.get('nome'),
-      descricao: formData.get('descricao'),
-      preco: formData.get('preco'),
-      ativo: formData.get('ativo') === 'on',
-      produtoId
-    };
-
+    const data = { nome: formData.get('nome'), descricao: formData.get('descricao'), preco: formData.get('preco'), ativo: formData.get('ativo') === 'on', produtoId };
     try {
       const token = localStorage.getItem('token');
-      
       if (modalPlano.plano) {
-        await fetch(`/api/planos/${modalPlano.plano.id}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
-          },
-          body: JSON.stringify(data)
-        });
+        await fetch(`/api/planos/${modalPlano.plano.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify(data) });
         alert('Plano atualizado!');
       } else {
-        await fetch('/api/planos', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
-          },
-          body: JSON.stringify(data)
-        });
+        await fetch('/api/planos', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify(data) });
         alert('Plano criado!');
       }
-      
-      setModalPlano({ aberto: false, plano: null });
-      carregarPlanos();
-    } catch (error) {
-      alert('Erro ao salvar plano');
-    }
+      setModalPlano({ aberto: false, plano: null }); carregarPlanos();
+    } catch (error) { alert('Erro ao salvar plano'); }
   };
 
   const handleExcluirPlano = async (id: string) => {
     if (!confirm('Excluir este plano?')) return;
-    
     try {
       const token = localStorage.getItem('token');
-      await fetch(`/api/planos/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
-      alert('Plano excluído!');
-      carregarPlanos();
-    } catch (error) {
-      alert('Erro ao excluir plano');
-    }
+      await fetch(`/api/planos/${id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } });
+      alert('Plano excluído!'); carregarPlanos();
+    } catch (error) { alert('Erro ao excluir plano'); }
   };
 
   const handleUploadCheckout = async (e: React.ChangeEvent<HTMLInputElement>, tipo: 'banner' | 'logoSuperior' | 'logoInferior') => {
-  const file = e.target.files?.[0];
-  if (!file) return;
-  
-  const formData = new FormData();
-  formData.append('file', file);
-  
-  try {
-    const res = await fetch('/api/upload', {
-      method: 'POST',
-      body: formData
-    });
-    const data = await res.json();
-    if (data.url) {
-      const novoConfig = {...configPlano};
-      if (tipo === 'banner') novoConfig.checkoutBanner = data.url;
-      if (tipo === 'logoSuperior') novoConfig.checkoutLogoSuperior = data.url;
-      if (tipo === 'logoInferior') novoConfig.checkoutLogoInferior = data.url;
-      
-      setConfigPlano(novoConfig);
-      
-      if (modalConfig.planoId) {
-        const token = localStorage.getItem('token');
-        const dados: any = {};
-        
-        if (modalConfig.tipo === 'NORMAL') {
-          dados.checkoutBanner = novoConfig.checkoutBanner;
-          dados.checkoutLogoSuperior = novoConfig.checkoutLogoSuperior;
-          dados.checkoutLogoInferior = novoConfig.checkoutLogoInferior;
-        } else {
-          dados.checkoutPadBanner = novoConfig.checkoutBanner;
-          dados.checkoutPadLogoSuperior = novoConfig.checkoutLogoSuperior;
-          dados.checkoutPadLogoInferior = novoConfig.checkoutLogoInferior;
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (data.url) {
+        const novoConfig = {...configPlano};
+        if (tipo === 'banner') novoConfig.checkoutBanner = data.url;
+        if (tipo === 'logoSuperior') novoConfig.checkoutLogoSuperior = data.url;
+        if (tipo === 'logoInferior') novoConfig.checkoutLogoInferior = data.url;
+        setConfigPlano(novoConfig);
+        if (modalConfig.planoId) {
+          const token = localStorage.getItem('token');
+          const dados: any = {};
+          if (modalConfig.tipo === 'NORMAL') { dados.checkoutBanner = novoConfig.checkoutBanner; dados.checkoutLogoSuperior = novoConfig.checkoutLogoSuperior; dados.checkoutLogoInferior = novoConfig.checkoutLogoInferior; }
+          else { dados.checkoutPadBanner = novoConfig.checkoutBanner; dados.checkoutPadLogoSuperior = novoConfig.checkoutLogoSuperior; dados.checkoutPadLogoInferior = novoConfig.checkoutLogoInferior; }
+          await fetch(`/api/planos/${modalConfig.planoId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify(dados) });
+          alert(`✅ ${tipo === 'banner' ? 'Banner' : tipo === 'logoSuperior' ? 'Logo Superior' : 'Logo Inferior'} salvo!`);
         }
-        
-        await fetch(`/api/planos/${modalConfig.planoId}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
-          },
-          body: JSON.stringify(dados)
-        });
-        
-        alert(`✅ ${tipo === 'banner' ? 'Banner' : tipo === 'logoSuperior' ? 'Logo Superior' : 'Logo Inferior'} salvo!`);
       }
-    }
-  } catch (error) {
-    alert('❌ Erro ao fazer upload');
-  }
-};
+    } catch (error) { alert('❌ Erro ao fazer upload'); }
+  };
 
- const carregarOrderBumps = async () => {
+  const carregarOrderBumps = async () => {
     try {
       const userData = localStorage.getItem('user');
       if (!userData) return;
       const user = JSON.parse(userData);
       const res = await fetch(`/api/order-bumps?userId=${user.id}`);
-      if (res.ok) {
-        const data = await res.json();
-        setOrderBumps(data.orderBumps || []);
-      }
+      if (res.ok) { const data = await res.json(); setOrderBumps(data.orderBumps || []); }
     } catch (e) { console.error(e); }
   };
 
   const carregarOrderBumpsDePlano = async (planoId: string) => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`/api/planos/${planoId}/order-bumps`, {
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setOrderBumpsSelecionados(data.orderBumpIds || []);
-      }
+      const res = await fetch(`/api/planos/${planoId}/order-bumps`, { headers: { 'Authorization': 'Bearer ' + token } });
+      if (res.ok) { const data = await res.json(); setOrderBumpsSelecionados(data.orderBumpIds || []); }
     } catch (e) { console.error(e); }
   };
 
   const carregarConfigPlano = async (planoId: string) => {
-  try {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`/api/planos/${planoId}`, {
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
-    if (response.ok) {
-      const data = await response.json();
-      if (data.plano) {
-        // Carregar configs baseado no tipo (NORMAL ou PAD)
-        const tipo = modalConfig.tipo;
-        
-        if (tipo === 'NORMAL') {
-          setConfigPlano({
-            checkoutBanner: data.plano.checkoutBanner || '',
-            checkoutLogoSuperior: data.plano.checkoutLogoSuperior || '',
-            checkoutLogoInferior: data.plano.checkoutLogoInferior || '',
-            checkoutCorPrimaria: data.plano.checkoutCorPrimaria || '#9333ea',
-            checkoutCorSecundaria: data.plano.checkoutCorSecundaria || '#a855f7',
-            checkoutCronometro: data.plano.checkoutCronometro || false,
-            checkoutTempoMinutos: data.plano.checkoutTempoMinutos || 15,
-            checkoutMensagemUrgencia: data.plano.checkoutMensagemUrgencia || '',
-            checkoutProvaSocial: data.plano.checkoutProvaSocial || false,
-            checkoutIntervaloPop: data.plano.checkoutIntervaloPop || 8,
-            checkoutProvaSocialGenero: data.plano.checkoutProvaSocialGenero || 'AMBOS',
-            checkoutAceitaPix: data.plano.checkoutAceitaPix ? true : false,
-            checkoutAceitaCartao: data.plano.checkoutAceitaCartao ? true : false,
-            checkoutAceitaBoleto: data.plano.checkoutAceitaBoleto ? true : false,
-            checkoutMetodoPreferencial: data.plano.checkoutMetodoPreferencial || 'PIX',
-            checkoutCpfObrigatorio: data.plano.checkoutCpfObrigatorio ? true : false,
-            checkoutTelObrigatorio: data.plano.checkoutTelObrigatorio ? true : false,
-            checkoutPedirEndereco: data.plano.checkoutPedirEndereco ? true : false,
-            checkoutVersao: data.plano.checkoutVersao || 'v1'
-          });
-        } else {
-          // PAD
-          setConfigPlano({
-            checkoutBanner: data.plano.checkoutPadBanner || '',
-            checkoutLogoSuperior: data.plano.checkoutPadLogoSuperior || '',
-            checkoutLogoInferior: data.plano.checkoutPadLogoInferior || '',
-            checkoutCorPrimaria: data.plano.checkoutPadCorPrimaria || '#9333ea',
-            checkoutCorSecundaria: data.plano.checkoutPadCorSecundaria || '#a855f7',
-            checkoutCronometro: data.plano.checkoutPadCronometro || false,
-            checkoutTempoMinutos: data.plano.checkoutPadTempoMinutos || 15,
-            checkoutMensagemUrgencia: data.plano.checkoutPadMensagemUrgencia || '',
-            checkoutProvaSocial: data.plano.checkoutPadProvaSocial || false,
-            checkoutIntervaloPop: data.plano.checkoutPadIntervaloPop || 8,
-            checkoutProvaSocialGenero: data.plano.checkoutPadProvaSocialGenero || 'AMBOS',
-            checkoutAceitaPix: true,
-            checkoutAceitaCartao: true,
-            checkoutAceitaBoleto: true,
-            checkoutMetodoPreferencial: 'PIX',
-            checkoutCpfObrigatorio: true,
-            checkoutTelObrigatorio: true,
-            checkoutPedirEndereco: true
-          });
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/planos/${planoId}`, { headers: { 'Authorization': 'Bearer ' + token } });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.plano) {
+          const tipo = modalConfig.tipo;
+          if (tipo === 'NORMAL') {
+            setConfigPlano({
+              checkoutBanner: data.plano.checkoutBanner || '',
+              checkoutLogoSuperior: data.plano.checkoutLogoSuperior || '',
+              checkoutLogoInferior: data.plano.checkoutLogoInferior || '',
+              checkoutCorPrimaria: data.plano.checkoutCorPrimaria || '#9333ea',
+              checkoutCorSecundaria: data.plano.checkoutCorSecundaria || '#a855f7',
+              checkoutCronometro: data.plano.checkoutCronometro || false,
+              checkoutTempoMinutos: data.plano.checkoutTempoMinutos || 15,
+              checkoutMensagemUrgencia: data.plano.checkoutMensagemUrgencia || '',
+              checkoutProvaSocial: data.plano.checkoutProvaSocial || false,
+              checkoutIntervaloPop: data.plano.checkoutIntervaloPop || 8,
+              checkoutProvaSocialGenero: data.plano.checkoutProvaSocialGenero || 'AMBOS',
+              checkoutAceitaPix: data.plano.checkoutAceitaPix ? true : false,
+              checkoutAceitaCartao: data.plano.checkoutAceitaCartao ? true : false,
+              checkoutAceitaBoleto: data.plano.checkoutAceitaBoleto ? true : false,
+              checkoutMetodoPreferencial: data.plano.checkoutMetodoPreferencial || 'PIX',
+              checkoutCpfObrigatorio: data.plano.checkoutCpfObrigatorio ? true : false,
+              checkoutTelObrigatorio: data.plano.checkoutTelObrigatorio ? true : false,
+              checkoutPedirEndereco: data.plano.checkoutPedirEndereco ? true : false,
+              checkoutVersao: data.plano.checkoutVersao || 'v1'
+            });
+          } else {
+            setConfigPlano({
+              checkoutBanner: data.plano.checkoutPadBanner || '',
+              checkoutLogoSuperior: data.plano.checkoutPadLogoSuperior || '',
+              checkoutLogoInferior: data.plano.checkoutPadLogoInferior || '',
+              checkoutCorPrimaria: data.plano.checkoutPadCorPrimaria || '#9333ea',
+              checkoutCorSecundaria: data.plano.checkoutPadCorSecundaria || '#a855f7',
+              checkoutCronometro: data.plano.checkoutPadCronometro || false,
+              checkoutTempoMinutos: data.plano.checkoutPadTempoMinutos || 15,
+              checkoutMensagemUrgencia: data.plano.checkoutPadMensagemUrgencia || '',
+              checkoutProvaSocial: data.plano.checkoutPadProvaSocial || false,
+              checkoutIntervaloPop: data.plano.checkoutPadIntervaloPop || 8,
+              checkoutProvaSocialGenero: data.plano.checkoutPadProvaSocialGenero || 'AMBOS',
+              checkoutAceitaPix: true, checkoutAceitaCartao: true, checkoutAceitaBoleto: true,
+              checkoutMetodoPreferencial: 'PIX', checkoutCpfObrigatorio: true,
+              checkoutTelObrigatorio: true, checkoutPedirEndereco: true, checkoutVersao: 'v1'
+            });
+          }
         }
       }
-    }
-  } catch (error) {
-    console.error('Erro:', error);
-  }
-};
+    } catch (error) { console.error('Erro:', error); }
+  };
 
   const handleSalvarConfigPlano = async () => {
-  if (!modalConfig.planoId) return;
-  
-  try {
-    console.log('🔍 Salvando configPlano:', configPlano);
-    console.log('🔍 Tipo:', modalConfig.tipo);
-    
-    const token = localStorage.getItem('token');
-    
-    // Preparar dados baseado no tipo
-    const dados: any = {};
-    
-    if (modalConfig.tipo === 'NORMAL') {
-      dados.checkoutBanner = configPlano.checkoutBanner;
-      dados.checkoutLogoSuperior = configPlano.checkoutLogoSuperior;
-      dados.checkoutLogoInferior = configPlano.checkoutLogoInferior;
-      dados.checkoutCorPrimaria = configPlano.checkoutCorPrimaria;
-      dados.checkoutCorSecundaria = configPlano.checkoutCorSecundaria;
-      dados.checkoutCronometro = configPlano.checkoutCronometro;
-      dados.checkoutTempoMinutos = configPlano.checkoutTempoMinutos;
-      dados.checkoutMensagemUrgencia = configPlano.checkoutMensagemUrgencia;
-      dados.checkoutProvaSocial = configPlano.checkoutProvaSocial;
-      dados.checkoutIntervaloPop = configPlano.checkoutIntervaloPop;
-      dados.checkoutProvaSocialGenero = configPlano.checkoutProvaSocialGenero;
-      dados.checkoutAceitaPix = configPlano.checkoutAceitaPix;
-      dados.checkoutAceitaCartao = configPlano.checkoutAceitaCartao;
-      dados.checkoutAceitaBoleto = configPlano.checkoutAceitaBoleto;
-      dados.checkoutMetodoPreferencial = configPlano.checkoutMetodoPreferencial;
-      dados.checkoutCpfObrigatorio = configPlano.checkoutCpfObrigatorio;
-      dados.checkoutTelObrigatorio = configPlano.checkoutTelObrigatorio;
-      dados.checkoutPedirEndereco = configPlano.checkoutPedirEndereco;
-      dados.checkoutVersao = configPlano.checkoutVersao || 'v1';
-    } else {
-      // PAD
-      dados.checkoutPadBanner = configPlano.checkoutBanner;
-      dados.checkoutPadLogoSuperior = configPlano.checkoutLogoSuperior;
-      dados.checkoutPadLogoInferior = configPlano.checkoutLogoInferior;
-      dados.checkoutPadCorPrimaria = configPlano.checkoutCorPrimaria;
-      dados.checkoutPadCorSecundaria = configPlano.checkoutCorSecundaria;
-      dados.checkoutPadCronometro = configPlano.checkoutCronometro;
-      dados.checkoutPadTempoMinutos = configPlano.checkoutTempoMinutos;
-      dados.checkoutPadMensagemUrgencia = configPlano.checkoutMensagemUrgencia;
-      dados.checkoutPadProvaSocial = configPlano.checkoutProvaSocial;
-      dados.checkoutPadIntervaloPop = configPlano.checkoutIntervaloPop;
-      dados.checkoutPadProvaSocialGenero = configPlano.checkoutProvaSocialGenero;
-    }
-    
-    await fetch(`/api/planos/${modalConfig.planoId}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      },
-      body: JSON.stringify(dados)
-    });
-
-    if (modalConfig.tipo === 'NORMAL') {
-      await fetch(`/api/planos/${modalConfig.planoId}/order-bumps`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-        body: JSON.stringify({ orderBumpIds: orderBumpsSelecionados })
-      });
-    }
-    
-    alert(`✅ Configurações do Checkout ${modalConfig.tipo === 'NORMAL' ? 'Normal' : 'PAD'} salvas!`);
-    setModalConfig({ aberto: false, planoId: null, tipo: 'NORMAL' });
-    carregarPlanos();
-  } catch (error) {
-    alert('❌ Erro ao salvar');
-  }
-};
+    if (!modalConfig.planoId) return;
+    try {
+      const token = localStorage.getItem('token');
+      const dados: any = {};
+      if (modalConfig.tipo === 'NORMAL') {
+        dados.checkoutBanner = configPlano.checkoutBanner;
+        dados.checkoutLogoSuperior = configPlano.checkoutLogoSuperior;
+        dados.checkoutLogoInferior = configPlano.checkoutLogoInferior;
+        dados.checkoutCorPrimaria = configPlano.checkoutCorPrimaria;
+        dados.checkoutCorSecundaria = configPlano.checkoutCorSecundaria;
+        dados.checkoutCronometro = configPlano.checkoutCronometro;
+        dados.checkoutTempoMinutos = configPlano.checkoutTempoMinutos;
+        dados.checkoutMensagemUrgencia = configPlano.checkoutMensagemUrgencia;
+        dados.checkoutProvaSocial = configPlano.checkoutProvaSocial;
+        dados.checkoutIntervaloPop = configPlano.checkoutIntervaloPop;
+        dados.checkoutProvaSocialGenero = configPlano.checkoutProvaSocialGenero;
+        dados.checkoutAceitaPix = configPlano.checkoutAceitaPix;
+        dados.checkoutAceitaCartao = configPlano.checkoutAceitaCartao;
+        dados.checkoutAceitaBoleto = configPlano.checkoutAceitaBoleto;
+        dados.checkoutMetodoPreferencial = configPlano.checkoutMetodoPreferencial;
+        dados.checkoutCpfObrigatorio = configPlano.checkoutCpfObrigatorio;
+        dados.checkoutTelObrigatorio = configPlano.checkoutTelObrigatorio;
+        dados.checkoutPedirEndereco = configPlano.checkoutPedirEndereco;
+        dados.checkoutVersao = configPlano.checkoutVersao || 'v1';
+      } else {
+        dados.checkoutPadBanner = configPlano.checkoutBanner;
+        dados.checkoutPadLogoSuperior = configPlano.checkoutLogoSuperior;
+        dados.checkoutPadLogoInferior = configPlano.checkoutLogoInferior;
+        dados.checkoutPadCorPrimaria = configPlano.checkoutCorPrimaria;
+        dados.checkoutPadCorSecundaria = configPlano.checkoutCorSecundaria;
+        dados.checkoutPadCronometro = configPlano.checkoutCronometro;
+        dados.checkoutPadTempoMinutos = configPlano.checkoutTempoMinutos;
+        dados.checkoutPadMensagemUrgencia = configPlano.checkoutMensagemUrgencia;
+        dados.checkoutPadProvaSocial = configPlano.checkoutProvaSocial;
+        dados.checkoutPadIntervaloPop = configPlano.checkoutIntervaloPop;
+        dados.checkoutPadProvaSocialGenero = configPlano.checkoutProvaSocialGenero;
+      }
+      await fetch(`/api/planos/${modalConfig.planoId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify(dados) });
+      if (modalConfig.tipo === 'NORMAL') {
+        await fetch(`/api/planos/${modalConfig.planoId}/order-bumps`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify({ orderBumpIds: orderBumpsSelecionados }) });
+      }
+      alert(`✅ Configurações salvas!`);
+      setModalConfig({ aberto: false, planoId: null, tipo: 'NORMAL' });
+      carregarPlanos();
+    } catch (error) { alert('❌ Erro ao salvar'); }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -830,12 +549,9 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
     router.push('/');
   };
 
-  if (loading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-<LoadingScreen />
-</div>;
+  if (loading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><LoadingScreen /></div>;
   if (!produto) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="text-gray-900">Não encontrado</div></div>;
-
-  return (
+return (
     <div className="flex h-screen bg-gray-50">
       <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
         <div className="p-6 border-b border-gray-200">
@@ -869,13 +585,11 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
           <div className="border-t border-gray-200 my-4"></div>
           <button onClick={handleLogout} className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-red-50 text-red-600 font-medium transition"><LogOut size={20} /><span>Sair</span></button>
         </nav>
-
         {user?.role === 'ADMIN' && (
           <div className="p-4 border-t border-gray-200">
             <Link href="/dashboard/admin"><div className="flex items-center justify-center space-x-2 px-4 py-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition"><Shield size={20} /><span>Administrativo</span></div></Link>
           </div>
         )}
-
         <div className="p-4 border-t border-gray-200"><div className="text-xs text-gray-500 text-center">© 2026 Finora</div></div>
       </aside>
 
@@ -889,99 +603,86 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
 
         <div className="bg-white border-b border-gray-200">
           <div className="px-8">
-            <div className="flex space-x-8">
-              <button onClick={() => setAbaSelecionada('detalhes')} className={`py-4 px-2 border-b-2 font-semibold transition ${abaSelecionada === 'detalhes' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>📦 Detalhes</button>
-              <button onClick={() => setAbaSelecionada('afiliacao')} className={`py-4 px-2 border-b-2 font-semibold transition ${abaSelecionada === 'afiliacao' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>🤝 Afiliação</button>
-              <button onClick={() => setAbaSelecionada('paginas')} className={`py-4 px-2 border-b-2 font-semibold transition ${abaSelecionada === 'paginas' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>📄 Páginas</button>
-              <button onClick={() => setAbaSelecionada('campanhas')} className={`py-4 px-2 border-b-2 font-semibold transition ${abaSelecionada === 'campanhas' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>📢 Campanhas</button>
-              <button onClick={() => setAbaSelecionada('checkout')} className={`py-4 px-2 border-b-2 font-semibold transition ${abaSelecionada === 'checkout' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>🎨 Checkout</button>
-               <button onClick={() => setAbaSelecionada('pixels')} className={`py-4 px-2 border-b-2 font-semibold transition ${abaSelecionada === 'pixels' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>📊 Pixels</button>
-               <button onClick={() => setAbaSelecionada('orderbumps')} className={`py-4 px-2 border-b-2 font-semibold transition ${abaSelecionada === 'orderbumps' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>⚡ Order Bumps</button>
-<button onClick={() => setAbaSelecionada('links')} className={`py-4 px-2 border-b-2 font-semibold transition ${abaSelecionada === 'links' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>🔗 Links UTM</button>
-<button onClick={() => setAbaSelecionada('coproducao')} className={`py-4 px-2 border-b-2 font-semibold transition ${abaSelecionada === 'coproducao' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>🤝 Co-produção</button>
+            <div className="flex space-x-8 overflow-x-auto">
+              <button onClick={() => setAbaSelecionada('detalhes')} className={`py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'detalhes' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>📦 Detalhes</button>
+              <button onClick={() => setAbaSelecionada('afiliacao')} className={`py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'afiliacao' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>🤝 Afiliação</button>
+              <button onClick={() => setAbaSelecionada('paginas')} className={`py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'paginas' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>📄 Páginas</button>
+              <button onClick={() => setAbaSelecionada('campanhas')} className={`py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'campanhas' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>📢 Campanhas</button>
+              <button onClick={() => setAbaSelecionada('checkout')} className={`py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'checkout' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>🎨 Checkout</button>
+              <button onClick={() => setAbaSelecionada('pixels')} className={`py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'pixels' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>📊 Pixels</button>
+              <button onClick={() => setAbaSelecionada('orderbumps')} className={`py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'orderbumps' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>⚡ Order Bumps</button>
+              <button onClick={() => setAbaSelecionada('links')} className={`py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'links' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>🔗 Links UTM</button>
+              <button onClick={() => setAbaSelecionada('coproducao')} className={`py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'coproducao' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>🤝 Co-produção</button>
             </div>
           </div>
         </div>
 
         <div className="p-8">
+
           {abaSelecionada === 'detalhes' && (
-            <>
-              <div className="bg-white rounded-xl border border-gray-200 mb-8 p-8">
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div>
-                    {produto.imagem ? <img src={produto.imagem} alt={produto.nome} className="w-full h-64 object-cover rounded-xl" /> : <div className="w-full h-64 bg-gradient-to-br from-purple-600 to-purple-500 rounded-xl flex items-center justify-center"><Package size={64} className="text-white" /></div>}
+            <div className="bg-white rounded-xl border border-gray-200 mb-8 p-8">
+              <div className="grid md:grid-cols-2 gap-8">
+                <div>
+                  {produto.imagem ? <img src={produto.imagem} alt={produto.nome} className="w-full h-64 object-cover rounded-xl" /> : <div className="w-full h-64 bg-gradient-to-br from-purple-600 to-purple-500 rounded-xl flex items-center justify-center"><Package size={64} className="text-white" /></div>}
+                </div>
+                <div>
+                  <div className="flex items-start justify-between mb-4">
+                    <h2 className="text-3xl font-bold text-gray-900">{produto.nome}</h2>
+                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${produto.status === 'ATIVO' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>{produto.status}</span>
                   </div>
-                  <div>
-                    <div className="flex items-start justify-between mb-4">
-                      <h2 className="text-3xl font-bold text-gray-900">{produto.nome}</h2>
-                      <span className={`px-3 py-1 rounded-full text-sm font-semibold ${produto.status === 'ATIVO' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>{produto.status}</span>
-                    </div>
-                    <p className="text-gray-600 mb-6">{produto.descricao}</p>
-                    <div className="grid grid-cols-2 gap-4 mb-6">
-                      <div><div className="text-sm text-gray-500">Preço</div><div className="text-2xl font-bold text-purple-600">R$ {produto.preco.toFixed(2).replace('.', ',')}</div></div>
-                      <div><div className="text-sm text-gray-500">Comissão</div><div className="text-2xl font-bold text-gray-900">{produto.comissao}%</div></div>
-                      <div><div className="text-sm text-gray-500">Tipo</div><div className="text-lg font-semibold text-gray-900">{produto.tipo}</div></div>
-                      {produto.tipo === 'FISICO' && <div><div className="text-sm text-gray-500">Estoque</div><div className="text-lg font-semibold text-gray-900">{produto.estoque || 0}</div></div>}
-                    </div>
-                    <div className="flex items-center space-x-2 mb-6">
-                      <input type="checkbox" checked={produto.publicoParaAfiliados} onChange={togglePublico} className="w-4 h-4 cursor-pointer" />
-                      <span className="text-sm text-gray-600 cursor-pointer" onClick={togglePublico}>Público para afiliados</span>
-                    </div>
-                    <div className="flex gap-3">
-                      <Link href={`/dashboard/produtos/${produto.id}`} className="flex-1"><button className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition flex items-center justify-center space-x-2"><Edit size={20} /><span>Editar</span></button></Link>
-                      <button onClick={handleExcluirProduto} className="px-6 py-3 border-2 border-red-300 text-red-600 rounded-lg font-semibold hover:bg-red-50 transition flex items-center space-x-2"><Trash2 size={20} /><span>Excluir</span></button>
-                    </div>
+                  <p className="text-gray-600 mb-6">{produto.descricao}</p>
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div><div className="text-sm text-gray-500">Preço</div><div className="text-2xl font-bold text-purple-600">R$ {produto.preco.toFixed(2).replace('.', ',')}</div></div>
+                    <div><div className="text-sm text-gray-500">Comissão</div><div className="text-2xl font-bold text-gray-900">{produto.comissao}%</div></div>
+                    <div><div className="text-sm text-gray-500">Tipo</div><div className="text-lg font-semibold text-gray-900">{produto.tipo}</div></div>
+                    {produto.tipo === 'FISICO' && <div><div className="text-sm text-gray-500">Estoque</div><div className="text-lg font-semibold text-gray-900">{produto.estoque || 0}</div></div>}
+                  </div>
+                  <div className="flex items-center space-x-2 mb-6">
+                    <input type="checkbox" checked={produto.publicoParaAfiliados} onChange={togglePublico} className="w-4 h-4 cursor-pointer" />
+                    <span className="text-sm text-gray-600 cursor-pointer" onClick={togglePublico}>Público para afiliados</span>
+                  </div>
+                  <div className="flex gap-3">
+                    <Link href={`/dashboard/produtos/${produto.id}`} className="flex-1"><button className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition flex items-center justify-center space-x-2"><Edit size={20} /><span>Editar</span></button></Link>
+                    <button onClick={handleExcluirProduto} className="px-6 py-3 border-2 border-red-300 text-red-600 rounded-lg font-semibold hover:bg-red-50 transition flex items-center space-x-2"><Trash2 size={20} /><span>Excluir</span></button>
                   </div>
                 </div>
               </div>
-            </>
+            </div>
           )}
 
           {abaSelecionada === 'afiliacao' && (
             <div className="max-w-4xl mx-auto">
               <div className="bg-white rounded-xl border border-gray-200 p-8 mb-6">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">⚙️ Configurações de Afiliação</h2>
-                
                 <div className="space-y-6">
                   <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div>
-                      <div className="font-semibold text-gray-900">Aceitar Afiliados</div>
-                      <div className="text-sm text-gray-600">Permitir que outros promovam seu produto</div>
-                    </div>
+                    <div><div className="font-semibold text-gray-900">Aceitar Afiliados</div><div className="text-sm text-gray-600">Permitir que outros promovam seu produto</div></div>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input type="checkbox" checked={configAfiliacao.aceitaAfiliados} onChange={(e) => setConfigAfiliacao({...configAfiliacao, aceitaAfiliados: e.target.checked})} className="sr-only peer" />
                       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
                     </label>
                   </div>
-
                   {configAfiliacao.aceitaAfiliados && (
                     <>
                       <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                        <div>
-                          <div className="font-semibold text-gray-900">Aprovação Automática</div>
-                          <div className="text-sm text-gray-600">Aceitar afiliados automaticamente sem revisão</div>
-                        </div>
+                        <div><div className="font-semibold text-gray-900">Aprovação Automática</div><div className="text-sm text-gray-600">Aceitar afiliados automaticamente sem revisão</div></div>
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input type="checkbox" checked={configAfiliacao.aprovacaoAutomatica} onChange={(e) => setConfigAfiliacao({...configAfiliacao, aprovacaoAutomatica: e.target.checked})} className="sr-only peer" />
                           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
                         </label>
                       </div>
-
                       <div>
                         <label className="block text-sm font-semibold text-gray-900 mb-2">Comissão Padrão (%)</label>
                         <input type="number" min="0" max="100" value={configAfiliacao.comissaoPadrao} onChange={(e) => setConfigAfiliacao({...configAfiliacao, comissaoPadrao: parseFloat(e.target.value)})} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" />
                       </div>
-
                       <div>
                         <label className="block text-sm font-semibold text-gray-900 mb-2">Detalhes do Programa</label>
-                        <textarea rows={4} value={configAfiliacao.detalhesAfiliacao} onChange={(e) => setConfigAfiliacao({...configAfiliacao, detalhesAfiliacao: e.target.value})} placeholder="Descreva os benefícios e vantagens de ser afiliado..." className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none"></textarea>
+                        <textarea rows={4} value={configAfiliacao.detalhesAfiliacao} onChange={(e) => setConfigAfiliacao({...configAfiliacao, detalhesAfiliacao: e.target.value})} placeholder="Descreva os benefícios..." className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none"></textarea>
                       </div>
-
                       <div>
                         <label className="block text-sm font-semibold text-gray-900 mb-2">Regras e Observações</label>
-                        <textarea rows={4} value={configAfiliacao.regrasAfiliacao} onChange={(e) => setConfigAfiliacao({...configAfiliacao, regrasAfiliacao: e.target.value})} placeholder="Ex: Proibido spam, promessas falsas, etc..." className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none"></textarea>
+                        <textarea rows={4} value={configAfiliacao.regrasAfiliacao} onChange={(e) => setConfigAfiliacao({...configAfiliacao, regrasAfiliacao: e.target.value})} placeholder="Ex: Proibido spam..." className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none"></textarea>
                       </div>
-
                       {configAfiliacao.linkConvite && (
                         <div className="p-6 bg-purple-50 border border-purple-200 rounded-lg">
                           <div className="flex items-center justify-between mb-2">
@@ -991,15 +692,10 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
                               <span>{copiado ? 'Copiado!' : 'Copiar'}</span>
                             </button>
                           </div>
-                          <div className="text-sm text-purple-700 break-all font-mono">
-                            {`${typeof window !== 'undefined' ? window.location.origin : ''}/afiliacao/${configAfiliacao.linkConvite}`}
-                          </div>
+                          <div className="text-sm text-purple-700 break-all font-mono">{`${typeof window !== 'undefined' ? window.location.origin : ''}/afiliacao/${configAfiliacao.linkConvite}`}</div>
                         </div>
                       )}
-
-                      <button onClick={salvarConfigAfiliacao} className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">
-                        Salvar Configurações
-                      </button>
+                      <button onClick={salvarConfigAfiliacao} className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">Salvar Configurações</button>
                     </>
                   )}
                 </div>
@@ -1058,32 +754,6 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
                         {paginasOfertas.map((p) => <option key={p.id} value={p.id}>{p.nome}</option>)}
                       </select>
                     </div>
-                    <div className="mb-4">
-                      <label className="flex items-center space-x-2 cursor-pointer">
-                        <input type="checkbox" checked={formCampanha.testeAB} onChange={(e) => setFormCampanha({...formCampanha, testeAB: e.target.checked})} className="w-4 h-4" />
-                        <span className="text-sm font-semibold text-gray-900">Ativar Teste A/B</span>
-                      </label>
-                    </div>
-                    {formCampanha.testeAB && (
-                      <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                        <div className="grid md:grid-cols-2 gap-4 mb-3">
-                          <div>
-                            <label className="block text-sm font-semibold text-gray-900 mb-2">Página Alternativa *</label>
-                            <select value={formCampanha.paginaAlternativaId} onChange={(e) => setFormCampanha({...formCampanha, paginaAlternativaId: e.target.value})} required={formCampanha.testeAB} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900">
-                              <option value="">Selecione outra página</option>
-                              {paginasOfertas.filter(p => p.id !== formCampanha.paginaOfertaId).map((pagina) => (
-                                <option key={pagina.id} value={pagina.id}>{pagina.nome}</option>
-                              ))}
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-semibold text-gray-900 mb-2">% Tráfego Página Principal</label>
-                            <input type="number" min="0" max="100" value={formCampanha.distribuicao} onChange={(e) => setFormCampanha({...formCampanha, distribuicao: parseInt(e.target.value) || 50})} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900" />
-                            <p className="text-xs text-gray-500 mt-1">Página alternativa receberá {100 - formCampanha.distribuicao}%</p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
                     <div className="grid md:grid-cols-2 gap-4 mb-4">
                       <input type="text" value={formCampanha.nome} onChange={(e) => setFormCampanha({...formCampanha, nome: e.target.value})} placeholder="Nome" required className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900" />
                       <select value={formCampanha.plataforma} onChange={(e) => setFormCampanha({...formCampanha, plataforma: e.target.value})} className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900">
@@ -1093,10 +763,6 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
                         <option value="KWAI">Kwai</option>
                       </select>
                     </div>
-                    {formCampanha.plataforma === 'FACEBOOK' && <div className="grid md:grid-cols-2 gap-4 mb-4"><input type="text" value={formCampanha.pixelId || ""} onChange={(e) => setFormCampanha({...formCampanha, pixelId: e.target.value})} placeholder="Pixel ID" className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900" /><input type="text" value={formCampanha.accessToken || ""} onChange={(e) => setFormCampanha({...formCampanha, accessToken: e.target.value})} placeholder="Access Token" className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900" /></div>}
-                    {formCampanha.plataforma === 'GOOGLE' && <input type="text" value={formCampanha.conversionId || ""} onChange={(e) => setFormCampanha({...formCampanha, conversionId: e.target.value})} placeholder="Conversion ID" className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900 mb-4" />}
-                    {formCampanha.plataforma === 'TIKTOK' && <div className="grid md:grid-cols-2 gap-4 mb-4"><input type="text" value={formCampanha.pixelId || ""} onChange={(e) => setFormCampanha({...formCampanha, pixelId: e.target.value})} placeholder="Pixel ID" className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900" /><input type="text" value={formCampanha.eventToken || ""} onChange={(e) => setFormCampanha({...formCampanha, eventToken: e.target.value})} placeholder="Event Token" className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900" /></div>}
-                    {formCampanha.plataforma === 'KWAI' && <input type="text" value={formCampanha.pixelId || ""} onChange={(e) => setFormCampanha({...formCampanha, pixelId: e.target.value})} placeholder="Pixel ID" className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900 mb-4" />}
                     <button type="submit" className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">Criar</button>
                   </form>
                 )}
@@ -1127,8 +793,7 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
               </div>
             </div>
           )}
-
-          {abaSelecionada === 'checkout' && (
+{abaSelecionada === 'checkout' && (
             <div className="max-w-6xl mx-auto">
               <div className="bg-white rounded-xl border border-gray-200 p-8">
                 <div className="flex items-center justify-between mb-6">
@@ -1137,8 +802,7 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
                     <p className="text-gray-600">Crie planos com checkouts personalizados</p>
                   </div>
                   <button onClick={() => setModalPlano({ aberto: true, plano: null })} className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition flex items-center space-x-2">
-                    <Plus size={20} />
-                    <span>Criar Plano</span>
+                    <Plus size={20} /><span>Criar Plano</span>
                   </button>
                 </div>
 
@@ -1147,15 +811,12 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
                     <Package size={64} className="mx-auto text-gray-300 mb-4" />
                     <h3 className="text-xl font-bold text-gray-900 mb-2">Nenhum plano criado</h3>
                     <p className="text-gray-600 mb-6">Crie diferentes planos com checkouts personalizados</p>
-                    <button onClick={() => setModalPlano({ aberto: true, plano: null })} className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">
-                      Criar Primeiro Plano
-                    </button>
+                    <button onClick={() => setModalPlano({ aberto: true, plano: null })} className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">Criar Primeiro Plano</button>
                   </div>
                 ) : (
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {planos.map((plano) => (
                       <div key={plano.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow">
-                        {/* Header do card */}
                         <div className="p-5 border-b border-gray-100">
                           <div className="flex items-start justify-between mb-3">
                             <div className="flex-1 min-w-0">
@@ -1166,11 +827,7 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
                                   if (e.target.value === plano.nome) return;
                                   try {
                                     const token = localStorage.getItem('token');
-                                    await fetch(`/api/planos/${plano.id}`, {
-                                      method: 'PATCH',
-                                      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-                                      body: JSON.stringify({ nome: e.target.value })
-                                    });
+                                    await fetch(`/api/planos/${plano.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify({ nome: e.target.value }) });
                                     carregarPlanos();
                                   } catch (error) { alert('❌ Erro ao atualizar'); }
                                 }}
@@ -1184,11 +841,7 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
                                   if (e.target.value === plano.descricao) return;
                                   try {
                                     const token = localStorage.getItem('token');
-                                    await fetch(`/api/planos/${plano.id}`, {
-                                      method: 'PATCH',
-                                      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-                                      body: JSON.stringify({ descricao: e.target.value })
-                                    });
+                                    await fetch(`/api/planos/${plano.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify({ descricao: e.target.value }) });
                                     carregarPlanos();
                                   } catch (error) { alert('❌ Erro ao atualizar'); }
                                 }}
@@ -1199,63 +852,35 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
                               {plano.ativo ? 'Ativo' : 'Inativo'}
                             </span>
                           </div>
-                          <div className="text-2xl font-bold text-purple-600">
-                            R$ {plano.preco.toFixed(2).replace('.', ',')}
-                          </div>
+                          <div className="text-2xl font-bold text-purple-600">R$ {plano.preco.toFixed(2).replace('.', ',')}</div>
                         </div>
 
-                        {/* Link */}
                         <div className="px-5 py-3 bg-gray-50 border-b border-gray-100">
                           <div className="flex items-center gap-2">
-                            <code className="flex-1 text-xs text-gray-500 truncate font-mono">
-                              /checkout/{plano.linkUnico}
-                            </code>
-                            <button
-                              onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/checkout/${plano.linkUnico}`); alert('Link copiado!'); }}
-                              className="flex-shrink-0 p-1.5 hover:bg-gray-200 rounded-lg transition"
-                              title="Copiar link"
-                            >
+                            <code className="flex-1 text-xs text-gray-500 truncate font-mono">/checkout/{plano.linkUnico}</code>
+                            <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/checkout/${plano.linkUnico}`); alert('Link copiado!'); }} className="flex-shrink-0 p-1.5 hover:bg-gray-200 rounded-lg transition" title="Copiar link">
                               <Copy size={14} className="text-gray-500" />
                             </button>
                           </div>
                         </div>
 
-                        {/* Ações */}
                         <div className="p-4 space-y-2">
                           <div className="grid grid-cols-2 gap-2">
-                            <button
-                              onClick={() => setModalConfig({ aberto: true, planoId: plano.id, tipo: 'NORMAL' })}
-                              className="px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-xs font-semibold flex items-center justify-center gap-1"
-                            >
+                            <button onClick={() => setModalConfig({ aberto: true, planoId: plano.id, tipo: 'NORMAL' })} className="px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-xs font-semibold flex items-center justify-center gap-1">
                               ⚙️ Checkout Normal
                             </button>
-                            <button
-                              onClick={() => setModalConfig({ aberto: true, planoId: plano.id, tipo: 'PAD' })}
-                              className="px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition text-xs font-semibold flex items-center justify-center gap-1"
-                            >
+                            <button onClick={() => setModalConfig({ aberto: true, planoId: plano.id, tipo: 'PAD' })} className="px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition text-xs font-semibold flex items-center justify-center gap-1">
                               💳 Checkout PAD
                             </button>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
-                            <button
-                              onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/pad/checkout-plano/${plano.id}`); alert('Link PAD copiado!'); }}
-                              className="col-span-1 px-3 py-2 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition text-xs font-semibold flex items-center justify-center gap-1"
-                              title="Copiar link PAD"
-                            >
+                            <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/pad/checkout-plano/${plano.id}`); alert('Link PAD copiado!'); }} className="col-span-1 px-3 py-2 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition text-xs font-semibold flex items-center justify-center gap-1" title="Copiar link PAD">
                               <Copy size={13} /> PAD
                             </button>
-                            <button
-                              onClick={() => setModalPlano({ aberto: true, plano })}
-                              className="col-span-1 px-3 py-2 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition text-xs font-semibold flex items-center justify-center gap-1"
-                              title="Editar plano"
-                            >
+                            <button onClick={() => setModalPlano({ aberto: true, plano })} className="col-span-1 px-3 py-2 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition text-xs font-semibold flex items-center justify-center gap-1" title="Editar plano">
                               <Edit size={13} /> Editar
                             </button>
-                            <button
-                              onClick={() => handleExcluirPlano(plano.id)}
-                              className="col-span-1 px-3 py-2 border border-red-200 text-red-500 rounded-lg hover:bg-red-50 transition text-xs font-semibold flex items-center justify-center gap-1"
-                              title="Excluir plano"
-                            >
+                            <button onClick={() => handleExcluirPlano(plano.id)} className="col-span-1 px-3 py-2 border border-red-200 text-red-500 rounded-lg hover:bg-red-50 transition text-xs font-semibold flex items-center justify-center gap-1" title="Excluir plano">
                               <Trash2 size={13} /> Excluir
                             </button>
                           </div>
@@ -1263,137 +888,13 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
                       </div>
                     ))}
                   </div>
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex-1">
-                            <input
-  type="text"
-  defaultValue={plano.nome}
-  onBlur={async (e) => {
-    if (e.target.value === plano.nome) return;
-    try {
-      const token = localStorage.getItem('token');
-      await fetch(`/api/planos/${plano.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
-        },
-        body: JSON.stringify({ nome: e.target.value })
-      });
-      alert('✅ Nome atualizado!');
-      carregarPlanos();
-    } catch (error) {
-      alert('❌ Erro ao atualizar');
-    }
-  }}
-  className="text-lg font-bold text-gray-900 mb-1 w-full border-2 border-transparent hover:border-purple-300 focus:border-purple-500 rounded px-2 py-1 outline-none transition"
-/>
-                            <input
-  type="text"
-  defaultValue={plano.descricao || ''}
-  placeholder="Adicionar descrição..."
-  onBlur={async (e) => {
-    if (e.target.value === plano.descricao) return;
-    try {
-      const token = localStorage.getItem('token');
-      await fetch(`/api/planos/${plano.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
-        },
-        body: JSON.stringify({ descricao: e.target.value })
-      });
-      alert('✅ Descrição atualizada!');
-      carregarPlanos();
-    } catch (error) {
-      alert('❌ Erro ao atualizar');
-    }
-  }}
-  className="text-sm text-gray-600 mb-2 w-full border-2 border-transparent hover:border-purple-300 focus:border-purple-500 rounded px-2 py-1 outline-none transition"
-/>
-                            <div className="text-2xl font-bold text-purple-600">
-                              R$ {plano.preco.toFixed(2).replace('.', ',')}
-                            </div>
-                          </div>
-                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${plano.ativo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
-                            {plano.ativo ? 'ATIVO' : 'INATIVO'}
-                          </span>
-                        </div>
-
-                        <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-                          <div className="text-xs text-gray-600 mb-1">Link do Checkout</div>
-                          <div className="flex items-center space-x-2">
-                            <code className="flex-1 text-xs text-gray-900 truncate font-mono">
-                              /checkout/{plano.linkUnico}
-                            </code>
-                            <button onClick={() => {
-                              navigator.clipboard.writeText(`${window.location.origin}/checkout/${plano.linkUnico}`);
-                              alert('Link copiado!');
-                            }} className="p-2 hover:bg-gray-200 rounded transition">
-                              <Copy size={16} className="text-gray-600" />
-                            </button>
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-  <div className="flex gap-2">
-    <button onClick={() => setModalConfig({ aberto: true, planoId: plano.id, tipo: 'NORMAL' })} className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm font-semibold">
-  ⚙️ Checkout Normal
-</button>
-<button onClick={() => setModalConfig({ aberto: true, planoId: plano.id, tipo: 'PAD' })} className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-semibold">
-  💳 Checkout PAD
-</button>
-    <button 
-  onClick={() => {
-    setFormPixel({
-      titulo: pixel.titulo,
-      plataforma: pixel.plataforma,
-      pixelId: pixel.pixelId,
-      tokenAPI: pixel.tokenAPI || '',
-      eventoCheckout: pixel.eventoCheckout,
-      eventoCompra: pixel.eventoCompra,
-      eventoPAD: pixel.eventoPAD,
-      condicaoPix: pixel.condicaoPix,
-      condicaoBoleto: pixel.condicaoBoleto,
-      condicaoPAD: pixel.condicaoPAD,
-      condicaoPagamentoAprovado: pixel.condicaoPagamentoAprovado
-    });
-    setModalPixel({ aberto: true, pixel });
-  }} 
-  className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
->
-  <Edit size={16} />
-</button>
-    <button onClick={() => handleExcluirPlano(plano.id)} className="px-4 py-2 border-2 border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition">
-      <Trash2 size={16} />
-    </button>
-  </div>
-  <button 
-  onClick={() => {
-    // Criar link do checkout PAD para este plano específico
-    const link = `${window.location.origin}/pad/checkout-plano/${plano.id}`;
-    navigator.clipboard.writeText(link);
-    alert(`✅ Link do Checkout PAD copiado!\n\n${link}\n\nVocê pode usar este link para criar pedidos PAD com o valor de R$ ${plano.preco.toFixed(2)}`);
-  }} 
-  className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-semibold"
->
-  💳 Copiar Link Checkout PAD
-</button>
-</div>
-                      </div>
-                    ))}
-                  </div>
                 )}
               </div>
 
-              {/* MODAL CRIAR/EDITAR PLANO */}
               {modalPlano.aberto && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setModalPlano({ aberto: false, plano: null })}>
                   <div className="bg-white rounded-2xl p-8 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-6">
-                      {modalPlano.plano ? 'Editar Plano' : 'Criar Novo Plano'}
-                    </h3>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-6">{modalPlano.plano ? 'Editar Plano' : 'Criar Novo Plano'}</h3>
                     <form onSubmit={handleSalvarPlano} className="space-y-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-900 mb-2">Nome do Plano *</label>
@@ -1412,72 +913,38 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
                         <span className="text-sm text-gray-700">Plano ativo</span>
                       </div>
                       <div className="flex gap-3 pt-4">
-                        <button type="button" onClick={() => setModalPlano({ aberto: false, plano: null })} className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition">
-                          Cancelar
-                        </button>
-                        <button type="submit" className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">
-                          {modalPlano.plano ? 'Salvar' : 'Criar'}
-                        </button>
+                        <button type="button" onClick={() => setModalPlano({ aberto: false, plano: null })} className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition">Cancelar</button>
+                        <button type="submit" className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">{modalPlano.plano ? 'Salvar' : 'Criar'}</button>
                       </div>
                     </form>
                   </div>
                 </div>
               )}
 
-              {/* MODAL CONFIGURAR CHECKOUT */}
               {modalConfig.aberto && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto" onClick={() => setModalConfig({ aberto: false, planoId: null })}>
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto" onClick={() => setModalConfig({ aberto: false, planoId: null, tipo: 'NORMAL' })}>
                   <div className="bg-white rounded-2xl p-8 max-w-4xl w-full my-8" onClick={(e) => e.stopPropagation()}>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-6">
-  {modalConfig.tipo === 'NORMAL' ? '⚙️ Configurar Checkout Normal' : '💳 Configurar Checkout PAD'}
-</h3>
-                    
+                    <h3 className="text-2xl font-bold text-gray-900 mb-6">{modalConfig.tipo === 'NORMAL' ? '⚙️ Configurar Checkout Normal' : '💳 Configurar Checkout PAD'}</h3>
                     <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-4">
-
                       {modalConfig.tipo === 'NORMAL' && (
                         <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
                           <h4 className="font-bold text-gray-900 mb-3">🖥️ Versão do Checkout</h4>
                           <div className="grid grid-cols-2 gap-3">
-                            <button
-                              type="button"
-                              onClick={() => setConfigPlano({...configPlano, checkoutVersao: 'v1'})}
-                              className={`p-4 rounded-xl border-2 text-left transition ${!configPlano.checkoutVersao || configPlano.checkoutVersao === 'v1' ? 'border-purple-600 bg-purple-50' : 'border-gray-200 hover:border-purple-300'}`}
-                            >
-                              <div className="text-2xl mb-2">🟣</div>
-                              <div className="font-bold text-gray-900">Versão 1</div>
-                              <div className="text-xs text-gray-500 mt-1">Layout clássico com card central e gradiente</div>
+                            <button type="button" onClick={() => setConfigPlano({...configPlano, checkoutVersao: 'v1'})} className={`p-4 rounded-xl border-2 text-left transition ${!configPlano.checkoutVersao || configPlano.checkoutVersao === 'v1' ? 'border-purple-600 bg-purple-50' : 'border-gray-200 hover:border-purple-300'}`}>
+                              <div className="text-2xl mb-2">🟣</div><div className="font-bold text-gray-900">Versão 1</div><div className="text-xs text-gray-500 mt-1">Layout clássico com card central e gradiente</div>
                             </button>
-                            <button
-                              type="button"
-                              onClick={() => setConfigPlano({...configPlano, checkoutVersao: 'v2'})}
-                              className={`p-4 rounded-xl border-2 text-left transition ${configPlano.checkoutVersao === 'v2' ? 'border-green-600 bg-green-50' : 'border-gray-200 hover:border-green-300'}`}
-                            >
-                              <div className="text-2xl mb-2">🟢</div>
-                              <div className="font-bold text-gray-900">Versão 2</div>
-                              <div className="text-xs text-gray-500 mt-1">Layout moderno com steps numerados e fundo cinza</div>
+                            <button type="button" onClick={() => setConfigPlano({...configPlano, checkoutVersao: 'v2'})} className={`p-4 rounded-xl border-2 text-left transition ${configPlano.checkoutVersao === 'v2' ? 'border-green-600 bg-green-50' : 'border-gray-200 hover:border-green-300'}`}>
+                              <div className="text-2xl mb-2">🟢</div><div className="font-bold text-gray-900">Versão 2</div><div className="text-xs text-gray-500 mt-1">Layout moderno com steps numerados e fundo cinza</div>
                             </button>
-                            <button
-                              type="button"
-                              onClick={() => setConfigPlano({...configPlano, checkoutVersao: 'v3'})}
-                              className={`p-4 rounded-xl border-2 text-left transition ${configPlano.checkoutVersao === 'v3' ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-blue-300'}`}
-                            >
-                              <div className="text-2xl mb-2">🔵</div>
-                              <div className="font-bold text-gray-900">Versão 3</div>
-                              <div className="text-xs text-gray-500 mt-1">One-page clean e profissional</div>
+                            <button type="button" onClick={() => setConfigPlano({...configPlano, checkoutVersao: 'v3'})} className={`p-4 rounded-xl border-2 text-left transition ${configPlano.checkoutVersao === 'v3' ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-blue-300'}`}>
+                              <div className="text-2xl mb-2">🔵</div><div className="font-bold text-gray-900">Versão 3</div><div className="text-xs text-gray-500 mt-1">One-page clean e profissional</div>
                             </button>
-                            <button
-                              type="button"
-                              onClick={() => setConfigPlano({...configPlano, checkoutVersao: 'v4'})}
-                              className={`p-4 rounded-xl border-2 text-left transition ${configPlano.checkoutVersao === 'v4' ? 'border-yellow-600 bg-yellow-50' : 'border-gray-200 hover:border-yellow-300'}`}
-                            >
-                              <div className="text-2xl mb-2">⚡</div>
-                              <div className="font-bold text-gray-900">Versão 4 — Digital</div>
-                              <div className="text-xs text-gray-500 mt-1">One-page sem endereço, ideal para ebooks e cursos</div>
+                            <button type="button" onClick={() => setConfigPlano({...configPlano, checkoutVersao: 'v4'})} className={`p-4 rounded-xl border-2 text-left transition ${configPlano.checkoutVersao === 'v4' ? 'border-yellow-600 bg-yellow-50' : 'border-gray-200 hover:border-yellow-300'}`}>
+                              <div className="text-2xl mb-2">⚡</div><div className="font-bold text-gray-900">Versão 4 — Digital</div><div className="text-xs text-gray-500 mt-1">One-page sem endereço, ideal para ebooks e cursos</div>
                             </button>
                           </div>
                         </div>
                       )}
-
                       <div className="space-y-4">
                         <h4 className="font-bold text-gray-900">🎨 Imagens</h4>
                         <div>
@@ -1495,7 +962,6 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
                           </div>
                         </div>
                       </div>
-
                       <div className="grid md:grid-cols-2 gap-4 pt-4 border-t">
                         <div>
                           <label className="block text-sm font-semibold text-gray-900 mb-2">Cor Primária</label>
@@ -1506,106 +972,73 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
                           <input type="color" value={configPlano.checkoutCorSecundaria} onChange={(e) => setConfigPlano({...configPlano, checkoutCorSecundaria: e.target.value})} className="w-full h-12 rounded-lg cursor-pointer" />
                         </div>
                       </div>
-<div className="pt-4 border-t">
+                      <div className="pt-4 border-t">
                         <h4 className="font-bold text-gray-900 mb-4">⏰ Cronômetro de Urgência</h4>
-                        <div className="space-y-4">
-                          <label className="flex items-center justify-between p-4 bg-gray-50 rounded-lg cursor-pointer">
+                        <label className="flex items-center justify-between p-4 bg-gray-50 rounded-lg cursor-pointer">
+                          <div><div className="font-semibold text-gray-900">Ativar Cronômetro</div><div className="text-sm text-gray-600">Cria senso de urgência no checkout</div></div>
+                          <input type="checkbox" checked={configPlano.checkoutCronometro} onChange={(e) => setConfigPlano({...configPlano, checkoutCronometro: e.target.checked})} className="w-5 h-5" />
+                        </label>
+                        {configPlano.checkoutCronometro && (
+                          <div className="grid md:grid-cols-2 gap-4 mt-4">
                             <div>
-                              <div className="font-semibold text-gray-900">Ativar Cronômetro</div>
-                              <div className="text-sm text-gray-600">Cria senso de urgência no checkout</div>
+                              <label className="block text-sm font-semibold text-gray-900 mb-2">Tempo (minutos)</label>
+                              <input type="number" min="1" value={configPlano.checkoutTempoMinutos} onChange={(e) => setConfigPlano({...configPlano, checkoutTempoMinutos: parseInt(e.target.value)})} className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900" />
                             </div>
-                            <input type="checkbox" checked={configPlano.checkoutCronometro} onChange={(e) => setConfigPlano({...configPlano, checkoutCronometro: e.target.checked})} className="w-5 h-5" />
-                          </label>
-                          {configPlano.checkoutCronometro && (
-                            <div className="grid md:grid-cols-2 gap-4">
-                              <div>
-                                <label className="block text-sm font-semibold text-gray-900 mb-2">Tempo (minutos)</label>
-                                <input type="number" min="1" value={configPlano.checkoutTempoMinutos} onChange={(e) => setConfigPlano({...configPlano, checkoutTempoMinutos: parseInt(e.target.value)})} className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900" />
-                              </div>
-                              <div>
-                                <label className="block text-sm font-semibold text-gray-900 mb-2">Mensagem</label>
-                                <input type="text" value={configPlano.checkoutMensagemUrgencia} onChange={(e) => setConfigPlano({...configPlano, checkoutMensagemUrgencia: e.target.value})} placeholder="Oferta expira em..." className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900" />
-                              </div>
+                            <div>
+                              <label className="block text-sm font-semibold text-gray-900 mb-2">Mensagem</label>
+                              <input type="text" value={configPlano.checkoutMensagemUrgencia} onChange={(e) => setConfigPlano({...configPlano, checkoutMensagemUrgencia: e.target.value})} placeholder="Oferta expira em..." className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900" />
                             </div>
-                          )}
-                        </div>
+                          </div>
+                        )}
                       </div>
-
                       <div className="pt-4 border-t">
                         <h4 className="font-bold text-gray-900 mb-4">👥 Prova Social (Pop-ups)</h4>
-                        <div className="space-y-4">
-                          <label className="flex items-center justify-between p-4 bg-gray-50 rounded-lg cursor-pointer">
+                        <label className="flex items-center justify-between p-4 bg-gray-50 rounded-lg cursor-pointer">
+                          <div><div className="font-semibold text-gray-900">Ativar Pop-ups de Compra</div><div className="text-sm text-gray-600">Ex: "João acabou de comprar..."</div></div>
+                          <input type="checkbox" checked={configPlano.checkoutProvaSocial} onChange={(e) => setConfigPlano({...configPlano, checkoutProvaSocial: e.target.checked})} className="w-5 h-5" />
+                        </label>
+                        {configPlano.checkoutProvaSocial && (
+                          <div className="mt-4 space-y-4">
                             <div>
-                              <div className="font-semibold text-gray-900">Ativar Pop-ups de Compra</div>
-                              <div className="text-sm text-gray-600">Ex: "João acabou de comprar..."</div>
+                              <label className="block text-sm font-semibold text-gray-900 mb-2">Intervalo (segundos)</label>
+                              <input type="number" min="3" value={configPlano.checkoutIntervaloPop} onChange={(e) => setConfigPlano({...configPlano, checkoutIntervaloPop: parseInt(e.target.value)})} className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900" />
                             </div>
-                            <input type="checkbox" checked={configPlano.checkoutProvaSocial} onChange={(e) => setConfigPlano({...configPlano, checkoutProvaSocial: e.target.checked})} className="w-5 h-5" />
-                          </label>
-                          {configPlano.checkoutProvaSocial && (
-                            <>
-                              <div>
-                                <label className="block text-sm font-semibold text-gray-900 mb-2">Intervalo (segundos)</label>
-                                <input type="number" min="3" value={configPlano.checkoutIntervaloPop} onChange={(e) => setConfigPlano({...configPlano, checkoutIntervaloPop: parseInt(e.target.value)})} className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900" />
-                              </div>
-                              <div>
-                                <label className="block text-sm font-semibold text-gray-900 mb-2">Gênero dos Compradores</label>
-                                <select value={configPlano.checkoutProvaSocialGenero} onChange={(e) => setConfigPlano({...configPlano, checkoutProvaSocialGenero: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900">
-                                  <option value="AMBOS">👨👩 Ambos (Homens e Mulheres)</option>
-                                  <option value="HOMENS">👨 Apenas Homens</option>
-                                  <option value="MULHERES">👩 Apenas Mulheres</option>
-                                </select>
-                              </div>
-                            </>
-                          )}
-                        </div>
+                            <div>
+                              <label className="block text-sm font-semibold text-gray-900 mb-2">Gênero dos Compradores</label>
+                              <select value={configPlano.checkoutProvaSocialGenero} onChange={(e) => setConfigPlano({...configPlano, checkoutProvaSocialGenero: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900">
+                                <option value="AMBOS">👨👩 Ambos</option>
+                                <option value="HOMENS">👨 Apenas Homens</option>
+                                <option value="MULHERES">👩 Apenas Mulheres</option>
+                              </select>
+                            </div>
+                          </div>
+                        )}
                       </div>
-
                       <div className="pt-4 border-t">
                         <h4 className="font-bold text-gray-900 mb-4">💳 Métodos de Pagamento</h4>
                         <div className="grid grid-cols-3 gap-4">
                           <label className="flex items-center space-x-2 p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-                            <input type="checkbox" checked={configPlano.checkoutAceitaPix} onChange={(e) => setConfigPlano({...configPlano, checkoutAceitaPix: e.target.checked})} className="w-5 h-5" />
-                            <span>PIX</span>
+                            <input type="checkbox" checked={configPlano.checkoutAceitaPix} onChange={(e) => setConfigPlano({...configPlano, checkoutAceitaPix: e.target.checked})} className="w-5 h-5" /><span>PIX</span>
                           </label>
                           <label className="flex items-center space-x-2 p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-                            <input type="checkbox" checked={configPlano.checkoutAceitaCartao} onChange={(e) => setConfigPlano({...configPlano, checkoutAceitaCartao: e.target.checked})} className="w-5 h-5" />
-                            <span>Cartão</span>
+                            <input type="checkbox" checked={configPlano.checkoutAceitaCartao} onChange={(e) => setConfigPlano({...configPlano, checkoutAceitaCartao: e.target.checked})} className="w-5 h-5" /><span>Cartão</span>
                           </label>
                           <label className="flex items-center space-x-2 p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-                            <input type="checkbox" checked={configPlano.checkoutAceitaBoleto} onChange={(e) => setConfigPlano({...configPlano, checkoutAceitaBoleto: e.target.checked})} className="w-5 h-5" />
-                            <span>Boleto</span>
+                            <input type="checkbox" checked={configPlano.checkoutAceitaBoleto} onChange={(e) => setConfigPlano({...configPlano, checkoutAceitaBoleto: e.target.checked})} className="w-5 h-5" /><span>Boleto</span>
                           </label>
                         </div>
                       </div>
-                    </div>
-
-                    {modalConfig.tipo === 'NORMAL' && (
+                      {modalConfig.tipo === 'NORMAL' && (
                         <div className="pt-4 border-t">
                           <h4 className="font-bold text-gray-900 mb-4">⚡ Order Bumps</h4>
                           {orderBumps.length === 0 ? (
-                            <div className="p-4 bg-gray-50 rounded-lg text-center text-gray-600 text-sm">
-                              Nenhum order bump cadastrado. Crie na aba ⚡ Order Bumps.
-                            </div>
+                            <div className="p-4 bg-gray-50 rounded-lg text-center text-gray-600 text-sm">Nenhum order bump cadastrado. Crie na aba ⚡ Order Bumps.</div>
                           ) : (
                             <div className="space-y-2">
                               {orderBumps.map((ob) => (
                                 <label key={ob.id} className="flex items-center space-x-3 p-4 border-2 rounded-xl cursor-pointer hover:border-purple-300 transition">
-                                  <input
-                                    type="checkbox"
-                                    checked={orderBumpsSelecionados.includes(ob.id)}
-                                    onChange={(e) => {
-                                      if (e.target.checked) {
-                                        setOrderBumpsSelecionados([...orderBumpsSelecionados, ob.id]);
-                                      } else {
-                                        setOrderBumpsSelecionados(orderBumpsSelecionados.filter(id => id !== ob.id));
-                                      }
-                                    }}
-                                    className="w-5 h-5"
-                                  />
-                                  <div className="flex-1">
-                                    <div className="font-semibold text-gray-900">{ob.titulo}</div>
-                                    {ob.descricao && <div className="text-sm text-gray-600">{ob.descricao}</div>}
-                                  </div>
+                                  <input type="checkbox" checked={orderBumpsSelecionados.includes(ob.id)} onChange={(e) => { if (e.target.checked) { setOrderBumpsSelecionados([...orderBumpsSelecionados, ob.id]); } else { setOrderBumpsSelecionados(orderBumpsSelecionados.filter(id => id !== ob.id)); }}} className="w-5 h-5" />
+                                  <div className="flex-1"><div className="font-semibold text-gray-900">{ob.titulo}</div>{ob.descricao && <div className="text-sm text-gray-600">{ob.descricao}</div>}</div>
                                   <div className="text-purple-600 font-bold">+ R$ {ob.preco.toFixed(2).replace('.', ',')}</div>
                                 </label>
                               ))}
@@ -1613,139 +1046,81 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
                           )}
                         </div>
                       )}
-
+                    </div>
                     <div className="flex gap-3 pt-6 border-t mt-6">
-                      <button type="button" onClick={() => setModalConfig({ aberto: false, planoId: null })} className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition">
-                        Cancelar
-                      </button>
-                      <button onClick={handleSalvarConfigPlano} className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">
-                        💾 Salvar Configurações
-                      </button>
-                     </div>
+                      <button type="button" onClick={() => setModalConfig({ aberto: false, planoId: null, tipo: 'NORMAL' })} className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition">Cancelar</button>
+                      <button onClick={handleSalvarConfigPlano} className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">💾 Salvar Configurações</button>
+                    </div>
                   </div>
                 </div>
               )}
             </div>
           )}
-          {abaSelecionada === 'pixels' && (
-  <div className="max-w-6xl mx-auto">
-    <div className="bg-white rounded-xl border border-gray-200 p-8">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">📊 Pixels de Conversão</h2>
-          <p className="text-gray-600">Configure os pixels para rastrear conversões</p>
-        </div>
-        <button 
-          onClick={() => setModalPixel({ aberto: true, pixel: null })} 
-          className="px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold hover:bg-yellow-600 transition flex items-center space-x-2"
-        >
-          <Plus size={20} />
-          <span>Novo Pixel</span>
-        </button>
-      </div>
-
-      {pixels.length === 0 ? (
-        <div className="text-center py-16 bg-gray-50 rounded-xl">
-          <BarChart3 size={64} className="mx-auto text-gray-300 mb-4" />
-          <h3 className="text-xl font-bold text-gray-900 mb-2">Nenhum pixel configurado</h3>
-          <p className="text-gray-600 mb-6">Adicione pixels para rastrear conversões do Facebook, Google, TikTok e Kwai</p>
-          <button 
-            onClick={() => setModalPixel({ aberto: true, pixel: null })} 
-            className="px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold hover:bg-yellow-600 transition"
-          >
-            Adicionar Primeiro Pixel
-          </button>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {pixels.map((pixel: any) => (
-            <div key={pixel.id} className="border-2 border-gray-200 rounded-xl p-6 hover:border-yellow-400 transition">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-3 mb-2">
-                    <h3 className="text-lg font-bold text-gray-900">{pixel.titulo}</h3>
-                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
-                      {pixel.plataforma}
-                    </span>
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                      pixel.status === 'ATIVO' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-                    }`}>
-                      {pixel.status}
-                    </span>
+{abaSelecionada === 'pixels' && (
+            <div className="max-w-6xl mx-auto">
+              <div className="bg-white rounded-xl border border-gray-200 p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">📊 Pixels de Conversão</h2>
+                    <p className="text-gray-600">Configure os pixels para rastrear conversões</p>
                   </div>
-                  <p className="text-sm text-gray-600">Pixel ID: {pixel.pixelId}</p>
-                </div>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => {
-  setFormPixel({
-    titulo: pixel.titulo,
-    plataforma: pixel.plataforma,
-    pixelId: pixel.pixelId,
-    tokenAPI: pixel.tokenAPI || '',
-    eventoCheckout: pixel.eventoCheckout,
-    eventoCompra: pixel.eventoCompra,
-    eventoPAD: pixel.eventoPAD,
-    condicaoPix: pixel.condicaoPix,
-    condicaoBoleto: pixel.condicaoBoleto,
-    condicaoPAD: pixel.condicaoPAD,
-    condicaoPagamentoAprovado: pixel.condicaoPagamentoAprovado
-  });
-  setModalPixel({ aberto: true, pixel });
-}} 
-                    className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
-                  >
-                    <Edit size={16} />
-                  </button>
-                  <button 
-                    onClick={async () => {
-                      if (!confirm('Excluir este pixel?')) return;
-                      try {
-                        const token = localStorage.getItem('token');
-                        await fetch(`/api/pixels/${pixel.id}`, {
-                          method: 'DELETE',
-                          headers: { 'Authorization': 'Bearer ' + token }
-                        });
-                        alert('Pixel excluído!');
-                        carregarPixels();
-                      } catch (error) {
-                        alert('Erro ao excluir pixel');
-                      }
-                    }}
-                    className="px-4 py-2 border-2 border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition"
-                  >
-                    <Trash2 size={16} />
+                  <button onClick={() => setModalPixel({ aberto: true, pixel: null })} className="px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold hover:bg-yellow-600 transition flex items-center space-x-2">
+                    <Plus size={20} /><span>Novo Pixel</span>
                   </button>
                 </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4 text-sm">
-                <div className="space-y-2">
-                  <h4 className="font-semibold text-gray-900">🎯 Eventos de Ativação</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {pixel.eventoCheckout && <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs">InitiateCheckout</span>}
-                    {pixel.eventoCompra && <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Purchase</span>}
-                    {pixel.eventoPAD && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Pedido PAD</span>}
+                {pixels.length === 0 ? (
+                  <div className="text-center py-16 bg-gray-50 rounded-xl">
+                    <BarChart3 size={64} className="mx-auto text-gray-300 mb-4" />
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">Nenhum pixel configurado</h3>
+                    <p className="text-gray-600 mb-6">Adicione pixels para rastrear conversões do Facebook, Google, TikTok e Kwai</p>
+                    <button onClick={() => setModalPixel({ aberto: true, pixel: null })} className="px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold hover:bg-yellow-600 transition">Adicionar Primeiro Pixel</button>
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <h4 className="font-semibold text-gray-900">✅ Condições para Ativação</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {pixel.condicaoPix && <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">Pix</span>}
-                    {pixel.condicaoBoleto && <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs">Boleto</span>}
-                    {pixel.condicaoPAD && <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">PAD</span>}
-                    {pixel.condicaoPagamentoAprovado && <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Pagamento Aprovado</span>}
+                ) : (
+                  <div className="space-y-4">
+                    {pixels.map((pixel: any) => (
+                      <div key={pixel.id} className="border-2 border-gray-200 rounded-xl p-6 hover:border-yellow-400 transition">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-3 mb-2">
+                              <h3 className="text-lg font-bold text-gray-900">{pixel.titulo}</h3>
+                              <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">{pixel.plataforma}</span>
+                              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${pixel.status === 'ATIVO' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>{pixel.status}</span>
+                            </div>
+                            <p className="text-sm text-gray-600">Pixel ID: {pixel.pixelId}</p>
+                          </div>
+                          <div className="flex gap-2">
+                            <button onClick={() => { setFormPixel({ titulo: pixel.titulo, plataforma: pixel.plataforma, pixelId: pixel.pixelId, tokenAPI: pixel.tokenAPI || '', eventoCheckout: pixel.eventoCheckout, eventoCompra: pixel.eventoCompra, eventoPAD: pixel.eventoPAD, condicaoPix: pixel.condicaoPix, condicaoBoleto: pixel.condicaoBoleto, condicaoPAD: pixel.condicaoPAD, condicaoPagamentoAprovado: pixel.condicaoPagamentoAprovado }); setModalPixel({ aberto: true, pixel }); }} className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"><Edit size={16} /></button>
+                            <button onClick={async () => { if (!confirm('Excluir este pixel?')) return; try { const token = localStorage.getItem('token'); await fetch(`/api/pixels/${pixel.id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } }); alert('Pixel excluído!'); carregarPixels(); } catch (error) { alert('Erro ao excluir pixel'); }}} className="px-4 py-2 border-2 border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition"><Trash2 size={16} /></button>
+                          </div>
+                        </div>
+                        <div className="grid md:grid-cols-2 gap-4 text-sm">
+                          <div className="space-y-2">
+                            <h4 className="font-semibold text-gray-900">🎯 Eventos de Ativação</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {pixel.eventoCheckout && <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs">InitiateCheckout</span>}
+                              {pixel.eventoCompra && <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Purchase</span>}
+                              {pixel.eventoPAD && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Pedido PAD</span>}
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <h4 className="font-semibold text-gray-900">✅ Condições para Ativação</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {pixel.condicaoPix && <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">Pix</span>}
+                              {pixel.condicaoBoleto && <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs">Boleto</span>}
+                              {pixel.condicaoPAD && <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">PAD</span>}
+                              {pixel.condicaoPagamentoAprovado && <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Pagamento Aprovado</span>}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                </div>
+                )}
               </div>
             </div>
-          ))}
-        </div>
-      )}
-    </div>
-  </div>
-)}
-{abaSelecionada === 'orderbumps' && (
+          )}
+
+          {abaSelecionada === 'orderbumps' && (
             <div className="max-w-4xl mx-auto">
               <div className="bg-white rounded-xl border border-gray-200 p-8">
                 <div className="flex items-center justify-between mb-6">
@@ -1753,19 +1128,16 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
                     <h2 className="text-2xl font-bold text-gray-900">⚡ Order Bumps</h2>
                     <p className="text-gray-600">Crie adicionais para aumentar o ticket médio</p>
                   </div>
-                  <button onClick={() => { setFormOrderBump({ titulo: '', descricao: '', preco: '' }); setModalOrderBump({ aberto: true, ob: null }); }} className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition flex items-center space-x-2">
+                  <button onClick={() => { setFormOrderBump({ titulo: '', descricao: '', preco: '', imagem: '' }); setModalOrderBump({ aberto: true, ob: null }); }} className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition flex items-center space-x-2">
                     <Plus size={20} /><span>Novo Order Bump</span>
                   </button>
                 </div>
-
                 {orderBumps.length === 0 ? (
                   <div className="text-center py-16 bg-gray-50 rounded-xl">
                     <div className="text-6xl mb-4">⚡</div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2">Nenhum order bump cadastrado</h3>
                     <p className="text-gray-600 mb-6">Crie adicionais como frete rápido, garantia estendida, produtos complementares</p>
-                    <button onClick={() => setModalOrderBump({ aberto: true, ob: null })} className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">
-                      Criar Primeiro Order Bump
-                    </button>
+                    <button onClick={() => setModalOrderBump({ aberto: true, ob: null })} className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">Criar Primeiro Order Bump</button>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -1778,17 +1150,8 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
                             <div className="text-xl font-bold text-purple-600 mt-2">+ R$ {ob.preco.toFixed(2).replace('.', ',')}</div>
                           </div>
                           <div className="flex gap-2">
-                            <button onClick={() => { setFormOrderBump({ titulo: ob.titulo, descricao: ob.descricao || '', preco: ob.preco.toString() }); setModalOrderBump({ aberto: true, ob }); }} className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
-                              <Edit size={16} />
-                            </button>
-                            <button onClick={async () => {
-                              if (!confirm('Excluir este order bump?')) return;
-                              const token = localStorage.getItem('token');
-                              await fetch(`/api/order-bumps/${ob.id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } });
-                              carregarOrderBumps();
-                            }} className="px-4 py-2 border-2 border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition">
-                              <Trash2 size={16} />
-                            </button>
+                            <button onClick={() => { setFormOrderBump({ titulo: ob.titulo, descricao: ob.descricao || '', preco: ob.preco.toString(), imagem: ob.imagem || '' }); setModalOrderBump({ aberto: true, ob }); }} className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"><Edit size={16} /></button>
+                            <button onClick={async () => { if (!confirm('Excluir este order bump?')) return; const token = localStorage.getItem('token'); await fetch(`/api/order-bumps/${ob.id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } }); carregarOrderBumps(); }} className="px-4 py-2 border-2 border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition"><Trash2 size={16} /></button>
                           </div>
                         </div>
                       </div>
@@ -1796,39 +1159,14 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
                   </div>
                 )}
               </div>
-
               {modalOrderBump.aberto && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setModalOrderBump({ aberto: false, ob: null })}>
                   <div className="bg-white rounded-2xl p-8 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
                     <h3 className="text-2xl font-bold text-gray-900 mb-6">{modalOrderBump.ob ? 'Editar Order Bump' : 'Novo Order Bump'}</h3>
                     <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-900 mb-2">Título *</label>
-                        <input type="text" value={formOrderBump.titulo} onChange={(e) => setFormOrderBump({...formOrderBump, titulo: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="Ex: Frete Rápido, Garantia Estendida..." />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-900 mb-2">Descrição</label>
-                        <textarea rows={3} value={formOrderBump.descricao} onChange={(e) => setFormOrderBump({...formOrderBump, descricao: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="Descreva o adicional..." />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-900 mb-2">Preço (R$) *</label>
-                        <input type="number" step="0.01" value={formOrderBump.preco} onChange={(e) => setFormOrderBump({...formOrderBump, preco: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="0.00" />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-900 mb-2">Imagem do Produto</label>
-                        <input type="file" accept="image/*" onChange={async (e) => {
-                          const file = e.target.files?.[0];
-                          if (!file) return;
-                          const fd = new FormData();
-                          fd.append('file', file);
-                          const res = await fetch('/api/upload', { method: 'POST', body: fd });
-                          const data = await res.json();
-                          if (data.url) setFormOrderBump({...formOrderBump, imagem: data.url});
-                        }} className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer" />
-                        {(formOrderBump as any).imagem && (
-                          <img src={(formOrderBump as any).imagem} className="mt-2 w-20 h-20 object-cover rounded-lg border" />
-                        )}
-                      </div>	
+                      <div><label className="block text-sm font-semibold text-gray-900 mb-2">Título *</label><input type="text" value={formOrderBump.titulo} onChange={(e) => setFormOrderBump({...formOrderBump, titulo: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="Ex: Frete Rápido..." /></div>
+                      <div><label className="block text-sm font-semibold text-gray-900 mb-2">Descrição</label><textarea rows={3} value={formOrderBump.descricao} onChange={(e) => setFormOrderBump({...formOrderBump, descricao: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="Descreva o adicional..." /></div>
+                      <div><label className="block text-sm font-semibold text-gray-900 mb-2">Preço (R$) *</label><input type="number" step="0.01" value={formOrderBump.preco} onChange={(e) => setFormOrderBump({...formOrderBump, preco: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="0.00" /></div>
                       <div className="flex gap-3 pt-4">
                         <button onClick={() => setModalOrderBump({ aberto: false, ob: null })} className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold">Cancelar</button>
                         <button onClick={async () => {
@@ -1837,17 +1175,11 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
                           const userObj = userData ? JSON.parse(userData) : {};
                           const url = modalOrderBump.ob ? `/api/order-bumps/${modalOrderBump.ob.id}` : '/api/order-bumps';
                           const method = modalOrderBump.ob ? 'PATCH' : 'POST';
-                          await fetch(url, {
-                            method,
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ ...formOrderBump, userId: userObj.id })
-                          });
+                          await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...formOrderBump, userId: userObj.id }) });
                           alert(modalOrderBump.ob ? 'Atualizado!' : 'Criado!');
                           setModalOrderBump({ aberto: false, ob: null });
                           carregarOrderBumps();
-                        }} className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">
-                          {modalOrderBump.ob ? 'Salvar' : 'Criar'}
-                        </button>
+                        }} className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">{modalOrderBump.ob ? 'Salvar' : 'Criar'}</button>
                       </div>
                     </div>
                   </div>
@@ -1855,344 +1187,165 @@ const handleSalvarPlano = async (e: React.FormEvent) => {
               )}
             </div>
           )}
-{abaSelecionada === 'links' && (
-  <div className="max-w-4xl mx-auto">
-    <div className="bg-white rounded-xl border border-gray-200 p-8">
-      <div className="flex items-center gap-3 mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">🔗 Links UTM</h2>
-      </div>
-      <p className="text-gray-600 mb-6">Gere links rastreados para suas campanhas. Acesse a página completa de gerador de links:</p>
-      <a href="/dashboard/links" className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">
-        🔗 Abrir Gerador de Links UTM
-      </a>
-    </div>
-  </div>
-)}
 
-{abaSelecionada === 'coproducao' && (
-  <div className="max-w-4xl mx-auto">
-    <div className="bg-white rounded-xl border border-gray-200 p-8">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">🤝 Co-produção</h2>
-          <p className="text-gray-600">Divida receitas com outros produtores da Finora</p>
-        </div>
-      </div>
-
-      {/* FORMULÁRIO ADICIONAR */}
-      <div className="bg-gray-50 rounded-xl border border-gray-200 p-6 mb-8">
-        <h3 className="text-lg font-bold text-gray-900 mb-4">➕ Adicionar Co-produtor</h3>
-        <div className="grid md:grid-cols-3 gap-4 mb-4">
-          <div className="md:col-span-1">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Email da conta Finora *</label>
-            <input
-              type="email"
-              value={formCoProdutor.email}
-              onChange={(e) => setFormCoProdutor({...formCoProdutor, email: e.target.value})}
-              placeholder="email@exemplo.com"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Tipo *</label>
-            <select
-              value={formCoProdutor.tipo}
-              onChange={(e) => setFormCoProdutor({...formCoProdutor, tipo: e.target.value})}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900"
-            >
-              <option value="PERCENTUAL">Percentual (%)</option>
-              <option value="FIXO">Valor Fixo (R$)</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              {formCoProdutor.tipo === 'PERCENTUAL' ? 'Percentual (%)' : 'Valor (R$)'} *
-            </label>
-            <input
-              type="number"
-              step={formCoProdutor.tipo === 'PERCENTUAL' ? '1' : '0.01'}
-              min="0"
-              max={formCoProdutor.tipo === 'PERCENTUAL' ? '90' : undefined}
-              value={formCoProdutor.valor}
-              onChange={(e) => setFormCoProdutor({...formCoProdutor, valor: e.target.value})}
-              placeholder={formCoProdutor.tipo === 'PERCENTUAL' ? 'Ex: 30' : 'Ex: 50.00'}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900"
-            />
-          </div>
-        </div>
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-500">
-            {formCoProdutor.tipo === 'PERCENTUAL'
-              ? '⚠️ O valor será descontado do seu lucro líquido após as taxas da plataforma.'
-              : '⚠️ Valor fixo descontado do lucro líquido a cada venda.'}
-          </p>
-          <button
-            onClick={handleAdicionarCoProdutor}
-            disabled={salvandoCoProdutor}
-            className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-          >
-            {salvandoCoProdutor ? <span>Salvando...</span> : <><Plus size={18} /><span>Adicionar</span></>}
-          </button>
-        </div>
-      </div>
-
-      {/* LISTA CO-PRODUTORES */}
-      {coProdutores.length === 0 ? (
-        <div className="text-center py-16 bg-gray-50 rounded-xl">
-          <div className="text-6xl mb-4">🤝</div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">Nenhum co-produtor cadastrado</h3>
-          <p className="text-gray-600">Adicione outros produtores da Finora para dividir as receitas automaticamente.</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <h3 className="text-lg font-bold text-gray-900">Co-produtores ativos</h3>
-          {coProdutores.map((cp) => (
-            <div key={cp.id} className={`border-2 rounded-xl p-6 transition ${cp.ativo ? 'border-purple-200 bg-purple-50' : 'border-gray-200 bg-gray-50 opacity-60'}`}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-purple-200 rounded-full flex items-center justify-center">
-                    <span className="text-purple-700 font-bold text-lg">
-                      {cp.usuario.nome.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                  <div>
-                    <div className="font-bold text-gray-900">{cp.usuario.nome}</div>
-                    <div className="text-sm text-gray-600">{cp.usuario.email}</div>
-                    <div className="mt-1">
-                      <span className={`px-3 py-1 rounded-full text-sm font-bold ${cp.tipo === 'PERCENTUAL' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
-                        {cp.tipo === 'PERCENTUAL' ? `${cp.valor}% por venda` : `R$ ${cp.valor.toFixed(2).replace('.', ',')} por venda`}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={cp.ativo}
-                      onChange={(e) => handleToggleCoProdutor(cp.id, e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
-                  </label>
-                  <button
-                    onClick={() => handleRemoverCoProdutor(cp.id)}
-                    className="px-4 py-2 border-2 border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
+          {abaSelecionada === 'links' && (
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-white rounded-xl border border-gray-200 p-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">🔗 Links UTM</h2>
+                <p className="text-gray-600 mb-6">Gere links rastreados para suas campanhas.</p>
+                <a href="/dashboard/links" className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">🔗 Abrir Gerador de Links UTM</a>
               </div>
             </div>
-          ))}
-          <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p className="text-sm text-yellow-800">
-              💡 <strong>Como funciona:</strong> A cada venda confirmada, o valor de cada co-produtor é creditado automaticamente na carteira deles. O restante vai para sua carteira.
-            </p>
-          </div>
-        </div>
-      )}
-    </div>
-  </div>
-)}
-{/* MODAL CRIAR/EDITAR PIXEL */}{modalPixel.aberto && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto" onClick={() => setModalPixel({ aberto: false, pixel: null })}>
-    <div className="bg-white rounded-2xl p-8 max-w-2xl w-full my-8" onClick={(e) => e.stopPropagation()}>
-      <h3 className="text-2xl font-bold text-gray-900 mb-6">
-        {modalPixel.pixel ? 'Editar Pixel' : 'Adicionar Novo Pixel'}
-      </h3>
+          )}
 
-      <form onSubmit={async (e) => {
-        e.preventDefault();
-        try {
-          const token = localStorage.getItem('token');
-          const url = modalPixel.pixel ? `/api/pixels/${modalPixel.pixel.id}` : '/api/pixels';
-          const method = modalPixel.pixel ? 'PATCH' : 'POST';
-          
-          await fetch(url, {
-            method,
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + token
-            },
-            body: JSON.stringify({ ...formPixel, produtoId })
-          });
-          
-          alert(modalPixel.pixel ? 'Pixel atualizado!' : 'Pixel criado!');
-          setModalPixel({ aberto: false, pixel: null });
-          setFormPixel({
-            titulo: '',
-            plataforma: 'FACEBOOK',
-            pixelId: '',
-            tokenAPI: '',
-            eventoCheckout: false,
-            eventoCompra: false,
-            eventoPAD: false,
-            condicaoPix: false,
-            condicaoBoleto: false,
-            condicaoPAD: false,
-            condicaoPagamentoAprovado: false
-          });
-          carregarPixels();
-        } catch (error) {
-          alert('Erro ao salvar pixel');
-        }
-      }} className="space-y-6">
-        
-        <div className="grid md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">Título do Pixel *</label>
-            <input
-              type="text"
-              value={formPixel.titulo}
-              onChange={(e) => setFormPixel({...formPixel, titulo: e.target.value})}
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none"
-              placeholder="Ex: Pixel Facebook Principal"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">Plataforma *</label>
-            <select
-              value={formPixel.plataforma}
-              onChange={(e) => setFormPixel({...formPixel, plataforma: e.target.value})}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none"
-            >
-              <option value="FACEBOOK">Facebook Ads</option>
-              <option value="GOOGLE">Google Ads</option>
-              <option value="TIKTOK">TikTok Ads</option>
-              <option value="KWAI">Kwai</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">ID do Pixel *</label>
-            <input
-              type="text"
-              value={formPixel.pixelId}
-              onChange={(e) => setFormPixel({...formPixel, pixelId: e.target.value})}
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none"
-              placeholder="Ex: 123456789"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">Token da API de Conversão</label>
-            <input
-              type="text"
-              value={formPixel.tokenAPI}
-              onChange={(e) => setFormPixel({...formPixel, tokenAPI: e.target.value})}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none"
-              placeholder="Opcional"
-            />
-          </div>
-        </div>
-
-        <div className="border-t pt-4">
-          <h4 className="font-bold text-gray-900 mb-3">🎯 Ambientes de Ativação</h4>
-          <div className="space-y-2">
-            <label className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
-              <input
-                type="checkbox"
-                checked={formPixel.eventoCheckout}
-                onChange={(e) => setFormPixel({...formPixel, eventoCheckout: e.target.checked})}
-                className="w-5 h-5"
-              />
-              <div>
-                <div className="font-medium text-gray-900">InitiateCheckout</div>
-                <div className="text-xs text-gray-600">Dispara quando o cliente acessa a página de checkout</div>
+          {abaSelecionada === 'coproducao' && (
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-white rounded-xl border border-gray-200 p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">🤝 Co-produção</h2>
+                    <p className="text-gray-600">Divida receitas com outros produtores da Finora</p>
+                  </div>
+                </div>
+                <div className="bg-gray-50 rounded-xl border border-gray-200 p-6 mb-8">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">➕ Adicionar Co-produtor</h3>
+                  <div className="grid md:grid-cols-3 gap-4 mb-4">
+                    <div className="md:col-span-1">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Email da conta Finora *</label>
+                      <input type="email" value={formCoProdutor.email} onChange={(e) => setFormCoProdutor({...formCoProdutor, email: e.target.value})} placeholder="email@exemplo.com" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Tipo *</label>
+                      <select value={formCoProdutor.tipo} onChange={(e) => setFormCoProdutor({...formCoProdutor, tipo: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900">
+                        <option value="PERCENTUAL">Percentual (%)</option>
+                        <option value="FIXO">Valor Fixo (R$)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">{formCoProdutor.tipo === 'PERCENTUAL' ? 'Percentual (%)' : 'Valor (R$)'} *</label>
+                      <input type="number" step={formCoProdutor.tipo === 'PERCENTUAL' ? '1' : '0.01'} min="0" max={formCoProdutor.tipo === 'PERCENTUAL' ? '90' : undefined} value={formCoProdutor.valor} onChange={(e) => setFormCoProdutor({...formCoProdutor, valor: e.target.value})} placeholder={formCoProdutor.tipo === 'PERCENTUAL' ? 'Ex: 30' : 'Ex: 50.00'} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900" />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-gray-500">{formCoProdutor.tipo === 'PERCENTUAL' ? '⚠️ O valor será descontado do seu lucro líquido após as taxas da plataforma.' : '⚠️ Valor fixo descontado do lucro líquido a cada venda.'}</p>
+                    <button onClick={handleAdicionarCoProdutor} disabled={salvandoCoProdutor} className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition disabled:opacity-50 flex items-center space-x-2">
+                      {salvandoCoProdutor ? <span>Salvando...</span> : <><Plus size={18} /><span>Adicionar</span></>}
+                    </button>
+                  </div>
+                </div>
+                {coProdutores.length === 0 ? (
+                  <div className="text-center py-16 bg-gray-50 rounded-xl">
+                    <div className="text-6xl mb-4">🤝</div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">Nenhum co-produtor cadastrado</h3>
+                    <p className="text-gray-600">Adicione outros produtores da Finora para dividir as receitas automaticamente.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-bold text-gray-900">Co-produtores ativos</h3>
+                    {coProdutores.map((cp) => (
+                      <div key={cp.id} className={`border-2 rounded-xl p-6 transition ${cp.ativo ? 'border-purple-200 bg-purple-50' : 'border-gray-200 bg-gray-50 opacity-60'}`}>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4">
+                            <div className="w-12 h-12 bg-purple-200 rounded-full flex items-center justify-center">
+                              <span className="text-purple-700 font-bold text-lg">{cp.usuario.nome.charAt(0).toUpperCase()}</span>
+                            </div>
+                            <div>
+                              <div className="font-bold text-gray-900">{cp.usuario.nome}</div>
+                              <div className="text-sm text-gray-600">{cp.usuario.email}</div>
+                              <div className="mt-1">
+                                <span className={`px-3 py-1 rounded-full text-sm font-bold ${cp.tipo === 'PERCENTUAL' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
+                                  {cp.tipo === 'PERCENTUAL' ? `${cp.valor}% por venda` : `R$ ${cp.valor.toFixed(2).replace('.', ',')} por venda`}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                            <label className="relative inline-flex items-center cursor-pointer">
+                              <input type="checkbox" checked={cp.ativo} onChange={(e) => handleToggleCoProdutor(cp.id, e.target.checked)} className="sr-only peer" />
+                              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                            </label>
+                            <button onClick={() => handleRemoverCoProdutor(cp.id)} className="px-4 py-2 border-2 border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition"><Trash2 size={16} /></button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                      <p className="text-sm text-yellow-800">💡 <strong>Como funciona:</strong> A cada venda confirmada, o valor de cada co-produtor é creditado automaticamente na carteira deles.</p>
+                    </div>
+                  </div>
+                )}
               </div>
-            </label>
-            <label className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
-              <input
-                type="checkbox"
-                checked={formPixel.eventoCompra}
-                onChange={(e) => setFormPixel({...formPixel, eventoCompra: e.target.checked})}
-                className="w-5 h-5"
-              />
-              <div>
-                <div className="font-medium text-gray-900">Ao realizar uma compra</div>
-                <div className="text-xs text-gray-600">Dispara quando o pagamento é aprovado</div>
-              </div>
-            </label>
-            <label className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
-              <input
-                type="checkbox"
-                checked={formPixel.eventoPAD}
-                onChange={(e) => setFormPixel({...formPixel, eventoPAD: e.target.checked})}
-                className="w-5 h-5"
-              />
-              <div>
-                <div className="font-medium text-gray-900">Pedido Gerado (PAD)</div>
-                <div className="text-xs text-gray-600">Dispara quando um pedido PAD é criado</div>
-              </div>
-            </label>
-          </div>
-        </div>
+            </div>
+          )}
 
-        <div className="border-t pt-4">
-          <h4 className="font-bold text-gray-900 mb-3">✅ Condições para ativação</h4>
-          <div className="grid md:grid-cols-2 gap-2">
-            <label className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
-              <input
-                type="checkbox"
-                checked={formPixel.condicaoPix}
-                onChange={(e) => setFormPixel({...formPixel, condicaoPix: e.target.checked})}
-                className="w-4 h-4"
-              />
-              <span className="text-sm font-medium">Pix Gerado</span>
-            </label>
-            <label className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
-              <input
-                type="checkbox"
-                checked={formPixel.condicaoBoleto}
-                onChange={(e) => setFormPixel({...formPixel, condicaoBoleto: e.target.checked})}
-                className="w-4 h-4"
-              />
-              <span className="text-sm font-medium">Boleto Gerado</span>
-            </label>
-            <label className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
-              <input
-                type="checkbox"
-                checked={formPixel.condicaoPAD}
-                onChange={(e) => setFormPixel({...formPixel, condicaoPAD: e.target.checked})}
-                className="w-4 h-4"
-              />
-              <span className="text-sm font-medium">Pedido Gerado (PAD)</span>
-            </label>
-            <label className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
-              <input
-                type="checkbox"
-                checked={formPixel.condicaoPagamentoAprovado}
-                onChange={(e) => setFormPixel({...formPixel, condicaoPagamentoAprovado: e.target.checked})}
-                className="w-4 h-4"
-              />
-              <span className="text-sm font-medium">Pagamentos aprovados</span>
-            </label>
-          </div>
-        </div>
+          {modalPixel.aberto && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto" onClick={() => setModalPixel({ aberto: false, pixel: null })}>
+              <div className="bg-white rounded-2xl p-8 max-w-2xl w-full my-8" onClick={(e) => e.stopPropagation()}>
+                <h3 className="text-2xl font-bold text-gray-900 mb-6">{modalPixel.pixel ? 'Editar Pixel' : 'Adicionar Novo Pixel'}</h3>
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  try {
+                    const token = localStorage.getItem('token');
+                    const url = modalPixel.pixel ? `/api/pixels/${modalPixel.pixel.id}` : '/api/pixels';
+                    const method = modalPixel.pixel ? 'PATCH' : 'POST';
+                    await fetch(url, { method, headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify({ ...formPixel, produtoId }) });
+                    alert(modalPixel.pixel ? 'Pixel atualizado!' : 'Pixel criado!');
+                    setModalPixel({ aberto: false, pixel: null });
+                    setFormPixel({ titulo: '', plataforma: 'FACEBOOK', pixelId: '', tokenAPI: '', eventoCheckout: false, eventoCompra: false, eventoPAD: false, condicaoPix: false, condicaoBoleto: false, condicaoPAD: false, condicaoPagamentoAprovado: false });
+                    carregarPixels();
+                  } catch (error) { alert('Erro ao salvar pixel'); }
+                }} className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-900 mb-2">Título do Pixel *</label>
+                      <input type="text" value={formPixel.titulo} onChange={(e) => setFormPixel({...formPixel, titulo: e.target.value})} required className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none" placeholder="Ex: Pixel Facebook Principal" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-900 mb-2">Plataforma *</label>
+                      <select value={formPixel.plataforma} onChange={(e) => setFormPixel({...formPixel, plataforma: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none">
+                        <option value="FACEBOOK">Facebook Ads</option>
+                        <option value="GOOGLE">Google Ads</option>
+                        <option value="TIKTOK">TikTok Ads</option>
+                        <option value="KWAI">Kwai</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-900 mb-2">ID do Pixel *</label>
+                      <input type="text" value={formPixel.pixelId} onChange={(e) => setFormPixel({...formPixel, pixelId: e.target.value})} required className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none" placeholder="Ex: 123456789" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-900 mb-2">Token da API de Conversão</label>
+                      <input type="text" value={formPixel.tokenAPI} onChange={(e) => setFormPixel({...formPixel, tokenAPI: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none" placeholder="Opcional" />
+                    </div>
+                  </div>
+                  <div className="border-t pt-4">
+                    <h4 className="font-bold text-gray-900 mb-3">🎯 Ambientes de Ativação</h4>
+                    <div className="space-y-2">
+                      <label className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"><input type="checkbox" checked={formPixel.eventoCheckout} onChange={(e) => setFormPixel({...formPixel, eventoCheckout: e.target.checked})} className="w-5 h-5" /><div><div className="font-medium text-gray-900">InitiateCheckout</div><div className="text-xs text-gray-600">Dispara quando o cliente acessa a página de checkout</div></div></label>
+                      <label className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"><input type="checkbox" checked={formPixel.eventoCompra} onChange={(e) => setFormPixel({...formPixel, eventoCompra: e.target.checked})} className="w-5 h-5" /><div><div className="font-medium text-gray-900">Ao realizar uma compra</div><div className="text-xs text-gray-600">Dispara quando o pagamento é aprovado</div></div></label>
+                      <label className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"><input type="checkbox" checked={formPixel.eventoPAD} onChange={(e) => setFormPixel({...formPixel, eventoPAD: e.target.checked})} className="w-5 h-5" /><div><div className="font-medium text-gray-900">Pedido Gerado (PAD)</div><div className="text-xs text-gray-600">Dispara quando um pedido PAD é criado</div></div></label>
+                    </div>
+                  </div>
+                  <div className="border-t pt-4">
+                    <h4 className="font-bold text-gray-900 mb-3">✅ Condições para ativação</h4>
+                    <div className="grid md:grid-cols-2 gap-2">
+                      <label className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"><input type="checkbox" checked={formPixel.condicaoPix} onChange={(e) => setFormPixel({...formPixel, condicaoPix: e.target.checked})} className="w-4 h-4" /><span className="text-sm font-medium">Pix Gerado</span></label>
+                      <label className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"><input type="checkbox" checked={formPixel.condicaoBoleto} onChange={(e) => setFormPixel({...formPixel, condicaoBoleto: e.target.checked})} className="w-4 h-4" /><span className="text-sm font-medium">Boleto Gerado</span></label>
+                      <label className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"><input type="checkbox" checked={formPixel.condicaoPAD} onChange={(e) => setFormPixel({...formPixel, condicaoPAD: e.target.checked})} className="w-4 h-4" /><span className="text-sm font-medium">Pedido Gerado (PAD)</span></label>
+                      <label className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"><input type="checkbox" checked={formPixel.condicaoPagamentoAprovado} onChange={(e) => setFormPixel({...formPixel, condicaoPagamentoAprovado: e.target.checked})} className="w-4 h-4" /><span className="text-sm font-medium">Pagamentos aprovados</span></label>
+                    </div>
+                  </div>
+                  <div className="flex gap-3 pt-4">
+                    <button type="button" onClick={() => setModalPixel({ aberto: false, pixel: null })} className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition">Cancelar</button>
+                    <button type="submit" className="flex-1 px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold hover:bg-yellow-600 transition">{modalPixel.pixel ? 'Salvar Alterações' : 'Adicionar Pixel'}</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
 
-        <div className="flex gap-3 pt-4">
-          <button
-            type="button"
-            onClick={() => setModalPixel({ aberto: false, pixel: null })}
-            className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            className="flex-1 px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold hover:bg-yellow-600 transition"
-          >
-            {modalPixel.pixel ? 'Salvar Alterações' : 'Adicionar Pixel'}
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
         </div>
       </main>
     </div>
