@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { put } from '@vercel/blob';
 
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
@@ -10,36 +16,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Nenhum arquivo enviado' }, { status: 400 });
     }
 
-    // Validar tipo de arquivo — aceita imagens e PDF
-    const tiposPermitidos = ['image/', 'application/pdf'];
+    const tiposPermitidos = ['image/', 'application/pdf', 'application/epub+zip', 'application/zip'];
     const tipoValido = tiposPermitidos.some(tipo => file.type.startsWith(tipo));
     if (!tipoValido) {
-      return NextResponse.json({ error: 'Apenas imagens e PDFs são permitidos' }, { status: 400 });
-    }
-    // Validar tamanho (max 20MB para PDFs, 5MB para imagens)
-    const maxSize = file.type === 'application/pdf' ? 20 * 1024 * 1024 : 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      return NextResponse.json({ error: file.type === 'application/pdf' ? 'PDF muito grande (max 20MB)' : 'Imagem muito grande (max 5MB)' }, { status: 400 });
+      return NextResponse.json({ error: 'Tipo de arquivo não permitido' }, { status: 400 });
     }
 
-    // Gerar nome único
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(7);
     const extension = file.name.split('.').pop();
     const filename = `uploads/${timestamp}-${randomString}.${extension}`;
 
-    // Upload para Vercel Blob
     const blob = await put(filename, file, {
       access: 'public',
       token: process.env.BLOB_READ_WRITE_TOKEN
     });
 
     console.log('✅ Upload realizado com sucesso:', blob.url);
-
-    return NextResponse.json({ 
-      success: true, 
-      url: blob.url 
-    });
+    return NextResponse.json({ success: true, url: blob.url });
 
   } catch (error) {
     console.error('❌ Erro ao fazer upload:', error);
