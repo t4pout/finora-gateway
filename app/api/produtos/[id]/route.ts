@@ -33,13 +33,13 @@ export async function GET(
         preco: true,
         comissao: true,
         imagem: true,
+        arquivoUrl: true,
         status: true,
         publicoParaAfiliados: true,
         estoque: true,
         pixels: true,
         userId: true,
         padHabilitado: true
-        
       }
     });
 
