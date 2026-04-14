@@ -104,6 +104,7 @@ export default function NovoProdutoPage() {
         const blob = await upload(file.name, file, {
           access: 'public',
           handleUploadUrl: '/api/upload-url',
+          addRandomSuffix: true,
         });
         if (blob.url) {
           setFormData({...formData, imagem: blob.url});
@@ -228,6 +229,7 @@ export default function NovoProdutoPage() {
                         const blob = await upload(file.name, file, {
                           access: 'public',
                           handleUploadUrl: '/api/upload-url',
+                          addRandomSuffix: true,
                         });
                         if (blob.url) {
                           setFormData({...formData, arquivoUrl: blob.url});
