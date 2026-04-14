@@ -101,10 +101,11 @@ export default function NovoProdutoPage() {
       const file = e.target.files?.[0];
       if (!file) return;
       try {
-        const blob = await upload(file.name, file, {
+        const ext = file.name.split('.').pop();
+        const nomeUnico = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+        const blob = await upload(nomeUnico, file, {
           access: 'public',
           handleUploadUrl: '/api/upload-url',
-          addRandomSuffix: true,
         });
         if (blob.url) {
           setFormData({...formData, imagem: blob.url});
@@ -226,10 +227,11 @@ export default function NovoProdutoPage() {
                       if (!file) return;
                       try {
                         alert('⏳ Enviando PDF, aguarde...');
-                        const blob = await upload(file.name, file, {
+                        const ext = file.name.split('.').pop();
+                        const nomeUnico = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+                        const blob = await upload(nomeUnico, file, {
                           access: 'public',
                           handleUploadUrl: '/api/upload-url',
-                          addRandomSuffix: true,
                         });
                         if (blob.url) {
                           setFormData({...formData, arquivoUrl: blob.url});
