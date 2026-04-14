@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import crypto from 'crypto';
+import { enviarEmailEbook } from '@/lib/email';
 
 const VERIFY_TOKEN = process.env.PAGGPIX_WEBHOOK_TOKEN || 'finora-webhook-secure-token-2026';
 
@@ -136,7 +137,12 @@ async function processarVendaNormal(venda: any) {
   // Buscar produto ANTES de tudo
   const produtoCompleto = await prisma.produto.findUnique({
     where: { id: venda.produtoId },
-    include: { 
+    select: {
+      id: true,
+      nome: true,
+      tipo: true,
+      arquivoUrl: true,
+      userId: true,
       pixels: true,
       user: {
         select: {
@@ -324,6 +330,23 @@ async function processarVendaNormal(venda: any) {
   });
 
   console.log(`✅ Saldo PENDENTE adicionado. Liberação: ${dataLiberacao.toLocaleDateString()}`);
+
+  // Enviar ebook se produto digital
+  try {
+    if (produtoCompleto?.tipo === 'DIGITAL' && produtoCompleto?.arquivoUrl) {
+      console.log('📧 Enviando ebook para:', venda.compradorEmail);
+      await enviarEmailEbook({
+        compradorNome: venda.compradorNome,
+        compradorEmail: venda.compradorEmail,
+        produtoNome: produtoCompleto.nome,
+        planoNome: venda.nomePlano || produtoCompleto.nome,
+        valor: venda.valor,
+        pedidoId: venda.id,
+        arquivoUrl: produtoCompleto.arquivoUrl
+      });
+      console.log('✅ Ebook enviado com sucesso!');
+    }
+  } catch (e) { console.error('❌ Erro ao enviar ebook:', e); }
 
   return NextResponse.json({ 
     success: true,
