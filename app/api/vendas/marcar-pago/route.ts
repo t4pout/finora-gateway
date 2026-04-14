@@ -57,6 +57,9 @@ export async function POST(request: NextRequest) {
     const dataLiberacao = new Date();
     dataLiberacao.setDate(dataLiberacao.getDate() + prazoDias);
 
+    // Se prazo 0 dias, liberar imediatamente
+    const statusInicial = prazoDias === 0 ? 'APROVADO' : 'PENDENTE';
+
     // Calcular splits de co-produção
     let totalCoProdutores = 0;
     const splitsCoProducao: { usuarioId: string; valor: number; nome: string }[] = [];
@@ -87,33 +90,22 @@ export async function POST(request: NextRequest) {
         tipo: 'VENDA',
         valor: valorProdutor,
         descricao: `Venda #${venda.id.substring(0,8)} - ${venda.produto.nome}`,
-        status: 'PENDENTE'
+        status: statusInicial
       }
     });
     
-    // Se prazo 0 dias, liberar imediatamente
-    const statusInicial = prazoDias === 0 ? 'APROVADO' : 'PENDENTE';
-
     // Criar transação do produtor principal
     await prisma.transacao.create({
-        data: {
-          userId: split.usuarioId,
-          vendaId: venda.id,
-          tipo: 'COPRODUCAO',
-          valor: split.valor,
-          status: statusInicial,
-          descricao: `Co-produção Venda #${venda.id.substring(0,8)}`,
-          dataLiberacao
-        }
-      });
-
-    // Atualizar carteira para APROVADO se prazo 0
-    if (prazoDias === 0) {
-      await prisma.carteira.updateMany({
-        where: { vendaId: venda.id, status: 'PENDENTE' },
-        data: { status: 'APROVADO' }
-      });
-    }
+      data: {
+        userId: venda.produto.userId,
+        vendaId: venda.id,
+        tipo: 'VENDA',
+        valor: valorProdutor,
+        status: statusInicial,
+        descricao: `Venda #${venda.id.substring(0,8)}`,
+        dataLiberacao
+      }
+    });
 
     // Criar carteira e transação para cada co-produtor
     for (const split of splitsCoProducao) {
@@ -124,7 +116,7 @@ export async function POST(request: NextRequest) {
           tipo: 'COPRODUCAO',
           valor: split.valor,
           descricao: `Co-produção Venda #${venda.id.substring(0,8)} - ${venda.produto.nome}`,
-          status: 'PENDENTE'
+          status: statusInicial
         }
       });
 
@@ -138,6 +130,14 @@ export async function POST(request: NextRequest) {
           descricao: `Co-produção Venda #${venda.id.substring(0,8)}`,
           dataLiberacao
         }
+      });
+    }
+
+    // Atualizar carteira para APROVADO se prazo 0
+    if (prazoDias === 0) {
+      await prisma.carteira.updateMany({
+        where: { vendaId: venda.id, status: 'PENDENTE' },
+        data: { status: 'APROVADO' }
       });
     }
     
