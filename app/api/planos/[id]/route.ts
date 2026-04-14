@@ -62,7 +62,7 @@ export async function PATCH(
     // if (!token) {
     //   return NextResponse.json({ error: 'Token não fornecido' }, { status: 401 });
     // }
-    // jwt.verify(token, process.env.JWT_SECRET!);
+    jwt.verify(token, process.env.NEXTAUTH_SECRET || 'sua-chave-secreta-super-segura');
     
     const { id: planoId } = await context.params;
     const body = await request.json();
