@@ -68,7 +68,8 @@ export async function POST(request: NextRequest) {
       role: user.role,
       status: user.status,
       avatar: user.avatar,
-      createdAt: user.createdAt
+      createdAt: user.createdAt,
+      finoraUtmAtivo: user.finoraUtmAtivo
     };
 
     return NextResponse.json({
