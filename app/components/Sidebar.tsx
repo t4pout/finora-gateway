@@ -226,22 +226,7 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
           </div>
         </Link>
          
-         {user?.finoraUtmAtivo && (
-          <>
-            <div className="border-t border-gray-200 my-2"></div>
-            <Link href="/finora-utm">
-              <div className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-semibold transition ${
-                isActivePrefix('/finora-utm')
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-purple-50 text-purple-700 hover:bg-purple-100'
-              }`}>
-                <TrendingUp size={20} />
-                <span>Finora UTM</span>
-              </div>
-            </Link>
-          </>
-        )}
- 
+         
         {/* Menu Admin expandível */}
         {user?.role === 'ADMIN' && (
           <>
