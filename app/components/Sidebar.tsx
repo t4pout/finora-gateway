@@ -199,6 +199,21 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
             <span>Relatórios</span>
           </div>
         </Link>
+        
+        <Link href={user?.finoraUtmAtivo ? '/finora-utm' : '/dashboard/finora-utm/planos'}>
+          <div className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-semibold transition ${
+            isActivePrefix('/finora-utm')
+              ? 'bg-purple-600 text-white'
+              : 'bg-purple-50 text-purple-700 hover:bg-purple-100'
+          }`}>
+            <TrendingUp size={20} />
+            <span>Finora UTM</span>
+            {!user?.finoraUtmAtivo && (
+              <span className="ml-auto text-xs bg-purple-200 text-purple-800 px-2 py-0.5 rounded-full">Pro</span>
+            )}
+          </div>
+        </Link>
+        <div className="border-t border-gray-200 my-1"></div>
 
         <Link href="/dashboard/testes-ab">
           <div className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition ${
