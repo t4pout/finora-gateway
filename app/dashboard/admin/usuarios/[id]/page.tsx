@@ -19,6 +19,8 @@ export default function EditarUsuarioPage() {
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [salvando, setSalvando] = useState(false);
+  const [finoraUtmAtivo, setFinoraUtmAtivo] = useState(false);
+  const [togglingUtm, setTogglingUtm] = useState(false);
   const [formData, setFormData] = useState({
     nome: '',
     email: '',
@@ -67,6 +69,7 @@ export default function EditarUsuarioPage() {
           telegramBotToken: u.telegramBotToken || '',
           telegramChatId: u.telegramChatId || '',
         });
+        setFinoraUtmAtivo(u.finoraUtmAtivo === true);
       } else {
         alert('Usuário não encontrado');
         router.push('/dashboard/admin');
@@ -98,6 +101,28 @@ export default function EditarUsuarioPage() {
       alert('❌ Erro ao salvar');
     } finally {
       setSalvando(false);
+    }
+  };
+  
+const toggleFinoraUtm = async () => {
+    setTogglingUtm(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ finoraUtmAtivo: !finoraUtmAtivo })
+      });
+      if (response.ok) {
+        setFinoraUtmAtivo(!finoraUtmAtivo);
+        alert(!finoraUtmAtivo ? 'Finora UTM ativado!' : 'Finora UTM desativado!');
+      } else {
+        alert('Erro ao alterar');
+      }
+    } catch (error) {
+      alert('Erro ao alterar');
+    } finally {
+      setTogglingUtm(false);
     }
   };
 
@@ -206,6 +231,26 @@ export default function EditarUsuarioPage() {
                 <input type="text" value={formData.telegramChatId} onChange={e => setFormData({...formData, telegramChatId: e.target.value})}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900" placeholder="Chat ID do Telegram" />
               </div>
+            </div>
+          </div>
+
+  <div className="bg-white rounded-xl border border-gray-200 p-8 mb-6">
+            <h2 className="text-lg font-bold text-gray-900 mb-2 flex items-center gap-2">
+              Finora UTM
+            </h2>
+            <p className="text-sm text-gray-500 mb-6">Ativa o modulo de rastreamento UTM para este usuario. Funcionalidade paga — ative apenas para quem contratou.</p>
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div>
+                <div className="font-semibold text-gray-900">Status do Finora UTM</div>
+                <div className="text-sm text-gray-500">{finoraUtmAtivo ? 'Ativo — usuario tem acesso ao modulo UTM' : 'Inativo — usuario nao ve o modulo UTM'}</div>
+              </div>
+              <button
+                onClick={toggleFinoraUtm}
+                disabled={togglingUtm}
+                className={'px-6 py-3 rounded-lg font-semibold transition disabled:opacity-50 ' + (finoraUtmAtivo ? 'bg-red-100 text-red-700 hover:bg-red-200' : 'bg-green-100 text-green-700 hover:bg-green-200')}
+              >
+                {togglingUtm ? 'Aguarde...' : finoraUtmAtivo ? 'Desativar Finora UTM' : 'Ativar Finora UTM'}
+              </button>
             </div>
           </div>
 
