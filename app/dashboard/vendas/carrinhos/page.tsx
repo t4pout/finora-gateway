@@ -66,7 +66,7 @@ export default function CarrinhosAbandonadosPage() {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <Sidebar user={user} />
+      <Sidebar user={user} onLogout={handleLogout} />
       <main className="flex-1 overflow-y-auto">
         <header className="bg-white border-b border-gray-200 px-8 py-4">
           <div className="flex items-center justify-between">
