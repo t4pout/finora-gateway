@@ -36,6 +36,12 @@ export default function CarrinhosAbandonadosPage() {
       .then(r => r.json())
       .then(data => { setUser(data.user); carregarCarrinhos(false); });
   }, []);
+   
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    router.push('/');
+  };
 
   const carregarCarrinhos = async (verTodos: boolean) => {
     const token = localStorage.getItem('token');

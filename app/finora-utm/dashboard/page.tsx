@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import { TrendingUp, DollarSign, ShoppingCart, Target, RefreshCw } from 'lucide-react';
@@ -24,8 +24,11 @@ export default function FinoraUTMDashboard() {
   const [vendas, setVendas] = useState<Venda[]>([]);
   const [loading, setLoading] = useState(true);
   const [periodo, setPeriodo] = useState('30');
+  const [metaDados, setMetaDados] = useState<any[]>([]);
+  const [metaLoading, setMetaLoading] = useState(false);
+  const [metaConectado, setMetaConectado] = useState(false);
 
-  useEffect(() => { carregarVendas(); }, []);
+  useEffect(() => { carregarVendas(); carregarMetaDados(); }, []);
 
   const carregarVendas = async () => {
     setLoading(true);
@@ -35,6 +38,24 @@ export default function FinoraUTMDashboard() {
       if (res.ok) { const data = await res.json(); setVendas(data.vendas || []); }
     } catch (e) { console.error(e); }
     setLoading(false);
+  };
+
+  const carregarMetaDados = async () => {
+    setMetaLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/integracoes/meta/dados?dias=' + periodo, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setMetaDados(data.campanhas || []);
+        setMetaConectado(true);
+      } else {
+        setMetaConectado(false);
+      }
+    } catch (e) { console.error(e); }
+    setMetaLoading(false);
   };
 
   const diasAtras = (dias: number) => new Date(Date.now() - dias * 86400000);
@@ -96,7 +117,6 @@ export default function FinoraUTMDashboard() {
           <div className="text-2xl font-bold text-white">R$ {receitaTotal.toFixed(2).replace('.', ',')}</div>
           <div className="text-gray-500 text-xs mt-1">{vendasPagas.length} vendas pagas</div>
         </div>
-
         <div className="bg-gray-800 border border-gray-700 rounded-xl p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-gray-400 text-xs font-medium uppercase tracking-wider">Receita Rastreada</span>
@@ -105,7 +125,6 @@ export default function FinoraUTMDashboard() {
           <div className="text-2xl font-bold text-purple-400">R$ {receitaRastreada.toFixed(2).replace('.', ',')}</div>
           <div className="text-gray-500 text-xs mt-1">{receitaTotal > 0 ? ((receitaRastreada / receitaTotal) * 100).toFixed(0) : 0}% do total</div>
         </div>
-
         <div className="bg-gray-800 border border-gray-700 rounded-xl p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-gray-400 text-xs font-medium uppercase tracking-wider">Vendas com UTM</span>
@@ -114,7 +133,6 @@ export default function FinoraUTMDashboard() {
           <div className="text-2xl font-bold text-white">{vendasComUTM.length}</div>
           <div className="text-gray-500 text-xs mt-1">de {vendasFiltradas.length} no periodo</div>
         </div>
-
         <div className="bg-gray-800 border border-gray-700 rounded-xl p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-gray-400 text-xs font-medium uppercase tracking-wider">Canais Ativos</span>
@@ -125,7 +143,7 @@ export default function FinoraUTMDashboard() {
         </div>
       </div>
 
-      <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
+      <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden mb-6">
         <div className="px-5 py-4 border-b border-gray-700">
           <h2 className="text-white font-semibold text-sm">Vendas por origem</h2>
         </div>
@@ -162,6 +180,48 @@ export default function FinoraUTMDashboard() {
           </table>
         )}
       </div>
+
+      {metaConectado && (
+        <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
+          <div className="px-5 py-4 border-b border-gray-700 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 bg-blue-900 rounded flex items-center justify-center text-blue-300 font-bold text-xs">f</div>
+              <h2 className="text-white font-semibold text-sm">Campanhas Meta Ads</h2>
+            </div>
+            <button onClick={carregarMetaDados} className="p-1.5 bg-gray-700 rounded text-gray-400 hover:text-white transition">
+              <RefreshCw size={14} />
+            </button>
+          </div>
+          {metaLoading ? (
+            <div className="p-8 text-center text-gray-500 text-sm">Buscando campanhas...</div>
+          ) : metaDados.length === 0 ? (
+            <div className="p-8 text-center text-gray-500 text-sm">Nenhuma campanha encontrada no periodo selecionado</div>
+          ) : (
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-700">
+                  <th className="text-left py-3 px-5 text-xs font-semibold text-gray-500 uppercase">Campanha</th>
+                  <th className="text-left py-3 px-5 text-xs font-semibold text-gray-500 uppercase">Status</th>
+                  <th className="text-left py-3 px-5 text-xs font-semibold text-gray-500 uppercase">Gasto</th>
+                </tr>
+              </thead>
+              <tbody>
+                {metaDados.map((c: any, i: number) => (
+                  <tr key={i} className="border-b border-gray-700 hover:bg-gray-750 transition">
+                    <td className="py-3 px-5 text-white text-sm">{c.nome}</td>
+                    <td className="py-3 px-5">
+                      <span className={'px-2 py-0.5 rounded text-xs font-semibold ' + (c.status === 'ACTIVE' ? 'bg-green-900 text-green-300' : 'bg-gray-700 text-gray-400')}>
+                        {c.status === 'ACTIVE' ? 'Ativa' : 'Pausada'}
+                      </span>
+                    </td>
+                    <td className="py-3 px-5 text-amber-400 font-semibold text-sm">R$ {c.gasto.toFixed(2).replace('.', ',')}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
     </div>
   );
 }
