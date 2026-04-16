@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Link2, BarChart3, Plug, ArrowLeft, TrendingUp } from 'lucide-react';
+import { LayoutDashboard, Link2, BarChart3, Plug, ArrowLeft, TrendingUp, DollarSign } from 'lucide-react';
+
 
 interface SidebarUTMProps {
   user: { nome: string; role?: string } | null;
@@ -69,6 +70,17 @@ export default function SidebarUTM({ user }: SidebarUTMProps) {
           }`}>
             <BarChart3 size={16} />
             <span>Relatorios</span>
+          </div>
+        </Link>
+
+         <Link href="/finora-utm/despesas">
+          <div className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition cursor-pointer ${
+            isActivePrefix('/finora-utm/despesas')
+              ? 'bg-purple-600 text-white'
+              : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+          }`}>
+            <DollarSign size={16} />
+            <span>Despesas</span>
           </div>
         </Link>
 

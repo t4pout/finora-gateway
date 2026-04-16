@@ -34,6 +34,7 @@ model User {
   contasBancarias       ContaBancaria[]
   documentos            Documento[]
   produtos              Produto[]
+  despesas          Despesa[]
   linksUTM          LinkUTM[]
   integracoesAnuncio IntegracaoAnuncio[]
   saques                Saque[]
@@ -582,4 +583,19 @@ model IntegracaoAnuncio {
 
   @@unique([userId, plataforma])
   @@map("IntegracaoAnuncio")
+}
+
+model Despesa {
+  id          String   @id @default(cuid())
+  userId      String
+  descricao   String
+  categoria   String   @default("OUTROS")
+  valor       Float
+  data        DateTime @default(now())
+  recorrente  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("Despesa")
 }
