@@ -61,7 +61,7 @@ export default function FinoraUTMDashboard() {
   const [campanhasMeta, setCampanhasMeta] = useState<CampanhaMeta[]>([]);
   const [porCampanha, setPorCampanha] = useState<PorCampanha[]>([]);
   const [loading, setLoading] = useState(true);
-  const [periodo, setPeriodo] = useState('30');
+  const [periodo, setPeriodo] = useState('hoje');
   const [abaAtiva, setAbaAtiva] = useState<'resumo' | 'meta' | 'campanhas'>('resumo');
 
   useEffect(() => { carregar(); }, [periodo]);

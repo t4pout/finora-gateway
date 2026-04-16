@@ -1,7 +1,7 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
-import { Link2, Copy, Trash2, Plus, Check } from 'lucide-react';
+import { Link2, Copy, Trash2, Plus, Check, BarChart3, RefreshCw } from 'lucide-react';
 
 interface Produto {
   id: string;
@@ -14,16 +14,28 @@ interface LinkSalvo {
   id: string;
   nome: string;
   urlFinal: string;
+  urlDestino: string;
   utmSource: string;
   utmMedium?: string;
   utmCampaign?: string;
   cliques: number;
   createdAt: string;
+  produto?: { nome: string } | null;
 }
+
+interface MetricaLink {
+  linkId: string;
+  vendas: number;
+  receita: number;
+  taxaConversao: number;
+}
+
+const fmt = (v: number) => 'R$ ' + v.toFixed(2).replace('.', ',');
 
 export default function FinoraUTMLinks() {
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [links, setLinks] = useState<LinkSalvo[]>([]);
+  const [metricas, setMetricas] = useState<Record<string, MetricaLink>>({});
   const [produtoSelecionado, setProdutoSelecionado] = useState('');
   const [tipoLink, setTipoLink] = useState('');
   const [planoSelecionado, setPlanoSelecionado] = useState('');
@@ -36,6 +48,10 @@ export default function FinoraUTMLinks() {
   const [copiado, setCopiadoId] = useState('');
   const [salvando, setSalvando] = useState(false);
   const [aberto, setAberto] = useState(false);
+  const [busca, setBusca] = useState('');
+  const [filtroPlatforma, setFiltroPlatforma] = useState('');
+  const [abaAtiva, setAbaAtiva] = useState<'links' | 'relatorio'>('links');
+  const [periodo, setPeriodo] = useState('30');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -43,6 +59,10 @@ export default function FinoraUTMLinks() {
     carregarProdutos(token);
     carregarLinks(token);
   }, []);
+
+  useEffect(() => {
+    if (links.length > 0) carregarMetricas();
+  }, [links, periodo]);
 
   const carregarProdutos = async (token: string) => {
     const res = await fetch('/api/produtos', { headers: { 'Authorization': 'Bearer ' + token } });
@@ -52,6 +72,29 @@ export default function FinoraUTMLinks() {
   const carregarLinks = async (token: string) => {
     const res = await fetch('/api/links-utm', { headers: { 'Authorization': 'Bearer ' + token } });
     if (res.ok) { const d = await res.json(); setLinks(d.links || []); }
+  };
+
+  const carregarMetricas = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/finora-utm?dias=' + periodo, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const map: Record<string, MetricaLink> = {};
+        links.forEach(link => {
+          const campanha = data.porCampanha?.find((c: any) => c.campanha === link.utmCampaign);
+          map[link.id] = {
+            linkId: link.id,
+            vendas: campanha?.vendas || 0,
+            receita: campanha?.faturamentoLiquido || 0,
+            taxaConversao: link.cliques > 0 ? ((campanha?.vendas || 0) / link.cliques) * 100 : 0
+          };
+        });
+        setMetricas(map);
+      }
+    } catch (e) { console.error(e); }
   };
 
   const planosDisponiveis = produtoSelecionado ? produtos.find(p => p.id === produtoSelecionado)?.planos || [] : [];
@@ -117,23 +160,65 @@ export default function FinoraUTMLinks() {
     { label: 'TikTok', source: 'tiktok', medium: 'cpc' },
     { label: 'WhatsApp', source: 'whatsapp', medium: 'social' },
     { label: 'Email', source: 'email', medium: 'email' },
+    { label: 'Kwai', source: 'kwai', medium: 'cpc' },
+    { label: 'Organico', source: 'organico', medium: 'organic' },
   ];
+
+  const linksFiltrados = links.filter(l => {
+    if (busca && !l.nome.toLowerCase().includes(busca.toLowerCase()) && !l.utmCampaign?.toLowerCase().includes(busca.toLowerCase())) return false;
+    if (filtroPlatforma && l.utmSource !== filtroPlatforma) return false;
+    return true;
+  });
+
+  const plataformasUnicas = [...new Set(links.map(l => l.utmSource).filter(Boolean))];
+
+  const totalVendasLinks = Object.values(metricas).reduce((acc, m) => acc + m.vendas, 0);
+  const totalReceitaLinks = Object.values(metricas).reduce((acc, m) => acc + m.receita, 0);
 
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-bold text-white">Links UTM</h1>
-          <p className="text-gray-500 text-sm">Gere e salve links rastreados para suas campanhas</p>
+          <p className="text-gray-500 text-sm">{links.length} links salvos</p>
         </div>
-        <button onClick={() => setAberto(!aberto)} className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-semibold hover:bg-purple-700 transition">
-          <Plus size={16} /> Novo Link
-        </button>
+        <div className="flex items-center gap-3">
+          <select value={periodo} onChange={e => setPeriodo(e.target.value)}
+            className="bg-gray-800 border border-gray-700 text-gray-300 text-sm rounded-lg px-3 py-2 outline-none">
+            <option value="7">7 dias</option>
+            <option value="30">30 dias</option>
+            <option value="90">90 dias</option>
+          </select>
+          <button onClick={() => setAberto(!aberto)} className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-semibold hover:bg-purple-700 transition">
+            <Plus size={16} /> Novo Link
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+          <div className="text-gray-400 text-xs uppercase tracking-wider mb-1">Links ativos</div>
+          <div className="text-2xl font-bold text-white">{links.length}</div>
+          <div className="text-gray-500 text-xs mt-1">{plataformasUnicas.length} plataformas</div>
+        </div>
+        <div className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+          <div className="text-gray-400 text-xs uppercase tracking-wider mb-1">Vendas geradas</div>
+          <div className="text-2xl font-bold text-green-400">{totalVendasLinks}</div>
+          <div className="text-gray-500 text-xs mt-1">nos ultimos {periodo} dias</div>
+        </div>
+        <div className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+          <div className="text-gray-400 text-xs uppercase tracking-wider mb-1">Receita gerada</div>
+          <div className="text-2xl font-bold text-purple-400">{fmt(totalReceitaLinks)}</div>
+          <div className="text-gray-500 text-xs mt-1">faturamento liquido</div>
+        </div>
       </div>
 
       {aberto && (
         <div className="bg-gray-800 border border-gray-700 rounded-xl p-6 mb-6">
-          <h2 className="text-white font-semibold mb-5">Gerar novo link</h2>
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-white font-semibold">Gerar novo link</h2>
+            <button onClick={() => setAberto(false)} className="text-gray-500 hover:text-white text-xl leading-none">x</button>
+          </div>
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-xs font-medium text-gray-400 mb-2">Produto</label>
@@ -153,7 +238,6 @@ export default function FinoraUTMLinks() {
               </select>
             </div>
           </div>
-
           {tipoLink === 'checkout' && (
             <div className="mb-4">
               <label className="block text-xs font-medium text-gray-400 mb-2">Plano</label>
@@ -164,7 +248,6 @@ export default function FinoraUTMLinks() {
               </select>
             </div>
           )}
-
           {tipoLink === 'pagina' && (
             <div className="mb-4">
               <label className="block text-xs font-medium text-gray-400 mb-2">Pagina</label>
@@ -175,7 +258,6 @@ export default function FinoraUTMLinks() {
               </select>
             </div>
           )}
-
           <div className="mb-4">
             <label className="block text-xs font-medium text-gray-400 mb-2">Plataforma</label>
             <div className="flex flex-wrap gap-2">
@@ -187,7 +269,6 @@ export default function FinoraUTMLinks() {
               ))}
             </div>
           </div>
-
           <div className="grid grid-cols-3 gap-4 mb-4">
             <div>
               <label className="block text-xs font-medium text-gray-400 mb-2">utm_source *</label>
@@ -205,17 +286,14 @@ export default function FinoraUTMLinks() {
                 className="w-full px-3 py-2.5 bg-gray-900 border border-gray-700 rounded-lg text-gray-300 text-sm outline-none" />
             </div>
           </div>
-
           <div className="mb-4">
             <label className="block text-xs font-medium text-gray-400 mb-2">Nome para identificar</label>
             <input value={nome} onChange={e => setNome(e.target.value)} placeholder="ex: Facebook - Lancamento Maio"
               className="w-full px-3 py-2.5 bg-gray-900 border border-gray-700 rounded-lg text-gray-300 text-sm outline-none" />
           </div>
-
           <button onClick={gerarLink} className="w-full py-2.5 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition text-sm flex items-center justify-center gap-2">
             <Link2 size={16} /> Gerar Link
           </button>
-
           {linkGerado && (
             <div className="mt-4 bg-gray-900 border border-purple-700 rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
@@ -236,40 +314,70 @@ export default function FinoraUTMLinks() {
         </div>
       )}
 
+      <div className="flex items-center gap-3 mb-4">
+        <input value={busca} onChange={e => setBusca(e.target.value)} placeholder="Buscar link..."
+          className="flex-1 max-w-xs px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-300 text-sm outline-none" />
+        <select value={filtroPlatforma} onChange={e => setFiltroPlatforma(e.target.value)}
+          className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-300 text-sm outline-none">
+          <option value="">Todas plataformas</option>
+          {plataformasUnicas.map(p => <option key={p} value={p}>{p}</option>)}
+        </select>
+        <span className="text-gray-500 text-xs">{linksFiltrados.length} links</span>
+      </div>
+
       <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-gray-700 flex items-center justify-between">
-          <h2 className="text-white font-semibold text-sm">Links salvos</h2>
-          <span className="text-gray-500 text-xs">{links.length} link{links.length !== 1 ? 's' : ''}</span>
+        <div className="overflow-x-auto">
+          <table className="w-full" style={{minWidth: '900px'}}>
+            <thead>
+              <tr className="border-b border-gray-700">
+                <th className="text-left py-3 px-5 text-xs text-gray-500 uppercase">Nome / Link</th>
+                <th className="text-left py-3 px-5 text-xs text-gray-500 uppercase">Plataforma</th>
+                <th className="text-left py-3 px-5 text-xs text-gray-500 uppercase">Campanha</th>
+                <th className="text-right py-3 px-5 text-xs text-gray-500 uppercase">Vendas</th>
+                <th className="text-right py-3 px-5 text-xs text-gray-500 uppercase">Receita</th>
+                <th className="text-right py-3 px-5 text-xs text-gray-500 uppercase">Conv.</th>
+                <th className="text-right py-3 px-5 text-xs text-gray-500 uppercase">Criado em</th>
+                <th className="py-3 px-5"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {linksFiltrados.length === 0 ? (
+                <tr><td colSpan={8} className="py-8 text-center text-gray-500 text-sm">Nenhum link encontrado</td></tr>
+              ) : linksFiltrados.map(link => {
+                const m = metricas[link.id];
+                return (
+                  <tr key={link.id} className="border-b border-gray-700 hover:bg-gray-750 transition">
+                    <td className="py-3 px-5">
+                      <div className="text-white text-sm font-medium mb-1">{link.nome}</div>
+                      <div className="font-mono text-xs text-gray-500 truncate max-w-xs">{link.urlFinal}</div>
+                    </td>
+                    <td className="py-3 px-5">
+                      <span className="px-2 py-0.5 bg-blue-900 text-blue-300 rounded text-xs">{link.utmSource}</span>
+                      {link.utmMedium && <span className="ml-1 px-2 py-0.5 bg-gray-700 text-gray-400 rounded text-xs">{link.utmMedium}</span>}
+                    </td>
+                    <td className="py-3 px-5">
+                      {link.utmCampaign ? <span className="px-2 py-0.5 bg-purple-900 text-purple-300 rounded text-xs">{link.utmCampaign}</span> : <span className="text-gray-600 text-xs">-</span>}
+                    </td>
+                    <td className="py-3 px-5 text-right text-green-400 text-sm font-semibold">{m?.vendas || 0}</td>
+                    <td className="py-3 px-5 text-right text-white text-sm">{m ? fmt(m.receita) : 'R$ 0,00'}</td>
+                    <td className="py-3 px-5 text-right text-gray-400 text-xs">{m?.taxaConversao ? m.taxaConversao.toFixed(1) + '%' : '-'}</td>
+                    <td className="py-3 px-5 text-right text-gray-500 text-xs">{new Date(link.createdAt).toLocaleDateString('pt-BR')}</td>
+                    <td className="py-3 px-5 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <button onClick={() => copiar(link.urlFinal, link.id)} className="p-1.5 text-gray-400 hover:text-white hover:bg-gray-700 rounded transition">
+                          {copiado === link.id ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
+                        </button>
+                        <button onClick={() => remover(link.id)} className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded transition">
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
-        {links.length === 0 ? (
-          <div className="p-8 text-center text-gray-500 text-sm">Nenhum link salvo ainda. Crie seu primeiro link acima.</div>
-        ) : (
-          <div className="divide-y divide-gray-700">
-            {links.map(link => (
-              <div key={link.id} className="px-5 py-4 hover:bg-gray-750 transition">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-white text-sm font-medium">{link.nome}</span>
-                      <span className="px-2 py-0.5 bg-purple-900 text-purple-300 text-xs rounded">{link.utmSource}</span>
-                      {link.utmCampaign && <span className="px-2 py-0.5 bg-gray-700 text-gray-400 text-xs rounded">{link.utmCampaign}</span>}
-                    </div>
-                    <div className="text-xs text-gray-500 mb-2">{new Date(link.createdAt).toLocaleString('pt-BR')}</div>
-                    <div className="font-mono text-xs text-gray-500 break-all bg-gray-900 rounded px-3 py-2">{link.urlFinal}</div>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <button onClick={() => copiar(link.urlFinal, link.id)} className="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition">
-                      {copiado === link.id ? <Check size={16} className="text-green-400" /> : <Copy size={16} />}
-                    </button>
-                    <button onClick={() => remover(link.id)} className="p-2 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded-lg transition">
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
