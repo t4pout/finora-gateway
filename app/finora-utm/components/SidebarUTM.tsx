@@ -51,6 +51,17 @@ export default function SidebarUTM({ user }: SidebarUTMProps) {
           </div>
         </Link>
 
+        <Link href="/finora-utm/meta">
+          <div className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition cursor-pointer ${
+            isActivePrefix('/finora-utm/meta')
+              ? 'bg-blue-700 text-white'
+              : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+          }`}>
+            <div className="w-4 h-4 bg-blue-600 rounded flex items-center justify-center text-white font-bold" style={{fontSize:'9px'}}>f</div>
+            <span>Meta Ads</span>
+          </div>
+        </Link>
+
         <Link href="/finora-utm/links">
           <div className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition cursor-pointer ${
             isActivePrefix('/finora-utm/links')
