@@ -44,10 +44,43 @@ export default function FinoraUTMMeta() {
   const [erro, setErro] = useState('');
   const [dias, setDias] = useState('30');
   const [accountNome, setAccountNome] = useState('');
+  const [contasDisponiveis, setContasDisponiveis] = useState<any[]>([]);
   const [filtroStatus, setFiltroStatus] = useState('');
   const [busca, setBusca] = useState('');
 
-  useEffect(() => { carregarCampanhas(); }, [dias]);
+  useEffect(() => { verificarConta(); }, []);
+  useEffect(() => { if (!erro) carregarCampanhas(); }, [dias]);
+
+  const verificarConta = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/integracoes/meta/contas', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      const data = await res.json();
+      if (data.contas && data.contas.length > 0) {
+        setContasDisponiveis(data.contas);
+        if (data.contas.length === 1) {
+          await selecionarConta(data.contas[0].id, data.contas[0].name);
+        }
+      } else {
+        carregarCampanhas();
+      }
+    } catch (e) { carregarCampanhas(); }
+  };
+
+  const selecionarConta = async (id: string, nome: string) => {
+    const token = localStorage.getItem('token');
+    await fetch('/api/integracoes/meta/contas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ accountId: id, accountNome: nome })
+    });
+    setAccountNome(nome);
+    setContasDisponiveis([]);
+    carregarCampanhas();
+  };
 
   const carregarCampanhas = async () => {
     setLoading(true);
@@ -160,6 +193,21 @@ export default function FinoraUTMMeta() {
           </>
         )}
       </div>
+
+       {contasDisponiveis.length > 1 && (
+        <div className="bg-gray-800 border border-amber-700 rounded-xl p-5 mb-4">
+          <div className="text-amber-300 font-semibold text-sm mb-3">Selecione a conta de anuncios</div>
+          <div className="space-y-2">
+            {contasDisponiveis.map((c: any) => (
+              <button key={c.id} onClick={() => selecionarConta(c.id, c.name)}
+                className="w-full text-left px-4 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition">
+                <div className="text-white text-sm font-medium">{c.name}</div>
+                <div className="text-gray-400 text-xs">{c.id} — {c.currency}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {erro && (
         <div className="bg-red-900 border border-red-700 rounded-xl p-4 mb-4 flex items-center gap-3">

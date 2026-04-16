@@ -125,16 +125,21 @@ export default function FinoraUTMIntegracoes() {
           )}
 
           <div className="flex gap-2">
-            {metaConectado ? (
-              <>
-                <button onClick={verificarIntegracoes} className="flex-1 flex items-center justify-center gap-2 py-2 bg-gray-700 text-gray-300 rounded-lg text-xs font-semibold hover:bg-gray-600 transition">
-                  <RefreshCw size={14} /> Atualizar
-                </button>
-                <button onClick={desconectarMeta} className="p-2 bg-red-900 text-red-400 rounded-lg hover:bg-red-800 transition">
-                  <Trash2 size={14} />
-                </button>
-              </>
-            ) : (
+            {loading ? (
+            <div className="text-gray-500 text-xs mb-4">Verificando...</div>
+          ) : metaConectado ? (
+            <div className="mb-4">
+              <div className="bg-green-900 border border-green-800 rounded-lg px-3 py-2 mb-3">
+                <div className="text-green-400 text-xs font-semibold">Conectado</div>
+                {metaInfo?.accountNome && (
+                  <div className="text-green-300 text-xs mt-0.5">{metaInfo.accountNome}</div>
+                )}
+              </div>
+              {!metaInfo?.accountNome && (
+                <ContaSelector token={localStorage.getItem('token') || ''} onSelecionada={() => verificarIntegracoes()} />
+              )}
+            </div>
+          ) : (
               <button onClick={conectarMeta} disabled={conectando} className="w-full py-2 bg-blue-700 text-white rounded-lg text-xs font-bold hover:bg-blue-600 transition disabled:opacity-50">
                 {conectando ? 'Redirecionando...' : 'Conectar Meta Ads'}
               </button>
