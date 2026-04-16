@@ -102,6 +102,32 @@ export async function GET(req: NextRequest) {
         frequencia: parseFloat(d.frequency || '0')
       };
     };
+     
+if (nivel === 'contas') {
+      const res = await fetch(
+        `https://graph.facebook.com/v19.0/me/adaccounts?` +
+        `fields=id,name,account_status,currency,amount_spent,balance,insights{spend,impressions,clicks,cpc,cpm,ctr}&` +
+        `time_range=${timeRange}&` +
+        `access_token=${token}`
+      );
+      const data = await res.json();
+      if (data.error) return NextResponse.json({ erro: data.error.message }, { status: 400 });
+
+      const contas = (data.data || []).map((c: any) => {
+        const ins = parseInsights(c.insights);
+        return enriquecer({
+          id: c.id, nome: c.name,
+          status: c.account_status === 1 ? 'ACTIVE' : 'PAUSED',
+          moeda: c.currency,
+          totalGasto: parseFloat(c.amount_spent || '0') / 100,
+          saldo: parseFloat(c.balance || '0') / 100,
+          ...ins
+        }, c.name);
+      });
+
+      return NextResponse.json({ contas });
+    }
+    
 
     if (nivel === 'campanhas') {
       const url = `https://graph.facebook.com/v19.0/${accountId}/campaigns?` +
