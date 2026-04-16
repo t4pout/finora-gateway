@@ -31,6 +31,11 @@ export async function GET(req: NextRequest) {
     if (!user) return NextResponse.json({ error: 'Usuario nao encontrado' }, { status: 404 });
 
     const plano = user.planoTaxa;
+    
+    const despesas = await prisma.despesa.findMany({
+      where: { userId, data: { gte: dataInicio } }
+    });
+    const totalDespesas = despesas.reduce((acc, d) => acc + d.valor, 0);
 
     const vendas = await prisma.venda.findMany({
       where: { vendedorId: userId, status: 'PAGO', createdAt: { gte: dataInicio } },
@@ -161,7 +166,8 @@ export async function GET(req: NextRequest) {
         faturamentoLiquido: Math.round(faturamentoLiquido * 100) / 100,
         totalTaxas: Math.round(totalTaxas * 100) / 100,
         gastosMeta: Math.round(gastosMeta * 100) / 100,
-        lucro: Math.round(lucroTotal * 100) / 100,
+        totalDespesas: Math.round(totalDespesas * 100) / 100,
+        lucro: Math.round((lucroTotal - totalDespesas) * 100) / 100,
         roas: Math.round(roasGeral * 100) / 100,
         margem: Math.round(margemGeral * 100) / 100,
         cpa: Math.round(cpaGeral * 100) / 100,

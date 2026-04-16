@@ -1,9 +1,10 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import { RefreshCw, TrendingUp, DollarSign, ShoppingCart, Target, BarChart3, CreditCard } from 'lucide-react';
 
 interface Resumo {
+  totalDespesas: number;
   faturamentoBruto: number;
   faturamentoLiquido: number;
   totalTaxas: number;
@@ -122,7 +123,7 @@ export default function FinoraUTMDashboard() {
         <div className="flex items-center justify-center h-64 text-gray-500 text-sm">Carregando dados...</div>
       ) : (
         <>
-          <div className="grid grid-cols-4 gap-3 mb-4">
+          <div className="grid grid-cols-5 gap-3 mb-4">
             <div className="bg-gray-800 border border-gray-700 rounded-xl p-4">
               <div className="text-gray-400 text-xs uppercase tracking-wider mb-2">Faturamento liquido</div>
               <div className="text-2xl font-bold text-white">{fmt(resumo?.faturamentoLiquido || 0)}</div>
@@ -133,6 +134,11 @@ export default function FinoraUTMDashboard() {
               <div className="text-gray-400 text-xs uppercase tracking-wider mb-2">Gastos anuncios</div>
               <div className="text-2xl font-bold text-amber-400">{fmt(resumo?.gastosMeta || 0)}</div>
               <div className="text-gray-500 text-xs mt-1">Meta Ads</div>
+            </div>
+            <div className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+              <div className="text-gray-400 text-xs uppercase tracking-wider mb-2">Despesas adicionais</div>
+              <div className="text-2xl font-bold text-red-400">{fmt(resumo?.totalDespesas || 0)}</div>
+              <div className="text-gray-500 text-xs mt-1">Gastos lancados</div>
             </div>
             <div className="bg-gray-800 border border-gray-700 rounded-xl p-4">
               <div className="text-gray-400 text-xs uppercase tracking-wider mb-2">ROAS</div>
