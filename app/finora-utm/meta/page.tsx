@@ -1,7 +1,8 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
-import { RefreshCw, ChevronRight, ChevronDown, AlertCircle } from 'lucide-react';
+import { RefreshCw, ChevronRight, AlertCircle, Settings } from 'lucide-react';
+import Link from 'next/link';
 
 interface ItemMeta {
   id: string;
@@ -40,34 +41,38 @@ export default function FinoraUTMMeta() {
   const [anuncios, setAnuncios] = useState<ItemMeta[]>([]);
   const [campanhaSelecionada, setCampanhaSelecionada] = useState<ItemMeta | null>(null);
   const [conjuntoSelecionado, setConjuntoSelecionado] = useState<ItemMeta | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [conectado, setConectado] = useState(false);
+  const [semConta, setSemConta] = useState(false);
   const [erro, setErro] = useState('');
   const [dias, setDias] = useState('30');
   const [accountNome, setAccountNome] = useState('');
-  const [contasDisponiveis, setContasDisponiveis] = useState<any[]>([]);
   const [filtroStatus, setFiltroStatus] = useState('');
   const [busca, setBusca] = useState('');
+  const [contasDisponiveis, setContasDisponiveis] = useState<any[]>([]);
+  const [abaAtiva, setAbaAtiva] = useState<'campanhas' | 'conjuntos' | 'anuncios'>('campanhas');
 
-  useEffect(() => { verificarConta(); }, []);
-  useEffect(() => { if (!erro) carregarCampanhas(); }, [dias]);
+  useEffect(() => { verificarConexao(); }, []);
+  useEffect(() => { if (conectado && !semConta) carregarCampanhas(); }, [dias, conectado]);
 
-  const verificarConta = async () => {
-    setLoading(true);
+  const verificarConexao = async () => {
     try {
       const token = localStorage.getItem('token');
       const res = await fetch('/api/integracoes/meta/contas', {
         headers: { 'Authorization': 'Bearer ' + token }
       });
+      if (!res.ok) { setConectado(false); return; }
       const data = await res.json();
+      setConectado(true);
       if (data.contas && data.contas.length > 0) {
         setContasDisponiveis(data.contas);
         if (data.contas.length === 1) {
           await selecionarConta(data.contas[0].id, data.contas[0].name);
         }
       } else {
-        carregarCampanhas();
+        setSemConta(true);
       }
-    } catch (e) { carregarCampanhas(); }
+    } catch (e) { setConectado(false); }
   };
 
   const selecionarConta = async (id: string, nome: string) => {
@@ -79,6 +84,7 @@ export default function FinoraUTMMeta() {
     });
     setAccountNome(nome);
     setContasDisponiveis([]);
+    setSemConta(false);
     carregarCampanhas();
   };
 
@@ -87,14 +93,15 @@ export default function FinoraUTMMeta() {
     setErro('');
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`/api/integracoes/meta/gerenciador?nivel=campanhas&dias=${dias}`, {
+      const res = await fetch('/api/integracoes/meta/gerenciador?nivel=campanhas&dias=' + dias, {
         headers: { 'Authorization': 'Bearer ' + token }
       });
       const data = await res.json();
       if (data.erro) { setErro(data.erro); setLoading(false); return; }
       setCampanhas(data.campanhas || []);
-      setAccountNome(data.accountNome || '');
+      if (data.accountNome) setAccountNome(data.accountNome);
       setNivel('campanhas');
+      setAbaAtiva('campanhas');
       setCampanhaSelecionada(null);
       setConjuntoSelecionado(null);
     } catch (e) { setErro('Erro ao carregar campanhas'); }
@@ -107,13 +114,14 @@ export default function FinoraUTMMeta() {
     setCampanhaSelecionada(campanha);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`/api/integracoes/meta/gerenciador?nivel=conjuntos&campanhaId=${campanha.id}&dias=${dias}`, {
+      const res = await fetch('/api/integracoes/meta/gerenciador?nivel=conjuntos&campanhaId=' + campanha.id + '&dias=' + dias, {
         headers: { 'Authorization': 'Bearer ' + token }
       });
       const data = await res.json();
       if (data.erro) { setErro(data.erro); setLoading(false); return; }
       setConjuntos(data.conjuntos || []);
       setNivel('conjuntos');
+      setAbaAtiva('conjuntos');
       setConjuntoSelecionado(null);
     } catch (e) { setErro('Erro ao carregar conjuntos'); }
     setLoading(false);
@@ -125,13 +133,14 @@ export default function FinoraUTMMeta() {
     setConjuntoSelecionado(conjunto);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`/api/integracoes/meta/gerenciador?nivel=anuncios&conjuntoId=${conjunto.id}&dias=${dias}`, {
+      const res = await fetch('/api/integracoes/meta/gerenciador?nivel=anuncios&conjuntoId=' + conjunto.id + '&dias=' + dias, {
         headers: { 'Authorization': 'Bearer ' + token }
       });
       const data = await res.json();
       if (data.erro) { setErro(data.erro); setLoading(false); return; }
       setAnuncios(data.anuncios || []);
       setNivel('anuncios');
+      setAbaAtiva('anuncios');
     } catch (e) { setErro('Erro ao carregar anuncios'); }
     setLoading(false);
   };
@@ -164,39 +173,50 @@ export default function FinoraUTMMeta() {
             <option value="30">30 dias</option>
             <option value="90">90 dias</option>
           </select>
-          <button onClick={carregarCampanhas} className="p-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-400 hover:text-white transition">
+          <button onClick={carregarCampanhas} disabled={!conectado || semConta}
+            className="p-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-400 hover:text-white transition disabled:opacity-40">
             <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
           </button>
         </div>
       </div>
 
-      <div className="flex items-center gap-2 mb-4 text-sm">
-        <button onClick={carregarCampanhas} className={'px-3 py-1.5 rounded-lg transition ' + (nivel === 'campanhas' ? 'bg-blue-700 text-white' : 'text-gray-400 hover:text-white')}>
-          Campanhas {campanhas.length > 0 && <span className="ml-1 text-xs opacity-70">({campanhas.length})</span>}
-        </button>
-        {campanhaSelecionada && (
-          <>
-            <ChevronRight size={14} className="text-gray-600" />
-            <button onClick={() => { setNivel('conjuntos'); setConjuntoSelecionado(null); }}
-              className={'px-3 py-1.5 rounded-lg transition ' + (nivel === 'conjuntos' ? 'bg-blue-700 text-white' : 'text-gray-400 hover:text-white')}>
-              {campanhaSelecionada.nome.length > 30 ? campanhaSelecionada.nome.substring(0, 30) + '...' : campanhaSelecionada.nome}
+      {!conectado && (
+        <div className="bg-red-950 border border-red-800 rounded-xl p-4 mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <AlertCircle size={18} className="text-red-400 shrink-0" />
+            <div>
+              <div className="text-red-300 font-semibold text-sm">Voce precisa conectar o Meta Ads</div>
+              <div className="text-red-400 text-xs mt-0.5">Conecte sua conta para acessar os dados das campanhas</div>
+            </div>
+          </div>
+          <Link href="/finora-utm/integracoes">
+            <button className="px-4 py-2 bg-blue-700 text-white text-xs font-semibold rounded-lg hover:bg-blue-600 transition">
+              Conectar Meta Ads
             </button>
-          </>
-        )}
-        {conjuntoSelecionado && (
-          <>
-            <ChevronRight size={14} className="text-gray-600" />
-            <button onClick={() => setNivel('anuncios')}
-              className={'px-3 py-1.5 rounded-lg transition ' + (nivel === 'anuncios' ? 'bg-blue-700 text-white' : 'text-gray-400 hover:text-white')}>
-              {conjuntoSelecionado.nome.length > 25 ? conjuntoSelecionado.nome.substring(0, 25) + '...' : conjuntoSelecionado.nome}
-            </button>
-          </>
-        )}
-      </div>
+          </Link>
+        </div>
+      )}
 
-       {contasDisponiveis.length > 1 && (
-        <div className="bg-gray-800 border border-amber-700 rounded-xl p-5 mb-4">
-          <div className="text-amber-300 font-semibold text-sm mb-3">Selecione a conta de anuncios</div>
+      {conectado && semConta && (
+        <div className="bg-amber-950 border border-amber-800 rounded-xl p-4 mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <AlertCircle size={18} className="text-amber-400 shrink-0" />
+            <div>
+              <div className="text-amber-300 font-semibold text-sm">Nenhuma conta de anuncio encontrada</div>
+              <div className="text-amber-400 text-xs mt-0.5">O perfil conectado nao tem acesso a contas de anuncio. Reconecte com o perfil admin da conta de anuncios.</div>
+            </div>
+          </div>
+          <Link href="/finora-utm/integracoes">
+            <button className="px-4 py-2 bg-amber-700 text-white text-xs font-semibold rounded-lg hover:bg-amber-600 transition">
+              Reconectar
+            </button>
+          </Link>
+        </div>
+      )}
+
+      {contasDisponiveis.length > 1 && (
+        <div className="bg-gray-800 border border-blue-700 rounded-xl p-5 mb-4">
+          <div className="text-blue-300 font-semibold text-sm mb-3">Selecione a conta de anuncios</div>
           <div className="space-y-2">
             {contasDisponiveis.map((c: any) => (
               <button key={c.id} onClick={() => selecionarConta(c.id, c.name)}
@@ -210,16 +230,41 @@ export default function FinoraUTMMeta() {
       )}
 
       {erro && (
-        <div className="bg-red-900 border border-red-700 rounded-xl p-4 mb-4 flex items-center gap-3">
+        <div className="bg-red-950 border border-red-800 rounded-xl p-4 mb-4 flex items-center gap-3">
           <AlertCircle size={18} className="text-red-400 shrink-0" />
           <div>
-            <div className="text-red-300 font-semibold text-sm">Erro ao carregar dados do Meta</div>
+            <div className="text-red-300 font-semibold text-sm">Erro ao carregar dados</div>
             <div className="text-red-400 text-xs mt-1">{erro}</div>
           </div>
         </div>
       )}
 
-      {!erro && (
+      <div className="flex border-b border-gray-700 mb-4">
+        <button onClick={() => { setAbaAtiva('campanhas'); setNivel('campanhas'); setCampanhaSelecionada(null); setConjuntoSelecionado(null); }}
+          className={'px-5 py-3 text-sm font-medium border-b-2 transition -mb-px ' + (abaAtiva === 'campanhas' ? 'border-blue-500 text-white' : 'border-transparent text-gray-500 hover:text-gray-300')}>
+          Campanhas {campanhas.length > 0 && <span className="ml-1 text-xs opacity-60">({campanhas.length})</span>}
+        </button>
+        <button onClick={() => campanhaSelecionada && carregarConjuntos(campanhaSelecionada)}
+          disabled={!campanhaSelecionada}
+          className={'px-5 py-3 text-sm font-medium border-b-2 transition -mb-px ' + (abaAtiva === 'conjuntos' ? 'border-blue-500 text-white' : 'border-transparent text-gray-500 hover:text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed')}>
+          Conjuntos {conjuntos.length > 0 && <span className="ml-1 text-xs opacity-60">({conjuntos.length})</span>}
+        </button>
+        <button onClick={() => conjuntoSelecionado && carregarAnuncios(conjuntoSelecionado)}
+          disabled={!conjuntoSelecionado}
+          className={'px-5 py-3 text-sm font-medium border-b-2 transition -mb-px ' + (abaAtiva === 'anuncios' ? 'border-blue-500 text-white' : 'border-transparent text-gray-500 hover:text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed')}>
+          Anuncios {anuncios.length > 0 && <span className="ml-1 text-xs opacity-60">({anuncios.length})</span>}
+        </button>
+      </div>
+
+      {campanhaSelecionada && (
+        <div className="flex items-center gap-2 text-xs text-gray-500 mb-3">
+          <button onClick={() => { setAbaAtiva('campanhas'); setNivel('campanhas'); }} className="hover:text-white transition">Campanhas</button>
+          {campanhaSelecionada && <><ChevronRight size={12} /><span className="text-gray-400 truncate max-w-xs">{campanhaSelecionada.nome}</span></>}
+          {conjuntoSelecionado && <><ChevronRight size={12} /><span className="text-gray-400 truncate max-w-xs">{conjuntoSelecionado.nome}</span></>}
+        </div>
+      )}
+
+      {conectado && !semConta && (
         <>
           <div className="grid grid-cols-5 gap-3 mb-4">
             <div className="bg-gray-800 border border-gray-700 rounded-xl p-4">
@@ -245,11 +290,11 @@ export default function FinoraUTMMeta() {
           </div>
 
           <div className="flex items-center gap-3 mb-4">
-            <input value={busca} onChange={e => setBusca(e.target.value)} placeholder={'Buscar ' + nivel + '...'}
+            <input value={busca} onChange={e => setBusca(e.target.value)} placeholder={'Filtrar por nome...'}
               className="flex-1 max-w-xs px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-300 text-sm outline-none" />
             <select value={filtroStatus} onChange={e => setFiltroStatus(e.target.value)}
               className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-300 text-sm outline-none">
-              <option value="">Todos os status</option>
+              <option value="">Qualquer status</option>
               <option value="ACTIVE">Ativas</option>
               <option value="PAUSED">Pausadas</option>
               <option value="ARCHIVED">Arquivadas</option>
@@ -262,7 +307,7 @@ export default function FinoraUTMMeta() {
               <div className="p-8 text-center text-gray-500 text-sm">Carregando dados do Meta Ads...</div>
             ) : itensFiltrados.length === 0 ? (
               <div className="p-8 text-center text-gray-500 text-sm">
-                {itensAtivos.length === 0 ? 'Nenhum dado encontrado no periodo selecionado' : 'Nenhum resultado para os filtros aplicados'}
+                Nenhuma campanha encontrada no periodo selecionado
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -289,7 +334,8 @@ export default function FinoraUTMMeta() {
                   </thead>
                   <tbody>
                     {itensFiltrados.map((item, i) => (
-                      <tr key={i} className="border-b border-gray-700 hover:bg-gray-750 transition cursor-pointer"
+                      <tr key={i}
+                        className={'border-b border-gray-700 hover:bg-gray-750 transition ' + (nivel !== 'anuncios' ? 'cursor-pointer' : '')}
                         onClick={() => nivel === 'campanhas' ? carregarConjuntos(item) : nivel === 'conjuntos' ? carregarAnuncios(item) : null}>
                         <td className="py-3 px-4 sticky left-0 bg-gray-800">
                           <div className="flex items-center gap-2">
