@@ -1,7 +1,7 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
-import { CheckCircle, Circle, Plug, RefreshCw, Trash2 } from 'lucide-react';
+import { CheckCircle, Circle, Trash2 } from 'lucide-react';
 
 interface Integracao {
   accountNome: string;
@@ -59,7 +59,7 @@ export default function FinoraUTMIntegracoes() {
   };
 
   const desconectarMeta = async () => {
-    if (!confirm('Desconectar Meta Ads?')) return;
+    if (!confirm('Deseja desconectar o Meta Ads?')) return;
     try {
       const token = localStorage.getItem('token');
       await fetch('/api/integracoes/meta/dados', {
@@ -113,7 +113,7 @@ export default function FinoraUTMIntegracoes() {
             <div className="text-gray-500 text-xs mb-4">Verificando...</div>
           ) : metaConectado ? (
             <div className="mb-4">
-              <div className="bg-green-900 border border-green-800 rounded-lg px-3 py-2 mb-3">
+              <div className="bg-green-900 border border-green-800 rounded-lg px-3 py-2">
                 <div className="text-green-400 text-xs font-semibold">Conectado</div>
                 {metaInfo?.accountNome && (
                   <div className="text-green-300 text-xs mt-0.5">{metaInfo.accountNome}</div>
@@ -125,24 +125,23 @@ export default function FinoraUTMIntegracoes() {
           )}
 
           <div className="flex gap-2">
-            {loading ? (
-            <div className="text-gray-500 text-xs mb-4">Verificando...</div>
-          ) : metaConectado ? (
-            <div className="mb-4">
-              <div className="bg-green-900 border border-green-800 rounded-lg px-3 py-2 mb-3">
-                <div className="text-green-400 text-xs font-semibold">Conectado</div>
-                {metaInfo?.accountNome && (
-                  <div className="text-green-300 text-xs mt-0.5">{metaInfo.accountNome}</div>
-                )}
-              </div>
-              {!metaInfo?.accountNome && (
-                <ContaSelector token={localStorage.getItem('token') || ''} onSelecionada={() => verificarIntegracoes()} />
-              )}
-            </div>
-          ) : (
-              <button onClick={conectarMeta} disabled={conectando} className="w-full py-2 bg-blue-700 text-white rounded-lg text-xs font-bold hover:bg-blue-600 transition disabled:opacity-50">
+            {!loading && !metaConectado && (
+              <button onClick={conectarMeta} disabled={conectando}
+                className="w-full py-2 bg-blue-700 text-white rounded-lg text-xs font-bold hover:bg-blue-600 transition disabled:opacity-50">
                 {conectando ? 'Redirecionando...' : 'Conectar Meta Ads'}
               </button>
+            )}
+            {!loading && metaConectado && (
+              <div className="flex gap-2 w-full">
+                <button onClick={conectarMeta} disabled={conectando}
+                  className="flex-1 py-2 bg-blue-900 text-blue-300 rounded-lg text-xs font-semibold hover:bg-blue-800 transition disabled:opacity-50">
+                  {conectando ? 'Redirecionando...' : 'Reconectar'}
+                </button>
+                <button onClick={desconectarMeta}
+                  className="flex items-center gap-1 px-3 py-2 bg-red-900 border border-red-800 text-red-300 rounded-lg text-xs font-semibold hover:bg-red-800 transition">
+                  <Trash2 size={12} /> Desconectar
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -161,9 +160,7 @@ export default function FinoraUTMIntegracoes() {
             <Circle size={18} className="text-gray-600" />
           </div>
           <p className="text-gray-400 text-xs mb-4">Importe dados de campanhas do TikTok Ads Manager.</p>
-          <button disabled className="w-full py-2 bg-gray-700 text-gray-500 rounded-lg text-xs font-semibold cursor-not-allowed">
-            Em breve
-          </button>
+          <button disabled className="w-full py-2 bg-gray-700 text-gray-500 rounded-lg text-xs font-semibold cursor-not-allowed">Em breve</button>
         </div>
 
         <div className="bg-gray-800 border border-gray-700 rounded-xl p-5">
@@ -180,9 +177,7 @@ export default function FinoraUTMIntegracoes() {
             <Circle size={18} className="text-gray-600" />
           </div>
           <p className="text-gray-400 text-xs mb-4">Importe gastos e conversoes do Google Ads.</p>
-          <button disabled className="w-full py-2 bg-gray-700 text-gray-500 rounded-lg text-xs font-semibold cursor-not-allowed">
-            Em breve
-          </button>
+          <button disabled className="w-full py-2 bg-gray-700 text-gray-500 rounded-lg text-xs font-semibold cursor-not-allowed">Em breve</button>
         </div>
 
         <div className="bg-gray-800 border border-gray-700 rounded-xl p-5">
@@ -199,9 +194,7 @@ export default function FinoraUTMIntegracoes() {
             <Circle size={18} className="text-gray-600" />
           </div>
           <p className="text-gray-400 text-xs mb-4">Importe dados de campanhas do Kwai.</p>
-          <button disabled className="w-full py-2 bg-gray-700 text-gray-500 rounded-lg text-xs font-semibold cursor-not-allowed">
-            Em breve
-          </button>
+          <button disabled className="w-full py-2 bg-gray-700 text-gray-500 rounded-lg text-xs font-semibold cursor-not-allowed">Em breve</button>
         </div>
       </div>
     </div>
