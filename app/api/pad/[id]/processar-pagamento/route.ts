@@ -35,17 +35,21 @@ export async function POST(
       return NextResponse.json({ error: 'Este pedido já foi pago' }, { status: 400 });
     }
 
-    // Buscar configuração de gateway
+    // Buscar configurações de gateway
     const configPix = await prisma.configuracaoGateway.findUnique({ where: { metodo: 'PIX' } });
+    const configCartao = await prisma.configuracaoGateway.findUnique({ where: { metodo: 'CARTAO' } });
+    const configBoleto = await prisma.configuracaoGateway.findUnique({ where: { metodo: 'BOLETO' } });
+
     const gatewayPix = configPix?.gateway || 'PAGGPIX';
-    console.log(`🔧 Gateway PIX configurado: ${gatewayPix}`);
+    const gatewayCartao = configCartao?.gateway || 'MERCADOPAGO';
+    const gatewayBoleto = configBoleto?.gateway || 'MERCADOPAGO';
+
+    console.log(`🔧 Gateways: PIX=${gatewayPix} | CARTAO=${gatewayCartao} | BOLETO=${gatewayBoleto}`);
 
     // ========== PIX ==========
     if (metodoPagamento === 'PIX') {
       try {
-
         if (gatewayPix === 'MERCADOPAGO') {
-          // PIX via Mercado Pago
           console.log('🟢 Gerando PIX PAD via Mercado Pago...');
 
           const result = await payment.create({
@@ -65,8 +69,6 @@ export async function POST(
               external_reference: pedido.id
             }
           });
-
-          console.log('📥 Resultado MP PIX:', JSON.stringify(result, null, 2));
 
           const pixData = result.point_of_interaction?.transaction_data;
           if (!pixData) {
@@ -111,10 +113,7 @@ export async function POST(
           });
 
           const responseText = await paggpixResponse.text();
-          console.log('📡 Resposta PaggPix:', responseText);
-
           if (!paggpixResponse.ok) {
-            console.error('❌ Erro PaggPix:', responseText);
             return NextResponse.json({ error: 'Erro ao gerar PIX' }, { status: 500 });
           }
 
@@ -144,92 +143,173 @@ export async function POST(
       }
     }
 
-    // ========== CARTÃO (Mercado Pago) ==========
+    // ========== CARTÃO ==========
     if (metodoPagamento === 'CARTAO') {
       try {
-        if (!dadosCartao || !dadosCartao.token) {
-          return NextResponse.json({ error: 'Dados do cartão inválidos' }, { status: 400 });
-        }
+        if (gatewayCartao === 'EFI') {
+          console.log('🟢 Processando CARTÃO PAD via Efi...');
 
-        const paymentData = {
-          transaction_amount: pedido.valor,
-          token: dadosCartao.token,
-          description: `PAD - ${pedido.produtoNome}`,
-          installments: parseInt(dadosCartao.parcelas) || 1,
-          payment_method_id: dadosCartao.paymentMethodId,
-          payer: {
-            email: pedido.clienteEmail || 'contato@finorapayments.com',
-            identification: {
-              type: pedido.clienteCpfCnpj.replace(/\D/g, '').length === 11 ? 'CPF' : 'CNPJ',
-              number: pedido.clienteCpfCnpj.replace(/\D/g, '')
-            }
-          },
-          external_reference: pedido.id
-        };
+          if (!dadosCartao || !dadosCartao.token) {
+            return NextResponse.json({ error: 'Dados do cartão inválidos' }, { status: 400 });
+          }
 
-        console.log('🚀 Enviando para Mercado Pago:', JSON.stringify(paymentData, null, 2));
+          const EfiPay = require('sdk-node-apis-efi');
+          const options = {
+            sandbox: false,
+            client_id: process.env.EFI_CLIENT_ID,
+            client_secret: process.env.EFI_CLIENT_SECRET,
+            certificate: process.env.EFI_CERTIFICATE_PATH || './certificado.p12',
+            cert_base64: process.env.EFI_CERTIFICATE_BASE64
+          };
+          const efipay = new EfiPay(options);
 
-        const result = await payment.create({ body: paymentData });
+          const cpfCnpj = pedido.clienteCpfCnpj.replace(/\D/g, '');
+          const efiBody = {
+            payment: {
+              credit_card: {
+                installments: parseInt(dadosCartao.parcelas) || 1,
+                payment_token: dadosCartao.token,
+                billing_address: {
+                  street: pedido.rua,
+                  number: pedido.numero,
+                  neighborhood: pedido.bairro,
+                  zipcode: pedido.cep.replace(/\D/g, ''),
+                  city: pedido.cidade,
+                  complement: pedido.complemento || '',
+                  state: pedido.estado
+                },
+                customer: {
+                  name: pedido.clienteNome,
+                  email: pedido.clienteEmail || 'contato@finorapayments.com',
+                  cpf: cpfCnpj.length === 11 ? cpfCnpj : undefined,
+                  cnpj: cpfCnpj.length === 14 ? cpfCnpj : undefined,
+                  phone_number: pedido.clienteTelefone?.replace(/\D/g, '') || '11999999999'
+                }
+              }
+            },
+            items: [{
+              name: pedido.produtoNome,
+              value: Math.round(pedido.valor * 100),
+              amount: 1
+            }],
+            metadata: { custom_id: pedido.id }
+          };
 
-        console.log('✅ Resultado do Mercado Pago - Status:', result.status);
+          const efiResult = await efipay.createOneStepCharge({}, efiBody);
+          console.log('📥 Resultado Efi Cartão:', JSON.stringify(efiResult, null, 2));
 
-        if (result.status === 'approved') {
-          console.log('✅ Pagamento APROVADO! Criando venda...');
+          if (efiResult.data?.status === 'approved') {
+            const venda = await prisma.venda.create({
+              data: {
+                valor: pedido.valor,
+                status: 'PAGO',
+                metodoPagamento: 'CARTAO',
+                compradorNome: pedido.clienteNome,
+                compradorEmail: pedido.clienteEmail || '',
+                compradorCpf: pedido.clienteCpfCnpj,
+                compradorTel: pedido.clienteTelefone,
+                cep: pedido.cep,
+                rua: pedido.rua,
+                numero: pedido.numero,
+                complemento: pedido.complemento,
+                bairro: pedido.bairro,
+                cidade: pedido.cidade,
+                estado: pedido.estado,
+                produtoId: pedido.produtoId,
+                vendedorId: pedido.vendedorId
+              }
+            });
 
-          const venda = await prisma.venda.create({
-            data: {
-              valor: pedido.valor,
-              status: 'PAGO',
-              metodoPagamento: 'CARTAO',
-              compradorNome: pedido.clienteNome,
-              compradorEmail: pedido.clienteEmail || '',
-              compradorCpf: pedido.clienteCpfCnpj,
-              compradorTel: pedido.clienteTelefone,
-              cep: pedido.cep,
-              rua: pedido.rua,
-              numero: pedido.numero,
-              complemento: pedido.complemento,
-              bairro: pedido.bairro,
-              cidade: pedido.cidade,
-              estado: pedido.estado,
-              produtoId: pedido.produtoId,
-              vendedorId: pedido.vendedorId
-            }
-          });
-
-          console.log('✅ Venda criada:', venda.id);
-
-          try {
-            const aprovacaoResponse = await fetch(`${request.nextUrl.origin}/api/pad/processar-aprovacao`, {
+            await fetch(`${request.nextUrl.origin}/api/pad/processar-aprovacao`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ pedidoPadHash: pedido.hash, vendaId: venda.id })
             });
 
-            if (!aprovacaoResponse.ok) {
-              const errorData = await aprovacaoResponse.json();
-              console.error('❌ Erro em processar-aprovacao:', errorData);
-            } else {
-              console.log('✅ Aprovação processada com sucesso!');
-            }
-          } catch (err) {
-            console.error('❌ Erro ao chamar processar-aprovacao:', err);
+            return NextResponse.json({
+              success: true,
+              metodoPagamento: 'CARTAO',
+              status: 'approved',
+              transacaoId: efiResult.data?.charge_id
+            });
+          } else {
+            return NextResponse.json({
+              success: false,
+              metodoPagamento: 'CARTAO',
+              status: efiResult.data?.status || 'failed',
+              message: 'Pagamento não aprovado'
+            });
           }
 
-          return NextResponse.json({
-            success: true,
-            metodoPagamento: 'CARTAO',
-            status: result.status,
-            transacaoId: result.id
-          });
         } else {
-          return NextResponse.json({
-            success: false,
-            metodoPagamento: 'CARTAO',
-            status: result.status,
-            statusDetail: result.status_detail,
-            message: 'Pagamento não aprovado'
-          });
+          // Cartão via Mercado Pago (padrão)
+          console.log('🟢 Processando CARTÃO PAD via Mercado Pago...');
+
+          if (!dadosCartao || !dadosCartao.token) {
+            return NextResponse.json({ error: 'Dados do cartão inválidos' }, { status: 400 });
+          }
+
+          const paymentData = {
+            transaction_amount: pedido.valor,
+            token: dadosCartao.token,
+            description: `PAD - ${pedido.produtoNome}`,
+            installments: parseInt(dadosCartao.parcelas) || 1,
+            payment_method_id: dadosCartao.paymentMethodId,
+            payer: {
+              email: pedido.clienteEmail || 'contato@finorapayments.com',
+              identification: {
+                type: pedido.clienteCpfCnpj.replace(/\D/g, '').length === 11 ? 'CPF' : 'CNPJ',
+                number: pedido.clienteCpfCnpj.replace(/\D/g, '')
+              }
+            },
+            external_reference: pedido.id
+          };
+
+          const result = await payment.create({ body: paymentData });
+
+          if (result.status === 'approved') {
+            const venda = await prisma.venda.create({
+              data: {
+                valor: pedido.valor,
+                status: 'PAGO',
+                metodoPagamento: 'CARTAO',
+                compradorNome: pedido.clienteNome,
+                compradorEmail: pedido.clienteEmail || '',
+                compradorCpf: pedido.clienteCpfCnpj,
+                compradorTel: pedido.clienteTelefone,
+                cep: pedido.cep,
+                rua: pedido.rua,
+                numero: pedido.numero,
+                complemento: pedido.complemento,
+                bairro: pedido.bairro,
+                cidade: pedido.cidade,
+                estado: pedido.estado,
+                produtoId: pedido.produtoId,
+                vendedorId: pedido.vendedorId
+              }
+            });
+
+            await fetch(`${request.nextUrl.origin}/api/pad/processar-aprovacao`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ pedidoPadHash: pedido.hash, vendaId: venda.id })
+            });
+
+            return NextResponse.json({
+              success: true,
+              metodoPagamento: 'CARTAO',
+              status: result.status,
+              transacaoId: result.id
+            });
+          } else {
+            return NextResponse.json({
+              success: false,
+              metodoPagamento: 'CARTAO',
+              status: result.status,
+              statusDetail: result.status_detail,
+              message: 'Pagamento não aprovado'
+            });
+          }
         }
 
       } catch (error: any) {
@@ -241,12 +321,7 @@ export async function POST(
     // ========== BOLETO ==========
     if (metodoPagamento === 'BOLETO') {
       try {
-        const configBoleto = await prisma.configuracaoGateway.findUnique({ where: { metodo: 'BOLETO' } });
-        const gatewayBoleto = configBoleto?.gateway || 'MERCADOPAGO';
-        console.log(`🔧 Gateway BOLETO configurado: ${gatewayBoleto}`);
-
         if (gatewayBoleto === 'EFI') {
-          // Boleto via Efi Bank
           console.log('🟢 Gerando BOLETO PAD via Efi...');
 
           const EfiPay = require('sdk-node-apis-efi');
@@ -264,7 +339,7 @@ export async function POST(
           const vencimentoStr = vencimento.toISOString().split('T')[0];
 
           const cpfCnpj = pedido.clienteCpfCnpj.replace(/\D/g, '');
-          const body = {
+          const efiBody = {
             items: [{
               name: pedido.produtoNome,
               value: Math.round(pedido.valor * 100),
@@ -281,7 +356,7 @@ export async function POST(
             metadata: { custom_id: pedido.id }
           };
 
-          const efiResult = await efipay.createOneStepCharge({}, body);
+          const efiResult = await efipay.createOneStepCharge({}, efiBody);
           console.log('📥 Resultado Efi Boleto:', JSON.stringify(efiResult, null, 2));
 
           const boletoUrl = efiResult.data?.link || efiResult.data?.pdf?.charge || null;
@@ -361,59 +436,6 @@ export async function POST(
               details: result
             }, { status: 400 });
           }
-        }
-
-      } catch (error: any) {
-        console.error('❌ Erro Boleto:', error);
-        return NextResponse.json({ error: 'Erro ao processar boleto', details: error.message }, { status: 500 });
-      }
-    }
-          payer: {
-            email: pedido.clienteEmail || 'contato@finorapayments.com',
-            first_name: pedido.clienteNome.split(' ')[0],
-            last_name: pedido.clienteNome.split(' ').slice(1).join(' ') || pedido.clienteNome.split(' ')[0],
-            identification: {
-              type: pedido.clienteCpfCnpj.replace(/\D/g, '').length === 11 ? 'CPF' : 'CNPJ',
-              number: pedido.clienteCpfCnpj.replace(/\D/g, '')
-            },
-            address: {
-              zip_code: pedido.cep.replace(/\D/g, ''),
-              street_name: pedido.rua,
-              street_number: pedido.numero,
-              neighborhood: pedido.bairro,
-              city: pedido.cidade,
-              federal_unit: pedido.estado
-            }
-          },
-          external_reference: pedido.id
-        };
-
-        const result = await payment.create({ body: paymentData });
-
-        if (result.status === 'pending' && result.transaction_details?.external_resource_url) {
-          await prisma.pedidoPAD.update({
-            where: { id: pedido.id },
-            data: {
-              boletoUrl: result.transaction_details.external_resource_url,
-              boletoBarcode: result.barcode?.content || null
-            }
-          });
-
-          return NextResponse.json({
-            success: true,
-            metodoPagamento: 'BOLETO',
-            boletoUrl: result.transaction_details.external_resource_url,
-            boletoBarcode: result.barcode?.content,
-            status: result.status,
-            transacaoId: result.id
-          });
-        } else {
-          return NextResponse.json({
-            success: false,
-            metodoPagamento: 'BOLETO',
-            message: 'Erro ao gerar boleto',
-            details: result
-          }, { status: 400 });
         }
 
       } catch (error: any) {
