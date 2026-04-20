@@ -238,13 +238,136 @@ export async function POST(
       }
     }
 
-    // ========== BOLETO (Mercado Pago) ==========
+    // ========== BOLETO ==========
     if (metodoPagamento === 'BOLETO') {
       try {
-        const paymentData = {
-          transaction_amount: pedido.valor,
-          description: `PAD - ${pedido.produtoNome}`,
-          payment_method_id: 'bolbradesco',
+        const configBoleto = await prisma.configuracaoGateway.findUnique({ where: { metodo: 'BOLETO' } });
+        const gatewayBoleto = configBoleto?.gateway || 'MERCADOPAGO';
+        console.log(`🔧 Gateway BOLETO configurado: ${gatewayBoleto}`);
+
+        if (gatewayBoleto === 'EFI') {
+          // Boleto via Efi Bank
+          console.log('🟢 Gerando BOLETO PAD via Efi...');
+
+          const EfiPay = require('sdk-node-apis-efi');
+          const options = {
+            sandbox: false,
+            client_id: process.env.EFI_CLIENT_ID,
+            client_secret: process.env.EFI_CLIENT_SECRET,
+            certificate: process.env.EFI_CERTIFICATE_PATH || './certificado.p12',
+            cert_base64: process.env.EFI_CERTIFICATE_BASE64
+          };
+          const efipay = new EfiPay(options);
+
+          const vencimento = new Date();
+          vencimento.setDate(vencimento.getDate() + 3);
+          const vencimentoStr = vencimento.toISOString().split('T')[0];
+
+          const cpfCnpj = pedido.clienteCpfCnpj.replace(/\D/g, '');
+          const body = {
+            items: [{
+              name: pedido.produtoNome,
+              value: Math.round(pedido.valor * 100),
+              amount: 1
+            }],
+            customer: {
+              name: pedido.clienteNome,
+              cpf: cpfCnpj.length === 11 ? cpfCnpj : undefined,
+              cnpj: cpfCnpj.length === 14 ? cpfCnpj : undefined,
+              email: pedido.clienteEmail || 'contato@finorapayments.com',
+              phone_number: pedido.clienteTelefone?.replace(/\D/g, '') || '11999999999'
+            },
+            expire_at: vencimentoStr,
+            metadata: { custom_id: pedido.id }
+          };
+
+          const efiResult = await efipay.createOneStepCharge({}, body);
+          console.log('📥 Resultado Efi Boleto:', JSON.stringify(efiResult, null, 2));
+
+          const boletoUrl = efiResult.data?.link || efiResult.data?.pdf?.charge || null;
+          const boletoBarcode = efiResult.data?.barcode || null;
+          const chargeId = efiResult.data?.charge_id || null;
+
+          await prisma.pedidoPAD.update({
+            where: { id: pedido.id },
+            data: {
+              boletoUrl,
+              boletoBarcode,
+              pixId: chargeId ? String(chargeId) : undefined
+            }
+          });
+
+          return NextResponse.json({
+            success: true,
+            metodoPagamento: 'BOLETO',
+            boletoUrl,
+            boletoBarcode,
+            status: 'pending',
+            transacaoId: chargeId
+          });
+
+        } else {
+          // Boleto via Mercado Pago (padrão)
+          console.log('🟢 Gerando BOLETO PAD via Mercado Pago...');
+
+          const paymentData = {
+            transaction_amount: pedido.valor,
+            description: `PAD - ${pedido.produtoNome}`,
+            payment_method_id: 'bolbradesco',
+            payer: {
+              email: pedido.clienteEmail || 'contato@finorapayments.com',
+              first_name: pedido.clienteNome.split(' ')[0],
+              last_name: pedido.clienteNome.split(' ').slice(1).join(' ') || pedido.clienteNome.split(' ')[0],
+              identification: {
+                type: pedido.clienteCpfCnpj.replace(/\D/g, '').length === 11 ? 'CPF' : 'CNPJ',
+                number: pedido.clienteCpfCnpj.replace(/\D/g, '')
+              },
+              address: {
+                zip_code: pedido.cep.replace(/\D/g, ''),
+                street_name: pedido.rua,
+                street_number: pedido.numero,
+                neighborhood: pedido.bairro,
+                city: pedido.cidade,
+                federal_unit: pedido.estado
+              }
+            },
+            external_reference: pedido.id
+          };
+
+          const result = await payment.create({ body: paymentData });
+
+          if (result.status === 'pending' && result.transaction_details?.external_resource_url) {
+            await prisma.pedidoPAD.update({
+              where: { id: pedido.id },
+              data: {
+                boletoUrl: result.transaction_details.external_resource_url,
+                boletoBarcode: result.barcode?.content || null
+              }
+            });
+
+            return NextResponse.json({
+              success: true,
+              metodoPagamento: 'BOLETO',
+              boletoUrl: result.transaction_details.external_resource_url,
+              boletoBarcode: result.barcode?.content,
+              status: result.status,
+              transacaoId: result.id
+            });
+          } else {
+            return NextResponse.json({
+              success: false,
+              metodoPagamento: 'BOLETO',
+              message: 'Erro ao gerar boleto',
+              details: result
+            }, { status: 400 });
+          }
+        }
+
+      } catch (error: any) {
+        console.error('❌ Erro Boleto:', error);
+        return NextResponse.json({ error: 'Erro ao processar boleto', details: error.message }, { status: 500 });
+      }
+    }
           payer: {
             email: pedido.clienteEmail || 'contato@finorapayments.com',
             first_name: pedido.clienteNome.split(' ')[0],
