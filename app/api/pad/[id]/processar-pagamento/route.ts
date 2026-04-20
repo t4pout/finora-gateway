@@ -340,19 +340,33 @@ export async function POST(
 
           const cpfCnpj = pedido.clienteCpfCnpj.replace(/\D/g, '');
           const efiBody = {
+            payment: {
+              banking_billet: {
+                expire_at: vencimentoStr,
+                customer: {
+                  name: pedido.clienteNome,
+                  cpf: cpfCnpj.length === 11 ? cpfCnpj : undefined,
+                  cnpj: cpfCnpj.length === 14 ? cpfCnpj : undefined,
+                  email: pedido.clienteEmail || 'contato@finorapayments.com',
+                  phone_number: pedido.clienteTelefone?.replace(/\D/g, '') || '11999999999',
+                  birth: '1990-01-01',
+                  address: {
+                    street: pedido.rua,
+                    number: pedido.numero,
+                    neighborhood: pedido.bairro,
+                    zipcode: pedido.cep.replace(/\D/g, ''),
+                    city: pedido.cidade,
+                    complement: pedido.complemento || '',
+                    state: pedido.estado
+                  }
+                }
+              }
+            },
             items: [{
               name: pedido.produtoNome,
               value: Math.round(pedido.valor * 100),
               amount: 1
             }],
-            customer: {
-              name: pedido.clienteNome,
-              cpf: cpfCnpj.length === 11 ? cpfCnpj : undefined,
-              cnpj: cpfCnpj.length === 14 ? cpfCnpj : undefined,
-              email: pedido.clienteEmail || 'contato@finorapayments.com',
-              phone_number: pedido.clienteTelefone?.replace(/\D/g, '') || '11999999999'
-            },
-            expire_at: vencimentoStr,
             metadata: { custom_id: pedido.id }
           };
 
