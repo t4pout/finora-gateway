@@ -544,133 +544,267 @@ export default function VendasPage() {
       </main>
 
       {modalAberto && vendaSelecionada && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900">Detalhes da Venda</h2>
-              <button onClick={fecharModal} className="p-2 hover:bg-gray-100 rounded-lg transition"><X size={24} /></button>
-            </div>
-            <div className="p-6 space-y-6">
-              <div className="bg-purple-50 rounded-xl p-4">
-                <h3 className="font-semibold text-purple-900 mb-2">Produto</h3>
-                <p className="text-lg font-bold text-purple-700">{vendaSelecionada.produto.nome}</p>
-                <p className="text-sm text-purple-600">ID: {vendaSelecionada.id.substring(0, 8)}</p>
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+
+            {/* Header */}
+            <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between rounded-t-2xl">
+              <div className="flex items-center gap-3">
+                <div className={`w-3 h-3 rounded-full ${vendaSelecionada.status === 'PAGO' ? 'bg-green-500' : vendaSelecionada.status === 'PENDENTE' ? 'bg-yellow-500' : 'bg-red-500'}`}></div>
+                <h2 className="text-xl font-bold text-gray-900">Detalhes da Venda</h2>
+                <span className={`px-3 py-1 rounded-full text-xs font-bold ${vendaSelecionada.status === 'PAGO' ? 'bg-green-100 text-green-700' : vendaSelecionada.status === 'PENDENTE' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
+                  {vendaSelecionada.status}
+                </span>
               </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-3">Dados do Cliente</h3>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div><label className="text-sm text-gray-600">Nome</label><p className="font-semibold text-gray-900">{vendaSelecionada.compradorNome}</p></div>
-                  <div><label className="text-sm text-gray-600">Email</label><p className="font-semibold text-gray-900">{vendaSelecionada.compradorEmail}</p></div>
-                  {vendaSelecionada.compradorCpf && <div><label className="text-sm text-gray-600">CPF</label><p className="font-semibold text-gray-900">{vendaSelecionada.compradorCpf}</p></div>}
-                  {vendaSelecionada.compradorTel && <div><label className="text-sm text-gray-600">Telefone</label><p className="font-semibold text-gray-900">{vendaSelecionada.compradorTel}</p></div>}
+              <button onClick={fecharModal} className="p-2 hover:bg-gray-100 rounded-lg transition text-gray-500"><X size={20} /></button>
+            </div>
+
+            <div className="p-6 space-y-5">
+
+              {/* Produto */}
+              <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-xs font-semibold text-purple-500 uppercase tracking-wide mb-1">Produto</p>
+                    <p className="text-lg font-bold text-purple-900">{vendaSelecionada.produto.nome}</p>
+                    {vendaSelecionada.nomePlano && <p className="text-sm text-purple-600 mt-0.5">{vendaSelecionada.nomePlano}</p>}
+                  </div>
+                  <span className="text-xs font-mono text-purple-400 bg-purple-200 px-2 py-1 rounded">#{vendaSelecionada.id.substring(0, 8).toUpperCase()}</span>
                 </div>
-                {vendaSelecionada.metodoPagamento === 'PIX' && vendaSelecionada.pixCopiaECola && vendaSelecionada.status === 'PENDENTE' && (
-                  <div className="mt-4 bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-yellow-600 font-semibold">PIX Pendente - Codigo para Cobranca</span>
-                    </div>
-                    <p className="text-xs text-yellow-700 mb-2">Use este codigo PIX para enviar ao cliente via WhatsApp:</p>
-                    <div className="relative">
-                      <div className="bg-white p-3 rounded-lg font-mono text-xs break-all border border-yellow-300">{vendaSelecionada.pixCopiaECola}</div>
-                      <button onClick={() => { navigator.clipboard.writeText(vendaSelecionada.pixCopiaECola!); alert('Codigo PIX copiado!'); }} className="absolute top-2 right-2 px-3 py-1.5 bg-yellow-600 text-white text-xs font-semibold rounded-lg hover:bg-yellow-700 transition">Copiar</button>
-                    </div>
-                    <div className="mt-3 flex gap-2">
+              </div>
+
+              {/* PIX Pendente — Link de Pagamento */}
+              {vendaSelecionada.metodoPagamento === 'PIX' && vendaSelecionada.status === 'PENDENTE' && (
+                <div className="bg-amber-50 border-2 border-amber-300 rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-lg">⏳</span>
+                    <span className="font-bold text-amber-800">PIX Aguardando Pagamento</span>
+                  </div>
+
+                  {/* Link do pedido */}
+                  <div className="mb-3">
+                    <p className="text-xs font-semibold text-amber-700 mb-1">🔗 Link da página de pagamento:</p>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 bg-white border border-amber-300 rounded-lg px-3 py-2 font-mono text-xs text-gray-700 truncate">
+                        {`${typeof window !== 'undefined' ? window.location.origin : 'https://www.finorapayments.com'}/pedido/${vendaSelecionada.id}`}
+                      </div>
                       <button
                         onClick={() => {
-                          const mensagem = 'Ola ' + vendaSelecionada.compradorNome + '! Seu pedido de ' + vendaSelecionada.produto.nome + ' no valor de R$ ' + vendaSelecionada.valor.toFixed(2).replace('.', ',') + ' esta pendente.\n\nCodigo PIX:\n' + vendaSelecionada.pixCopiaECola;
-                          const telefone = vendaSelecionada.compradorTel?.replace(/\D/g, '');
-                          window.open('https://wa.me/55' + telefone + '?text=' + encodeURIComponent(mensagem), '_blank');
+                          const link = `${window.location.origin}/pedido/${vendaSelecionada.id}`;
+                          navigator.clipboard.writeText(link);
+                          alert('✅ Link copiado! Envie para o cliente finalizar o pagamento.');
                         }}
-                        className="flex-1 px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition"
-                      >Cobrar via WhatsApp</button>
-                      <button onClick={() => { navigator.clipboard.writeText(vendaSelecionada.pixCopiaECola!); alert('Codigo PIX copiado!'); }} className="px-4 py-2 bg-yellow-600 text-white font-semibold rounded-lg hover:bg-yellow-700 transition">Copiar Codigo</button>
+                        className="px-3 py-2 bg-amber-600 text-white text-xs font-semibold rounded-lg hover:bg-amber-700 transition whitespace-nowrap"
+                      >
+                        Copiar Link
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Código PIX */}
+                  {vendaSelecionada.pixCopiaECola && (
+                    <div className="mb-3">
+                      <p className="text-xs font-semibold text-amber-700 mb-1">📋 Código PIX copia e cola:</p>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 bg-white border border-amber-300 rounded-lg px-3 py-2 font-mono text-xs text-gray-700 truncate">
+                          {vendaSelecionada.pixCopiaECola}
+                        </div>
+                        <button
+                          onClick={() => { navigator.clipboard.writeText(vendaSelecionada.pixCopiaECola!); alert('Código PIX copiado!'); }}
+                          className="px-3 py-2 bg-amber-600 text-white text-xs font-semibold rounded-lg hover:bg-amber-700 transition whitespace-nowrap"
+                        >
+                          Copiar
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Botões de ação */}
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      onClick={() => {
+                        const link = `${window.location.origin}/pedido/${vendaSelecionada.id}`;
+                        const mensagem = `Olá ${vendaSelecionada.compradorNome}! 👋\n\nSeu pedido de *${vendaSelecionada.produto.nome}* no valor de *R$ ${vendaSelecionada.valor.toFixed(2).replace('.', ',')}* ainda está aguardando pagamento.\n\nClique no link abaixo para pagar via PIX:\n${link}`;
+                        const telefone = vendaSelecionada.compradorTel?.replace(/\D/g, '');
+                        window.open(`https://wa.me/55${telefone}?text=${encodeURIComponent(mensagem)}`, '_blank');
+                      }}
+                      className="flex-1 px-4 py-2.5 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 transition flex items-center justify-center gap-2"
+                    >
+                      <span>📲</span> Cobrar via WhatsApp
+                    </button>
+                    <button
+                      onClick={() => {
+                        const link = `${window.location.origin}/pedido/${vendaSelecionada.id}`;
+                        navigator.clipboard.writeText(link);
+                        alert('✅ Link copiado!');
+                      }}
+                      className="px-4 py-2.5 bg-amber-600 text-white text-sm font-semibold rounded-lg hover:bg-amber-700 transition"
+                    >
+                      🔗 Copiar Link
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Dados do Cliente */}
+              <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Dados do Cliente</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <p className="text-xs text-gray-500">Nome</p>
+                    <p className="font-semibold text-gray-900 text-sm">{vendaSelecionada.compradorNome}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Email</p>
+                    <p className="font-semibold text-gray-900 text-sm">{vendaSelecionada.compradorEmail}</p>
+                  </div>
+                  {vendaSelecionada.compradorCpf && (
+                    <div>
+                      <p className="text-xs text-gray-500">CPF</p>
+                      <p className="font-semibold text-gray-900 text-sm">{vendaSelecionada.compradorCpf}</p>
+                    </div>
+                  )}
+                  {vendaSelecionada.compradorTel && (
+                    <div>
+                      <p className="text-xs text-gray-500">Telefone</p>
+                      <p className="font-semibold text-gray-900 text-sm">{vendaSelecionada.compradorTel}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Endereço */}
+              {vendaSelecionada.cep && (
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Endereço</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <p className="text-xs text-gray-500">CEP</p>
+                      <p className="font-semibold text-gray-900 text-sm">{vendaSelecionada.cep}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Rua</p>
+                      <p className="font-semibold text-gray-900 text-sm">{vendaSelecionada.rua}, {vendaSelecionada.numero}</p>
+                    </div>
+                    {vendaSelecionada.complemento && (
+                      <div>
+                        <p className="text-xs text-gray-500">Complemento</p>
+                        <p className="font-semibold text-gray-900 text-sm">{vendaSelecionada.complemento}</p>
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-xs text-gray-500">Bairro</p>
+                      <p className="font-semibold text-gray-900 text-sm">{vendaSelecionada.bairro}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Cidade/UF</p>
+                      <p className="font-semibold text-gray-900 text-sm">{vendaSelecionada.cidade} - {vendaSelecionada.estado}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Informações da Venda */}
+              <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Informações da Venda</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <p className="text-xs text-gray-500">Valor Total</p>
+                    <p className="text-2xl font-bold text-gray-900">R$ {vendaSelecionada.valor.toFixed(2).replace('.', ',')}</p>
+                    {vendaSelecionada.orderBumpsValor && vendaSelecionada.orderBumpsValor > 0 && (
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        Produto: R$ {(vendaSelecionada.valor - vendaSelecionada.orderBumpsValor).toFixed(2).replace('.', ',')} + OB: R$ {vendaSelecionada.orderBumpsValor.toFixed(2).replace('.', ',')}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Método de Pagamento</p>
+                    <p className="font-semibold text-gray-900 text-sm">{vendaSelecionada.metodoPagamento}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Status</p>
+                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${vendaSelecionada.status === 'PAGO' ? 'bg-green-100 text-green-700' : vendaSelecionada.status === 'PENDENTE' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
+                      <div className={`w-1.5 h-1.5 rounded-full ${vendaSelecionada.status === 'PAGO' ? 'bg-green-500' : vendaSelecionada.status === 'PENDENTE' ? 'bg-yellow-500' : 'bg-red-500'}`}></div>
+                      {vendaSelecionada.status}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Data</p>
+                    <p className="font-semibold text-gray-900 text-sm">{formatarDataHora(vendaSelecionada.createdAt)}</p>
+                  </div>
+                  {vendaSelecionada.vendedor && (
+                    <div>
+                      <p className="text-xs text-gray-500">Vendedor</p>
+                      <p className="font-semibold text-gray-900 text-sm">{vendaSelecionada.vendedor.nome}</p>
+                    </div>
+                  )}
+                  {vendaSelecionada.transacoes && vendaSelecionada.transacoes.length > 0 && (
+                    <div>
+                      <p className="text-xs text-gray-500">Valor Líquido</p>
+                      <p className="font-bold text-green-600 text-sm">R$ {vendaSelecionada.transacoes[0].valor.toFixed(2).replace('.', ',')}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* UTM */}
+                {vendaSelecionada.utmSource && (
+                  <div className="mt-3 pt-3 border-t border-gray-200">
+                    <p className="text-xs text-gray-500 mb-2">Origem da Campanha (UTM)</p>
+                    <div className="flex flex-wrap gap-2">
+                      <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded-md text-xs font-medium border border-blue-200">source: {vendaSelecionada.utmSource}</span>
+                      {vendaSelecionada.utmMedium && <span className="px-2 py-1 bg-indigo-50 text-indigo-700 rounded-md text-xs font-medium border border-indigo-200">medium: {vendaSelecionada.utmMedium}</span>}
+                      {vendaSelecionada.utmCampaign && <span className="px-2 py-1 bg-violet-50 text-violet-700 rounded-md text-xs font-medium border border-violet-200">campaign: {vendaSelecionada.utmCampaign}</span>}
                     </div>
                   </div>
                 )}
               </div>
-              {vendaSelecionada.cep && (
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-3">Endereco</h3>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div><label className="text-sm text-gray-600">CEP</label><p className="font-semibold text-gray-900">{vendaSelecionada.cep}</p></div>
-                    <div><label className="text-sm text-gray-600">Rua</label><p className="font-semibold text-gray-900">{vendaSelecionada.rua}</p></div>
-                    <div><label className="text-sm text-gray-600">Numero</label><p className="font-semibold text-gray-900">{vendaSelecionada.numero}</p></div>
-                    {vendaSelecionada.complemento && <div><label className="text-sm text-gray-600">Complemento</label><p className="font-semibold text-gray-900">{vendaSelecionada.complemento}</p></div>}
-                    <div><label className="text-sm text-gray-600">Bairro</label><p className="font-semibold text-gray-900">{vendaSelecionada.bairro}</p></div>
-                    <div><label className="text-sm text-gray-600">Cidade/UF</label><p className="font-semibold text-gray-900">{vendaSelecionada.cidade} - {vendaSelecionada.estado}</p></div>
-                  </div>
-                </div>
-              )}
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-3">Informacoes da Venda</h3>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm text-gray-600">Valor Total</label>
-                    <p className="text-2xl font-bold text-gray-900">R$ {vendaSelecionada.valor.toFixed(2).replace('.', ',')}</p>
-                    {vendaSelecionada.orderBumpsValor && vendaSelecionada.orderBumpsValor > 0 && (
-                      <p className="text-xs text-gray-500 mt-1">{'Produto: R$ ' + (vendaSelecionada.valor - vendaSelecionada.orderBumpsValor).toFixed(2).replace('.', ',') + ' + Order Bumps: R$ ' + vendaSelecionada.orderBumpsValor.toFixed(2).replace('.', ',')}</p>
-                    )}
-                  </div>
-                  <div><label className="text-sm text-gray-600">Metodo de Pagamento</label><p className="font-semibold text-gray-900">{vendaSelecionada.metodoPagamento}</p></div>
-                  <div>
-                    <label className="text-sm text-gray-600">Status</label>
-                    <span className={'inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold ' + (vendaSelecionada.status === 'PAGO' ? 'bg-green-100 text-green-700' : vendaSelecionada.status === 'PENDENTE' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700')}>{vendaSelecionada.status}</span>
-                  </div>
-                  <div><label className="text-sm text-gray-600">Data</label><p className="font-semibold text-gray-900">{formatarDataHora(vendaSelecionada.createdAt)}</p></div>
-                  {vendaSelecionada.vendedor && (
-                    <div><label className="text-sm text-gray-600">Vendedor</label><p className="font-semibold text-gray-900">{vendaSelecionada.vendedor.nome}</p></div>
-                  )}
-                  {vendaSelecionada.utmSource && (
-                    <div className="md:col-span-2">
-                      <label className="text-sm text-gray-600">Origem da Campanha (UTM)</label>
-                      <div className="flex flex-wrap gap-2 mt-1">
-                        <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-md text-sm font-medium border border-blue-200">source: {vendaSelecionada.utmSource}</span>
-                        {vendaSelecionada.utmMedium && <span className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-md text-sm font-medium border border-indigo-200">medium: {vendaSelecionada.utmMedium}</span>}
-                        {vendaSelecionada.utmCampaign && <span className="px-3 py-1 bg-violet-50 text-violet-700 rounded-md text-sm font-medium border border-violet-200">campaign: {vendaSelecionada.utmCampaign}</span>}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
+
+              {/* Order Bumps */}
               {vendaSelecionada.orderBumpsNomes && vendaSelecionada.orderBumpsNomes.length > 0 && (
-                <div className="bg-purple-50 rounded-xl p-4">
-                  <h3 className="font-semibold text-purple-900 mb-3">Order Bumps Adicionados</h3>
+                <div className="bg-purple-50 rounded-xl p-4 border border-purple-200">
+                  <p className="text-xs font-semibold text-purple-500 uppercase tracking-wide mb-3">Order Bumps Adicionados</p>
                   <div className="space-y-2">
                     {vendaSelecionada.orderBumpsNomes.map((nome, i) => (
-                      <div key={i} className="flex items-center justify-between bg-white rounded-lg px-4 py-2 border border-purple-200">
-                        <span className="text-gray-900 font-medium">{nome}</span>
+                      <div key={i} className="flex items-center justify-between bg-white rounded-lg px-3 py-2 border border-purple-200">
+                        <span className="text-gray-900 text-sm font-medium">🔥 {nome}</span>
                       </div>
                     ))}
                   </div>
                   <div className="mt-3 pt-3 border-t border-purple-200 flex justify-between">
-                    <span className="font-semibold text-purple-900">Total Order Bumps:</span>
-                    <span className="font-bold text-purple-700">{'R$ ' + (vendaSelecionada.orderBumpsValor ? vendaSelecionada.orderBumpsValor.toFixed(2).replace('.', ',') : '0,00')}</span>
+                    <span className="font-semibold text-purple-900 text-sm">Total Order Bumps:</span>
+                    <span className="font-bold text-purple-700">R$ {(vendaSelecionada.orderBumpsValor ?? 0).toFixed(2).replace('.', ',')}</span>
                   </div>
                 </div>
               )}
+
+              {/* Boleto */}
               {vendaSelecionada.boletoUrl && (
-                <div>
-                  <label className="text-sm text-gray-600 mb-2 block">Boleto</label>
-                  <a href={vendaSelecionada.boletoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">Ver Boleto</a>
+                <div className="bg-orange-50 rounded-xl p-4 border border-orange-200">
+                  <p className="text-xs font-semibold text-orange-600 uppercase tracking-wide mb-2">Boleto</p>
+                  <a href={vendaSelecionada.boletoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition text-sm font-semibold">
+                    📄 Visualizar Boleto
+                  </a>
                 </div>
               )}
 
+              {/* Cancelar venda (admin) */}
               {isAdmin && vendaSelecionada.status === 'PAGO' && (
-                <div className="pt-4 border-t border-gray-200">
+                <div className="pt-2 border-t border-gray-200">
                   <button
                     onClick={() => cancelarVenda(vendaSelecionada.id)}
                     disabled={cancelando}
-                    className="w-full px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition disabled:opacity-50"
+                    className="w-full px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition disabled:opacity-50 text-sm"
                   >
                     {cancelando ? 'Cancelando...' : '🚫 Cancelar Venda'}
                   </button>
-                  <p className="text-xs text-gray-500 text-center mt-2">Apenas admins podem cancelar vendas. O estorno ao cliente deve ser feito manualmente.</p>
+                  <p className="text-xs text-gray-400 text-center mt-2">Apenas admins podem cancelar vendas. O estorno deve ser feito manualmente.</p>
                 </div>
               )}
+
             </div>
           </div>
         </div>
       )}
-    </div>
+   </div>
   );
 }
