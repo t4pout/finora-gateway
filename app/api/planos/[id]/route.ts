@@ -1,3 +1,31 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import jwt from 'jsonwebtoken';
+
+export async function GET(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  try {
+    const params = await context.params;
+    const planoId = params.id;
+
+    const plano = await prisma.planoOferta.findUnique({
+      where: { id: planoId },
+      include: { produto: true }
+    });
+
+    if (!plano) {
+      return NextResponse.json({ error: 'Plano não encontrado' }, { status: 404 });
+    }
+
+    return NextResponse.json({ plano });
+  } catch (error: any) {
+    console.error('❌ ERRO:', error.message);
+    return NextResponse.json({ error: 'Erro ao buscar plano', details: error.message }, { status: 500 });
+  }
+}
+
 export async function PATCH(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
@@ -14,7 +42,6 @@ export async function PATCH(
 
     console.log('📝 Atualizando plano:', planoId);
 
-    // Só atualiza campos que foram enviados no body
     const data: any = {};
     if (body.nome !== undefined) data.nome = body.nome;
     if (body.descricao !== undefined) data.descricao = body.descricao;
@@ -60,9 +87,28 @@ export async function PATCH(
     return NextResponse.json({ success: true, plano });
   } catch (error: any) {
     console.error('❌ Erro ao atualizar plano:', error);
-    return NextResponse.json(
-      { error: 'Erro ao atualizar plano', details: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Erro ao atualizar plano', details: error.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  try {
+    const token = request.headers.get('authorization')?.replace('Bearer ', '');
+    if (!token) {
+      return NextResponse.json({ error: 'Token não fornecido' }, { status: 401 });
+    }
+
+    jwt.verify(token, process.env.NEXTAUTH_SECRET || 'sua-chave-secreta-super-segura');
+
+    const { id: planoId } = await context.params;
+    await prisma.planoOferta.delete({ where: { id: planoId } });
+
+    return NextResponse.json({ success: true, message: 'Plano deletado com sucesso' });
+  } catch (error: any) {
+    console.error('Erro ao deletar plano:', error);
+    return NextResponse.json({ error: 'Erro ao deletar plano', details: error.message }, { status: 500 });
   }
 }
