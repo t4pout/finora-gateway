@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import crypto from 'crypto';
 import { enviarEmailEbook } from '@/lib/email';
+import { emitirNFeBling } from '@/lib/bling';
 
 const VERIFY_TOKEN = process.env.PAGGPIX_WEBHOOK_TOKEN || 'finora-webhook-secure-token-2026';
 
@@ -347,6 +348,27 @@ async function processarVendaNormal(venda: any) {
       console.log('✅ Ebook enviado com sucesso!');
     }
   } catch (e) { console.error('❌ Erro ao enviar ebook:', e); }
+
+  // Emitir NF-e no Bling se configurado
+  try {
+    await emitirNFeBling({
+      userId: venda.produto.userId,
+      compradorNome: venda.compradorNome,
+      compradorEmail: venda.compradorEmail,
+      compradorCpf: venda.compradorCpf,
+      compradorTel: venda.compradorTel,
+      cep: venda.cep,
+      rua: venda.rua,
+      numero: venda.numero,
+      complemento: venda.complemento,
+      bairro: venda.bairro,
+      cidade: venda.cidade,
+      estado: venda.estado,
+      produtoNome: produtoCompleto?.nome || venda.produto.nome,
+      valor: venda.valor,
+      vendaId: venda.id
+    });
+  } catch (e) { console.error('❌ Erro ao emitir NF-e Bling:', e); }
 
   return NextResponse.json({ 
     success: true,
