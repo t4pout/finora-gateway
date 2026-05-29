@@ -392,6 +392,43 @@ async function processarVendaNormal(venda: any) {
       utmCampaign: venda.utmCampaign
     };
     await dispararWebhooks(venda.produto.userId, dadosEvento);
+    // Disparar para AidaTraffic
+try {
+  const aidaUrl = process.env.AIDA_WEBHOOK_URL;
+  const aidaSecret = process.env.AIDA_WEBHOOK_SECRET;
+  if (aidaUrl) {
+    const payload = JSON.stringify({
+      evento: 'VENDA_PAGA',
+      timestamp: new Date().toISOString(),
+      data: {
+        vendaId: venda.id,
+        produtoNome: produtoCompleto?.nome || venda.produto.nome,
+        produtoId: venda.produtoId,
+        valor: venda.valor,
+        valorLiquido,
+        compradorNome: venda.compradorNome,
+        compradorEmail: venda.compradorEmail,
+        compradorCpf: venda.compradorCpf,
+        compradorTel: venda.compradorTel,
+        metodoPagamento: 'PIX',
+        status: 'PAGO',
+        createdAt: new Date().toISOString(),
+        utmSource: venda.utmSource,
+        utmMedium: venda.utmMedium,
+        utmCampaign: venda.utmCampaign
+      }
+    });
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (aidaSecret) {
+      const sig = crypto.createHmac('sha256', aidaSecret).update(payload).digest('hex');
+      headers['X-Finora-Signature'] = 'sha256=' + sig;
+    }
+    await fetch(aidaUrl, { method: 'POST', headers, body: payload });
+    console.log('✅ AidaTraffic webhook disparado');
+  }
+} catch (e) {
+  console.error('❌ Erro ao disparar AidaTraffic webhook:', e);
+}
     await dispararPostbacks(venda.produto.userId, dadosEvento);
   } catch (e) { console.error('❌ Erro ao disparar webhooks/postbacks:', e); }
 
