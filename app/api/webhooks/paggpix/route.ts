@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import crypto from 'crypto';
 import { enviarEmailEbook } from '@/lib/email';
 import { emitirNFeBling } from '@/lib/bling';
+import { dispararWebhooks, dispararPostbacks } from '@/lib/ferramentas';
 
 const VERIFY_TOKEN = process.env.PAGGPIX_WEBHOOK_TOKEN || 'finora-webhook-secure-token-2026';
 
@@ -369,6 +370,30 @@ async function processarVendaNormal(venda: any) {
       vendaId: venda.id
     });
   } catch (e) { console.error('❌ Erro ao emitir NF-e Bling:', e); }
+
+  // Disparar webhooks e postbacks
+  try {
+    const dadosEvento = {
+      evento: 'VENDA_PAGA',
+      vendaId: venda.id,
+      produtoNome: produtoCompleto?.nome || venda.produto.nome,
+      produtoId: venda.produtoId,
+      valor: venda.valor,
+      valorLiquido,
+      compradorNome: venda.compradorNome,
+      compradorEmail: venda.compradorEmail,
+      compradorCpf: venda.compradorCpf,
+      compradorTel: venda.compradorTel,
+      metodoPagamento: 'PIX',
+      status: 'PAGO',
+      createdAt: new Date().toISOString(),
+      utmSource: venda.utmSource,
+      utmMedium: venda.utmMedium,
+      utmCampaign: venda.utmCampaign
+    };
+    await dispararWebhooks(venda.produto.userId, dadosEvento);
+    await dispararPostbacks(venda.produto.userId, dadosEvento);
+  } catch (e) { console.error('❌ Erro ao disparar webhooks/postbacks:', e); }
 
   return NextResponse.json({ 
     success: true,

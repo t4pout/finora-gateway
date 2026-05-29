@@ -29,6 +29,8 @@ model User {
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
   integracaoBling       IntegracaoBling?
+  webhooks              Webhook[]
+  postbacks             Postback[]
   afiliacoes            Afiliacao[]
   campanhas             Campanha[]
   comissoes             Comissao[]
@@ -616,4 +618,63 @@ model IntegracaoBling {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Webhook {
+  id          String   @id @default(cuid())
+  userId      String
+  nome        String
+  url         String
+  ativo       Boolean  @default(true)
+  eventos     String[] @default(["VENDA_PAGA"])
+  secret      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  logs        WebhookLog[]
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("Webhook")
+}
+
+model WebhookLog {
+  id          String   @id @default(cuid())
+  webhookId   String
+  evento      String
+  statusCode  Int?
+  sucesso     Boolean
+  payload     String
+  resposta    String?
+  createdAt   DateTime @default(now())
+  webhook     Webhook  @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+  @@map("WebhookLog")
+}
+
+model Postback {
+  id          String   @id @default(cuid())
+  userId      String
+  nome        String
+  url         String
+  metodo      String   @default("GET")
+  ativo       Boolean  @default(true)
+  eventos     String[] @default(["VENDA_PAGA"])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  logs        PostbackLog[]
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("Postback")
+}
+
+model PostbackLog {
+  id          String   @id @default(cuid())
+  postbackId  String
+  evento      String
+  urlDisparada String
+  statusCode  Int?
+  sucesso     Boolean
+  createdAt   DateTime @default(now())
+  postback    Postback @relation(fields: [postbackId], references: [id], onDelete: Cascade)
+
+  @@map("PostbackLog")
 }
