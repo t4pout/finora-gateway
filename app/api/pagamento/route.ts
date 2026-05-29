@@ -4,6 +4,7 @@ import { getPicPayToken } from '@/lib/picpay-token';
 import { enviarEmailPedidoCriado } from '@/lib/email';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import { enviarParaPagah } from '@/lib/pagah';
+import { dispararWebhooks, dispararPostbacks } from '@/lib/ferramentas';
 
 const PAGGPIX_TOKEN = process.env.PAGGPIX_TOKEN;
 const PAGGPIX_API = 'https://public-api.paggpix.com';
@@ -566,6 +567,30 @@ export async function POST(request: NextRequest) {
         data: { status: 'CONVERTIDO' }
       });
     } catch (e) { console.error('Erro ao marcar carrinho convertido:', e); }
+
+    // Disparar webhooks e postbacks PENDENTE
+    try {
+      const dadosEvento = {
+        evento: 'VENDA_PENDENTE',
+        vendaId: venda.id,
+        produtoNome: plano.produto.nome,
+        produtoId: plano.produtoId,
+        valor: valorTotal,
+        valorLiquido: 0,
+        compradorNome: venda.compradorNome,
+        compradorEmail: venda.compradorEmail,
+        compradorCpf: venda.compradorCpf,
+        compradorTel: venda.compradorTel,
+        metodoPagamento: metodoPagamento || 'PIX',
+        status: 'PENDENTE',
+        createdAt: new Date().toISOString(),
+        utmSource: body.utmSource || '',
+        utmMedium: body.utmMedium || '',
+        utmCampaign: body.utmCampaign || ''
+      };
+      await dispararWebhooks(plano.produto.userId, dadosEvento);
+      await dispararPostbacks(plano.produto.userId, dadosEvento);
+    } catch (e) { console.error('❌ Erro ao disparar webhooks PENDENTE:', e); }
 
     return NextResponse.json({ vendaId: venda.id, pixId, qrCode, copiaECola, valor: plano.preco, metodoPagamento: venda.metodoPagamento });
 
