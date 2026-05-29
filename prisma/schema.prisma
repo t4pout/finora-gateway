@@ -28,6 +28,7 @@ model User {
   resetPasswordExpires  DateTime?
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
+  integracaoBling       IntegracaoBling?
   afiliacoes            Afiliacao[]
   campanhas             Campanha[]
   comissoes             Comissao[]
@@ -598,4 +599,21 @@ model Despesa {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("Despesa")
+}
+
+model IntegracaoBling {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  clientId        String
+  clientSecret    String
+  accessToken     String?
+  refreshToken    String?
+  tokenExpiresAt  DateTime?
+  ativo           Boolean  @default(false)
+  emiteNFAutomatico Boolean @default(true)
+  serieNF         String   @default("1")
+  naturezaOperacao String  @default("Venda de mercadoria")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
