@@ -288,7 +288,7 @@ export default function IntegracoesPage() {
                   disabled={salvando}
                   className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition disabled:opacity-50"
                 >
-                  {salvando ? 'Salvando...' : integracao ? '💾 Atualizar Integração' : '🔌 Conectar Bling'}
+                  {salvando ? 'Salvando...' : '💾 Salvar Configurações'}
                 </button>
                 {integracao && (
                   <button
@@ -300,9 +300,56 @@ export default function IntegracoesPage() {
                 )}
               </div>
 
-              {integracao?.accessToken && (
+              {/* Botão OAuth */}
+              <div className="mt-4">
+                {integracao?.accessToken ? (
+                  <div className="p-4 bg-green-50 border border-green-200 rounded-xl flex items-center justify-between">
+                    <p className="text-sm text-green-700 font-semibold">✅ Conta Bling conectada com sucesso</p>
+                    <button
+                      onClick={async () => {
+                        const token = localStorage.getItem('token');
+                        const res = await fetch('/api/integracoes/bling/autorizar', {
+                          headers: { 'Authorization': 'Bearer ' + token }
+                        });
+                        const data = await res.json();
+                        if (data.url) window.location.href = data.url;
+                      }}
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 transition"
+                    >
+                      🔄 Reconectar
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={async () => {
+                      if (!integracao) {
+                        alert('Salve as configurações primeiro antes de conectar.');
+                        return;
+                      }
+                      const token = localStorage.getItem('token');
+                      const res = await fetch('/api/integracoes/bling/autorizar', {
+                        headers: { 'Authorization': 'Bearer ' + token }
+                      });
+                      const data = await res.json();
+                      if (data.url) window.location.href = data.url;
+                      else alert('Erro ao gerar link de autorização');
+                    }}
+                    className="w-full px-6 py-4 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition flex items-center justify-center gap-3 text-lg"
+                  >
+                    🔌 Conectar conta Bling via OAuth
+                  </button>
+                )}
+              </div>
+
+              {/* Alerta de erro/sucesso da URL */}
+              {typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('sucesso') === 'bling_conectado' && (
                 <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl">
-                  <p className="text-sm text-green-700 font-semibold">✅ Token de acesso ativo — integração funcionando</p>
+                  <p className="text-sm text-green-700 font-semibold">✅ Bling conectado com sucesso!</p>
+                </div>
+              )}
+              {typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('erro') && (
+                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl">
+                  <p className="text-sm text-red-700 font-semibold">❌ Erro ao conectar: {new URLSearchParams(window.location.search).get('erro')}</p>
                 </div>
               )}
             </div>
