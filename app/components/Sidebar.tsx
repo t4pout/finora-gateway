@@ -236,6 +236,17 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
             <span>Integrações</span>
           </div>
         </Link>
+        
+<Link href="/dashboard/ferramentas">
+          <div className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition ${
+            isActivePrefix('/dashboard/ferramentas')
+              ? 'bg-purple-50 text-purple-600 font-semibold'
+              : 'text-gray-700 hover:bg-gray-50'
+          }`}>
+            <Zap size={20} />
+            <span>Ferramentas</span>
+          </div>
+        </Link>
 
         {/* Menu Admin expandível */}
         {user?.role === 'ADMIN' && (
