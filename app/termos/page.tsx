@@ -25,7 +25,7 @@ Atualizado em 24 de outubro de 202 5
 
 PREÂMBULO 
 
-AIDA TRAFFIC LTDA, pessoa jurídica de direito privado, inscrita no CNPJ sob o n.º 35.254.464/0001-09, com sede na Rua Astolfo Silva 92 Casa A Centro Mendes Pimentel MG 35270-000, Brasil, única e exclusiva proprietária do domínio: https://www.finorapayments.com, doravante denominada (FINORA), e (Você), pessoa física ou jurídica, que leu, entendeu, concorda e deu o aceite eletrônico, doravante denominado (Usuário Produtor, Usuário Afiliado/ Usuário Comprador o u simplesmente Usuário), firmam o presente Contrato de Licença de Uso não exclusiva da PLATAFORMA AIDA TRAFFIC (Termos de Uso/Instrumento), do qual são parte integrante os Termos de Compra e a Políticas de Privacidade, com acesso por meio do link https://www.finorapayments.com/termos.
+Finora Intermediadora de Pagamentos LTDA, pessoa jurídica de direito privado, inscrita no CNPJ sob o n.º 65.732.906/0001-46, com sede na Rua Astolfo Silva 92 Casa A Centro Mendes Pimentel MG 35270-000, Brasil, única e exclusiva proprietária do domínio: https://www.finorapayments.com, doravante denominada (FINORA), e (Você), pessoa física ou jurídica, que leu, entendeu, concorda e deu o aceite eletrônico, doravante denominado (Usuário Produtor, Usuário Afiliado/ Usuário Comprador o u simplesmente Usuário), firmam o presente Contrato de Licença de Uso não exclusiva da PLATAFORMA AIDA TRAFFIC (Termos de Uso/Instrumento), do qual são parte integrante os Termos de Compra e a Políticas de Privacidade, com acesso por meio do link https://www.finorapayments.com/termos.
 
 DA ATIVIDADE 
 
@@ -165,7 +165,7 @@ Em caso de dúvidas, reclamações ou sugestões, o Usuário poderá entrar em c
 
             <div className="bg-purple-50 border-l-4 border-purple-600 p-6 my-8">
               <h3 className="text-xl font-bold text-purple-900 mb-2">CNPJ</h3>
-              <p className="text-purple-800 text-lg">35.254.464/0001-09</p>
+              <p className="text-purple-800 text-lg">65.732.906/0001-46</p>
             </div>
 
             <div className="bg-gray-50 rounded-lg p-6 my-8">

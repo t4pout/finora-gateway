@@ -188,7 +188,7 @@ function HomeContent() {
                 A plataforma completa para gestão de pagamentos e vendas online.
               </p>
               <div className="mt-4 text-sm text-gray-500">
-                CNPJ: 00.000.000/0001-00
+                CNPJ: 65.732.906/0001-46
               </div>
             </div>
             
