@@ -402,16 +402,16 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
           };
         } else {
           if (gatewayCartao === 'EFI') {
-            const efiToken = await tokenizarCartaoEfi();
-            if (!efiToken) { setProcessando(false); return; }
-            payload = {
-              ...base,
-              efiToken,
-              cartaoNome: cartaoData.nome,
-              cartaoMes: cartaoData.mes,
-              cartaoAno: cartaoData.ano,
-              parcelas: parseInt(cartaoData.parcelas)
-            };
+              const efiToken = await tokenizarCartaoEfi();
+              if (!efiToken) { setProcessando(false); return; }
+              payload = {
+                ...base,
+                efiToken,
+                cartaoNome: formData.cartaoNome || cartaoData.nome,
+                cartaoMes: formData.cartaoMes || cartaoData.mes,
+                cartaoAno: formData.cartaoAno || cartaoData.ano,
+                parcelas: parseInt(formData.parcelas || cartaoData.parcelas)
+              };
           } else {
             const token = await tokenizarCartaoMP();
             if (!token) { setProcessando(false); return; }

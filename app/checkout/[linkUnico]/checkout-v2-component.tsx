@@ -80,8 +80,19 @@ export default function CheckoutV2({ plano, formData, setFormData, etapa, setEta
     setEtapa((!isProdutoDigital && plano?.checkoutPedirEndereco) ? 2 : 3);
   };
 
-  const handleFinalizar = () => {
-    setFormData({ ...formData, metodoPagamento: metodoPag });
+  const handleFinalizar = async () => {
+    const novoFormData = { 
+      ...formData, 
+      metodoPagamento: metodoPag,
+      cartaoNumero: cartaoData.numero.replace(/\D/g, ''),
+      cartaoNome: cartaoData.nome,
+      cartaoMes: cartaoData.validade.split('/')[0] || '',
+      cartaoAno: cartaoData.validade.split('/')[1] || '',
+      cartaoCvv: cartaoData.cvv,
+      parcelas: cartaoData.parcelas
+    };
+    setFormData(novoFormData);
+    await new Promise(resolve => setTimeout(resolve, 50));
     finalizarPedido();
   };
 

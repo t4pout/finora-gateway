@@ -31,7 +31,8 @@ export async function GET(
             id: true,
             nome: true,
             descricao: true,
-            imagem: true
+            imagem: true,
+            tipo: true
           }
         },
         orderBumps: {
