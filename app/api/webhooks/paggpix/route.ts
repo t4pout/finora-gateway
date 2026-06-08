@@ -558,30 +558,42 @@ try {
 
   console.log(`💰 PAD: R$ ${valorTotal} | Taxa: ${taxaPercentual}% + R$${taxaFixa} = R$${valorTaxa.toFixed(2)} | Líquido: R$${valorLiquido.toFixed(2)}`);
 
-  // Registrar na carteira como PENDENTE
-  await prisma.carteira.create({
-    data: {
-      usuarioId: pedido.produto.userId,
-      tipo: 'VENDA_PAD',
-      valor: valorLiquido,
-      descricao: `Venda PAD #${pedido.hash} - ${pedido.produto.nome} (Taxa ${taxaPercentual}% + R$${taxaFixa.toFixed(2)})`,
-      status: 'PENDENTE'
-    }
-  });
+  // Processar split via marcar-pago (inclui co-produção)
+  try {
+    const marcarPagoRes = await fetch(`https://www.finorapayments.com/api/vendas/marcar-pago`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ vendaId: venda.id })
+    });
+    const marcarPagoData = await marcarPagoRes.json();
+    console.log(`✅ Split processado via marcar-pago:`, JSON.stringify(marcarPagoData));
+  } catch (e) {
+    console.error('❌ Erro ao chamar marcar-pago:', e);
+    // Fallback: criar carteira sem split
+    await prisma.carteira.create({
+      data: {
+        usuarioId: venda.produto.userId,
+        vendaId: venda.id,
+        tipo: 'VENDA',
+        valor: valorLiquido,
+        descricao: `Venda #${venda.id.substring(0,8)} - ${venda.produto.nome} (Taxa ${taxaPercentual}% + R$${taxaFixa.toFixed(2)})`,
+        status: 'PENDENTE'
+      }
+    });
+    await prisma.transacao.create({
+      data: {
+        userId: venda.produto.userId,
+        vendaId: venda.id,
+        tipo: 'VENDA',
+        valor: valorLiquido,
+        status: 'PENDENTE',
+        descricao: `Venda #${venda.id.substring(0,8)}`,
+        dataLiberacao: dataLiberacao
+      }
+    });
+  }
 
-  // Registrar transação com data de liberação
-  await prisma.transacao.create({
-    data: {
-      userId: pedido.produto.userId,
-      tipo: 'VENDA_PAD',
-      valor: valorLiquido,
-      status: 'PENDENTE',
-      descricao: `Venda PAD #${pedido.hash}`,
-      dataLiberacao: dataLiberacao
-    }
-  });
-
-  console.log(`✅ Saldo PENDENTE adicionado. Liberação: ${dataLiberacao.toLocaleDateString()}`);
+  console.log(`✅ Saldo processado. Liberação: ${dataLiberacao.toLocaleDateString()}`);
 
   return NextResponse.json({ 
     success: true,
