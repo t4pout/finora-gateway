@@ -371,14 +371,18 @@ async function processarVendaNormal(venda: any) {
     });
   } catch (e) { console.error('❌ Erro ao emitir NF-e Bling:', e); }
 
-  // Disparar webhooks e postbacks
+   // Disparar webhooks e postbacks
   try {
     const dadosEvento = {
       evento: 'VENDA_PAGA',
       vendaId: venda.id,
       produtoNome: produtoCompleto?.nome || venda.produto.nome,
       produtoId: venda.produtoId,
+      nomePlano: venda.nomePlano || null,
       valor: venda.valor,
+      valorProduto: venda.orderBumpsValor ? venda.valor - venda.orderBumpsValor : venda.valor,
+      valorOrderBumps: venda.orderBumpsValor || 0,
+      orderBumps: (venda.orderBumpsNomes || []).map((nome: string) => ({ nome, valor: 0 })),
       valorLiquido,
       compradorNome: venda.compradorNome,
       compradorEmail: venda.compradorEmail,
@@ -389,7 +393,10 @@ async function processarVendaNormal(venda: any) {
       createdAt: new Date().toISOString(),
       utmSource: venda.utmSource,
       utmMedium: venda.utmMedium,
-      utmCampaign: venda.utmCampaign
+      utmCampaign: venda.utmCampaign,
+      afiliadoId: venda.afiliadoId || null,
+      afiliadoEmail: null,
+      comissaoAfiliado: null
     };
     await dispararWebhooks(venda.produto.userId, dadosEvento);
     // Disparar para AidaTraffic
@@ -563,7 +570,7 @@ try {
     const marcarPagoRes = await fetch(`https://www.finorapayments.com/api/vendas/marcar-pago`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ vendaId: venda.id })
+      body: JSON.stringify({ vendaId: pedido.id })
     });
     const marcarPagoData = await marcarPagoRes.json();
     console.log(`✅ Split processado via marcar-pago:`, JSON.stringify(marcarPagoData));
@@ -572,22 +579,22 @@ try {
     // Fallback: criar carteira sem split
     await prisma.carteira.create({
       data: {
-        usuarioId: venda.produto.userId,
-        vendaId: venda.id,
+        usuarioId: pedido.produto.userId,
+        vendaId: pedido.id,
         tipo: 'VENDA',
         valor: valorLiquido,
-        descricao: `Venda #${venda.id.substring(0,8)} - ${venda.produto.nome} (Taxa ${taxaPercentual}% + R$${taxaFixa.toFixed(2)})`,
+        descricao: `Venda PAD #${pedido.id.substring(0,8)} - ${pedido.produto.nome} (Taxa ${taxaPercentual}% + R$${taxaFixa.toFixed(2)})`,
         status: 'PENDENTE'
       }
     });
     await prisma.transacao.create({
       data: {
-        userId: venda.produto.userId,
-        vendaId: venda.id,
+        userId: pedido.produto.userId,
+        vendaId: pedido.id,
         tipo: 'VENDA',
         valor: valorLiquido,
         status: 'PENDENTE',
-        descricao: `Venda #${venda.id.substring(0,8)}`,
+        descricao: `Venda PAD #${pedido.id.substring(0,8)}`,
         dataLiberacao: dataLiberacao
       }
     });

@@ -7,6 +7,9 @@ interface DadosEvento {
   produtoNome?: string;
   produtoId?: string;
   valor?: number;
+  valorProduto?: number;
+  valorOrderBumps?: number;
+  orderBumps?: { nome: string; valor: number }[];
   valorLiquido?: number;
   compradorNome?: string;
   compradorEmail?: string;
@@ -18,6 +21,10 @@ interface DadosEvento {
   utmSource?: string;
   utmMedium?: string;
   utmCampaign?: string;
+  afiliadoId?: string | null;
+  afiliadoEmail?: string | null;
+  comissaoAfiliado?: number | null;
+  nomePlano?: string | null;
 }
 
 export async function dispararWebhooks(userId: string, dados: DadosEvento) {
@@ -36,7 +43,11 @@ export async function dispararWebhooks(userId: string, dados: DadosEvento) {
           vendaId: dados.vendaId,
           produtoNome: dados.produtoNome,
           produtoId: dados.produtoId,
+          nomePlano: dados.nomePlano || null,
           valor: dados.valor,
+          valorProduto: dados.valorProduto || dados.valor,
+          valorOrderBumps: dados.valorOrderBumps || 0,
+          orderBumps: dados.orderBumps || [],
           valorLiquido: dados.valorLiquido,
           compradorNome: dados.compradorNome,
           compradorEmail: dados.compradorEmail,
@@ -47,7 +58,10 @@ export async function dispararWebhooks(userId: string, dados: DadosEvento) {
           createdAt: dados.createdAt,
           utmSource: dados.utmSource,
           utmMedium: dados.utmMedium,
-          utmCampaign: dados.utmCampaign
+          utmCampaign: dados.utmCampaign,
+          afiliadoId: dados.afiliadoId || null,
+          afiliadoEmail: dados.afiliadoEmail || null,
+          comissaoAfiliado: dados.comissaoAfiliado || null
         }
       });
 
@@ -107,7 +121,10 @@ export async function dispararPostbacks(userId: string, dados: DadosEvento) {
       '{vendaId}': dados.vendaId || '',
       '{produtoNome}': dados.produtoNome || '',
       '{produtoId}': dados.produtoId || '',
+      '{nomePlano}': dados.nomePlano || '',
       '{valor}': dados.valor?.toFixed(2) || '',
+      '{valorProduto}': (dados.valorProduto || dados.valor || 0).toFixed(2),
+      '{valorOrderBumps}': (dados.valorOrderBumps || 0).toFixed(2),
       '{valorLiquido}': dados.valorLiquido?.toFixed(2) || '',
       '{compradorNome}': encodeURIComponent(dados.compradorNome || ''),
       '{compradorEmail}': encodeURIComponent(dados.compradorEmail || ''),
@@ -118,6 +135,9 @@ export async function dispararPostbacks(userId: string, dados: DadosEvento) {
       '{utmSource}': encodeURIComponent(dados.utmSource || ''),
       '{utmMedium}': encodeURIComponent(dados.utmMedium || ''),
       '{utmCampaign}': encodeURIComponent(dados.utmCampaign || ''),
+      '{afiliadoId}': dados.afiliadoId || '',
+      '{afiliadoEmail}': encodeURIComponent(dados.afiliadoEmail || ''),
+      '{comissaoAfiliado}': (dados.comissaoAfiliado || 0).toFixed(2),
       '{timestamp}': new Date().toISOString()
     };
 
