@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
             cpf: cpf.replace(/\D/g, ''),
             email: email || 'contato@finorapayments.com',
             phone_number: '11999999999',
+            birth: '1990-01-01',
             address: {
               street: rua || 'Rua Exemplo',
               number: numero || '123',
