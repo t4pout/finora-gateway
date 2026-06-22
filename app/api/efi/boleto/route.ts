@@ -52,7 +52,8 @@ export async function POST(req: NextRequest) {
       status: charge.data.status,
     });
   } catch (error: any) {
-    console.error('Erro Boleto Efi:', error);
-    return NextResponse.json({ error: error.message || 'Erro ao gerar boleto' }, { status: 500 });
+    console.error('Erro Boleto Efi COMPLETO:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    console.error('Erro Boleto Efi response:', JSON.stringify(error?.response?.data || error?.data || 'sem data'));
+    return NextResponse.json({ error: error.message || 'Erro ao gerar boleto', details: error?.response?.data || error?.data }, { status: 500 });
   }
 }
