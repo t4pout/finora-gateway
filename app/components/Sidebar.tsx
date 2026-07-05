@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { Bell, Link2 } from 'lucide-react';
+import { Bell, Link2, CreditCard, FileText, ShoppingCart, LayoutDashboard, DollarSign, Percent, ArrowDownToLine, Cpu, Home, Package, Wallet, Package2, Bell as BellIcon, Clock, Store, BarChart2, TrendingUp, TestTube, Plug, Wrench, Shield, UserCog, Zap, Plus, Edit, Trash2, X, Check, Upload, ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
