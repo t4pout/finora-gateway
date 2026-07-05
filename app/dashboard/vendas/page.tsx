@@ -388,13 +388,17 @@ export default function VendasPage() {
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-              <div className="flex gap-2">
-                <button onClick={() => mudarFiltro(() => setFiltroStatus('TODAS'))} className={'px-4 py-2 rounded-lg font-semibold transition ' + (filtroStatus === 'TODAS' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300')}>Todas</button>
-                <button onClick={() => mudarFiltro(() => setFiltroStatus('PENDENTE'))} className={'px-4 py-2 rounded-lg font-semibold transition ' + (filtroStatus === 'PENDENTE' ? 'bg-yellow-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300')}>Pendente</button>
-                <button onClick={() => mudarFiltro(() => setFiltroStatus('PAGO'))} className={'px-4 py-2 rounded-lg font-semibold transition ' + (filtroStatus === 'PAGO' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300')}>Paga</button>
-                <button onClick={() => mudarFiltro(() => setFiltroStatus('CANCELADA'))} className={'px-4 py-2 rounded-lg font-semibold transition ' + (filtroStatus === 'CANCELADA' ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300')}>Cancelada</button>
-              </div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Metodo de Pagamento</label>
+              <select
+                value={filtroMetodo}
+                onChange={(e) => mudarFiltro(() => setFiltroMetodo(e.target.value))}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900 bg-white min-w-[220px]"
+              >
+                <option value="TODOS">Todos</option>
+                <option value="PIX">PIX</option>
+                <option value="CARTAO">Cartao</option>
+                <option value="BOLETO">Boleto</option>
+              </select>
             </div>
 
             <div className="mb-4">
