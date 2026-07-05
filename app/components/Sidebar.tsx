@@ -110,12 +110,12 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
                     <FileText size={16} /><span>Financeiro</span>
                   </div>
                 </Link>
-                <Link href="/dashboard/relatorio-utm">
+                <Link href="/dashboard/vendas/utm">
                   <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/relatorio-utm') ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}>
                     <Link2 size={16} /><span>Relatório UTM</span>
                   </div>
                 </Link>
-                <Link href="/dashboard/carrinhos-abandonados">
+                <Link href="/dashboard/vendas/carrinhos">
                   <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/carrinhos-abandonados') ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}>
                     <ShoppingCart size={16} /><span>Carrinhos Abandonados</span>
                   </div>
