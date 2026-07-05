@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -604,15 +604,15 @@ return (
         <div className="bg-white border-b border-gray-200">
           <div className="px-8">
             <div className="flex space-x-8 overflow-x-auto">
-              <button onClick={() => setAbaSelecionada('detalhes')} className={`py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'detalhes' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>📦 Detalhes</button>
-              <button onClick={() => setAbaSelecionada('afiliacao')} className={`py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'afiliacao' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>🤝 Afiliação</button>
-              <button onClick={() => setAbaSelecionada('paginas')} className={`py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'paginas' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>📄 Páginas</button>
-              <button onClick={() => setAbaSelecionada('campanhas')} className={`py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'campanhas' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>📢 Campanhas</button>
-              <button onClick={() => setAbaSelecionada('checkout')} className={`py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'checkout' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>🎨 Checkout</button>
-              <button onClick={() => setAbaSelecionada('pixels')} className={`py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'pixels' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>📊 Pixels</button>
-              <button onClick={() => setAbaSelecionada('orderbumps')} className={`py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'orderbumps' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>⚡ Order Bumps</button>
-              <button onClick={() => setAbaSelecionada('links')} className={`py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'links' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>🔗 Links UTM</button>
-              <button onClick={() => setAbaSelecionada('coproducao')} className={`py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'coproducao' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>🤝 Co-produção</button>
+              <button onClick={() => setAbaSelecionada('detalhes')} className={`py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'detalhes' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>Detalhes</button>
+              <button onClick={() => setAbaSelecionada('afiliacao')} className={`py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'afiliacao' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>Afiliação</button>
+              <button onClick={() => setAbaSelecionada('paginas')} className={`py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'paginas' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>Páginas</button>
+              <button onClick={() => setAbaSelecionada('campanhas')} className={`py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'campanhas' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>Campanhas</button>
+              <button onClick={() => setAbaSelecionada('checkout')} className={`py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'checkout' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>Checkout</button>
+              <button onClick={() => setAbaSelecionada('pixels')} className={`py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'pixels' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>Pixels</button>
+              <button onClick={() => setAbaSelecionada('orderbumps')} className={`py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'orderbumps' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>Order Bumps</button>
+              <button onClick={() => setAbaSelecionada('links')} className={`py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'links' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>Links UTM</button>
+              <button onClick={() => setAbaSelecionada('coproducao')} className={`py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'coproducao' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>Co-produção</button>
             </div>
           </div>
         </div>
