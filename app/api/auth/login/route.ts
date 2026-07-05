@@ -69,7 +69,9 @@ export async function POST(request: NextRequest) {
       status: user.status,
       avatar: user.avatar,
       createdAt: user.createdAt,
-      finoraUtmAtivo: user.finoraUtmAtivo
+      finoraUtmAtivo: user.finoraUtmAtivo,
+      verificado: user.verificado,
+      statusVerificacao: user.statusVerificacao
     };
 
     return NextResponse.json({

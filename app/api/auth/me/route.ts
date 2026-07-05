@@ -30,8 +30,10 @@ export async function GET(request: NextRequest) {
         nome: true,
         email: true,
         role: true,
+        status: true,
         verificado: true,
         statusVerificacao: true,
+        finoraUtmAtivo: true,
         documentos: {
           select: {
             id: true,
