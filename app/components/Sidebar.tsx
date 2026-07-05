@@ -107,41 +107,25 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
           {vendasOpen && (
             <div className="ml-4 mt-1 space-y-1">
               <Link href="/dashboard/vendas">
-                <div className={`flex items-center space-x-3 px-4 py-2 rounded-lg text-sm transition ${
-                  isActive('/dashboard/vendas')
-                    ? 'bg-purple-50 text-purple-600 font-semibold'
-                    : 'text-gray-600 hover:bg-gray-50'
-                }`}>
-                  <span>💳 Todas as Vendas</span>
-                </div>
-              </Link>
-              <Link href="/dashboard/financeiro">
-                <div className={`flex items-center space-x-3 px-4 py-2 rounded-lg text-sm transition ${
-                  isActive('/dashboard/financeiro')
-                    ? 'bg-purple-50 text-purple-600 font-semibold'
-                    : 'text-gray-600 hover:bg-gray-50'
-                }`}>
-                  <span>📈 Financeiro</span>
-                </div>
-              </Link>
-              <Link href="/dashboard/vendas/utm">
-                <div className={`flex items-center space-x-3 px-4 py-2 rounded-lg text-sm transition ${
-                  isActive('/dashboard/vendas/utm')
-                    ? 'bg-purple-50 text-purple-600 font-semibold'
-                    : 'text-gray-600 hover:bg-gray-50'
-                }`}>
-                  <span>🔗 Relatório UTM</span>
-                </div>
-              </Link>
-                  <Link href="/dashboard/vendas/carrinhos">
-                <div className={`flex items-center space-x-3 px-4 py-2 rounded-lg text-sm transition ${
-                  isActive('/dashboard/vendas/carrinhos')
-                    ? 'bg-purple-50 text-purple-600 font-semibold'
-                    : 'text-gray-600 hover:bg-gray-50'
-                }`}>
-                  <span>🛒 Carrinhos Abandonados</span>
-                </div>
-              </Link>
+                  <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/vendas') ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}>
+                    <CreditCard size={16} /><span>Todas as Vendas</span>
+                  </div>
+                </Link>
+                <Link href="/dashboard/financeiro">
+                  <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/financeiro') ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}>
+                    <FileText size={16} /><span>Financeiro</span>
+                  </div>
+                </Link>
+                <Link href="/dashboard/relatorio-utm">
+                  <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/relatorio-utm') ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}>
+                    <Link2 size={16} /><span>Relatório UTM</span>
+                  </div>
+                </Link>
+                <Link href="/dashboard/carrinhos-abandonados">
+                  <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/carrinhos-abandonados') ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}>
+                    <ShoppingCart size={16} /><span>Carrinhos Abandonados</span>
+                  </div>
+                </Link>
             </div>
           )}
         </div>
@@ -283,50 +267,30 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
               {adminOpen && (
                 <div className="ml-4 mt-1 space-y-1">
                   <Link href="/dashboard/admin">
-                    <div className={`flex items-center space-x-3 px-4 py-2 rounded-lg text-sm transition ${
-                      isActive('/dashboard/admin')
-                        ? 'bg-purple-50 text-purple-600 font-semibold'
-                        : 'text-gray-600 hover:bg-gray-50'
-                    }`}>
-                      <span>🏠 Painel</span>
-                    </div>
-                  </Link>
-                  <Link href="/dashboard/admin/receita">
-                    <div className={`flex items-center space-x-3 px-4 py-2 rounded-lg text-sm transition ${
-                      isActive('/dashboard/admin/receita')
-                        ? 'bg-purple-50 text-purple-600 font-semibold'
-                        : 'text-gray-600 hover:bg-gray-50'
-                    }`}>
-                      <span>💰 Receita</span>
-                    </div>
-                  </Link>
-                  <Link href="/dashboard/admin/taxas">
-                    <div className={`flex items-center space-x-3 px-4 py-2 rounded-lg text-sm transition ${
-                      isActivePrefix('/dashboard/admin/taxas')
-                        ? 'bg-purple-50 text-purple-600 font-semibold'
-                        : 'text-gray-600 hover:bg-gray-50'
-                    }`}>
-                      <span>% Taxas</span>
-                    </div>
-                  </Link>
-                  <Link href="/dashboard/admin/saques">
-                    <div className={`flex items-center space-x-3 px-4 py-2 rounded-lg text-sm transition ${
-                      isActivePrefix('/dashboard/admin/saques')
-                        ? 'bg-purple-50 text-purple-600 font-semibold'
-                        : 'text-gray-600 hover:bg-gray-50'
-                    }`}>
-                      <span>💸 Saques</span>
-                    </div>
-                  </Link>
-                  <Link href="/dashboard/admin/gateways">
-                    <div className={`flex items-center space-x-3 px-4 py-2 rounded-lg text-sm transition ${
-                      isActive('/dashboard/admin/gateways')
-                        ? 'bg-purple-50 text-purple-600 font-semibold'
-                        : 'text-gray-600 hover:bg-gray-50'
-                    }`}>
-                      <span>⚡ Gateways</span>
-                    </div>
-                  </Link>
+                  <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/admin') ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}>
+                    <LayoutDashboard size={16} /><span>Painel</span>
+                  </div>
+                </Link>
+                <Link href="/dashboard/admin/receita">
+                  <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/admin/receita') ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}>
+                    <DollarSign size={16} /><span>Receita</span>
+                  </div>
+                </Link>
+                <Link href="/dashboard/admin/taxas">
+                  <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/admin/taxas') ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}>
+                    <Percent size={16} /><span>Taxas</span>
+                  </div>
+                </Link>
+                <Link href="/dashboard/admin/saques">
+                  <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/admin/saques') ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}>
+                    <ArrowDownToLine size={16} /><span>Saques</span>
+                  </div>
+                </Link>
+                <Link href="/dashboard/admin/gateways">
+                  <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/admin/gateways') ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}>
+                    <Cpu size={16} /><span>Gateways</span>
+                  </div>
+                </Link>
                 </div>
               )}
             </div>
