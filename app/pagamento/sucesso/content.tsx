@@ -19,18 +19,57 @@ export default function PagamentoSucessoContent() {
           setPedido(data);
           setLoading(false);
 
-          // Disparar Purchase no frontend
-          if (!purchaseDisparado.current && typeof window !== 'undefined' && (window as any).fbq) {
-            try {
-              (window as any).fbq('track', 'Purchase', {
-                value: data.venda?.valor || data.valor,
-                currency: 'BRL',
-                content_name: data.venda?.nomePlano || data.produto?.nome || '',
-                content_ids: [data.venda?.produtoId || ''],
-                content_type: 'product'
-              });
-              purchaseDisparado.current = true;
-            } catch (e) { console.error('Erro pixel Purchase:', e); }
+          // Carregar pixel e disparar Purchase
+          if (!purchaseDisparado.current) {
+            const produtoId = data.venda?.produtoId || data.produtoId;
+            if (produtoId) {
+              try {
+                const pixelRes = await fetch(`/api/produtos/${produtoId}`);
+                const pixelData = await pixelRes.json();
+                const pixels = pixelData.produto?.pixels || [];
+
+                pixels.forEach((pixel: any) => {
+                  if (pixel.plataforma === 'FACEBOOK' && pixel.pixelId && pixel.eventoCompra) {
+                    // Inicializar pixel se não estiver carregado
+                    if (!(window as any).fbq) {
+                      const script = document.createElement('script');
+                      script.innerHTML = `
+                        !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+                        n.queue=[];t=b.createElement(e);t.async=!0;
+                        t.src=v;s=b.getElementsByTagName(e)[0];
+                        s.parentNode.insertBefore(t,s)}(window,document,'script',
+                        'https://connect.facebook.net/en_US/fbevents.js');
+                        fbq('init', '${pixel.pixelId}');
+                      `;
+                      document.head.appendChild(script);
+                    }
+
+                    // Aguarda pixel carregar e dispara Purchase
+                    const tentarDisparar = (tentativas: number) => {
+                      if ((window as any).fbq) {
+                        try {
+                          (window as any).fbq('track', 'Purchase', {
+                            value: data.venda?.valor || data.valor,
+                            currency: 'BRL',
+                            content_name: data.venda?.nomePlano || data.produto?.nome || '',
+                            content_ids: [produtoId],
+                            content_type: 'product',
+                            transaction_id: data.venda?.id || data.id
+                          });
+                          purchaseDisparado.current = true;
+                          console.log('✅ Purchase disparado pixel:', pixel.pixelId);
+                        } catch (e) { console.error('Erro pixel Purchase:', e); }
+                      } else if (tentativas > 0) {
+                        setTimeout(() => tentarDisparar(tentativas - 1), 1000);
+                      }
+                    };
+                    setTimeout(() => tentarDisparar(5), 500);
+                  }
+                });
+              } catch (e) { console.error('Erro ao carregar pixels:', e); }
+            }
           }
         })
         .catch(() => setLoading(false));
