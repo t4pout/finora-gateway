@@ -4,7 +4,8 @@ import Image from 'next/image';
 import { Bell, Link2 } from 'lucide-react';
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import {
   Home, Package, DollarSign, LogOut, ShoppingBag,
   BarChart3, Zap, Wallet, Shield,
@@ -24,6 +25,17 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
   const pathname = usePathname();
   const [vendasOpen, setVendasOpen] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) return;
+    if (user.role === 'ADMIN') return;
+    const rotasLiberadas = ['/dashboard/verificacao', '/dashboard/perfil'];
+    const estaEmRotaLiberada = rotasLiberadas.some(r => pathname.startsWith(r));
+    if (!estaEmRotaLiberada && !user.verificado && user.statusVerificacao !== 'APROVADO') {
+      router.replace('/dashboard/verificacao');
+    }
+  }, [user, pathname]);
 
   const isActive = (path: string) => pathname === path;
   const isActivePrefix = (path: string) => pathname.startsWith(path);
