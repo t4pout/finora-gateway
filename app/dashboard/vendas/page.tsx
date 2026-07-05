@@ -61,6 +61,10 @@ export default function VendasPage() {
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtroStatus, setFiltroStatus] = useState('TODAS');
+  const [dropdownStatus, setDropdownStatus] = useState(false);
+  const [dropdownMetodo, setDropdownMetodo] = useState(false);
+  const [dropdownPeriodo, setDropdownPeriodo] = useState(false);
+  const [dropdownProduto, setDropdownProduto] = useState(false);
   const [filtroData, setFiltroData] = useState('HOJE');
   const [filtroProduto, setFiltroProduto] = useState('TODOS');
   const [filtroMetodo, setFiltroMetodo] = useState('TODOS');
@@ -394,24 +398,34 @@ export default function VendasPage() {
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Método de Pagamento</label>
-              <div className="flex gap-2">
-                <button onClick={() => mudarFiltro(() => setFiltroMetodo('TODOS'))} className={'px-4 py-2 rounded-lg font-semibold transition ' + (filtroMetodo === 'TODOS' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300')}>Todos</button>
-                <button onClick={() => mudarFiltro(() => setFiltroMetodo('PIX'))} className={'px-4 py-2 rounded-lg font-semibold transition ' + (filtroMetodo === 'PIX' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300')}>PIX</button>
-                <button onClick={() => mudarFiltro(() => setFiltroMetodo('CARTAO'))} className={'px-4 py-2 rounded-lg font-semibold transition ' + (filtroMetodo === 'CARTAO' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300')}>Cartão</button>
-                <button onClick={() => mudarFiltro(() => setFiltroMetodo('BOLETO'))} className={'px-4 py-2 rounded-lg font-semibold transition ' + (filtroMetodo === 'BOLETO' ? 'bg-orange-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300')}>Boleto</button>
-              </div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+              <select
+                value={filtroStatus}
+                onChange={(e) => mudarFiltro(() => setFiltroStatus(e.target.value))}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900 bg-white min-w-[220px]"
+              >
+                <option value="TODAS">Todas</option>
+                <option value="PENDENTE">Pendente</option>
+                <option value="PAGO">Paga</option>
+                <option value="CANCELADA">Cancelada</option>
+              </select>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Periodo</label>
               <div className="flex flex-wrap items-center gap-2">
-                <button onClick={() => mudarFiltro(() => { setFiltroData('TODAS'); setDataInicio(''); setDataFim(''); })} className={'px-3 py-1.5 rounded-lg text-sm font-semibold transition ' + (filtroData === 'TODAS' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')}>Todas</button>
-                <button onClick={() => mudarFiltro(() => { setFiltroData('HOJE'); setDataInicio(''); setDataFim(''); })} className={'px-3 py-1.5 rounded-lg text-sm font-semibold transition ' + (filtroData === 'HOJE' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')}>Hoje</button>
-                <button onClick={() => mudarFiltro(() => { setFiltroData('ONTEM'); setDataInicio(''); setDataFim(''); })} className={'px-3 py-1.5 rounded-lg text-sm font-semibold transition ' + (filtroData === 'ONTEM' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')}>Ontem</button>
-                <button onClick={() => mudarFiltro(() => { setFiltroData('7D'); setDataInicio(''); setDataFim(''); })} className={'px-3 py-1.5 rounded-lg text-sm font-semibold transition ' + (filtroData === '7D' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')}>7 dias</button>
-                <button onClick={() => mudarFiltro(() => { setFiltroData('14D'); setDataInicio(''); setDataFim(''); })} className={'px-3 py-1.5 rounded-lg text-sm font-semibold transition ' + (filtroData === '14D' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')}>14 dias</button>
-                <button onClick={() => mudarFiltro(() => { setFiltroData('30D'); setDataInicio(''); setDataFim(''); })} className={'px-3 py-1.5 rounded-lg text-sm font-semibold transition ' + (filtroData === '30D' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')}>30 dias</button>
+                <select
+                  value={filtroData === 'PERSONALIZADO' ? 'PERSONALIZADO' : filtroData}
+                  onChange={(e) => mudarFiltro(() => { setFiltroData(e.target.value); setDataInicio(''); setDataFim(''); })}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900 bg-white min-w-[180px]"
+                >
+                  <option value="TODAS">Todas</option>
+                  <option value="HOJE">Hoje</option>
+                  <option value="ONTEM">Ontem</option>
+                  <option value="7D">7 dias</option>
+                  <option value="14D">14 dias</option>
+                  <option value="30D">30 dias</option>
+                </select>
                 <div className="flex items-center gap-2 ml-4 border-l border-gray-300 pl-4">
                   <Calendar size={18} className="text-gray-600" />
                   <span className="text-sm text-gray-600">Data especifica:</span>
