@@ -1093,23 +1093,12 @@ return (
                             <button onClick={async () => { if (!confirm('Excluir este pixel?')) return; try { const token = localStorage.getItem('token'); await fetch(`/api/pixels/${pixel.id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } }); alert('Pixel excluído!'); carregarPixels(); } catch (error) { alert('Erro ao excluir pixel'); }}} className="px-4 py-2 border-2 border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition"><Trash2 size={16} /></button>
                           </div>
                         </div>
-                        <div className="grid md:grid-cols-2 gap-4 text-sm">
-                          <div className="space-y-2">
-                            <h4 className="font-semibold text-gray-900">🎯 Eventos de Ativação</h4>
-                            <div className="flex flex-wrap gap-2">
-                              {pixel.eventoCheckout && <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs">InitiateCheckout</span>}
-                              {pixel.eventoCompra && <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Purchase</span>}
-                              {pixel.eventoPAD && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Pedido PAD</span>}
-                            </div>
-                          </div>
-                          <div className="space-y-2">
-                            <h4 className="font-semibold text-gray-900">✅ Condições para Ativação</h4>
-                            <div className="flex flex-wrap gap-2">
-                              {pixel.condicaoPix && <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">Pix</span>}
-                              {pixel.condicaoBoleto && <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs">Boleto</span>}
-                              {pixel.condicaoPAD && <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">PAD</span>}
-                              {pixel.condicaoPagamentoAprovado && <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Pagamento Aprovado</span>}
-                            </div>
+                        <div className="text-sm">
+                          <h4 className="font-semibold text-gray-900 mb-2">🎯 Dispara em</h4>
+                          <div className="flex flex-wrap gap-2">
+                            {pixel.eventoCheckout && <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium">Início do checkout</span>}
+                            {pixel.eventoCompra && <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">Compra aprovada</span>}
+                            {pixel.eventoPAD && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">Pedido recorrente (PAD)</span>}
                           </div>
                         </div>
                       </div>
@@ -1321,20 +1310,30 @@ return (
                     </div>
                   </div>
                   <div className="border-t pt-4">
-                    <h4 className="font-bold text-gray-900 mb-3">🎯 Ambientes de Ativação</h4>
+                    <h4 className="font-bold text-gray-900 mb-1">🎯 Quando disparar</h4>
+                    <p className="text-xs text-gray-500 mb-3">Cada evento já vem com a regra correta de disparo — não é possível configurar errado.</p>
                     <div className="space-y-2">
-                      <label className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"><input type="checkbox" checked={formPixel.eventoCheckout} onChange={(e) => setFormPixel({...formPixel, eventoCheckout: e.target.checked})} className="w-5 h-5" /><div><div className="font-medium text-gray-900">InitiateCheckout</div><div className="text-xs text-gray-600">Dispara quando o cliente acessa a página de checkout</div></div></label>
-                      <label className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"><input type="checkbox" checked={formPixel.eventoCompra} onChange={(e) => setFormPixel({...formPixel, eventoCompra: e.target.checked})} className="w-5 h-5" /><div><div className="font-medium text-gray-900">Ao realizar uma compra</div><div className="text-xs text-gray-600">Dispara quando o pagamento é aprovado</div></div></label>
-                      <label className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"><input type="checkbox" checked={formPixel.eventoPAD} onChange={(e) => setFormPixel({...formPixel, eventoPAD: e.target.checked})} className="w-5 h-5" /><div><div className="font-medium text-gray-900">Pedido Gerado (PAD)</div><div className="text-xs text-gray-600">Dispara quando um pedido PAD é criado</div></div></label>
-                    </div>
-                  </div>
-                  <div className="border-t pt-4">
-                    <h4 className="font-bold text-gray-900 mb-3">✅ Condições para ativação</h4>
-                    <div className="grid md:grid-cols-2 gap-2">
-                      <label className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"><input type="checkbox" checked={formPixel.condicaoPix} onChange={(e) => setFormPixel({...formPixel, condicaoPix: e.target.checked})} className="w-4 h-4" /><span className="text-sm font-medium">Pix Gerado</span></label>
-                      <label className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"><input type="checkbox" checked={formPixel.condicaoBoleto} onChange={(e) => setFormPixel({...formPixel, condicaoBoleto: e.target.checked})} className="w-4 h-4" /><span className="text-sm font-medium">Boleto Gerado</span></label>
-                      <label className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"><input type="checkbox" checked={formPixel.condicaoPAD} onChange={(e) => setFormPixel({...formPixel, condicaoPAD: e.target.checked})} className="w-4 h-4" /><span className="text-sm font-medium">Pedido Gerado (PAD)</span></label>
-                      <label className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"><input type="checkbox" checked={formPixel.condicaoPagamentoAprovado} onChange={(e) => setFormPixel({...formPixel, condicaoPagamentoAprovado: e.target.checked})} className="w-4 h-4" /><span className="text-sm font-medium">Pagamentos aprovados</span></label>
+                      <label className="flex items-start space-x-3 p-4 bg-gray-50 rounded-xl border-2 border-transparent cursor-pointer hover:bg-gray-100 transition">
+                        <input type="checkbox" checked={formPixel.eventoCheckout} onChange={(e) => setFormPixel({...formPixel, eventoCheckout: e.target.checked})} className="w-5 h-5 mt-0.5" />
+                        <div>
+                          <div className="font-semibold text-gray-900">Início do checkout</div>
+                          <div className="text-xs text-gray-600 mt-0.5">Dispara quando o cliente acessa a página de pagamento</div>
+                        </div>
+                      </label>
+                      <label className={`flex items-start space-x-3 p-4 rounded-xl border-2 cursor-pointer transition ${formPixel.eventoCompra ? 'bg-green-50 border-green-400' : 'bg-gray-50 border-transparent hover:bg-gray-100'}`}>
+                        <input type="checkbox" checked={formPixel.eventoCompra} onChange={(e) => setFormPixel({...formPixel, eventoCompra: e.target.checked, condicaoPagamentoAprovado: e.target.checked, condicaoPix: false, condicaoBoleto: false})} className="w-5 h-5 mt-0.5" />
+                        <div>
+                          <div className={`font-semibold ${formPixel.eventoCompra ? 'text-green-900' : 'text-gray-900'}`}>Compra aprovada</div>
+                          <div className={`text-xs mt-0.5 ${formPixel.eventoCompra ? 'text-green-700' : 'text-gray-600'}`}>Dispara somente quando o pagamento for confirmado. Nunca ao gerar PIX ou boleto</div>
+                        </div>
+                      </label>
+                      <label className="flex items-start space-x-3 p-4 bg-gray-50 rounded-xl border-2 border-transparent cursor-pointer hover:bg-gray-100 transition">
+                        <input type="checkbox" checked={formPixel.eventoPAD} onChange={(e) => setFormPixel({...formPixel, eventoPAD: e.target.checked, condicaoPAD: e.target.checked})} className="w-5 h-5 mt-0.5" />
+                        <div>
+                          <div className="font-semibold text-gray-900">Pedido recorrente gerado (PAD)</div>
+                          <div className="text-xs text-gray-600 mt-0.5">Dispara quando uma cobrança recorrente é criada</div>
+                        </div>
+                      </label>
                     </div>
                   </div>
                   <div className="flex gap-3 pt-4">
