@@ -19,6 +19,7 @@ export async function PATCH(
         pixelId: body.pixelId,
         tokenAPI: body.tokenAPI || null,
         eventoCheckout: body.eventoCheckout,
+        eventoAddPagamento: body.eventoAddPagamento,
         eventoCompra: body.eventoCompra,
         eventoPAD: body.eventoPAD,
         condicaoPix: body.condicaoPix,

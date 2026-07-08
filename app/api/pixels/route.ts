@@ -40,6 +40,7 @@ export async function POST(request: NextRequest) {
         pixelId: body.pixelId,
         tokenAPI: body.tokenAPI || null,
         eventoCheckout: body.eventoCheckout || false,
+        eventoAddPagamento: body.eventoAddPagamento || false,
         eventoCompra: body.eventoCompra || false,
         eventoPAD: body.eventoPAD || false,
         condicaoPix: body.condicaoPix || false,
