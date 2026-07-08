@@ -289,9 +289,9 @@ export async function POST(request: NextRequest) {
           try {
             const pixels = await prisma.pixelConversao.findMany({ where: { produtoId: plano.produtoId, plataforma: 'FACEBOOK', status: 'ATIVO' } });
             for (const px of pixels) {
-              if (px.pixelId && px.accessToken) {
+              if (px.pixelId && px.tokenAPI) {
                 const { dispararEventoCAPI } = await import('@/lib/facebook-capi');
-                await dispararEventoCAPI({ pixelId: px.pixelId, accessToken: px.accessToken, eventName: 'Purchase', value: valorTotal, contentName: plano.nome, contentIds: [plano.produtoId], email: compradorEmail, phone: compradorTel });
+                await dispararEventoCAPI({ pixelId: px.pixelId, accessToken: px.tokenAPI, eventName: 'Purchase', value: valorTotal, contentName: plano.nome, contentIds: [plano.produtoId], email: compradorEmail, phone: compradorTel });
               }
             }
           } catch (e) { console.error('Erro CAPI Purchase Cielo:', e); }
@@ -534,9 +534,9 @@ export async function POST(request: NextRequest) {
       if (metodoPagamento === 'PIX') {
         const pixelsProduto = await prisma.pixelConversao.findMany({ where: { produtoId: plano.produtoId, plataforma: 'FACEBOOK', status: 'ATIVO', eventoAddPagamento: true } });
         for (const px of pixelsProduto) {
-          if (px.pixelId && px.accessToken) {
+          if (px.pixelId && px.tokenAPI) {
             const { dispararEventoCAPI } = await import('@/lib/facebook-capi');
-            await dispararEventoCAPI({ pixelId: px.pixelId, accessToken: px.accessToken, eventName: 'AddPaymentInfo', value: valorTotal, contentName: plano.nome, contentIds: [plano.produtoId], email: compradorEmail, phone: compradorTel });
+            await dispararEventoCAPI({ pixelId: px.pixelId, accessToken: px.tokenAPI, eventName: 'AddPaymentInfo', value: valorTotal, contentName: plano.nome, contentIds: [plano.produtoId], email: compradorEmail, phone: compradorTel });
           }
         }
       }
