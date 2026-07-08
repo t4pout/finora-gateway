@@ -107,6 +107,7 @@ export default function DetalhesProdutoPage({ params }: { params: Promise<{ id: 
     pixelId: '',
     tokenAPI: '',
     eventoCheckout: false,
+    eventoAddPagamento: false,
     eventoCompra: false,
     eventoPAD: false,
     condicaoPix: false,
@@ -1089,7 +1090,7 @@ return (
                             <p className="text-sm text-gray-600">Pixel ID: {pixel.pixelId}</p>
                           </div>
                           <div className="flex gap-2">
-                            <button onClick={() => { setFormPixel({ titulo: pixel.titulo, plataforma: pixel.plataforma, pixelId: pixel.pixelId, tokenAPI: pixel.tokenAPI || '', eventoCheckout: pixel.eventoCheckout, eventoCompra: pixel.eventoCompra, eventoPAD: pixel.eventoPAD, condicaoPix: pixel.condicaoPix, condicaoBoleto: pixel.condicaoBoleto, condicaoPAD: pixel.condicaoPAD, condicaoPagamentoAprovado: pixel.condicaoPagamentoAprovado }); setModalPixel({ aberto: true, pixel }); }} className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"><Edit size={16} /></button>
+                            <button onClick={() => { setFormPixel({ titulo: pixel.titulo, plataforma: pixel.plataforma, pixelId: pixel.pixelId, tokenAPI: pixel.tokenAPI || '', eventoCheckout: pixel.eventoCheckout, eventoAddPagamento: pixel.eventoAddPagamento, eventoCompra: pixel.eventoCompra, eventoPAD: pixel.eventoPAD, condicaoPix: pixel.condicaoPix, condicaoBoleto: pixel.condicaoBoleto, condicaoPAD: pixel.condicaoPAD, condicaoPagamentoAprovado: pixel.condicaoPagamentoAprovado }); setModalPixel({ aberto: true, pixel }); }} className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"><Edit size={16} /></button>
                             <button onClick={async () => { if (!confirm('Excluir este pixel?')) return; try { const token = localStorage.getItem('token'); await fetch(`/api/pixels/${pixel.id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } }); alert('Pixel excluído!'); carregarPixels(); } catch (error) { alert('Erro ao excluir pixel'); }}} className="px-4 py-2 border-2 border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition"><Trash2 size={16} /></button>
                           </div>
                         </div>
@@ -1280,7 +1281,7 @@ return (
                     await fetch(url, { method, headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify({ ...formPixel, produtoId }) });
                     alert(modalPixel.pixel ? 'Pixel atualizado!' : 'Pixel criado!');
                     setModalPixel({ aberto: false, pixel: null });
-                    setFormPixel({ titulo: '', plataforma: 'FACEBOOK', pixelId: '', tokenAPI: '', eventoCheckout: false, eventoCompra: false, eventoPAD: false, condicaoPix: false, condicaoBoleto: false, condicaoPAD: false, condicaoPagamentoAprovado: false });
+                    setFormPixel({ titulo: '', plataforma: 'FACEBOOK', pixelId: '', tokenAPI: '', eventoCheckout: false, eventoAddPagamento: false, eventoCompra: false, eventoPAD: false, condicaoPix: false, condicaoBoleto: false, condicaoPAD: false, condicaoPagamentoAprovado: false });
                     carregarPixels();
                   } catch (error) { alert('Erro ao salvar pixel'); }
                 }} className="space-y-6">
@@ -1318,6 +1319,13 @@ return (
                         <div>
                           <div className="font-semibold text-gray-900">Início do checkout</div>
                           <div className="text-xs text-gray-600 mt-0.5">Dispara quando o cliente acessa a página de pagamento</div>
+                        </div>
+                      </label>
+                      <label className="flex items-start space-x-3 p-4 bg-gray-50 rounded-xl border-2 border-transparent cursor-pointer hover:bg-gray-100 transition">
+                        <input type="checkbox" checked={formPixel.eventoAddPagamento} onChange={(e) => setFormPixel({...formPixel, eventoAddPagamento: e.target.checked})} className="w-5 h-5 mt-0.5" />
+                        <div>
+                          <div className="font-semibold text-gray-900">Adicionar informação de pagamento</div>
+                          <div className="text-xs text-gray-600 mt-0.5">Dispara quando o PIX é gerado, antes da confirmação</div>
                         </div>
                       </label>
                       <label className={`flex items-start space-x-3 p-4 rounded-xl border-2 cursor-pointer transition ${formPixel.eventoCompra ? 'bg-green-50 border-green-400' : 'bg-gray-50 border-transparent hover:bg-gray-100'}`}>

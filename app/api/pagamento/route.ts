@@ -531,11 +531,13 @@ export async function POST(request: NextRequest) {
     } catch (e) { console.error('Erro ao enviar email pedido criado:', e); }
 
     try {
-      const pixelsProduto = await prisma.pixelConversao.findMany({ where: { produtoId: plano.produtoId, plataforma: 'FACEBOOK', status: 'ATIVO' } });
-      for (const px of pixelsProduto) {
-        if (px.pixelId && px.accessToken) {
-          const { dispararEventoCAPI } = await import('@/lib/facebook-capi');
-          await dispararEventoCAPI({ pixelId: px.pixelId, accessToken: px.accessToken, eventName: 'AddPaymentInfo', value: valorTotal, contentName: plano.nome, contentIds: [plano.produtoId], email: compradorEmail, phone: compradorTel });
+      if (metodoPagamento === 'PIX') {
+        const pixelsProduto = await prisma.pixelConversao.findMany({ where: { produtoId: plano.produtoId, plataforma: 'FACEBOOK', status: 'ATIVO', eventoAddPagamento: true } });
+        for (const px of pixelsProduto) {
+          if (px.pixelId && px.accessToken) {
+            const { dispararEventoCAPI } = await import('@/lib/facebook-capi');
+            await dispararEventoCAPI({ pixelId: px.pixelId, accessToken: px.accessToken, eventName: 'AddPaymentInfo', value: valorTotal, contentName: plano.nome, contentIds: [plano.produtoId], email: compradorEmail, phone: compradorTel });
+          }
         }
       }
     } catch (e) { console.error('Erro CAPI AddPaymentInfo:', e); }

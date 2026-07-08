@@ -461,6 +461,7 @@ model PixelConversao {
   eventoCheckout    Boolean  @default(false)
   eventoCompra      Boolean  @default(false)
   eventoPAD         Boolean  @default(false)
+  eventoAddPagamento         Boolean  @default(false)
   
   condicaoPix       Boolean  @default(false)
   condicaoBoleto    Boolean  @default(false)
