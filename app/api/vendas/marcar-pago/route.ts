@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      enviarNotificacaoPush(
+      await enviarNotificacaoPush(
         split.expoPushToken,
         'Você ganhou uma comissão! 💰',
         'Valor: R$ ' + split.valor.toFixed(2) + ' - ' + venda.produto.nome,

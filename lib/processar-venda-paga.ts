@@ -185,7 +185,7 @@ export async function processarVendaPaga(vendaId: string) {
     return { error: 'Plano de taxa não encontrado', status: 400 as const };
   }
 
-  enviarNotificacaoPush(
+  await enviarNotificacaoPush(
     vendedor.expoPushToken,
     'Venda aprovada! 🎉',
     'Valor total: R$ ' + venda.valor.toFixed(2) + ' - ' + (produtoCompleto?.nome || venda.produto.nome),
@@ -344,6 +344,7 @@ export async function processarVendaPaga(vendaId: string) {
     dataLiberacao
   };
 }
+
 
 
 

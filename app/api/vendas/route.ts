@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 import { enviarNotificacaoPush } from '@/lib/expo-push';
@@ -156,7 +156,7 @@ export async function POST(request: NextRequest) {
         select: { expoPushToken: true }
       });
 
-      enviarNotificacaoPush(
+      await enviarNotificacaoPush(
         vendedorUser?.expoPushToken,
         'Nova venda gerada 🛒',
         'Valor total: R$ ' + parseFloat(valor).toFixed(2) + ' - ' + produto.nome,
