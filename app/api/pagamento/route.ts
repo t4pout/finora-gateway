@@ -5,6 +5,7 @@ import { enviarEmailPedidoCriado } from '@/lib/email';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import { enviarParaPagah } from '@/lib/pagah';
 import { dispararWebhooks, dispararPostbacks } from '@/lib/ferramentas';
+import { enviarNotificacaoPush } from '@/lib/expo-push';
 
 const PAGGPIX_TOKEN = process.env.PAGGPIX_TOKEN;
 const PAGGPIX_API = 'https://public-api.paggpix.com';
@@ -77,6 +78,16 @@ export async function POST(request: NextRequest) {
     });
 
     console.log('✅ Venda criada:', venda.id);
+
+    try {
+      const vendedorUser = await prisma.user.findUnique({ where: { id: plano.produto.userId }, select: { expoPushToken: true } });
+      await enviarNotificacaoPush(
+        vendedorUser?.expoPushToken,
+        'Nova venda gerada 🛒',
+        'Valor total: R$ ' + valorTotal.toFixed(2) + ' - ' + plano.produto.nome,
+        { tipo: 'VENDA_GERADA', vendaId: venda.id }
+      );
+    } catch (e) { console.error('Erro ao notificar venda gerada:', e); }
 
     let pixId = null;
     let qrCode = null;
