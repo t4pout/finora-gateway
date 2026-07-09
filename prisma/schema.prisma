@@ -9,6 +9,7 @@ datasource db {
 }
 
 model User {
+  expoPushToken         String?
   id                    String                 @id @default(cuid())
   nome                  String
   email                 String                 @unique

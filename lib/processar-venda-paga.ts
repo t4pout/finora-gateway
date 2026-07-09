@@ -1,8 +1,9 @@
-import { prisma } from '@/lib/prisma';
+﻿import { prisma } from '@/lib/prisma';
 import crypto from 'crypto';
 import { enviarEmailEbook } from '@/lib/email';
 import { emitirNFeBling } from '@/lib/bling';
 import { dispararWebhooks, dispararPostbacks } from '@/lib/ferramentas';
+import { enviarNotificacaoPush } from '@/lib/expo-push';
 
 // Processa uma venda como PAGA de forma completa e idempotente.
 // Deve ser o ÚNICO lugar que marca uma venda normal como PAGO,
@@ -184,6 +185,13 @@ export async function processarVendaPaga(vendaId: string) {
     return { error: 'Plano de taxa não encontrado', status: 400 as const };
   }
 
+  enviarNotificacaoPush(
+    vendedor.expoPushToken,
+    'Venda aprovada! 🎉',
+    (produtoCompleto?.nome || venda.produto.nome) + ' - R$ ' + venda.valor.toFixed(2),
+    { tipo: 'VENDA_PAGA', vendaId: venda.id }
+  );
+
   const valorTotal = venda.valor;
   const taxaPercentual = vendedor.planoTaxa.pixPercentual;
   const taxaFixa = vendedor.planoTaxa.pixFixo;
@@ -336,3 +344,5 @@ export async function processarVendaPaga(vendaId: string) {
     dataLiberacao
   };
 }
+
+
