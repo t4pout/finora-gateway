@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { enviarNotificacaoPush } from '@/lib/expo-push';
 
 export async function POST(request: NextRequest) {
   try {
@@ -62,7 +63,7 @@ export async function POST(request: NextRequest) {
 
     // Calcular splits de co-produção
     let totalCoProdutores = 0;
-    const splitsCoProducao: { usuarioId: string; valor: number; nome: string }[] = [];
+    const splitsCoProducao: { usuarioId: string; valor: number; nome: string; expoPushToken: string | null }[] = [];
 
     for (const cp of venda.produto.coProdutores) {
       let valorCp = 0;
@@ -75,7 +76,8 @@ export async function POST(request: NextRequest) {
       splitsCoProducao.push({ 
         usuarioId: cp.usuarioId, 
         valor: valorCp,
-        nome: cp.usuario.nome
+        nome: cp.usuario.nome,
+        expoPushToken: cp.usuario.expoPushToken
       });
     }
 
@@ -131,6 +133,13 @@ export async function POST(request: NextRequest) {
           dataLiberacao
         }
       });
+
+      enviarNotificacaoPush(
+        split.expoPushToken,
+        'Você ganhou uma comissão! 💰',
+        'Valor: R$ ' + split.valor.toFixed(2) + ' - ' + venda.produto.nome,
+        { tipo: 'COMISSAO', vendaId: venda.id }
+      );
     }
 
     // Atualizar carteira para APROVADO se prazo 0
