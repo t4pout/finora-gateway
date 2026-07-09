@@ -188,7 +188,7 @@ export async function processarVendaPaga(vendaId: string) {
   enviarNotificacaoPush(
     vendedor.expoPushToken,
     'Venda aprovada! 🎉',
-    (produtoCompleto?.nome || venda.produto.nome) + ' - R$ ' + venda.valor.toFixed(2),
+    'Valor total: R$ ' + venda.valor.toFixed(2) + ' - ' + (produtoCompleto?.nome || venda.produto.nome),
     { tipo: 'VENDA_PAGA', vendaId: venda.id }
   );
 
@@ -344,5 +344,6 @@ export async function processarVendaPaga(vendaId: string) {
     dataLiberacao
   };
 }
+
 
 
