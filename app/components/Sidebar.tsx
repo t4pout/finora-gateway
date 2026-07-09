@@ -1,6 +1,6 @@
 'use client';
 import Image from 'next/image';
-import { Bell, Link2, CreditCard, FileText, ShoppingCart, LayoutDashboard, DollarSign, Percent, ArrowDownToLine, Cpu, Home, Package, Wallet, Package2, Clock, Store, BarChart2, BarChart3, TrendingUp, Wrench, Shield, UserCog, Zap, LogOut, ShoppingBag, ChevronDown } from 'lucide-react';
+import { Bell, Link2, CreditCard, FileText, ShoppingCart, LayoutDashboard, DollarSign, Percent, ArrowDownToLine, Cpu, Home, Package, Wallet, Package2, Clock, Store, BarChart2, BarChart3, TrendingUp, Wrench, Shield, UserCog, Zap, LogOut, ShoppingBag, ChevronDown, Moon, Sun } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -19,7 +19,25 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
   const pathname = usePathname();
   const [vendasOpen, setVendasOpen] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
+  const [temaDark, setTemaDark] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    const tema = localStorage.getItem('finora-tema');
+    setTemaDark(tema === 'dark');
+  }, []);
+
+  const alternarTema = () => {
+    const novoTema = !temaDark;
+    setTemaDark(novoTema);
+    if (novoTema) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('finora-tema', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('finora-tema', 'light');
+    }
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -35,8 +53,8 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
   const isActivePrefix = (path: string) => pathname.startsWith(path);
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
-      <Link href="/dashboard" className="p-6 border-b border-gray-200 block">
+    <aside className="w-64 bg-white dark:bg-finoradark-card border-r border-gray-200 dark:border-finoradark-border flex flex-col">
+      <Link href="/dashboard" className="p-6 border-b border-gray-200 dark:border-finoradark-border block">
         <Image
           src="/logo.png"
           alt="Finora - Pagamentos que fluem"
@@ -47,28 +65,43 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
         />
       </Link>
 
-      <div className="p-4 border-b border-gray-200">
+      <div className="p-4 border-b border-gray-200 dark:border-finoradark-border">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-            <span className="text-purple-600 font-bold text-lg">
+          <div className="w-10 h-10 bg-purple-100 dark:bg-finoradark-card2 rounded-lg flex items-center justify-center">
+            <span className="text-purple-600 dark:text-finoradark-glow font-bold text-lg">
               {user?.nome.charAt(0).toUpperCase()}
             </span>
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-semibold text-gray-900 truncate">{user?.nome}</div>
+            <div className="text-sm font-semibold text-gray-900 dark:text-finoradark-text truncate">{user?.nome}</div>
             {user?.role === 'ADMIN' && (
-              <div className="text-xs text-purple-500 font-medium">Administrador</div>
+              <div className="text-xs text-purple-500 dark:text-finoradark-glow font-medium">Administrador</div>
             )}
           </div>
         </div>
+      </div>
+
+      <div className="px-4 pt-3">
+        <button
+          onClick={alternarTema}
+          className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg bg-gray-50 dark:bg-finoradark-card2 border border-gray-200 dark:border-finoradark-border transition"
+        >
+          <div className="flex items-center space-x-2">
+            {temaDark ? <Moon size={16} className="text-finoradark-glow" /> : <Sun size={16} className="text-gray-600" />}
+            <span className="text-sm font-medium text-gray-700 dark:text-finoradark-text">{temaDark ? 'Modo escuro' : 'Modo claro'}</span>
+          </div>
+          <div className={`w-9 h-5 rounded-full transition relative ${temaDark ? 'bg-finoradark-glow' : 'bg-gray-300'}`}>
+            <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-all ${temaDark ? 'left-4.5' : 'left-0.5'}`}></div>
+          </div>
+        </button>
       </div>
 
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         <Link href="/dashboard">
           <div className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition ${
             isActive('/dashboard')
-              ? 'bg-purple-50 text-purple-600 font-semibold'
-              : 'text-gray-700 hover:bg-gray-50'
+              ? 'bg-purple-50 dark:bg-finoradark-card2 text-purple-600 dark:text-finoradark-glow font-semibold'
+              : 'text-gray-700 dark:text-finoradark-textmuted hover:bg-gray-50 dark:hover:bg-finoradark-card2'
           }`}>
             <Home size={20} />
             <span>Página Inicial</span>
@@ -78,8 +111,8 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
         <Link href="/dashboard/produtos">
           <div className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition ${
             isActivePrefix('/dashboard/produtos')
-              ? 'bg-purple-50 text-purple-600 font-semibold'
-              : 'text-gray-700 hover:bg-gray-50'
+              ? 'bg-purple-50 dark:bg-finoradark-card2 text-purple-600 dark:text-finoradark-glow font-semibold'
+              : 'text-gray-700 dark:text-finoradark-textmuted hover:bg-gray-50 dark:hover:bg-finoradark-card2'
           }`}>
             <Package size={20} />
             <span>Produtos</span>
@@ -89,7 +122,7 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
         <div>
           <button
             onClick={() => setVendasOpen(!vendasOpen)}
-            className="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition"
+            className="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-finoradark-card2 text-gray-700 dark:text-finoradark-textmuted font-medium transition"
           >
             <div className="flex items-center space-x-3">
               <DollarSign size={20} />
@@ -101,22 +134,22 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
           {vendasOpen && (
             <div className="ml-4 mt-1 space-y-1">
               <Link href="/dashboard/vendas">
-                  <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/vendas') ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}>
+                  <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/vendas') ? 'bg-purple-50 dark:bg-finoradark-card2 text-purple-600 dark:text-finoradark-glow' : 'text-gray-600 dark:text-finoradark-textmuted hover:bg-gray-50 dark:hover:bg-finoradark-card2'}`}>
                     <CreditCard size={16} /><span>Todas as Vendas</span>
                   </div>
                 </Link>
                 <Link href="/dashboard/financeiro">
-                  <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/financeiro') ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}>
+                  <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/financeiro') ? 'bg-purple-50 dark:bg-finoradark-card2 text-purple-600 dark:text-finoradark-glow' : 'text-gray-600 dark:text-finoradark-textmuted hover:bg-gray-50 dark:hover:bg-finoradark-card2'}`}>
                     <FileText size={16} /><span>Financeiro</span>
                   </div>
                 </Link>
                 <Link href="/dashboard/vendas/utm">
-                  <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/relatorio-utm') ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}>
+                  <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/relatorio-utm') ? 'bg-purple-50 dark:bg-finoradark-card2 text-purple-600 dark:text-finoradark-glow' : 'text-gray-600 dark:text-finoradark-textmuted hover:bg-gray-50 dark:hover:bg-finoradark-card2'}`}>
                     <Link2 size={16} /><span>Relatório UTM</span>
                   </div>
                 </Link>
                 <Link href="/dashboard/vendas/carrinhos">
-                  <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/carrinhos-abandonados') ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}>
+                  <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/carrinhos-abandonados') ? 'bg-purple-50 dark:bg-finoradark-card2 text-purple-600 dark:text-finoradark-glow' : 'text-gray-600 dark:text-finoradark-textmuted hover:bg-gray-50 dark:hover:bg-finoradark-card2'}`}>
                     <ShoppingCart size={16} /><span>Carrinhos Abandonados</span>
                   </div>
                 </Link>
@@ -127,8 +160,8 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
         <Link href="/dashboard/carteira">
           <div className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition ${
             isActive('/dashboard/carteira')
-              ? 'bg-purple-50 text-purple-600 font-semibold'
-              : 'text-gray-700 hover:bg-gray-50'
+              ? 'bg-purple-50 dark:bg-finoradark-card2 text-purple-600 dark:text-finoradark-glow font-semibold'
+              : 'text-gray-700 dark:text-finoradark-textmuted hover:bg-gray-50 dark:hover:bg-finoradark-card2'
           }`}>
             <Wallet size={20} />
             <span>Carteira</span>
@@ -138,8 +171,8 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
         <Link href="/dashboard/pad">
           <div className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition ${
             isActivePrefix('/dashboard/pad')
-              ? 'bg-purple-50 text-purple-600 font-semibold'
-              : 'text-gray-700 hover:bg-gray-50'
+              ? 'bg-purple-50 dark:bg-finoradark-card2 text-purple-600 dark:text-finoradark-glow font-semibold'
+              : 'text-gray-700 dark:text-finoradark-textmuted hover:bg-gray-50 dark:hover:bg-finoradark-card2'
           }`}>
             <Package size={20} />
             <span>PAD</span>
@@ -149,8 +182,8 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
         <Link href="/dashboard/notificacoes">
           <div className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition ${
             isActive('/dashboard/notificacoes')
-              ? 'bg-purple-50 text-purple-600 font-semibold'
-              : 'text-gray-700 hover:bg-gray-50'
+              ? 'bg-purple-50 dark:bg-finoradark-card2 text-purple-600 dark:text-finoradark-glow font-semibold'
+              : 'text-gray-700 dark:text-finoradark-textmuted hover:bg-gray-50 dark:hover:bg-finoradark-card2'
           }`}>
             <Bell size={20} />
             <span>Notificações</span>
@@ -160,8 +193,8 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
         <Link href="/dashboard/solicitacoes-afiliacao">
           <div className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition ${
             isActive('/dashboard/solicitacoes-afiliacao')
-              ? 'bg-purple-50 text-purple-600 font-semibold'
-              : 'text-gray-700 hover:bg-gray-50'
+              ? 'bg-purple-50 dark:bg-finoradark-card2 text-purple-600 dark:text-finoradark-glow font-semibold'
+              : 'text-gray-700 dark:text-finoradark-textmuted hover:bg-gray-50 dark:hover:bg-finoradark-card2'
           }`}>
             <Clock size={20} />
             <span>Solicitações</span>
@@ -171,8 +204,8 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
         <Link href="/dashboard/mercado">
           <div className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition ${
             isActive('/dashboard/mercado')
-              ? 'bg-purple-50 text-purple-600 font-semibold'
-              : 'text-gray-700 hover:bg-gray-50'
+              ? 'bg-purple-50 dark:bg-finoradark-card2 text-purple-600 dark:text-finoradark-glow font-semibold'
+              : 'text-gray-700 dark:text-finoradark-textmuted hover:bg-gray-50 dark:hover:bg-finoradark-card2'
           }`}>
             <ShoppingBag size={20} />
             <span>Mercado</span>
@@ -182,8 +215,8 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
         <Link href="/dashboard/relatorios">
           <div className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition ${
             isActive('/dashboard/relatorios')
-              ? 'bg-purple-50 text-purple-600 font-semibold'
-              : 'text-gray-700 hover:bg-gray-50'
+              ? 'bg-purple-50 dark:bg-finoradark-card2 text-purple-600 dark:text-finoradark-glow font-semibold'
+              : 'text-gray-700 dark:text-finoradark-textmuted hover:bg-gray-50 dark:hover:bg-finoradark-card2'
           }`}>
             <BarChart3 size={20} />
             <span>Relatórios</span>
@@ -193,23 +226,23 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
         <Link href={user?.finoraUtmAtivo ? '/finora-utm' : '/dashboard/finora-utm/planos'}>
           <div className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-semibold transition ${
             isActivePrefix('/finora-utm')
-              ? 'bg-purple-600 text-white'
-              : 'bg-purple-50 text-purple-700 hover:bg-purple-100'
+              ? 'bg-purple-600 dark:bg-finoradark-glow text-white'
+              : 'bg-purple-50 dark:bg-finoradark-card2 text-purple-700 dark:text-finoradark-glow hover:bg-purple-100 dark:hover:bg-finoradark-border'
           }`}>
             <TrendingUp size={20} />
             <span>Finora UTM</span>
             {!user?.finoraUtmAtivo && (
-              <span className="ml-auto text-xs bg-purple-200 text-purple-800 px-2 py-0.5 rounded-full">Pro</span>
+              <span className="ml-auto text-xs bg-purple-200 dark:bg-finoradark-border text-purple-800 dark:text-finoradark-text px-2 py-0.5 rounded-full">Pro</span>
             )}
           </div>
         </Link>
-        <div className="border-t border-gray-200 my-1"></div>
+        <div className="border-t border-gray-200 dark:border-finoradark-border my-1"></div>
 
         <Link href="/dashboard/testes-ab">
           <div className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition ${
             isActive('/dashboard/testes-ab')
-              ? 'bg-purple-50 text-purple-600 font-semibold'
-              : 'text-gray-700 hover:bg-gray-50'
+              ? 'bg-purple-50 dark:bg-finoradark-card2 text-purple-600 dark:text-finoradark-glow font-semibold'
+              : 'text-gray-700 dark:text-finoradark-textmuted hover:bg-gray-50 dark:hover:bg-finoradark-card2'
           }`}>
             <Zap size={20} />
             <span>Testes A/B</span>
@@ -219,8 +252,8 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
          <Link href="/dashboard/integracoes">
           <div className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition ${
             isActivePrefix('/dashboard/integracoes')
-              ? 'bg-purple-50 text-purple-600 font-semibold'
-              : 'text-gray-700 hover:bg-gray-50'
+              ? 'bg-purple-50 dark:bg-finoradark-card2 text-purple-600 dark:text-finoradark-glow font-semibold'
+              : 'text-gray-700 dark:text-finoradark-textmuted hover:bg-gray-50 dark:hover:bg-finoradark-card2'
           }`}>
             <Link2 size={20} />
             <span>Integrações</span>
@@ -230,8 +263,8 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
 <Link href="/dashboard/ferramentas">
           <div className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition ${
             isActivePrefix('/dashboard/ferramentas')
-              ? 'bg-purple-50 text-purple-600 font-semibold'
-              : 'text-gray-700 hover:bg-gray-50'
+              ? 'bg-purple-50 dark:bg-finoradark-card2 text-purple-600 dark:text-finoradark-glow font-semibold'
+              : 'text-gray-700 dark:text-finoradark-textmuted hover:bg-gray-50 dark:hover:bg-finoradark-card2'
           }`}>
             <Zap size={20} />
             <span>Ferramentas</span>
@@ -241,14 +274,14 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
         {/* Menu Admin expandível */}
         {user?.role === 'ADMIN' && (
           <>
-            <div className="border-t border-gray-200 my-2"></div>
+            <div className="border-t border-gray-200 dark:border-finoradark-border my-2"></div>
             <div>
               <button
                 onClick={() => setAdminOpen(!adminOpen)}
                 className={`w-full flex items-center justify-between px-4 py-3 rounded-lg font-semibold transition ${
                   isActivePrefix('/dashboard/admin')
-                    ? 'bg-purple-50 text-purple-600'
-                    : 'text-purple-600 hover:bg-purple-50'
+                    ? 'bg-purple-50 dark:bg-finoradark-card2 text-purple-600 dark:text-finoradark-glow'
+                    : 'text-purple-600 dark:text-finoradark-glow hover:bg-purple-50 dark:hover:bg-finoradark-card2'
                 }`}
               >
                 <div className="flex items-center space-x-3">
@@ -261,27 +294,27 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
               {adminOpen && (
                 <div className="ml-4 mt-1 space-y-1">
                   <Link href="/dashboard/admin">
-                  <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/admin') ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}>
+                  <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/admin') ? 'bg-purple-50 dark:bg-finoradark-card2 text-purple-600 dark:text-finoradark-glow' : 'text-gray-600 dark:text-finoradark-textmuted hover:bg-gray-50 dark:hover:bg-finoradark-card2'}`}>
                     <LayoutDashboard size={16} /><span>Painel</span>
                   </div>
                 </Link>
                 <Link href="/dashboard/admin/receita">
-                  <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/admin/receita') ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}>
+                  <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/admin/receita') ? 'bg-purple-50 dark:bg-finoradark-card2 text-purple-600 dark:text-finoradark-glow' : 'text-gray-600 dark:text-finoradark-textmuted hover:bg-gray-50 dark:hover:bg-finoradark-card2'}`}>
                     <DollarSign size={16} /><span>Receita</span>
                   </div>
                 </Link>
                 <Link href="/dashboard/admin/taxas">
-                  <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/admin/taxas') ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}>
+                  <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/admin/taxas') ? 'bg-purple-50 dark:bg-finoradark-card2 text-purple-600 dark:text-finoradark-glow' : 'text-gray-600 dark:text-finoradark-textmuted hover:bg-gray-50 dark:hover:bg-finoradark-card2'}`}>
                     <Percent size={16} /><span>Taxas</span>
                   </div>
                 </Link>
                 <Link href="/dashboard/admin/saques">
-                  <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/admin/saques') ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}>
+                  <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/admin/saques') ? 'bg-purple-50 dark:bg-finoradark-card2 text-purple-600 dark:text-finoradark-glow' : 'text-gray-600 dark:text-finoradark-textmuted hover:bg-gray-50 dark:hover:bg-finoradark-card2'}`}>
                     <ArrowDownToLine size={16} /><span>Saques</span>
                   </div>
                 </Link>
                 <Link href="/dashboard/admin/gateways">
-                  <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/admin/gateways') ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}>
+                  <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/admin/gateways') ? 'bg-purple-50 dark:bg-finoradark-card2 text-purple-600 dark:text-finoradark-glow' : 'text-gray-600 dark:text-finoradark-textmuted hover:bg-gray-50 dark:hover:bg-finoradark-card2'}`}>
                     <Cpu size={16} /><span>Gateways</span>
                   </div>
                 </Link>
@@ -291,19 +324,19 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
           </>
         )}
 
-        <div className="border-t border-gray-200 my-4"></div>
+        <div className="border-t border-gray-200 dark:border-finoradark-border my-4"></div>
 
         <button
           onClick={onLogout}
-          className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-red-50 text-red-600 font-medium transition"
+          className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-red-50 dark:hover:bg-finoradark-card2 text-red-600 font-medium transition"
         >
           <LogOut size={20} />
           <span>Sair</span>
         </button>
       </nav>
 
-      <div className="p-4 border-t border-gray-200">
-        <div className="text-xs text-gray-500 text-center">© 2026 Finora</div>
+      <div className="p-4 border-t border-gray-200 dark:border-finoradark-border">
+        <div className="text-xs text-gray-500 dark:text-finoradark-textmuted text-center">© 2026 Finora</div>
       </div>
     </aside>
   );
