@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
+import { enviarNotificacaoPush } from '@/lib/expo-push';
 
 const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'seu-secret-super-seguro';
 
@@ -147,6 +148,23 @@ export async function POST(request: NextRequest) {
         status
       }
     });
+
+    // Notificar o vendedor que uma nova venda foi gerada (aguardando pagamento)
+    try {
+      const vendedorUser = await prisma.user.findUnique({
+        where: { id: produto.userId },
+        select: { expoPushToken: true }
+      });
+
+      enviarNotificacaoPush(
+        vendedorUser?.expoPushToken,
+        'Nova venda gerada 🛒',
+        'Valor total: R$ ' + parseFloat(valor).toFixed(2) + ' - ' + produto.nome,
+        { tipo: 'VENDA_GERADA', vendaId: venda.id }
+      );
+    } catch (error) {
+      console.error('Erro ao notificar venda gerada:', error);
+    }
 
     if (status === 'APROVADO') {
       await processarSplitPagamento(venda.id, parseFloat(valor), metodoPagamento, produto.userId, afiliacaoId);
