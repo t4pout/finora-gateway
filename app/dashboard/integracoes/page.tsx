@@ -89,7 +89,7 @@ const integracoes = [
       </svg>
     )
   },
-  {
+ {
     id: 'zapier',
     nome: 'Zapier',
     descricao: 'Conecte a Finora com mais de 5.000 aplicativos via Zapier',
@@ -100,6 +100,34 @@ const integracoes = [
       <svg viewBox="0 0 60 60" className="w-10 h-10" fill="none">
         <rect width="60" height="60" rx="12" fill="#FF4A00"/>
         <text x="50%" y="58%" dominantBaseline="middle" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">Za</text>
+      </svg>
+    )
+  },
+  {
+    id: 'reportana',
+    nome: 'Reportana',
+    descricao: 'Automação de email e SMS marketing para recuperação de vendas',
+    categoria: 'Email Marketing',
+    cor: 'purple',
+    disponivel: false,
+    logo: (
+      <svg viewBox="0 0 60 60" className="w-10 h-10" fill="none">
+        <rect width="60" height="60" rx="12" fill="#7C3AED"/>
+        <text x="50%" y="58%" dominantBaseline="middle" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">RPT</text>
+      </svg>
+    )
+  },
+  {
+    id: 'correios',
+    nome: 'Correios',
+    descricao: 'Cálculo de frete e rastreamento automático para produtos físicos',
+    categoria: 'Logística',
+    cor: 'blue',
+    disponivel: false,
+    logo: (
+      <svg viewBox="0 0 60 60" className="w-10 h-10" fill="none">
+        <rect width="60" height="60" rx="12" fill="#FFCB05"/>
+        <text x="50%" y="58%" dominantBaseline="middle" textAnchor="middle" fill="#003399" fontSize="12" fontWeight="bold">ECT</text>
       </svg>
     )
   }
