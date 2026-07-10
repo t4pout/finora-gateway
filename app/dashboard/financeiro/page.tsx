@@ -57,6 +57,15 @@ export default function FinanceiroPage() {
   const [user, setUser] = useState<User | null>(null);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [temaDark, setTemaDark] = useState(false);
+
+  useEffect(() => {
+    const checarTema = () => setTemaDark(document.documentElement.classList.contains('dark'));
+    checarTema();
+    const observer = new MutationObserver(checarTema);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -100,11 +109,14 @@ export default function FinanceiroPage() {
 
   if (loading || !stats) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-finoradark-bg flex items-center justify-center">
         <LoadingScreen />
       </div>
     );
   }
+
+  const corTexto = temaDark ? '#8b83b8' : '#374151';
+  const corGrid = temaDark ? '#2a2350' : '#e5e7eb';
 
   const lineChartData = {
     labels: stats.evolucao.map(e => `${e.dia}/${e.mes}`),
@@ -112,8 +124,8 @@ export default function FinanceiroPage() {
       {
         label: 'Receita Bruta',
         data: stats.evolucao.map(e => e.bruto),
-        borderColor: 'rgb(168, 85, 247)',
-        backgroundColor: 'rgba(168, 85, 247, 0.1)',
+        borderColor: temaDark ? 'rgb(139, 123, 245)' : 'rgb(168, 85, 247)',
+        backgroundColor: temaDark ? 'rgba(139, 123, 245, 0.15)' : 'rgba(168, 85, 247, 0.1)',
         fill: true,
         tension: 0.4
       },
@@ -121,7 +133,7 @@ export default function FinanceiroPage() {
         label: 'Receita Líquida',
         data: stats.evolucao.map(e => e.liquido),
         borderColor: 'rgb(34, 197, 94)',
-        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+        backgroundColor: temaDark ? 'rgba(34, 197, 94, 0.15)' : 'rgba(34, 197, 94, 0.1)',
         fill: true,
         tension: 0.4
       }
@@ -134,6 +146,7 @@ export default function FinanceiroPage() {
     plugins: {
       legend: {
         position: 'top' as const,
+        labels: { color: corTexto }
       },
       tooltip: {
         callbacks: {
@@ -144,9 +157,15 @@ export default function FinanceiroPage() {
       }
     },
     scales: {
+      x: {
+        grid: { color: corGrid },
+        ticks: { color: corTexto }
+      },
       y: {
         beginAtZero: true,
+        grid: { color: corGrid },
         ticks: {
+          color: corTexto,
           callback: function(value: any) {
             return 'R$ ' + value.toFixed(0);
           }
@@ -180,6 +199,7 @@ export default function FinanceiroPage() {
     plugins: {
       legend: {
         position: 'bottom' as const,
+        labels: { color: corTexto }
       },
       tooltip: {
         callbacks: {
@@ -196,22 +216,22 @@ export default function FinanceiroPage() {
     : '0.00';
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-finoradark-bg">
       <Sidebar user={user} onLogout={handleLogout} />
 
       <main className="flex-1 overflow-y-auto">
-        <header className="bg-white border-b border-gray-200 px-8 py-4">
+        <header className="bg-white dark:bg-finoradark-card border-b border-gray-200 dark:border-finoradark-border px-8 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">📊 Dashboard Financeiro</h1>
-              <p className="text-sm text-gray-500">Visão completa da sua receita</p>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">📊 Dashboard Financeiro</h1>
+              <p className="text-sm text-gray-500 dark:text-finoradark-textmuted">Visão completa da sua receita</p>
             </div>
           </div>
         </header>
 
         <div className="p-8">
           <div className="grid md:grid-cols-4 gap-6 mb-8">
-            <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white">
+            <div className="bg-gradient-to-br from-purple-500 to-purple-600 dark:from-finoradark-glow dark:to-[#5b4dc9] rounded-xl p-6 text-white">
               <div className="flex items-center justify-between mb-2">
                 <div className="text-sm font-medium opacity-90">Receita Bruta</div>
                 <TrendingUp size={24} />
@@ -249,28 +269,28 @@ export default function FinanceiroPage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-6">
               <div className="flex items-center justify-between mb-2">
-                <div className="text-sm text-gray-600">Saldo Pendente</div>
-                <Clock size={20} className="text-yellow-600" />
+                <div className="text-sm text-gray-600 dark:text-finoradark-textmuted">Saldo Pendente</div>
+                <Clock size={20} className="text-yellow-600 dark:text-yellow-400" />
               </div>
-              <div className="text-2xl font-bold text-yellow-600">R$ {stats.carteira.saldoPendente.toFixed(2).replace('.', ',')}</div>
+              <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">R$ {stats.carteira.saldoPendente.toFixed(2).replace('.', ',')}</div>
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-6">
               <div className="flex items-center justify-between mb-2">
-                <div className="text-sm text-gray-600">Total Sacado</div>
-                <Banknote size={20} className="text-gray-600" />
+                <div className="text-sm text-gray-600 dark:text-finoradark-textmuted">Total Sacado</div>
+                <Banknote size={20} className="text-gray-600 dark:text-finoradark-textmuted" />
               </div>
-              <div className="text-2xl font-bold text-gray-900">R$ {stats.carteira.totalSaques.toFixed(2).replace('.', ',')}</div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">R$ {stats.carteira.totalSaques.toFixed(2).replace('.', ',')}</div>
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-6">
               <div className="flex items-center justify-between mb-2">
-                <div className="text-sm text-gray-600">Margem Líquida</div>
-                <CreditCard size={20} className="text-green-600" />
+                <div className="text-sm text-gray-600 dark:text-finoradark-textmuted">Margem Líquida</div>
+                <CreditCard size={20} className="text-green-600 dark:text-green-400" />
               </div>
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                 {stats.receitaBruta > 0 
                   ? ((stats.receitaLiquida / stats.receitaBruta * 100).toFixed(1))
                   : '0'}%
@@ -279,43 +299,43 @@ export default function FinanceiroPage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 mb-8">
-            <div className="md:col-span-2 bg-white rounded-xl border border-gray-200 p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Evolução - Últimos 30 Dias</h3>
+            <div className="md:col-span-2 bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-6">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-finoradark-text mb-4">Evolução - Últimos 30 Dias</h3>
               <div style={{ height: '300px' }}>
                 <Line data={lineChartData} options={lineChartOptions} />
               </div>
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Por Método de Pagamento</h3>
+            <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-6">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-finoradark-text mb-4">Por Método de Pagamento</h3>
               <div style={{ height: '300px' }}>
                 <Doughnut data={doughnutData} options={doughnutOptions} />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Detalhamento por Método</h3>
+          <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-6">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-finoradark-text mb-4">Detalhamento por Método</h3>
             <div className="grid md:grid-cols-3 gap-4">
               {metodosData.map(([metodo, data]) => (
-                <div key={metodo} className="p-4 bg-gray-50 rounded-lg">
-                  <div className="font-semibold text-gray-900 mb-2">{metodo}</div>
+                <div key={metodo} className="p-4 bg-gray-50 dark:bg-finoradark-card2 rounded-lg">
+                  <div className="font-semibold text-gray-900 dark:text-finoradark-text mb-2">{metodo}</div>
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Transações:</span>
-                      <span className="font-semibold">{data.count}</span>
+                      <span className="text-gray-600 dark:text-finoradark-textmuted">Transações:</span>
+                      <span className="font-semibold text-gray-900 dark:text-finoradark-text">{data.count}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Bruto:</span>
-                      <span className="font-semibold text-purple-600">R$ {data.bruto.toFixed(2).replace('.', ',')}</span>
+                      <span className="text-gray-600 dark:text-finoradark-textmuted">Bruto:</span>
+                      <span className="font-semibold text-purple-600 dark:text-finoradark-glow">R$ {data.bruto.toFixed(2).replace('.', ',')}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Líquido:</span>
-                      <span className="font-semibold text-green-600">R$ {data.liquido.toFixed(2).replace('.', ',')}</span>
+                      <span className="text-gray-600 dark:text-finoradark-textmuted">Líquido:</span>
+                      <span className="font-semibold text-green-600 dark:text-green-400">R$ {data.liquido.toFixed(2).replace('.', ',')}</span>
                     </div>
-                    <div className="flex justify-between pt-2 border-t border-gray-200">
-                      <span className="text-gray-600">Taxa:</span>
-                      <span className="font-semibold text-red-600">R$ {(data.bruto - data.liquido).toFixed(2).replace('.', ',')}</span>
+                    <div className="flex justify-between pt-2 border-t border-gray-200 dark:border-finoradark-border">
+                      <span className="text-gray-600 dark:text-finoradark-textmuted">Taxa:</span>
+                      <span className="font-semibold text-red-600 dark:text-red-400">R$ {(data.bruto - data.liquido).toFixed(2).replace('.', ',')}</span>
                     </div>
                   </div>
                 </div>
