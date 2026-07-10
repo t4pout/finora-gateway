@@ -129,35 +129,35 @@ export default function MercadoPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-finoradark-bg flex items-center justify-center">
         <LoadingScreen />
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-finoradark-bg">
       <Sidebar user={user} onLogout={handleLogout} />
 
       <main className="flex-1 overflow-y-auto">
-        <header className="bg-white border-b border-gray-200 px-8 py-4">
+        <header className="bg-white dark:bg-finoradark-card border-b border-gray-200 dark:border-finoradark-border px-8 py-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Mercado de Produtos</h1>
-            <p className="text-sm text-gray-500">Encontre os melhores produtos para afiliar</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">Mercado de Produtos</h1>
+            <p className="text-sm text-gray-500 dark:text-finoradark-textmuted">Encontre os melhores produtos para afiliar</p>
           </div>
         </header>
 
         <div className="p-8">
           <div className="mb-8">
             <div className="flex items-center space-x-2 mb-4">
-              <Award size={24} className="text-yellow-500" />
-              <h2 className="text-2xl font-bold text-gray-900">Hall da Fama</h2>
+              <Award size={24} className="text-yellow-500 dark:text-yellow-400" />
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">Hall da Fama</h2>
             </div>
             <div className="grid md:grid-cols-3 gap-6">
               {topProdutos.map((p, index) => (
-                <div key={p.id} className="bg-gradient-to-br from-purple-600 to-purple-500 rounded-xl p-6 text-white relative overflow-hidden">
+                <div key={p.id} className="bg-gradient-to-br from-purple-600 to-purple-500 dark:from-finoradark-glow dark:to-[#5b4dc9] rounded-xl p-6 text-white relative overflow-hidden">
                   <div className="absolute top-4 right-4 text-6xl opacity-20">
-                    ðŸ†
+                    ðŸ†
                   </div>
                   <div className="relative z-10">
                     <div className="text-4xl font-bold mb-2">#{index + 1}</div>
@@ -173,23 +173,23 @@ export default function MercadoPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl p-6 border border-gray-200 mb-6">
+          <div className="bg-white dark:bg-finoradark-card rounded-xl p-6 border border-gray-200 dark:border-finoradark-border mb-6">
             <div className="grid md:grid-cols-3 gap-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-finoradark-textmuted" size={20} />
                 <input
                   type="text"
                   placeholder="Buscar produtos..."
                   value={busca}
                   onChange={(e) => setBusca(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-200 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none"
                 />
               </div>
 
               <select
                 value={filtroTipo}
                 onChange={(e) => setFiltroTipo(e.target.value)}
-                className="px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none"
+                className="px-4 py-3 border border-gray-200 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none"
               >
                 <option value="TODOS">Todos os Tipos</option>
                 <option value="DIGITAL">Digital</option>
@@ -199,7 +199,7 @@ export default function MercadoPage() {
               <select
                 value={ordenacao}
                 onChange={(e) => setOrdenacao(e.target.value)}
-                className="px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none"
+                className="px-4 py-3 border border-gray-200 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none"
               >
                 <option value="COMISSAO">Maior Comissão</option>
                 <option value="VENDAS">Mais Vendidos</option>
@@ -209,19 +209,19 @@ export default function MercadoPage() {
           </div>
 
           {produtosFiltrados.length === 0 ? (
-            <div className="bg-white rounded-xl p-12 text-center border border-gray-200">
-              <ShoppingBag size={64} className="mx-auto text-gray-300 mb-4" />
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Nenhum produto encontrado</h3>
-              <p className="text-gray-600">Tente ajustar os filtros</p>
+            <div className="bg-white dark:bg-finoradark-card rounded-xl p-12 text-center border border-gray-200 dark:border-finoradark-border">
+              <ShoppingBag size={64} className="mx-auto text-gray-300 dark:text-finoradark-border mb-4" />
+              <h3 className="text-xl font-bold text-gray-900 dark:text-finoradark-text mb-2">Nenhum produto encontrado</h3>
+              <p className="text-gray-600 dark:text-finoradark-textmuted">Tente ajustar os filtros</p>
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {produtosFiltrados.map((p) => (
-                <div key={p.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition">
+                <div key={p.id} className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border overflow-hidden hover:shadow-lg dark:hover:shadow-none transition">
                   {p.imagem ? (
                     <img src={p.imagem} alt={p.nome} className="w-full h-48 object-cover" />
                   ) : (
-                    <div className="w-full h-48 bg-gradient-to-br from-purple-600 to-purple-500 flex items-center justify-center">
+                    <div className="w-full h-48 bg-gradient-to-br from-purple-600 to-purple-500 dark:from-finoradark-glow dark:to-[#5b4dc9] flex items-center justify-center">
                       <Package size={48} className="text-white" />
                     </div>
                   )}
@@ -229,40 +229,40 @@ export default function MercadoPage() {
                   <div className="p-6">
                     <div className="flex items-center justify-between mb-2">
                       {p.vendedor && (
-                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                        <span className="text-xs text-gray-500 dark:text-finoradark-textmuted bg-gray-100 dark:bg-finoradark-card2 px-2 py-1 rounded">
                           por {p.vendedor}
                         </span>
                       )}
-                      <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded-full">
+                      <span className="px-2 py-1 bg-purple-100 dark:bg-finoradark-card2 text-purple-700 dark:text-finoradark-glow text-xs font-semibold rounded-full">
                         {p.tipo}
                       </span>
                       {(p.vendas || 0) > 0 && (
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-500 dark:text-finoradark-textmuted">
                           {p.vendas} vendas
                         </span>
                       )}
                     </div>
                     
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">{p.nome}</h3>
-                    <p className="text-sm text-gray-600 mb-4 line-clamp-2">{p.descricao}</p>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-finoradark-text mb-2">{p.nome}</h3>
+                    <p className="text-sm text-gray-600 dark:text-finoradark-textmuted mb-4 line-clamp-2">{p.descricao}</p>
                     
-                    <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-200">
+                    <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-200 dark:border-finoradark-border">
                       <div>
-                        <div className="text-sm text-gray-500">Preço</div>
-                        <div className="text-xl font-bold text-gray-900">
+                        <div className="text-sm text-gray-500 dark:text-finoradark-textmuted">Preço</div>
+                        <div className="text-xl font-bold text-gray-900 dark:text-finoradark-text">
                           R$ {p.preco.toFixed(2).replace('.', ',')}
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-sm text-gray-500">Comissão</div>
-                        <div className="text-2xl font-bold text-purple-600">
+                        <div className="text-sm text-gray-500 dark:text-finoradark-textmuted">Comissão</div>
+                        <div className="text-2xl font-bold text-purple-600 dark:text-finoradark-glow">
                           {p.comissao}%
                         </div>
                       </div>
                     </div>
                     
                     <div className="flex gap-2">
-                      <button className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition flex items-center justify-center space-x-2">
+                      <button className="flex-1 px-4 py-2 bg-gray-100 dark:bg-finoradark-card2 text-gray-700 dark:text-finoradark-textmuted rounded-lg hover:bg-gray-200 dark:hover:bg-finoradark-border transition flex items-center justify-center space-x-2">
                         <Eye size={16} />
                         <span>Detalhes</span>
                       </button>
@@ -271,8 +271,8 @@ export default function MercadoPage() {
                         disabled={p.isMeuProduto}
                         className={`flex-1 px-4 py-2 rounded-lg transition flex items-center justify-center space-x-2 ${
                           p.isMeuProduto 
-                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                            : 'bg-purple-600 text-white hover:bg-purple-700'
+                            ? 'bg-gray-300 dark:bg-finoradark-border text-gray-500 dark:text-finoradark-textmuted cursor-not-allowed' 
+                            : 'bg-purple-600 dark:bg-finoradark-glow text-white hover:bg-purple-700 dark:hover:opacity-90'
                         }`}
                       >
                         <UserPlus size={16} />
@@ -289,6 +289,3 @@ export default function MercadoPage() {
     </div>
   );
 }
-
-
-

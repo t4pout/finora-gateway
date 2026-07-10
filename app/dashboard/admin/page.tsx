@@ -138,7 +138,7 @@ export default function AdminPage() {
 
   if (loading) {
     return (
-      <div className="flex h-screen bg-gray-50">
+      <div className="flex h-screen bg-gray-50 dark:bg-finoradark-bg">
         <Sidebar user={currentUser} onLogout={handleLogout} />
         <div className="flex-1 flex items-center justify-center">
           <LoadingScreen />
@@ -148,18 +148,18 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-finoradark-bg">
       <Sidebar user={currentUser} onLogout={handleLogout} />
 
       <main className="flex-1 overflow-y-auto">
-        <header className="bg-white border-b border-gray-200 px-8 py-6">
+        <header className="bg-white dark:bg-finoradark-card border-b border-gray-200 dark:border-finoradark-border px-8 py-6">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
-              <Shield size={22} className="text-purple-600" />
+            <div className="w-10 h-10 bg-purple-100 dark:bg-finoradark-card2 rounded-xl flex items-center justify-center">
+              <Shield size={22} className="text-purple-600 dark:text-finoradark-glow" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Painel Administrativo</h1>
-              <p className="text-sm text-gray-500">Gerencie todos os recursos da plataforma</p>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">Painel Administrativo</h1>
+              <p className="text-sm text-gray-500 dark:text-finoradark-textmuted">Gerencie todos os recursos da plataforma</p>
             </div>
           </div>
         </header>
@@ -168,74 +168,74 @@ export default function AdminPage() {
 
           {/* Cards resumo */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div className="bg-white rounded-xl border border-gray-200 p-5">
-              <div className="text-sm text-gray-500 mb-1">Total Usuários</div>
-              <div className="text-3xl font-bold text-purple-600">{users.length}</div>
+            <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-5">
+              <div className="text-sm text-gray-500 dark:text-finoradark-textmuted mb-1">Total Usuários</div>
+              <div className="text-3xl font-bold text-purple-600 dark:text-finoradark-glow">{users.length}</div>
             </div>
-            <div className="bg-white rounded-xl border border-gray-200 p-5">
-              <div className="text-sm text-gray-500 mb-1">Vendedores</div>
-              <div className="text-3xl font-bold text-green-600">{users.filter(u => u.role === 'VENDEDOR').length}</div>
+            <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-5">
+              <div className="text-sm text-gray-500 dark:text-finoradark-textmuted mb-1">Vendedores</div>
+              <div className="text-3xl font-bold text-green-600 dark:text-green-400">{users.filter(u => u.role === 'VENDEDOR').length}</div>
             </div>
-            <div className="bg-white rounded-xl border border-gray-200 p-5">
-              <div className="text-sm text-gray-500 mb-1">Admins</div>
-              <div className="text-3xl font-bold text-red-600">{users.filter(u => u.role === 'ADMIN').length}</div>
+            <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-5">
+              <div className="text-sm text-gray-500 dark:text-finoradark-textmuted mb-1">Admins</div>
+              <div className="text-3xl font-bold text-red-600 dark:text-red-400">{users.filter(u => u.role === 'ADMIN').length}</div>
             </div>
-            <div className="bg-white rounded-xl border border-gray-200 p-5">
-              <div className="text-sm text-gray-500 mb-1">Planos de Taxa</div>
-              <div className="text-3xl font-bold text-blue-600">{planos.length}</div>
+            <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-5">
+              <div className="text-sm text-gray-500 dark:text-finoradark-textmuted mb-1">Planos de Taxa</div>
+              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{planos.length}</div>
             </div>
           </div>
 
           {/* Links rápidos admin */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <Link href="/dashboard/admin/documentos">
-              <div className="bg-white rounded-xl border border-gray-200 p-5 hover:border-orange-400 hover:bg-orange-50 transition cursor-pointer">
+              <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-5 hover:border-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/10 transition cursor-pointer">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <FileText size={20} className="text-orange-600" />
+                  <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/20 rounded-lg flex items-center justify-center">
+                    <FileText size={20} className="text-orange-600 dark:text-orange-400" />
                   </div>
                   <div>
-                    <div className="font-semibold text-gray-900">Documentos</div>
-                    <div className="text-xs text-gray-500">Verificações</div>
+                    <div className="font-semibold text-gray-900 dark:text-finoradark-text">Documentos</div>
+                    <div className="text-xs text-gray-500 dark:text-finoradark-textmuted">Verificações</div>
                   </div>
                 </div>
               </div>
             </Link>
             <Link href="/dashboard/admin/taxas">
-              <div className="bg-white rounded-xl border border-gray-200 p-5 hover:border-green-400 hover:bg-green-50 transition cursor-pointer">
+              <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-5 hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/10 transition cursor-pointer">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                    <Percent size={20} className="text-green-600" />
+                  <div className="w-10 h-10 bg-green-100 dark:bg-green-900/20 rounded-lg flex items-center justify-center">
+                    <Percent size={20} className="text-green-600 dark:text-green-400" />
                   </div>
                   <div>
-                    <div className="font-semibold text-gray-900">Taxas</div>
-                    <div className="text-xs text-gray-500">Planos de taxa</div>
+                    <div className="font-semibold text-gray-900 dark:text-finoradark-text">Taxas</div>
+                    <div className="text-xs text-gray-500 dark:text-finoradark-textmuted">Planos de taxa</div>
                   </div>
                 </div>
               </div>
             </Link>
             <Link href="/dashboard/admin/saques">
-              <div className="bg-white rounded-xl border border-gray-200 p-5 hover:border-blue-400 hover:bg-blue-50 transition cursor-pointer">
+              <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-5 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition cursor-pointer">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Banknote size={20} className="text-blue-600" />
+                  <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
+                    <Banknote size={20} className="text-blue-600 dark:text-blue-400" />
                   </div>
                   <div>
-                    <div className="font-semibold text-gray-900">Saques</div>
-                    <div className="text-xs text-gray-500">Solicitações</div>
+                    <div className="font-semibold text-gray-900 dark:text-finoradark-text">Saques</div>
+                    <div className="text-xs text-gray-500 dark:text-finoradark-textmuted">Solicitações</div>
                   </div>
                 </div>
               </div>
             </Link>
             <Link href="/dashboard/admin/gateways">
-              <div className="bg-white rounded-xl border border-gray-200 p-5 hover:border-purple-400 hover:bg-purple-50 transition cursor-pointer">
+              <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-5 hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-finoradark-card2 transition cursor-pointer">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <CreditCard size={20} className="text-purple-600" />
+                  <div className="w-10 h-10 bg-purple-100 dark:bg-finoradark-card2 rounded-lg flex items-center justify-center">
+                    <CreditCard size={20} className="text-purple-600 dark:text-finoradark-glow" />
                   </div>
                   <div>
-                    <div className="font-semibold text-gray-900">Gateways</div>
-                    <div className="text-xs text-gray-500">Adquirentes</div>
+                    <div className="font-semibold text-gray-900 dark:text-finoradark-text">Gateways</div>
+                    <div className="text-xs text-gray-500 dark:text-finoradark-textmuted">Adquirentes</div>
                   </div>
                 </div>
               </div>
@@ -243,9 +243,9 @@ export default function AdminPage() {
           </div>
 
           {/* Tabela de usuários */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center space-x-2">
-              <Users size={20} className="text-purple-600" />
+          <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-6">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-finoradark-text mb-4 flex items-center space-x-2">
+              <Users size={20} className="text-purple-600 dark:text-finoradark-glow" />
               <span>Usuários</span>
             </h2>
             <div className="mb-4">
@@ -254,63 +254,63 @@ export default function AdminPage() {
                 placeholder="Buscar por nome ou email..."
                 value={filtro}
                 onChange={(e) => setFiltro(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none"
               />
             </div>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Nome</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Email</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Role</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Plano Taxa</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Produtos</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Vendas</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Saldo</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Saques</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Cadastro</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Ações</th>
+                  <tr className="border-b border-gray-200 dark:border-finoradark-border">
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-finoradark-text">Nome</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-finoradark-text">Email</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-finoradark-text">Role</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-finoradark-text">Plano Taxa</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-finoradark-text">Produtos</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-finoradark-text">Vendas</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-finoradark-text">Saldo</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-finoradark-text">Saques</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-finoradark-text">Cadastro</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-finoradark-text">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
                   {usersFiltrados.map((user) => (
-                    <tr key={user.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-4 px-4 font-semibold text-gray-900">{user.nome}</td>
-                      <td className="py-4 px-4 text-gray-600">{user.email}</td>
+                    <tr key={user.id} className="border-b border-gray-100 dark:border-finoradark-border hover:bg-gray-50 dark:hover:bg-finoradark-card2">
+                      <td className="py-4 px-4 font-semibold text-gray-900 dark:text-finoradark-text">{user.nome}</td>
+                      <td className="py-4 px-4 text-gray-600 dark:text-finoradark-textmuted">{user.email}</td>
                       <td className="py-4 px-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${user.role === 'ADMIN' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${user.role === 'ADMIN' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'}`}>
                           {user.role}
                         </span>
                       </td>
                       <td className="py-4 px-4">
                         {user.planoTaxa
-                          ? <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">{user.planoTaxa.nome}</span>
-                          : <span className="text-gray-400 text-sm">Sem plano</span>}
+                          ? <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs font-semibold">{user.planoTaxa.nome}</span>
+                          : <span className="text-gray-400 dark:text-finoradark-textmuted text-sm">Sem plano</span>}
                       </td>
-                      <td className="py-4 px-4 font-semibold text-gray-900">{user._count.produtos}</td>
-                      <td className="py-4 px-4 font-semibold text-gray-900">{user._count.vendas}</td>
-                      <td className="py-4 px-4 font-semibold text-green-600">
+                      <td className="py-4 px-4 font-semibold text-gray-900 dark:text-finoradark-text">{user._count.produtos}</td>
+                      <td className="py-4 px-4 font-semibold text-gray-900 dark:text-finoradark-text">{user._count.vendas}</td>
+                      <td className="py-4 px-4 font-semibold text-green-600 dark:text-green-400">
                         R$ {(user.saldo || 0).toFixed(2).replace('.', ',')}
                       </td>
-                      <td className="py-4 px-4 font-semibold text-red-500">
+                      <td className="py-4 px-4 font-semibold text-red-500 dark:text-red-400">
                         R$ {(user.totalSaques || 0).toFixed(2).replace('.', ',')}
                       </td>
-                      <td className="py-4 px-4 text-gray-600 text-sm">{new Date(user.createdAt).toLocaleDateString('pt-BR')}</td>
+                      <td className="py-4 px-4 text-gray-600 dark:text-finoradark-textmuted text-sm">{new Date(user.createdAt).toLocaleDateString('pt-BR')}</td>
                       <td className="py-4 px-4">
                         <div className="flex gap-2">
-                          <button onClick={() => logarComoUsuario(user.id, user.nome, user.email, user.role)} className="p-2 hover:bg-purple-50 rounded-lg transition text-purple-600" title="Logar como este usuário">
+                          <button onClick={() => logarComoUsuario(user.id, user.nome, user.email, user.role)} className="p-2 hover:bg-purple-50 dark:hover:bg-finoradark-card2 rounded-lg transition text-purple-600 dark:text-finoradark-glow" title="Logar como este usuário">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                               <path fillRule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clipRule="evenodd" />
                             </svg>
                           </button>
-                          <button onClick={() => abrirModalTaxa(user.id, user.nome, user.planoTaxa?.id)} className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition" title="Atribuir Taxa">
+                          <button onClick={() => abrirModalTaxa(user.id, user.nome, user.planoTaxa?.id)} className="p-2 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition" title="Atribuir Taxa">
                             <Percent size={18} />
                           </button>
-                          <button onClick={() => router.push(`/dashboard/admin/usuarios/${user.id}`)} className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition" title="Editar usuário">
+                          <button onClick={() => router.push(`/dashboard/admin/usuarios/${user.id}`)} className="p-2 text-purple-600 dark:text-finoradark-glow hover:bg-purple-50 dark:hover:bg-finoradark-card2 rounded-lg transition" title="Editar usuário">
                             <UserCog size={18} />
                           </button>
-                          <button onClick={() => excluirUsuario(user.id, user.nome)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" title="Excluir usuário">
+                          <button onClick={() => excluirUsuario(user.id, user.nome)} className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition" title="Excluir usuário">
                             <Trash2 size={18} />
                           </button>
                         </div>
@@ -326,15 +326,15 @@ export default function AdminPage() {
 
       {modalTaxa && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-8 max-w-md w-full mx-4">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">Atribuir Plano de Taxa</h3>
-            <p className="text-gray-600 mb-6">Usuário: <span className="font-semibold">{modalTaxa.userName}</span></p>
+          <div className="bg-white dark:bg-finoradark-card rounded-xl p-8 max-w-md w-full mx-4">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text mb-4">Atribuir Plano de Taxa</h3>
+            <p className="text-gray-600 dark:text-finoradark-textmuted mb-6">Usuário: <span className="font-semibold text-gray-900 dark:text-finoradark-text">{modalTaxa.userName}</span></p>
             <div className="mb-6">
-              <label className="block text-sm font-semibold text-gray-900 mb-2">Plano de Taxa</label>
+              <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Plano de Taxa</label>
               <select
                 value={planoSelecionado}
                 onChange={(e) => setPlanoSelecionado(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none"
               >
                 <option value="">Sem plano (taxas padrão)</option>
                 {planos.filter(p => p.ativo).map((plano) => (
@@ -343,8 +343,8 @@ export default function AdminPage() {
               </select>
             </div>
             <div className="flex gap-3">
-              <button onClick={atribuirTaxa} className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">Confirmar</button>
-              <button onClick={() => setModalTaxa(null)} className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition">Cancelar</button>
+              <button onClick={atribuirTaxa} className="flex-1 px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition">Confirmar</button>
+              <button onClick={() => setModalTaxa(null)} className="px-6 py-3 bg-gray-200 dark:bg-finoradark-card2 text-gray-700 dark:text-finoradark-textmuted rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-finoradark-border transition">Cancelar</button>
             </div>
           </div>
         </div>

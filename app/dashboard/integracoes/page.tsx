@@ -205,26 +205,26 @@ export default function IntegracoesPage() {
   const handleLogout = () => { localStorage.removeItem('token'); localStorage.removeItem('user'); router.push('/'); };
 
   const corMap: any = {
-    blue: { bg: 'bg-blue-50', border: 'border-blue-200', badge: 'bg-blue-100 text-blue-700' },
-    green: { bg: 'bg-green-50', border: 'border-green-200', badge: 'bg-green-100 text-green-700' },
-    purple: { bg: 'bg-purple-50', border: 'border-purple-200', badge: 'bg-purple-100 text-purple-700' },
-    orange: { bg: 'bg-orange-50', border: 'border-orange-200', badge: 'bg-orange-100 text-orange-700' },
+    blue: { bg: 'bg-blue-50 dark:bg-blue-900/20', border: 'border-blue-200 dark:border-blue-900/40', badge: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' },
+    green: { bg: 'bg-green-50 dark:bg-green-900/20', border: 'border-green-200 dark:border-green-900/40', badge: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' },
+    purple: { bg: 'bg-purple-50 dark:bg-finoradark-card2', border: 'border-purple-200 dark:border-finoradark-border', badge: 'bg-purple-100 dark:bg-finoradark-card2 text-purple-700 dark:text-finoradark-glow' },
+    orange: { bg: 'bg-orange-50 dark:bg-orange-900/20', border: 'border-orange-200 dark:border-orange-900/40', badge: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400' },
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-finoradark-bg">
       <Sidebar user={user} onLogout={handleLogout} />
       <main className="flex-1 overflow-y-auto">
-        <header className="bg-white border-b border-gray-200 px-8 py-4">
+        <header className="bg-white dark:bg-finoradark-card border-b border-gray-200 dark:border-finoradark-border px-8 py-4">
           <div className="flex items-center gap-4">
             {integracaoAtiva && (
-              <button onClick={() => setIntegracaoAtiva(null)} className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition">
+              <button onClick={() => setIntegracaoAtiva(null)} className="flex items-center gap-2 text-gray-500 dark:text-finoradark-textmuted hover:text-gray-900 dark:hover:text-finoradark-text transition">
                 <ArrowLeft size={20} />
               </button>
             )}
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">🔌 Integrações</h1>
-              <p className="text-sm text-gray-500">{integracaoAtiva ? integracoes.find(i => i.id === integracaoAtiva)?.nome : 'Conecte ferramentas externas à sua conta Finora'}</p>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">🔌 Integrações</h1>
+              <p className="text-sm text-gray-500 dark:text-finoradark-textmuted">{integracaoAtiva ? integracoes.find(i => i.id === integracaoAtiva)?.nome : 'Conecte ferramentas externas à sua conta Finora'}</p>
             </div>
           </div>
         </header>
@@ -242,17 +242,17 @@ export default function IntegracoesPage() {
                     <div
                       key={item.id}
                       onClick={() => item.disponivel && setIntegracaoAtiva(item.id)}
-                      className={`bg-white rounded-2xl border-2 p-6 transition-all relative ${item.disponivel ? 'cursor-pointer hover:shadow-md hover:border-purple-300' : 'opacity-60 cursor-not-allowed border-gray-200'} ${conectado ? 'border-green-300' : 'border-gray-200'}`}
+                      className={`bg-white dark:bg-finoradark-card rounded-2xl border-2 p-6 transition-all relative ${item.disponivel ? 'cursor-pointer hover:shadow-md dark:hover:shadow-none hover:border-purple-300' : 'opacity-60 cursor-not-allowed border-gray-200 dark:border-finoradark-border'} ${conectado ? 'border-green-300 dark:border-green-700' : 'border-gray-200 dark:border-finoradark-border'}`}
                     >
                       {/* Badge conectado */}
                       {conectado && (
-                        <div className="absolute top-4 right-4 flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">
+                        <div className="absolute top-4 right-4 flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs font-bold">
                           <Check size={12} /> Conectado
                         </div>
                       )}
                       {/* Badge em breve */}
                       {!item.disponivel && (
-                        <div className="absolute top-4 right-4 px-2 py-1 bg-gray-100 text-gray-500 rounded-full text-xs font-bold">
+                        <div className="absolute top-4 right-4 px-2 py-1 bg-gray-100 dark:bg-finoradark-card2 text-gray-500 dark:text-finoradark-textmuted rounded-full text-xs font-bold">
                           Em breve
                         </div>
                       )}
@@ -262,15 +262,15 @@ export default function IntegracoesPage() {
                           {item.logo}
                         </div>
                         <div>
-                          <h3 className="font-bold text-gray-900">{item.nome}</h3>
+                          <h3 className="font-bold text-gray-900 dark:text-finoradark-text">{item.nome}</h3>
                           <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${cores.badge}`}>{item.categoria}</span>
                         </div>
                       </div>
-                      <p className="text-sm text-gray-500">{item.descricao}</p>
+                      <p className="text-sm text-gray-500 dark:text-finoradark-textmuted">{item.descricao}</p>
 
                       {item.disponivel && (
-                        <div className="mt-4 pt-4 border-t border-gray-100">
-                          <span className="text-sm font-semibold text-purple-600">
+                        <div className="mt-4 pt-4 border-t border-gray-100 dark:border-finoradark-border">
+                          <span className="text-sm font-semibold text-purple-600 dark:text-finoradark-glow">
                             {conectado ? 'Gerenciar integração →' : 'Configurar →'}
                           </span>
                         </div>
@@ -285,56 +285,56 @@ export default function IntegracoesPage() {
           {/* DETALHE BLING */}
           {integracaoAtiva === 'bling' && (
             <div className="max-w-3xl">
-              <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
+              <div className="bg-white dark:bg-finoradark-card rounded-2xl border border-gray-200 dark:border-finoradark-border p-6 mb-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center">
+                    <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center">
                       <svg viewBox="0 0 60 60" className="w-10 h-10" fill="none">
                         <rect width="60" height="60" rx="12" fill="#0052CC"/>
                         <text x="50%" y="58%" dominantBaseline="middle" textAnchor="middle" fill="white" fontSize="22" fontWeight="bold">B</text>
                       </svg>
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold text-gray-900">Bling ERP</h2>
-                      <p className="text-gray-500 text-sm">Emissão automática de NF-e a cada venda aprovada</p>
+                      <h2 className="text-xl font-bold text-gray-900 dark:text-finoradark-text">Bling ERP</h2>
+                      <p className="text-gray-500 dark:text-finoradark-textmuted text-sm">Emissão automática de NF-e a cada venda aprovada</p>
                     </div>
                   </div>
                   {integracao && (
                     <div className="flex items-center gap-3">
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${integracao.ativo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${integracao.ativo ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-gray-100 dark:bg-finoradark-card2 text-gray-600 dark:text-finoradark-textmuted'}`}>
                         {integracao.ativo ? '✅ Ativo' : '⏸️ Inativo'}
                       </span>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" checked={integracao.ativo} onChange={toggleAtivo} className="sr-only peer" />
-                        <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                        <div className="w-11 h-6 bg-gray-200 dark:bg-finoradark-border rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
                       </label>
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6 mb-6">
-                <h3 className="font-bold text-blue-900 mb-3">📋 Como funciona</h3>
-                <div className="space-y-2 text-sm text-blue-800">
+              <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-900/40 rounded-2xl p-6 mb-6">
+                <h3 className="font-bold text-blue-900 dark:text-blue-400 mb-3">📋 Como funciona</h3>
+                <div className="space-y-2 text-sm text-blue-800 dark:text-blue-300">
                   <div className="flex items-start gap-2"><span className="font-bold">1.</span><span>Crie uma conta no <strong>Bling ERP</strong> em bling.com.br</span></div>
                   <div className="flex items-start gap-2"><span className="font-bold">2.</span><span>Acesse <strong>Área do Integrador</strong> e crie um aplicativo OAuth</span></div>
-                  <div className="flex items-start gap-2"><span className="font-bold">3.</span><span>Na URL de redirecionamento coloque: <code className="bg-blue-100 px-1 rounded text-xs">https://www.finorapayments.com/api/integracoes/bling/callback</code></span></div>
+                  <div className="flex items-start gap-2"><span className="font-bold">3.</span><span>Na URL de redirecionamento coloque: <code className="bg-blue-100 dark:bg-blue-900/40 px-1 rounded text-xs">https://www.finorapayments.com/api/integracoes/bling/callback</code></span></div>
                   <div className="flex items-start gap-2"><span className="font-bold">4.</span><span>Copie o <strong>Client ID</strong> e <strong>Client Secret</strong> e cole abaixo</span></div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
-                <h3 className="font-bold text-gray-900 mb-6">🔑 Credenciais da API</h3>
+              <div className="bg-white dark:bg-finoradark-card rounded-2xl border border-gray-200 dark:border-finoradark-border p-6 mb-6">
+                <h3 className="font-bold text-gray-900 dark:text-finoradark-text mb-6">🔑 Credenciais da API</h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Client ID *</label>
-                    <input type="text" value={form.clientId} onChange={(e) => setForm({ ...form, clientId: e.target.value })} placeholder="Cole seu Client ID do Bling aqui" className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-gray-900 font-mono text-sm" />
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-finoradark-textmuted mb-2">Client ID *</label>
+                    <input type="text" value={form.clientId} onChange={(e) => setForm({ ...form, clientId: e.target.value })} placeholder="Cole seu Client ID do Bling aqui" className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-gray-900 dark:text-finoradark-text font-mono text-sm" />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Client Secret *</label>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-finoradark-textmuted mb-2">Client Secret *</label>
                     <div className="relative">
-                      <input type={mostrarSecret ? 'text' : 'password'} value={form.clientSecret} onChange={(e) => setForm({ ...form, clientSecret: e.target.value })} placeholder="Cole seu Client Secret do Bling aqui" className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-gray-900 font-mono text-sm pr-12" />
-                      <button type="button" onClick={() => setMostrarSecret(!mostrarSecret)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                      <input type={mostrarSecret ? 'text' : 'password'} value={form.clientSecret} onChange={(e) => setForm({ ...form, clientSecret: e.target.value })} placeholder="Cole seu Client Secret do Bling aqui" className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-gray-900 dark:text-finoradark-text font-mono text-sm pr-12" />
+                      <button type="button" onClick={() => setMostrarSecret(!mostrarSecret)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-finoradark-textmuted hover:text-gray-700 dark:hover:text-finoradark-text">
                         {mostrarSecret ? '🙈' : '👁️'}
                       </button>
                     </div>
@@ -342,27 +342,27 @@ export default function IntegracoesPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
-                <h3 className="font-bold text-gray-900 mb-6">📄 Configurações da NF-e</h3>
+              <div className="bg-white dark:bg-finoradark-card rounded-2xl border border-gray-200 dark:border-finoradark-border p-6 mb-6">
+                <h3 className="font-bold text-gray-900 dark:text-finoradark-text mb-6">📄 Configurações da NF-e</h3>
                 <div className="space-y-4">
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Série da NF</label>
-                      <input type="text" value={form.serieNF} onChange={(e) => setForm({ ...form, serieNF: e.target.value })} placeholder="1" className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-gray-900" />
+                      <label className="block text-sm font-semibold text-gray-700 dark:text-finoradark-textmuted mb-2">Série da NF</label>
+                      <input type="text" value={form.serieNF} onChange={(e) => setForm({ ...form, serieNF: e.target.value })} placeholder="1" className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-gray-900 dark:text-finoradark-text" />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Natureza da Operação</label>
-                      <input type="text" value={form.naturezaOperacao} onChange={(e) => setForm({ ...form, naturezaOperacao: e.target.value })} placeholder="Venda de mercadoria" className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-gray-900" />
+                      <label className="block text-sm font-semibold text-gray-700 dark:text-finoradark-textmuted mb-2">Natureza da Operação</label>
+                      <input type="text" value={form.naturezaOperacao} onChange={(e) => setForm({ ...form, naturezaOperacao: e.target.value })} placeholder="Venda de mercadoria" className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-gray-900 dark:text-finoradark-text" />
                     </div>
                   </div>
-                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-finoradark-card2 rounded-xl">
                     <div>
-                      <div className="font-semibold text-gray-900">Emitir NF-e Automaticamente</div>
-                      <div className="text-sm text-gray-500">Emite a nota fiscal a cada venda aprovada</div>
+                      <div className="font-semibold text-gray-900 dark:text-finoradark-text">Emitir NF-e Automaticamente</div>
+                      <div className="text-sm text-gray-500 dark:text-finoradark-textmuted">Emite a nota fiscal a cada venda aprovada</div>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input type="checkbox" checked={form.emiteNFAutomatico} onChange={(e) => setForm({ ...form, emiteNFAutomatico: e.target.checked })} className="sr-only peer" />
-                      <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                      <div className="w-11 h-6 bg-gray-200 dark:bg-finoradark-border rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                     </label>
                   </div>
                 </div>
@@ -373,7 +373,7 @@ export default function IntegracoesPage() {
                   {salvando ? 'Salvando...' : '💾 Salvar Configurações'}
                 </button>
                 {integracao && (
-                  <button onClick={removerIntegracao} className="px-6 py-3 border-2 border-red-300 text-red-600 rounded-xl font-semibold hover:bg-red-50 transition">
+                  <button onClick={removerIntegracao} className="px-6 py-3 border-2 border-red-300 dark:border-red-900/50 text-red-600 dark:text-red-400 rounded-xl font-semibold hover:bg-red-50 dark:hover:bg-red-900/20 transition">
                     🗑️ Remover
                   </button>
                 )}
@@ -381,8 +381,8 @@ export default function IntegracoesPage() {
 
               <div className="mt-4">
                 {integracao?.accessToken ? (
-                  <div className="p-4 bg-green-50 border border-green-200 rounded-xl flex items-center justify-between">
-                    <p className="text-sm text-green-700 font-semibold">✅ Conta Bling conectada com sucesso</p>
+                  <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/40 rounded-xl flex items-center justify-between">
+                    <p className="text-sm text-green-700 dark:text-green-400 font-semibold">✅ Conta Bling conectada com sucesso</p>
                     <button onClick={async () => { const token = localStorage.getItem('token'); const res = await fetch('/api/integracoes/bling/autorizar', { headers: { 'Authorization': 'Bearer ' + token } }); const data = await res.json(); if (data.url) window.location.href = data.url; }} className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 transition">
                       🔄 Reconectar
                     </button>
@@ -395,13 +395,13 @@ export default function IntegracoesPage() {
               </div>
 
               {typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('sucesso') === 'bling_conectado' && (
-                <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl">
-                  <p className="text-sm text-green-700 font-semibold">✅ Bling conectado com sucesso!</p>
+                <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/40 rounded-xl">
+                  <p className="text-sm text-green-700 dark:text-green-400 font-semibold">✅ Bling conectado com sucesso!</p>
                 </div>
               )}
               {typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('erro') && (
-                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl">
-                  <p className="text-sm text-red-700 font-semibold">❌ Erro: {new URLSearchParams(window.location.search).get('erro')}</p>
+                <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/40 rounded-xl">
+                  <p className="text-sm text-red-700 dark:text-red-400 font-semibold">❌ Erro: {new URLSearchParams(window.location.search).get('erro')}</p>
                 </div>
               )}
             </div>

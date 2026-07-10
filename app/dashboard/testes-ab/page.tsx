@@ -92,28 +92,28 @@ export default function TestesABPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-finoradark-bg flex items-center justify-center">
         <LoadingScreen />
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-finoradark-bg">
       <Sidebar user={user} onLogout={handleLogout} />
 
       <main className="flex-1 overflow-y-auto">
-        <header className="bg-white border-b border-gray-200 px-8 py-4">
+        <header className="bg-white dark:bg-finoradark-card border-b border-gray-200 dark:border-finoradark-border px-8 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">🧪 Testes A/B</h1>
-              <p className="text-sm text-gray-500">Compare performance das suas páginas</p>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">🧪 Testes A/B</h1>
+              <p className="text-sm text-gray-500 dark:text-finoradark-textmuted">Compare performance das suas páginas</p>
             </div>
 
             <select
               value={periodo}
               onChange={(e) => setPeriodo(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none"
+              className="px-4 py-2 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none"
             >
               <option value="hoje">Hoje</option>
               <option value="ontem">Ontem</option>
@@ -126,16 +126,16 @@ export default function TestesABPage() {
 
         <div className="p-8">
           {testes.length === 0 ? (
-            <div className="bg-white rounded-xl p-12 text-center border border-gray-200">
-              <Zap size={64} className="mx-auto text-gray-300 mb-4" />
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
+            <div className="bg-white dark:bg-finoradark-card rounded-xl p-12 text-center border border-gray-200 dark:border-finoradark-border">
+              <Zap size={64} className="mx-auto text-gray-300 dark:text-finoradark-border mb-4" />
+              <h3 className="text-xl font-bold text-gray-900 dark:text-finoradark-text mb-2">
                 Nenhum teste A/B ativo
               </h3>
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-600 dark:text-finoradark-textmuted mb-6">
                 Crie uma campanha com teste A/B ativado para começar!
               </p>
               <Link href="/dashboard/produtos">
-                <button className="px-8 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">
+                <button className="px-8 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition">
                   Ver Produtos
                 </button>
               </Link>
@@ -143,8 +143,8 @@ export default function TestesABPage() {
           ) : (
             <div className="space-y-8">
               {testes.map((teste) => (
-                <div key={teste.campanha.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                  <div className="bg-gradient-to-r from-purple-600 to-purple-500 px-8 py-4">
+                <div key={teste.campanha.id} className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border overflow-hidden">
+                  <div className="bg-gradient-to-r from-purple-600 to-purple-500 dark:from-finoradark-glow dark:to-[#5b4dc9] px-8 py-4">
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="text-xl font-bold text-white">{teste.campanha.nome}</h3>
@@ -164,67 +164,67 @@ export default function TestesABPage() {
                   <div className="p-8">
                     <div className="grid md:grid-cols-2 gap-6">
                       {/* PÁGINA A */}
-                      <div className={`p-6 rounded-xl border-2 ${teste.vencedor === 'A' ? 'border-purple-500 bg-purple-50' : 'border-gray-200'}`}>
+                      <div className={`p-6 rounded-xl border-2 ${teste.vencedor === 'A' ? 'border-purple-500 dark:border-finoradark-glow bg-purple-50 dark:bg-finoradark-card2' : 'border-gray-200 dark:border-finoradark-border'}`}>
                         <div className="flex items-center justify-between mb-4">
                           <div>
-                            <h4 className="text-lg font-bold text-gray-900">{teste.paginaA.nome}</h4>
-                            <p className="text-sm text-gray-500">{teste.campanha.distribuicao}% do tráfego</p>
+                            <h4 className="text-lg font-bold text-gray-900 dark:text-finoradark-text">{teste.paginaA.nome}</h4>
+                            <p className="text-sm text-gray-500 dark:text-finoradark-textmuted">{teste.campanha.distribuicao}% do tráfego</p>
                           </div>
                           {teste.vencedor === 'A' && (
-                            <Trophy size={24} className="text-purple-600" />
+                            <Trophy size={24} className="text-purple-600 dark:text-finoradark-glow" />
                           )}
                         </div>
 
                         <div className="space-y-3">
-                          <div className="flex items-center justify-between p-3 bg-white rounded-lg">
+                          <div className="flex items-center justify-between p-3 bg-white dark:bg-finoradark-card rounded-lg">
                             <div className="flex items-center space-x-2">
-                              <Eye size={16} className="text-blue-600" />
-                              <span className="text-sm text-gray-600">Visualizações</span>
+                              <Eye size={16} className="text-blue-600 dark:text-blue-400" />
+                              <span className="text-sm text-gray-600 dark:text-finoradark-textmuted">Visualizações</span>
                             </div>
-                            <span className="font-bold text-gray-900">{teste.paginaA.metricas.visualizacoes}</span>
+                            <span className="font-bold text-gray-900 dark:text-finoradark-text">{teste.paginaA.metricas.visualizacoes}</span>
                           </div>
 
-                          <div className="flex items-center justify-between p-3 bg-white rounded-lg">
+                          <div className="flex items-center justify-between p-3 bg-white dark:bg-finoradark-card rounded-lg">
                             <div className="flex items-center space-x-2">
-                              <MousePointer size={16} className="text-purple-600" />
-                              <span className="text-sm text-gray-600">Cliques</span>
+                              <MousePointer size={16} className="text-purple-600 dark:text-finoradark-glow" />
+                              <span className="text-sm text-gray-600 dark:text-finoradark-textmuted">Cliques</span>
                             </div>
-                            <span className="font-bold text-gray-900">{teste.paginaA.metricas.cliques}</span>
+                            <span className="font-bold text-gray-900 dark:text-finoradark-text">{teste.paginaA.metricas.cliques}</span>
                           </div>
 
-                          <div className="flex items-center justify-between p-3 bg-white rounded-lg">
+                          <div className="flex items-center justify-between p-3 bg-white dark:bg-finoradark-card rounded-lg">
                             <div className="flex items-center space-x-2">
-                              <ShoppingCart size={16} className="text-green-600" />
-                              <span className="text-sm text-gray-600">Conversões</span>
+                              <ShoppingCart size={16} className="text-green-600 dark:text-green-400" />
+                              <span className="text-sm text-gray-600 dark:text-finoradark-textmuted">Conversões</span>
                             </div>
-                            <span className="font-bold text-green-600">{teste.paginaA.metricas.conversoes}</span>
+                            <span className="font-bold text-green-600 dark:text-green-400">{teste.paginaA.metricas.conversoes}</span>
                           </div>
 
-                          <div className="flex items-center justify-between p-3 bg-white rounded-lg">
+                          <div className="flex items-center justify-between p-3 bg-white dark:bg-finoradark-card rounded-lg">
                             <div className="flex items-center space-x-2">
-                              <DollarSign size={16} className="text-emerald-600" />
-                              <span className="text-sm text-gray-600">Vendas Aprovadas</span>
+                              <DollarSign size={16} className="text-emerald-600 dark:text-emerald-400" />
+                              <span className="text-sm text-gray-600 dark:text-finoradark-textmuted">Vendas Aprovadas</span>
                             </div>
-                            <span className="font-bold text-emerald-600">{teste.paginaA.metricas.vendasAprovadas}</span>
+                            <span className="font-bold text-emerald-600 dark:text-emerald-400">{teste.paginaA.metricas.vendasAprovadas}</span>
                           </div>
 
-                          <div className="flex items-center justify-between p-3 bg-white rounded-lg">
+                          <div className="flex items-center justify-between p-3 bg-white dark:bg-finoradark-card rounded-lg">
                             <div className="flex items-center space-x-2">
-                              <Clock size={16} className="text-orange-600" />
-                              <span className="text-sm text-gray-600">Vendas Pendentes</span>
+                              <Clock size={16} className="text-orange-600 dark:text-orange-400" />
+                              <span className="text-sm text-gray-600 dark:text-finoradark-textmuted">Vendas Pendentes</span>
                             </div>
-                            <span className="font-bold text-orange-600">{teste.paginaA.metricas.vendasPendentes}</span>
+                            <span className="font-bold text-orange-600 dark:text-orange-400">{teste.paginaA.metricas.vendasPendentes}</span>
                           </div>
 
-                          <div className="flex items-center justify-between p-3 bg-purple-100 rounded-lg">
+                          <div className="flex items-center justify-between p-3 bg-purple-100 dark:bg-finoradark-border rounded-lg">
                             <div className="flex items-center space-x-2">
-                              <TrendingUp size={16} className="text-purple-600" />
-                              <span className="text-sm font-semibold text-purple-900">Taxa Conversão</span>
+                              <TrendingUp size={16} className="text-purple-600 dark:text-finoradark-glow" />
+                              <span className="text-sm font-semibold text-purple-900 dark:text-finoradark-text">Taxa Conversão</span>
                             </div>
-                            <span className="font-bold text-purple-600 text-lg">{teste.paginaA.metricas.taxaConversao.toFixed(2)}%</span>
+                            <span className="font-bold text-purple-600 dark:text-finoradark-glow text-lg">{teste.paginaA.metricas.taxaConversao.toFixed(2)}%</span>
                           </div>
 
-                          <div className="flex items-center justify-between p-3 bg-gray-900 rounded-lg">
+                          <div className="flex items-center justify-between p-3 bg-gray-900 dark:bg-finoradark-bg rounded-lg">
                             <span className="text-sm font-semibold text-white">Receita Total</span>
                             <span className="font-bold text-green-400 text-lg">R$ {teste.paginaA.metricas.receita.toFixed(2).replace('.', ',')}</span>
                           </div>
@@ -232,67 +232,67 @@ export default function TestesABPage() {
                       </div>
 
                       {/* PÁGINA B */}
-                      <div className={`p-6 rounded-xl border-2 ${teste.vencedor === 'B' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}>
+                      <div className={`p-6 rounded-xl border-2 ${teste.vencedor === 'B' ? 'border-blue-500 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/10' : 'border-gray-200 dark:border-finoradark-border'}`}>
                         <div className="flex items-center justify-between mb-4">
                           <div>
-                            <h4 className="text-lg font-bold text-gray-900">{teste.paginaB.nome}</h4>
-                            <p className="text-sm text-gray-500">{100 - teste.campanha.distribuicao}% do tráfego</p>
+                            <h4 className="text-lg font-bold text-gray-900 dark:text-finoradark-text">{teste.paginaB.nome}</h4>
+                            <p className="text-sm text-gray-500 dark:text-finoradark-textmuted">{100 - teste.campanha.distribuicao}% do tráfego</p>
                           </div>
                           {teste.vencedor === 'B' && (
-                            <Trophy size={24} className="text-blue-600" />
+                            <Trophy size={24} className="text-blue-600 dark:text-blue-400" />
                           )}
                         </div>
 
                         <div className="space-y-3">
-                          <div className="flex items-center justify-between p-3 bg-white rounded-lg">
+                          <div className="flex items-center justify-between p-3 bg-white dark:bg-finoradark-card rounded-lg">
                             <div className="flex items-center space-x-2">
-                              <Eye size={16} className="text-blue-600" />
-                              <span className="text-sm text-gray-600">Visualizações</span>
+                              <Eye size={16} className="text-blue-600 dark:text-blue-400" />
+                              <span className="text-sm text-gray-600 dark:text-finoradark-textmuted">Visualizações</span>
                             </div>
-                            <span className="font-bold text-gray-900">{teste.paginaB.metricas.visualizacoes}</span>
+                            <span className="font-bold text-gray-900 dark:text-finoradark-text">{teste.paginaB.metricas.visualizacoes}</span>
                           </div>
 
-                          <div className="flex items-center justify-between p-3 bg-white rounded-lg">
+                          <div className="flex items-center justify-between p-3 bg-white dark:bg-finoradark-card rounded-lg">
                             <div className="flex items-center space-x-2">
-                              <MousePointer size={16} className="text-purple-600" />
-                              <span className="text-sm text-gray-600">Cliques</span>
+                              <MousePointer size={16} className="text-purple-600 dark:text-finoradark-glow" />
+                              <span className="text-sm text-gray-600 dark:text-finoradark-textmuted">Cliques</span>
                             </div>
-                            <span className="font-bold text-gray-900">{teste.paginaB.metricas.cliques}</span>
+                            <span className="font-bold text-gray-900 dark:text-finoradark-text">{teste.paginaB.metricas.cliques}</span>
                           </div>
 
-                          <div className="flex items-center justify-between p-3 bg-white rounded-lg">
+                          <div className="flex items-center justify-between p-3 bg-white dark:bg-finoradark-card rounded-lg">
                             <div className="flex items-center space-x-2">
-                              <ShoppingCart size={16} className="text-green-600" />
-                              <span className="text-sm text-gray-600">Conversões</span>
+                              <ShoppingCart size={16} className="text-green-600 dark:text-green-400" />
+                              <span className="text-sm text-gray-600 dark:text-finoradark-textmuted">Conversões</span>
                             </div>
-                            <span className="font-bold text-green-600">{teste.paginaB.metricas.conversoes}</span>
+                            <span className="font-bold text-green-600 dark:text-green-400">{teste.paginaB.metricas.conversoes}</span>
                           </div>
 
-                          <div className="flex items-center justify-between p-3 bg-white rounded-lg">
+                          <div className="flex items-center justify-between p-3 bg-white dark:bg-finoradark-card rounded-lg">
                             <div className="flex items-center space-x-2">
-                              <DollarSign size={16} className="text-emerald-600" />
-                              <span className="text-sm text-gray-600">Vendas Aprovadas</span>
+                              <DollarSign size={16} className="text-emerald-600 dark:text-emerald-400" />
+                              <span className="text-sm text-gray-600 dark:text-finoradark-textmuted">Vendas Aprovadas</span>
                             </div>
-                            <span className="font-bold text-emerald-600">{teste.paginaB.metricas.vendasAprovadas}</span>
+                            <span className="font-bold text-emerald-600 dark:text-emerald-400">{teste.paginaB.metricas.vendasAprovadas}</span>
                           </div>
 
-                          <div className="flex items-center justify-between p-3 bg-white rounded-lg">
+                          <div className="flex items-center justify-between p-3 bg-white dark:bg-finoradark-card rounded-lg">
                             <div className="flex items-center space-x-2">
-                              <Clock size={16} className="text-orange-600" />
-                              <span className="text-sm text-gray-600">Vendas Pendentes</span>
+                              <Clock size={16} className="text-orange-600 dark:text-orange-400" />
+                              <span className="text-sm text-gray-600 dark:text-finoradark-textmuted">Vendas Pendentes</span>
                             </div>
-                            <span className="font-bold text-orange-600">{teste.paginaB.metricas.vendasPendentes}</span>
+                            <span className="font-bold text-orange-600 dark:text-orange-400">{teste.paginaB.metricas.vendasPendentes}</span>
                           </div>
 
-                          <div className="flex items-center justify-between p-3 bg-blue-100 rounded-lg">
+                          <div className="flex items-center justify-between p-3 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
                             <div className="flex items-center space-x-2">
-                              <TrendingUp size={16} className="text-blue-600" />
-                              <span className="text-sm font-semibold text-blue-900">Taxa Conversão</span>
+                              <TrendingUp size={16} className="text-blue-600 dark:text-blue-400" />
+                              <span className="text-sm font-semibold text-blue-900 dark:text-blue-400">Taxa Conversão</span>
                             </div>
-                            <span className="font-bold text-blue-600 text-lg">{teste.paginaB.metricas.taxaConversao.toFixed(2)}%</span>
+                            <span className="font-bold text-blue-600 dark:text-blue-400 text-lg">{teste.paginaB.metricas.taxaConversao.toFixed(2)}%</span>
                           </div>
 
-                          <div className="flex items-center justify-between p-3 bg-gray-900 rounded-lg">
+                          <div className="flex items-center justify-between p-3 bg-gray-900 dark:bg-finoradark-bg rounded-lg">
                             <span className="text-sm font-semibold text-white">Receita Total</span>
                             <span className="font-bold text-green-400 text-lg">R$ {teste.paginaB.metricas.receita.toFixed(2).replace('.', ',')}</span>
                           </div>

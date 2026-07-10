@@ -119,14 +119,14 @@ export default function NotificacoesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-finoradark-bg">
         <LoadingScreen />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 dark:bg-finoradark-bg flex">
       <Sidebar user={user} onLogout={handleLogout} />
 
       <main className="flex-1 p-8">
@@ -134,28 +134,28 @@ export default function NotificacoesPage() {
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center space-x-3 mb-2">
-              <Bell className="text-purple-600" size={32} />
-              <h1 className="text-3xl font-bold text-gray-900">Notificações</h1>
+              <Bell className="text-purple-600 dark:text-finoradark-glow" size={32} />
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-finoradark-text">Notificações</h1>
             </div>
-            <p className="text-gray-600">Configure suas notificações do Telegram para receber alertas de novos pedidos PAD</p>
+            <p className="text-gray-600 dark:text-finoradark-textmuted">Configure suas notificações do Telegram para receber alertas de novos pedidos PAD</p>
           </div>
 
           {/* Mensagem de feedback */}
           {mensagem && (
             <div className={`mb-6 p-4 rounded-lg ${
-              mensagem.tipo === 'sucesso' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'
+              mensagem.tipo === 'sucesso' ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-400 border border-green-200 dark:border-green-900/40' : 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-400 border border-red-200 dark:border-red-900/40'
             }`}>
               {mensagem.texto}
             </div>
           )}
 
           {/* Card de Configuração */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">🤖 Configurar Bot do Telegram</h2>
+          <div className="bg-white dark:bg-finoradark-card rounded-xl shadow-sm dark:shadow-none border border-gray-200 dark:border-finoradark-border p-6 mb-6">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-finoradark-text mb-4">🤖 Configurar Bot do Telegram</h2>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-finoradark-textmuted mb-2">
                   Bot Token
                 </label>
                 <input
@@ -163,12 +163,12 @@ export default function NotificacoesPage() {
                   value={telegramBotToken}
                   onChange={(e) => setTelegramBotToken(e.target.value)}
                   placeholder="1234567890:ABCdefGHIjklMNOpqrsTUVwxyz"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-finoradark-textmuted mb-2">
                   Chat ID
                 </label>
                 <input
@@ -176,7 +176,7 @@ export default function NotificacoesPage() {
                   value={telegramChatId}
                   onChange={(e) => setTelegramChatId(e.target.value)}
                   placeholder="123456789 ou -1001234567890"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
                 />
               </div>
 
@@ -184,7 +184,7 @@ export default function NotificacoesPage() {
                 <button
                   onClick={salvarConfiguracoes}
                   disabled={salvando}
-                  className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition disabled:opacity-50 flex items-center justify-center space-x-2"
+                  className="flex-1 px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition disabled:opacity-50 flex items-center justify-center space-x-2"
                 >
                   <Save size={20} />
                   <span>{salvando ? 'Salvando...' : 'Salvar Configurações'}</span>
@@ -203,15 +203,15 @@ export default function NotificacoesPage() {
           </div>
 
           {/* Card de Instruções */}
-          <div className="bg-blue-50 rounded-xl border border-blue-200 p-6">
-            <h3 className="text-lg font-bold text-blue-900 mb-4">📚 Como configurar:</h3>
+          <div className="bg-blue-50 dark:bg-blue-900/10 rounded-xl border border-blue-200 dark:border-blue-900/40 p-6">
+            <h3 className="text-lg font-bold text-blue-900 dark:text-blue-400 mb-4">📚 Como configurar:</h3>
             
-            <div className="space-y-4 text-sm text-blue-800">
+            <div className="space-y-4 text-sm text-blue-800 dark:text-blue-300">
               <div>
                 <p className="font-semibold mb-2">1️⃣ Criar Bot no Telegram:</p>
                 <ul className="list-disc list-inside space-y-1 ml-4">
                   <li>Abra o Telegram e procure por <strong>@BotFather</strong></li>
-                  <li>Envie o comando <code className="bg-blue-100 px-2 py-1 rounded">/newbot</code></li>
+                  <li>Envie o comando <code className="bg-blue-100 dark:bg-blue-900/40 px-2 py-1 rounded">/newbot</code></li>
                   <li>Escolha um nome e username para seu bot</li>
                   <li>Copie o <strong>Token</strong> que aparece</li>
                 </ul>
@@ -234,7 +234,7 @@ export default function NotificacoesPage() {
                 <p className="font-semibold mb-2">4️⃣ Testar a configuração</p>
               </div>
 
-              <div className="pt-4 border-t border-blue-200">
+              <div className="pt-4 border-t border-blue-200 dark:border-blue-900/40">
                 <p className="font-semibold mb-2">💡 Dica:</p>
                 <p>Você pode criar um grupo no Telegram e adicionar o bot para receber notificações em equipe!</p>
               </div>
