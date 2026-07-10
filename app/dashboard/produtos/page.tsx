@@ -91,22 +91,22 @@ export default function ProdutosPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-finoradark-bg flex items-center justify-center">
         <LoadingScreen />
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-finoradark-bg">
       <Sidebar user={user} onLogout={handleLogout} />
 
       <main className="flex-1 overflow-y-auto">
-        <header className="bg-white border-b border-gray-200 px-8 py-4">
+        <header className="bg-white dark:bg-finoradark-card border-b border-gray-200 dark:border-finoradark-border px-8 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Meus Produtos</h1>
-              <p className="text-sm text-gray-500">Gerencie seus produtos fà­sicos e digitais</p>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">Meus Produtos</h1>
+              <p className="text-sm text-gray-500 dark:text-finoradark-textmuted">Gerencie seus produtos fà­sicos e digitais</p>
             </div>
 
             <Link href="/dashboard/produtos/novo">
@@ -127,18 +127,18 @@ export default function ProdutosPage() {
                 placeholder="Buscar produtos..."
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none"
+                className="w-full pl-12 pr-4 py-3 bg-white dark:bg-finoradark-card border border-gray-200 dark:border-finoradark-border dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none"
               />
             </div>
           </div>
 
           {produtosFiltrados.length === 0 ? (
-            <div className="bg-white rounded-xl p-12 text-center border border-gray-200">
-              <Package size={64} className="mx-auto text-gray-300 mb-4" />
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
+            <div className="bg-white dark:bg-finoradark-card rounded-xl p-12 text-center border border-gray-200 dark:border-finoradark-border">
+              <Package size={64} className="mx-auto text-gray-300 dark:text-finoradark-border mb-4" />
+              <h3 className="text-xl font-bold text-gray-900 dark:text-finoradark-text mb-2">
                 {busca ? 'Nenhum produto encontrado' : 'Nenhum produto cadastrado'}
               </h3>
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-600 dark:text-finoradark-textmuted mb-6">
                 {busca ? 'Tente outra busca' : 'Comece criando seu primeiro produto!'}
               </p>
               {!busca && (
@@ -152,33 +152,33 @@ export default function ProdutosPage() {
           ) : (
             <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-4">
               {produtosFiltrados.map((produto) => (
-                <div key={produto.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition">
+                <div key={produto.id} className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border overflow-hidden hover:shadow-lg dark:hover:shadow-none transition">
                   {produto.imagem ? (
                     <img src={produto.imagem} alt={produto.nome} className="w-full h-48 object-cover" />
                   ) : (
-                    <div className="w-full h-48 bg-gradient-to-br from-purple-600 to-purple-500 flex items-center justify-center">
+                    <div className="w-full h-48 bg-gradient-to-br from-purple-600 to-purple-500 dark:from-finoradark-glow dark:to-[#5b4dc9] flex items-center justify-center">
                       <Package size={48} className="text-white" />
                     </div>
                   )}
                   
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-2">
-                      <h3 className="text-lg font-bold text-gray-900 flex-1">{produto.nome}</h3>
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-finoradark-text flex-1">{produto.nome}</h3>
                       <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                        produto.status === 'ATIVO' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                        produto.status === 'ATIVO' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-gray-100 dark:bg-finoradark-card2 text-gray-700 dark:text-finoradark-textmuted'
                       }`}>
                         {produto.status}
                       </span>
                     </div>
                     
-                    <p className="text-sm text-gray-600 mb-4 line-clamp-2">{produto.descricao}</p>
+                    <p className="text-sm text-gray-600 dark:text-finoradark-textmuted mb-4 line-clamp-2">{produto.descricao}</p>
                     
                     <div className="flex items-center justify-between mb-4">
                       <div>
-                        <div className="text-2xl font-bold text-purple-600">
+                        <div className="text-2xl font-bold text-purple-600 dark:text-finoradark-glow">
                           R$ {produto.preco.toFixed(2).replace('.', ',')}
                         </div>
-                        <div className="text-xs text-gray-500">{produto.tipo}</div>
+                        <div className="text-xs text-gray-500 dark:text-finoradark-textmuted">{produto.tipo}</div>
                       </div>
                     </div>
                     
