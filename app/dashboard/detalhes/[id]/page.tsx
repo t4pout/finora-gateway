@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -550,70 +550,70 @@ const carregarCoProdutores = async () => {
     router.push('/');
   };
 
-  if (loading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><LoadingScreen /></div>;
-  if (!produto) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="text-gray-900">Não encontrado</div></div>;
+  if (loading) return <div className="min-h-screen bg-gray-50 dark:bg-finoradark-bg flex items-center justify-center"><LoadingScreen /></div>;
+  if (!produto) return <div className="min-h-screen bg-gray-50 dark:bg-finoradark-bg flex items-center justify-center"><div className="text-gray-900 dark:text-finoradark-text">Não encontrado</div></div>;
 return (
-    <div className="flex h-screen bg-gray-50">
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
-        <div className="p-6 border-b border-gray-200">
+    <div className="flex h-screen bg-gray-50 dark:bg-finoradark-bg">
+      <aside className="w-64 bg-white dark:bg-finoradark-card border-r border-gray-200 dark:border-finoradark-border flex flex-col">
+        <div className="p-6 border-b border-gray-200 dark:border-finoradark-border">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-purple-500 rounded-xl"></div>
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-purple-500 dark:from-finoradark-glow dark:to-[#5b4dc9] rounded-xl"></div>
             <div>
-              <div className="text-xl font-bold text-gray-900">Finora</div>
-              <div className="text-xs text-gray-500">Pagamentos que fluem</div>
+              <div className="text-xl font-bold text-gray-900 dark:text-finoradark-text">Finora</div>
+              <div className="text-xs text-gray-500 dark:text-finoradark-textmuted">Pagamentos que fluem</div>
             </div>
           </div>
         </div>
-        <div className="p-4 border-b border-gray-200">
+        <div className="p-4 border-b border-gray-200 dark:border-finoradark-border">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-              <span className="text-purple-600 font-bold text-lg">{user?.nome.charAt(0).toUpperCase()}</span>
+            <div className="w-10 h-10 bg-purple-100 dark:bg-finoradark-card2 rounded-lg flex items-center justify-center">
+              <span className="text-purple-600 dark:text-finoradark-glow font-bold text-lg">{user?.nome.charAt(0).toUpperCase()}</span>
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-semibold text-gray-900 truncate">{user?.nome}</div>
+              <div className="text-sm font-semibold text-gray-900 dark:text-finoradark-text truncate">{user?.nome}</div>
             </div>
           </div>
         </div>
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-          <Link href="/dashboard"><div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition"><Home size={20} /><span>Página Inicial</span></div></Link>
-          <Link href="/dashboard/produtos"><div className="flex items-center space-x-3 px-4 py-3 rounded-lg bg-purple-50 text-purple-600 font-semibold"><Package size={20} /><span>Produtos</span></div></Link>
-          <Link href="/dashboard/vendas"><div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition"><DollarSign size={20} /><span>Vendas</span></div></Link>
-          <Link href="/dashboard/carteira"><div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition"><Wallet size={20} /><span>Carteira</span></div></Link>
-          <Link href="/dashboard/afiliados"><div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition"><Users size={20} /><span>Afiliados</span></div></Link>
-          <Link href="/dashboard/mercado"><div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition"><ShoppingBag size={20} /><span>Mercado</span></div></Link>
-          <Link href="/dashboard/relatorios"><div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition"><BarChart3 size={20} /><span>Relatórios</span></div></Link>
-          <Link href="/dashboard/testes-ab"><div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition"><Zap size={20} /><span>Testes A/B</span></div></Link>
-          <div className="border-t border-gray-200 my-4"></div>
-          <button onClick={handleLogout} className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-red-50 text-red-600 font-medium transition"><LogOut size={20} /><span>Sair</span></button>
+          <Link href="/dashboard"><div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-finoradark-card2 text-gray-700 dark:text-finoradark-textmuted font-medium transition"><Home size={20} /><span>Página Inicial</span></div></Link>
+          <Link href="/dashboard/produtos"><div className="flex items-center space-x-3 px-4 py-3 rounded-lg bg-purple-50 dark:bg-finoradark-card2 text-purple-600 dark:text-finoradark-glow font-semibold"><Package size={20} /><span>Produtos</span></div></Link>
+          <Link href="/dashboard/vendas"><div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-finoradark-card2 text-gray-700 dark:text-finoradark-textmuted font-medium transition"><DollarSign size={20} /><span>Vendas</span></div></Link>
+          <Link href="/dashboard/carteira"><div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-finoradark-card2 text-gray-700 dark:text-finoradark-textmuted font-medium transition"><Wallet size={20} /><span>Carteira</span></div></Link>
+          <Link href="/dashboard/afiliados"><div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-finoradark-card2 text-gray-700 dark:text-finoradark-textmuted font-medium transition"><Users size={20} /><span>Afiliados</span></div></Link>
+          <Link href="/dashboard/mercado"><div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-finoradark-card2 text-gray-700 dark:text-finoradark-textmuted font-medium transition"><ShoppingBag size={20} /><span>Mercado</span></div></Link>
+          <Link href="/dashboard/relatorios"><div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-finoradark-card2 text-gray-700 dark:text-finoradark-textmuted font-medium transition"><BarChart3 size={20} /><span>Relatórios</span></div></Link>
+          <Link href="/dashboard/testes-ab"><div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-finoradark-card2 text-gray-700 dark:text-finoradark-textmuted font-medium transition"><Zap size={20} /><span>Testes A/B</span></div></Link>
+          <div className="border-t border-gray-200 dark:border-finoradark-border my-4"></div>
+          <button onClick={handleLogout} className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-red-50 dark:hover:bg-finoradark-card2 text-red-600 font-medium transition"><LogOut size={20} /><span>Sair</span></button>
         </nav>
         {user?.role === 'ADMIN' && (
-          <div className="p-4 border-t border-gray-200">
+          <div className="p-4 border-t border-gray-200 dark:border-finoradark-border">
             <Link href="/dashboard/admin"><div className="flex items-center justify-center space-x-2 px-4 py-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition"><Shield size={20} /><span>Administrativo</span></div></Link>
           </div>
         )}
-        <div className="p-4 border-t border-gray-200"><div className="text-xs text-gray-500 text-center">© 2026 Finora</div></div>
+        <div className="p-4 border-t border-gray-200 dark:border-finoradark-border"><div className="text-xs text-gray-500 dark:text-finoradark-textmuted text-center">© 2026 Finora</div></div>
       </aside>
 
       <main className="flex-1 overflow-y-auto">
-        <header className="bg-white border-b border-gray-200 px-8 py-4">
+        <header className="bg-white dark:bg-finoradark-card border-b border-gray-200 dark:border-finoradark-border px-8 py-4">
           <div className="flex items-center space-x-4">
-            <Link href="/dashboard/produtos"><button className="flex items-center space-x-2 text-gray-600 hover:text-purple-600 transition"><ArrowLeft size={20} /><span>Voltar</span></button></Link>
-            <div><h1 className="text-2xl font-bold text-gray-900">{produto.nome}</h1></div>
+            <Link href="/dashboard/produtos"><button className="flex items-center space-x-2 text-gray-600 dark:text-finoradark-textmuted hover:text-purple-600 dark:hover:text-finoradark-glow transition"><ArrowLeft size={20} /><span>Voltar</span></button></Link>
+            <div><h1 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">{produto.nome}</h1></div>
           </div>
         </header>
 
-        <div className="bg-white border-b border-gray-200">
+        <div className="bg-white dark:bg-finoradark-card border-b border-gray-200 dark:border-finoradark-border">
           <div className="px-8">
             <div className="flex space-x-8 overflow-x-auto">
-              <button onClick={() => setAbaSelecionada('detalhes')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'detalhes' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}><Package size={16} />Detalhes</button>
-              <button onClick={() => setAbaSelecionada('afiliacao')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'afiliacao' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}><Users size={16} />Afiliação</button>
-              <button onClick={() => setAbaSelecionada('paginas')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'paginas' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}><ShoppingBag size={16} />Páginas</button>
-              <button onClick={() => setAbaSelecionada('campanhas')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'campanhas' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}><Megaphone size={16} />Campanhas</button>
-              <button onClick={() => setAbaSelecionada('checkout')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'checkout' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}><Shield size={16} />Checkout</button>
-              <button onClick={() => setAbaSelecionada('pixels')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'pixels' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}><BarChart3 size={16} />Pixels</button>
-              <button onClick={() => setAbaSelecionada('orderbumps')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'orderbumps' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}><Zap size={16} />Order Bumps</button>
-              <button onClick={() => setAbaSelecionada('links')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'links' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}><DollarSign size={16} />Links UTM</button>
-              <button onClick={() => setAbaSelecionada('coproducao')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'coproducao' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}><Users size={16} />Co-produção</button>
+              <button onClick={() => setAbaSelecionada('detalhes')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'detalhes' ? 'border-purple-600 dark:border-finoradark-glow text-purple-600 dark:text-finoradark-glow' : 'border-transparent text-gray-600 dark:text-finoradark-textmuted hover:text-gray-900 dark:hover:text-finoradark-text'}`}><Package size={16} />Detalhes</button>
+              <button onClick={() => setAbaSelecionada('afiliacao')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'afiliacao' ? 'border-purple-600 dark:border-finoradark-glow text-purple-600 dark:text-finoradark-glow' : 'border-transparent text-gray-600 dark:text-finoradark-textmuted hover:text-gray-900 dark:hover:text-finoradark-text'}`}><Users size={16} />Afiliação</button>
+              <button onClick={() => setAbaSelecionada('paginas')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'paginas' ? 'border-purple-600 dark:border-finoradark-glow text-purple-600 dark:text-finoradark-glow' : 'border-transparent text-gray-600 dark:text-finoradark-textmuted hover:text-gray-900 dark:hover:text-finoradark-text'}`}><ShoppingBag size={16} />Páginas</button>
+              <button onClick={() => setAbaSelecionada('campanhas')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'campanhas' ? 'border-purple-600 dark:border-finoradark-glow text-purple-600 dark:text-finoradark-glow' : 'border-transparent text-gray-600 dark:text-finoradark-textmuted hover:text-gray-900 dark:hover:text-finoradark-text'}`}><Megaphone size={16} />Campanhas</button>
+              <button onClick={() => setAbaSelecionada('checkout')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'checkout' ? 'border-purple-600 dark:border-finoradark-glow text-purple-600 dark:text-finoradark-glow' : 'border-transparent text-gray-600 dark:text-finoradark-textmuted hover:text-gray-900 dark:hover:text-finoradark-text'}`}><Shield size={16} />Checkout</button>
+              <button onClick={() => setAbaSelecionada('pixels')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'pixels' ? 'border-purple-600 dark:border-finoradark-glow text-purple-600 dark:text-finoradark-glow' : 'border-transparent text-gray-600 dark:text-finoradark-textmuted hover:text-gray-900 dark:hover:text-finoradark-text'}`}><BarChart3 size={16} />Pixels</button>
+              <button onClick={() => setAbaSelecionada('orderbumps')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'orderbumps' ? 'border-purple-600 dark:border-finoradark-glow text-purple-600 dark:text-finoradark-glow' : 'border-transparent text-gray-600 dark:text-finoradark-textmuted hover:text-gray-900 dark:hover:text-finoradark-text'}`}><Zap size={16} />Order Bumps</button>
+              <button onClick={() => setAbaSelecionada('links')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'links' ? 'border-purple-600 dark:border-finoradark-glow text-purple-600 dark:text-finoradark-glow' : 'border-transparent text-gray-600 dark:text-finoradark-textmuted hover:text-gray-900 dark:hover:text-finoradark-text'}`}><DollarSign size={16} />Links UTM</button>
+              <button onClick={() => setAbaSelecionada('coproducao')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'coproducao' ? 'border-purple-600 dark:border-finoradark-glow text-purple-600 dark:text-finoradark-glow' : 'border-transparent text-gray-600 dark:text-finoradark-textmuted hover:text-gray-900 dark:hover:text-finoradark-text'}`}><Users size={16} />Co-produção</button>
             </div>
           </div>
         </div>
@@ -621,30 +621,30 @@ return (
         <div className="p-8">
 
           {abaSelecionada === 'detalhes' && (
-            <div className="bg-white rounded-xl border border-gray-200 mb-8 p-8">
+            <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border mb-8 p-8">
               <div className="grid md:grid-cols-2 gap-8">
                 <div>
-                  {produto.imagem ? <img src={produto.imagem} alt={produto.nome} className="w-full h-64 object-cover rounded-xl" /> : <div className="w-full h-64 bg-gradient-to-br from-purple-600 to-purple-500 rounded-xl flex items-center justify-center"><Package size={64} className="text-white" /></div>}
+                  {produto.imagem ? <img src={produto.imagem} alt={produto.nome} className="w-full h-64 object-cover rounded-xl" /> : <div className="w-full h-64 bg-gradient-to-br from-purple-600 to-purple-500 dark:from-finoradark-glow dark:to-[#5b4dc9] rounded-xl flex items-center justify-center"><Package size={64} className="text-white" /></div>}
                 </div>
                 <div>
                   <div className="flex items-start justify-between mb-4">
-                    <h2 className="text-3xl font-bold text-gray-900">{produto.nome}</h2>
-                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${produto.status === 'ATIVO' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>{produto.status}</span>
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-finoradark-text">{produto.nome}</h2>
+                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${produto.status === 'ATIVO' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-gray-100 dark:bg-finoradark-card2 text-gray-700 dark:text-finoradark-textmuted'}`}>{produto.status}</span>
                   </div>
-                  <p className="text-gray-600 mb-6">{produto.descricao}</p>
+                  <p className="text-gray-600 dark:text-finoradark-textmuted mb-6">{produto.descricao}</p>
                   <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div><div className="text-sm text-gray-500">Preço</div><div className="text-2xl font-bold text-purple-600">R$ {produto.preco.toFixed(2).replace('.', ',')}</div></div>
-                    <div><div className="text-sm text-gray-500">Comissão</div><div className="text-2xl font-bold text-gray-900">{produto.comissao}%</div></div>
-                    <div><div className="text-sm text-gray-500">Tipo</div><div className="text-lg font-semibold text-gray-900">{produto.tipo}</div></div>
-                    {produto.tipo === 'FISICO' && <div><div className="text-sm text-gray-500">Estoque</div><div className="text-lg font-semibold text-gray-900">{produto.estoque || 0}</div></div>}
+                    <div><div className="text-sm text-gray-500 dark:text-finoradark-textmuted">Preço</div><div className="text-2xl font-bold text-purple-600 dark:text-finoradark-glow">R$ {produto.preco.toFixed(2).replace('.', ',')}</div></div>
+                    <div><div className="text-sm text-gray-500 dark:text-finoradark-textmuted">Comissão</div><div className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">{produto.comissao}%</div></div>
+                    <div><div className="text-sm text-gray-500 dark:text-finoradark-textmuted">Tipo</div><div className="text-lg font-semibold text-gray-900 dark:text-finoradark-text">{produto.tipo}</div></div>
+                    {produto.tipo === 'FISICO' && <div><div className="text-sm text-gray-500 dark:text-finoradark-textmuted">Estoque</div><div className="text-lg font-semibold text-gray-900 dark:text-finoradark-text">{produto.estoque || 0}</div></div>}
                   </div>
                   <div className="flex items-center space-x-2 mb-6">
                     <input type="checkbox" checked={produto.publicoParaAfiliados} onChange={togglePublico} className="w-4 h-4 cursor-pointer" />
-                    <span className="text-sm text-gray-600 cursor-pointer" onClick={togglePublico}>Público para afiliados</span>
+                    <span className="text-sm text-gray-600 dark:text-finoradark-textmuted cursor-pointer" onClick={togglePublico}>Público para afiliados</span>
                   </div>
                   <div className="flex gap-3">
-                    <Link href={`/dashboard/produtos/${produto.id}`} className="flex-1"><button className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition flex items-center justify-center space-x-2"><Edit size={20} /><span>Editar</span></button></Link>
-                    <button onClick={handleExcluirProduto} className="px-6 py-3 border-2 border-red-300 text-red-600 rounded-lg font-semibold hover:bg-red-50 transition flex items-center space-x-2"><Trash2 size={20} /><span>Excluir</span></button>
+                    <Link href={`/dashboard/produtos/${produto.id}`} className="flex-1"><button className="w-full px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition flex items-center justify-center space-x-2"><Edit size={20} /><span>Editar</span></button></Link>
+                    <button onClick={handleExcluirProduto} className="px-6 py-3 border-2 border-red-300 dark:border-red-900/50 text-red-600 dark:text-red-400 rounded-lg font-semibold hover:bg-red-50 dark:hover:bg-red-900/20 transition flex items-center space-x-2"><Trash2 size={20} /><span>Excluir</span></button>
                   </div>
                 </div>
               </div>
@@ -653,50 +653,50 @@ return (
 
           {abaSelecionada === 'afiliacao' && (
             <div className="max-w-4xl mx-auto">
-              <div className="bg-white rounded-xl border border-gray-200 p-8 mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">⚙️ Configurações de Afiliação</h2>
+              <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-8 mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text mb-6">⚙️ Configurações de Afiliação</h2>
                 <div className="space-y-6">
-                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div><div className="font-semibold text-gray-900">Aceitar Afiliados</div><div className="text-sm text-gray-600">Permitir que outros promovam seu produto</div></div>
+                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-finoradark-card2 rounded-lg">
+                    <div><div className="font-semibold text-gray-900 dark:text-finoradark-text">Aceitar Afiliados</div><div className="text-sm text-gray-600 dark:text-finoradark-textmuted">Permitir que outros promovam seu produto</div></div>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input type="checkbox" checked={configAfiliacao.aceitaAfiliados} onChange={(e) => setConfigAfiliacao({...configAfiliacao, aceitaAfiliados: e.target.checked})} className="sr-only peer" />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                      <div className="w-11 h-6 bg-gray-200 dark:bg-finoradark-border peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600 dark:peer-checked:bg-finoradark-glow"></div>
                     </label>
                   </div>
                   {configAfiliacao.aceitaAfiliados && (
                     <>
-                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                        <div><div className="font-semibold text-gray-900">Aprovação Automática</div><div className="text-sm text-gray-600">Aceitar afiliados automaticamente sem revisão</div></div>
+                      <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-finoradark-card2 rounded-lg">
+                        <div><div className="font-semibold text-gray-900 dark:text-finoradark-text">Aprovação Automática</div><div className="text-sm text-gray-600 dark:text-finoradark-textmuted">Aceitar afiliados automaticamente sem revisão</div></div>
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input type="checkbox" checked={configAfiliacao.aprovacaoAutomatica} onChange={(e) => setConfigAfiliacao({...configAfiliacao, aprovacaoAutomatica: e.target.checked})} className="sr-only peer" />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                          <div className="w-11 h-6 bg-gray-200 dark:bg-finoradark-border peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600 dark:peer-checked:bg-finoradark-glow"></div>
                         </label>
                       </div>
                       <div>
-                        <label className="block text-sm font-semibold text-gray-900 mb-2">Comissão Padrão (%)</label>
-                        <input type="number" min="0" max="100" value={configAfiliacao.comissaoPadrao} onChange={(e) => setConfigAfiliacao({...configAfiliacao, comissaoPadrao: parseFloat(e.target.value)})} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" />
+                        <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Comissão Padrão (%)</label>
+                        <input type="number" min="0" max="100" value={configAfiliacao.comissaoPadrao} onChange={(e) => setConfigAfiliacao({...configAfiliacao, comissaoPadrao: parseFloat(e.target.value)})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" />
                       </div>
                       <div>
-                        <label className="block text-sm font-semibold text-gray-900 mb-2">Detalhes do Programa</label>
-                        <textarea rows={4} value={configAfiliacao.detalhesAfiliacao} onChange={(e) => setConfigAfiliacao({...configAfiliacao, detalhesAfiliacao: e.target.value})} placeholder="Descreva os benefícios..." className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none"></textarea>
+                        <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Detalhes do Programa</label>
+                        <textarea rows={4} value={configAfiliacao.detalhesAfiliacao} onChange={(e) => setConfigAfiliacao({...configAfiliacao, detalhesAfiliacao: e.target.value})} placeholder="Descreva os benefícios..." className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none"></textarea>
                       </div>
                       <div>
-                        <label className="block text-sm font-semibold text-gray-900 mb-2">Regras e Observações</label>
-                        <textarea rows={4} value={configAfiliacao.regrasAfiliacao} onChange={(e) => setConfigAfiliacao({...configAfiliacao, regrasAfiliacao: e.target.value})} placeholder="Ex: Proibido spam..." className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none"></textarea>
+                        <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Regras e Observações</label>
+                        <textarea rows={4} value={configAfiliacao.regrasAfiliacao} onChange={(e) => setConfigAfiliacao({...configAfiliacao, regrasAfiliacao: e.target.value})} placeholder="Ex: Proibido spam..." className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none"></textarea>
                       </div>
                       {configAfiliacao.linkConvite && (
-                        <div className="p-6 bg-purple-50 border border-purple-200 rounded-lg">
+                        <div className="p-6 bg-purple-50 dark:bg-finoradark-card2 border border-purple-200 dark:border-finoradark-border rounded-lg">
                           <div className="flex items-center justify-between mb-2">
-                            <div className="font-semibold text-purple-900">🔗 Link de Convite</div>
-                            <button onClick={copiarLinkAfiliacao} className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+                            <div className="font-semibold text-purple-900 dark:text-finoradark-text">🔗 Link de Convite</div>
+                            <button onClick={copiarLinkAfiliacao} className="flex items-center space-x-2 px-4 py-2 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg hover:bg-purple-700 dark:hover:opacity-90 transition">
                               {copiado ? <Check size={16} /> : <Copy size={16} />}
                               <span>{copiado ? 'Copiado!' : 'Copiar'}</span>
                             </button>
                           </div>
-                          <div className="text-sm text-purple-700 break-all font-mono">{`${typeof window !== 'undefined' ? window.location.origin : ''}/afiliacao/${configAfiliacao.linkConvite}`}</div>
+                          <div className="text-sm text-purple-700 dark:text-finoradark-textmuted break-all font-mono">{`${typeof window !== 'undefined' ? window.location.origin : ''}/afiliacao/${configAfiliacao.linkConvite}`}</div>
                         </div>
                       )}
-                      <button onClick={salvarConfigAfiliacao} className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">Salvar Configurações</button>
+                      <button onClick={salvarConfigAfiliacao} className="w-full px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition">Salvar Configurações</button>
                     </>
                   )}
                 </div>
@@ -706,30 +706,30 @@ return (
 
           {abaSelecionada === 'paginas' && (
             <div>
-              <div className="bg-white rounded-xl border border-gray-200 p-8">
+              <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-8">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-2xl font-bold text-gray-900">📄 Páginas de Ofertas</h3>
-                  <button onClick={() => setCriandoPagina(!criandoPagina)} className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition flex items-center space-x-2"><Plus size={20} /><span>Nova</span></button>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">📄 Páginas de Ofertas</h3>
+                  <button onClick={() => setCriandoPagina(!criandoPagina)} className="px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition flex items-center space-x-2"><Plus size={20} /><span>Nova</span></button>
                 </div>
                 {criandoPagina && (
-                  <form onSubmit={handleCriarPagina} className="mb-8 p-6 bg-gray-50 rounded-xl border border-gray-200">
+                  <form onSubmit={handleCriarPagina} className="mb-8 p-6 bg-gray-50 dark:bg-finoradark-card2 rounded-xl border border-gray-200 dark:border-finoradark-border">
                     <div className="grid md:grid-cols-2 gap-4 mb-4">
-                      <input type="text" value={formPagina.nome} onChange={(e) => setFormPagina({...formPagina, nome: e.target.value})} placeholder="Nome" required className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900" />
-                      <input type="url" value={formPagina.link} onChange={(e) => setFormPagina({...formPagina, link: e.target.value})} placeholder="https://..." required className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900" />
+                      <input type="text" value={formPagina.nome} onChange={(e) => setFormPagina({...formPagina, nome: e.target.value})} placeholder="Nome" required className="px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900" />
+                      <input type="url" value={formPagina.link} onChange={(e) => setFormPagina({...formPagina, link: e.target.value})} placeholder="https://..." required className="px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900" />
                     </div>
-                    <button type="submit" className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">Adicionar</button>
+                    <button type="submit" className="px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition">Adicionar</button>
                   </form>
                 )}
-                {paginasOfertas.length === 0 ? <div className="text-center py-12"><Package size={64} className="mx-auto text-gray-300 mb-4" /><p className="text-gray-600">Nenhuma página</p></div> : (
+                {paginasOfertas.length === 0 ? <div className="text-center py-12"><Package size={64} className="mx-auto text-gray-300 dark:text-finoradark-border mb-4" /><p className="text-gray-600 dark:text-finoradark-textmuted">Nenhuma página</p></div> : (
                   <div className="space-y-3">
                     {paginasOfertas.map((pag) => (
-                      <div key={pag.id} className="p-4 border border-gray-200 rounded-xl">
+                      <div key={pag.id} className="p-4 border border-gray-200 dark:border-finoradark-border rounded-xl">
                         <div className="flex items-center justify-between">
-                          <div className="flex-1"><h4 className="text-lg font-bold text-gray-900">{pag.nome}</h4><a href={pag.link} target="_blank" rel="noopener noreferrer" className="text-sm text-purple-600 hover:underline">{pag.link}</a></div>
+                          <div className="flex-1"><h4 className="text-lg font-bold text-gray-900 dark:text-finoradark-text">{pag.nome}</h4><a href={pag.link} target="_blank" rel="noopener noreferrer" className="text-sm text-purple-600 dark:text-finoradark-glow hover:underline">{pag.link}</a></div>
                           <div className="flex gap-2">
-                            {!pag.testeAB && paginasOfertas.length > 1 && <button onClick={() => { const outra = paginasOfertas.find(p => p.id !== pag.id); if (outra) { const d = prompt('Distribuição (0-100):', '50'); if (d) ativarTesteAB(pag.id, outra.id, parseInt(d)); }}} className="px-3 py-2 bg-blue-100 text-blue-600 rounded-lg text-sm font-semibold">Testar A/B</button>}
-                            {pag.testeAB && <div className="px-3 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-semibold">🧪 {pag.distribuicao}% • {pag.visualizacoes}v • {pag.conversoes}c</div>}
-                            <button onClick={() => handleExcluirPagina(pag.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg"><Trash2 size={18} /></button>
+                            {!pag.testeAB && paginasOfertas.length > 1 && <button onClick={() => { const outra = paginasOfertas.find(p => p.id !== pag.id); if (outra) { const d = prompt('Distribuição (0-100):', '50'); if (d) ativarTesteAB(pag.id, outra.id, parseInt(d)); }}} className="px-3 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg text-sm font-semibold">Testar A/B</button>}
+                            {pag.testeAB && <div className="px-3 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg text-sm font-semibold">🧪 {pag.distribuicao}% • {pag.visualizacoes}v • {pag.conversoes}c</div>}
+                            <button onClick={() => handleExcluirPagina(pag.id)} className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"><Trash2 size={18} /></button>
                           </div>
                         </div>
                       </div>
@@ -742,50 +742,50 @@ return (
 
           {abaSelecionada === 'campanhas' && (
             <div>
-              <div className="bg-white rounded-xl border border-gray-200 p-8">
+              <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-8">
                 <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center space-x-3"><Megaphone size={24} className="text-purple-600" /><h3 className="text-2xl font-bold text-gray-900">Campanhas</h3></div>
-                  <button onClick={() => setCriandoCampanha(!criandoCampanha)} className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition flex items-center space-x-2"><Plus size={20} /><span>Nova</span></button>
+                  <div className="flex items-center space-x-3"><Megaphone size={24} className="text-purple-600 dark:text-finoradark-glow" /><h3 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">Campanhas</h3></div>
+                  <button onClick={() => setCriandoCampanha(!criandoCampanha)} className="px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition flex items-center space-x-2"><Plus size={20} /><span>Nova</span></button>
                 </div>
                 {criandoCampanha && (
-                  <form onSubmit={handleCriarCampanha} className="mb-8 p-6 bg-gray-50 rounded-xl border border-gray-200">
+                  <form onSubmit={handleCriarCampanha} className="mb-8 p-6 bg-gray-50 dark:bg-finoradark-card2 rounded-xl border border-gray-200 dark:border-finoradark-border">
                     <div className="mb-4">
-                      <select value={formCampanha.paginaOfertaId} onChange={(e) => setFormCampanha({...formCampanha, paginaOfertaId: e.target.value})} required className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900">
+                      <select value={formCampanha.paginaOfertaId} onChange={(e) => setFormCampanha({...formCampanha, paginaOfertaId: e.target.value})} required className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900">
                         <option value="">Selecione página</option>
                         {paginasOfertas.map((p) => <option key={p.id} value={p.id}>{p.nome}</option>)}
                       </select>
                     </div>
                     <div className="grid md:grid-cols-2 gap-4 mb-4">
-                      <input type="text" value={formCampanha.nome} onChange={(e) => setFormCampanha({...formCampanha, nome: e.target.value})} placeholder="Nome" required className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900" />
-                      <select value={formCampanha.plataforma} onChange={(e) => setFormCampanha({...formCampanha, plataforma: e.target.value})} className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900">
+                      <input type="text" value={formCampanha.nome} onChange={(e) => setFormCampanha({...formCampanha, nome: e.target.value})} placeholder="Nome" required className="px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900" />
+                      <select value={formCampanha.plataforma} onChange={(e) => setFormCampanha({...formCampanha, plataforma: e.target.value})} className="px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900">
                         <option value="FACEBOOK">Facebook</option>
                         <option value="GOOGLE">Google</option>
                         <option value="TIKTOK">TikTok</option>
                         <option value="KWAI">Kwai</option>
                       </select>
                     </div>
-                    <button type="submit" className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">Criar</button>
+                    <button type="submit" className="px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition">Criar</button>
                   </form>
                 )}
-                {campanhas.length === 0 ? <div className="text-center py-12"><Megaphone size={64} className="mx-auto text-gray-300 mb-4" /><p className="text-gray-600">Nenhuma campanha</p></div> : (
+                {campanhas.length === 0 ? <div className="text-center py-12"><Megaphone size={64} className="mx-auto text-gray-300 dark:text-finoradark-border mb-4" /><p className="text-gray-600 dark:text-finoradark-textmuted">Nenhuma campanha</p></div> : (
                   <div className="space-y-4">
                     {campanhas.map((c) => (
-                      <div key={c.id} className="p-6 border border-gray-200 rounded-xl">
+                      <div key={c.id} className="p-6 border border-gray-200 dark:border-finoradark-border rounded-xl">
                         <div className="flex items-center space-x-3 mb-2">
-                          <h4 className="text-lg font-bold text-gray-900">{c.nome}</h4>
-                          <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded">{c.plataforma}</span>
-                          <span className={`px-2 py-1 rounded text-xs font-semibold ${c.status === 'ATIVO' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>{c.status}</span>
+                          <h4 className="text-lg font-bold text-gray-900 dark:text-finoradark-text">{c.nome}</h4>
+                          <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-semibold rounded">{c.plataforma}</span>
+                          <span className={`px-2 py-1 rounded text-xs font-semibold ${c.status === 'ATIVO' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-gray-100 dark:bg-finoradark-card2 text-gray-700 dark:text-finoradark-textmuted'}`}>{c.status}</span>
                         </div>
                         <div className="flex items-center space-x-2 mb-3">
-                          <code className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded text-sm font-mono text-gray-900">{c.linkCampanha}</code>
-                          <button onClick={() => copiarLink(c.linkCampanha)} className="px-3 py-2 bg-purple-100 text-purple-600 rounded hover:bg-purple-200 transition"><Copy size={16} /></button>
+                          <code className="flex-1 px-3 py-2 bg-gray-50 dark:bg-finoradark-card2 border border-gray-200 dark:border-finoradark-border rounded text-sm font-mono text-gray-900 dark:text-finoradark-text">{c.linkCampanha}</code>
+                          <button onClick={() => copiarLink(c.linkCampanha)} className="px-3 py-2 bg-purple-100 dark:bg-finoradark-card2 text-purple-600 dark:text-finoradark-glow rounded hover:bg-purple-200 dark:hover:bg-finoradark-border transition"><Copy size={16} /></button>
                         </div>
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-6 text-sm text-gray-600">
-                            <div>Cliques: <span className="font-semibold text-gray-900">{c.cliques}</span></div>
-                            <div>Conversões: <span className="font-semibold text-green-600">{c.conversoes}</span></div>
+                          <div className="flex items-center space-x-6 text-sm text-gray-600 dark:text-finoradark-textmuted">
+                            <div>Cliques: <span className="font-semibold text-gray-900 dark:text-finoradark-text">{c.cliques}</span></div>
+                            <div>Conversões: <span className="font-semibold text-green-600 dark:text-green-400">{c.conversoes}</span></div>
                           </div>
-                          <button onClick={() => handleExcluirCampanha(c.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg"><Trash2 size={18} /></button>
+                          <button onClick={() => handleExcluirCampanha(c.id)} className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"><Trash2 size={18} /></button>
                         </div>
                       </div>
                     ))}
@@ -796,29 +796,29 @@ return (
           )}
 {abaSelecionada === 'checkout' && (
             <div className="max-w-6xl mx-auto">
-              <div className="bg-white rounded-xl border border-gray-200 p-8">
+              <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-8">
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900">🎨 Checkout & Planos</h2>
-                    <p className="text-gray-600">Crie planos com checkouts personalizados</p>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">🎨 Checkout & Planos</h2>
+                    <p className="text-gray-600 dark:text-finoradark-textmuted">Crie planos com checkouts personalizados</p>
                   </div>
-                  <button onClick={() => setModalPlano({ aberto: true, plano: null })} className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition flex items-center space-x-2">
+                  <button onClick={() => setModalPlano({ aberto: true, plano: null })} className="px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition flex items-center space-x-2">
                     <Plus size={20} /><span>Criar Plano</span>
                   </button>
                 </div>
 
                 {planos.length === 0 ? (
-                  <div className="text-center py-16 bg-gray-50 rounded-xl">
-                    <Package size={64} className="mx-auto text-gray-300 mb-4" />
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Nenhum plano criado</h3>
-                    <p className="text-gray-600 mb-6">Crie diferentes planos com checkouts personalizados</p>
-                    <button onClick={() => setModalPlano({ aberto: true, plano: null })} className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">Criar Primeiro Plano</button>
+                  <div className="text-center py-16 bg-gray-50 dark:bg-finoradark-card2 rounded-xl">
+                    <Package size={64} className="mx-auto text-gray-300 dark:text-finoradark-border mb-4" />
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-finoradark-text mb-2">Nenhum plano criado</h3>
+                    <p className="text-gray-600 dark:text-finoradark-textmuted mb-6">Crie diferentes planos com checkouts personalizados</p>
+                    <button onClick={() => setModalPlano({ aberto: true, plano: null })} className="px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition">Criar Primeiro Plano</button>
                   </div>
                 ) : (
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {planos.map((plano) => (
-                      <div key={plano.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow">
-                        <div className="p-5 border-b border-gray-100">
+                      <div key={plano.id} className="bg-white dark:bg-finoradark-card2 border border-gray-200 dark:border-finoradark-border rounded-xl overflow-hidden hover:shadow-md dark:hover:shadow-none transition-shadow">
+                        <div className="p-5 border-b border-gray-100 dark:border-finoradark-border">
                           <div className="flex items-start justify-between mb-3">
                             <div className="flex-1 min-w-0">
                               <input
@@ -832,7 +832,7 @@ return (
                                     carregarPlanos();
                                   } catch (error) { alert('❌ Erro ao atualizar'); }
                                 }}
-                                className="text-base font-bold text-gray-900 w-full border-0 outline-none bg-transparent hover:bg-gray-50 rounded px-1 py-0.5 transition truncate"
+                                className="text-base font-bold text-gray-900 dark:text-finoradark-text w-full border-0 outline-none bg-transparent hover:bg-gray-50 dark:hover:bg-finoradark-border rounded px-1 py-0.5 transition truncate"
                               />
                               <input
                                 type="text"
@@ -846,28 +846,28 @@ return (
                                     carregarPlanos();
                                   } catch (error) { alert('❌ Erro ao atualizar'); }
                                 }}
-                                className="text-xs text-gray-500 w-full border-0 outline-none bg-transparent hover:bg-gray-50 rounded px-1 py-0.5 transition mt-0.5"
+                                className="text-xs text-gray-500 dark:text-finoradark-textmuted w-full border-0 outline-none bg-transparent hover:bg-gray-50 dark:hover:bg-finoradark-border rounded px-1 py-0.5 transition mt-0.5"
                               />
                             </div>
-                            <span className={`ml-2 flex-shrink-0 px-2 py-0.5 rounded-full text-xs font-semibold ${plano.ativo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                            <span className={`ml-2 flex-shrink-0 px-2 py-0.5 rounded-full text-xs font-semibold ${plano.ativo ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-gray-100 dark:bg-finoradark-border text-gray-500 dark:text-finoradark-textmuted'}`}>
                               {plano.ativo ? 'Ativo' : 'Inativo'}
                             </span>
                           </div>
-                          <div className="text-2xl font-bold text-purple-600">R$ {plano.preco.toFixed(2).replace('.', ',')}</div>
+                          <div className="text-2xl font-bold text-purple-600 dark:text-finoradark-glow">R$ {plano.preco.toFixed(2).replace('.', ',')}</div>
                         </div>
 
-                        <div className="px-5 py-3 bg-gray-50 border-b border-gray-100">
+                        <div className="px-5 py-3 bg-gray-50 dark:bg-finoradark-card border-b border-gray-100 dark:border-finoradark-border">
                           <div className="flex items-center gap-2">
-                            <code className="flex-1 text-xs text-gray-500 truncate font-mono">/checkout/{plano.linkUnico}</code>
-                            <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/checkout/${plano.linkUnico}`); alert('Link copiado!'); }} className="flex-shrink-0 p-1.5 hover:bg-gray-200 rounded-lg transition" title="Copiar link">
-                              <Copy size={14} className="text-gray-500" />
+                            <code className="flex-1 text-xs text-gray-500 dark:text-finoradark-textmuted truncate font-mono">/checkout/{plano.linkUnico}</code>
+                            <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/checkout/${plano.linkUnico}`); alert('Link copiado!'); }} className="flex-shrink-0 p-1.5 hover:bg-gray-200 dark:hover:bg-finoradark-border rounded-lg transition" title="Copiar link">
+                              <Copy size={14} className="text-gray-500 dark:text-finoradark-textmuted" />
                             </button>
                           </div>
                         </div>
 
                         <div className="p-4 space-y-2">
                           <div className="grid grid-cols-2 gap-2">
-                            <button onClick={() => setModalConfig({ aberto: true, planoId: plano.id, tipo: 'NORMAL' })} className="px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-xs font-semibold flex items-center justify-center gap-1">
+                            <button onClick={() => setModalConfig({ aberto: true, planoId: plano.id, tipo: 'NORMAL' })} className="px-3 py-2 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg hover:bg-purple-700 dark:hover:opacity-90 transition text-xs font-semibold flex items-center justify-center gap-1">
                               ⚙️ Checkout Normal
                             </button>
                             <button onClick={() => setModalConfig({ aberto: true, planoId: plano.id, tipo: 'PAD' })} className="px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition text-xs font-semibold flex items-center justify-center gap-1">
@@ -875,13 +875,13 @@ return (
                             </button>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
-                            <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/pad/checkout-plano/${plano.id}`); alert('Link PAD copiado!'); }} className="col-span-1 px-3 py-2 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition text-xs font-semibold flex items-center justify-center gap-1" title="Copiar link PAD">
+                            <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/pad/checkout-plano/${plano.id}`); alert('Link PAD copiado!'); }} className="col-span-1 px-3 py-2 border border-gray-200 dark:border-finoradark-border text-gray-600 dark:text-finoradark-textmuted rounded-lg hover:bg-gray-50 dark:hover:bg-finoradark-border transition text-xs font-semibold flex items-center justify-center gap-1" title="Copiar link PAD">
                               <Copy size={13} /> PAD
                             </button>
-                            <button onClick={() => setModalPlano({ aberto: true, plano })} className="col-span-1 px-3 py-2 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50 transition text-xs font-semibold flex items-center justify-center gap-1" title="Editar plano">
+                            <button onClick={() => setModalPlano({ aberto: true, plano })} className="col-span-1 px-3 py-2 border border-gray-200 dark:border-finoradark-border text-gray-600 dark:text-finoradark-textmuted rounded-lg hover:bg-gray-50 dark:hover:bg-finoradark-border transition text-xs font-semibold flex items-center justify-center gap-1" title="Editar plano">
                               <Edit size={13} /> Editar
                             </button>
-                            <button onClick={() => handleExcluirPlano(plano.id)} className="col-span-1 px-3 py-2 border border-red-200 text-red-500 rounded-lg hover:bg-red-50 transition text-xs font-semibold flex items-center justify-center gap-1" title="Excluir plano">
+                            <button onClick={() => handleExcluirPlano(plano.id)} className="col-span-1 px-3 py-2 border border-red-200 dark:border-red-900/50 text-red-500 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition text-xs font-semibold flex items-center justify-center gap-1" title="Excluir plano">
                               <Trash2 size={13} /> Excluir
                             </button>
                           </div>
@@ -894,28 +894,28 @@ return (
 
               {modalPlano.aberto && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setModalPlano({ aberto: false, plano: null })}>
-                  <div className="bg-white rounded-2xl p-8 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-6">{modalPlano.plano ? 'Editar Plano' : 'Criar Novo Plano'}</h3>
+                  <div className="bg-white dark:bg-finoradark-card rounded-2xl p-8 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text mb-6">{modalPlano.plano ? 'Editar Plano' : 'Criar Novo Plano'}</h3>
                     <form onSubmit={handleSalvarPlano} className="space-y-4">
                       <div>
-                        <label className="block text-sm font-semibold text-gray-900 mb-2">Nome do Plano *</label>
-                        <input type="text" defaultValue={modalPlano.plano?.nome} name="nome" required className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="Ex: Plano Básico" />
+                        <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Nome do Plano *</label>
+                        <input type="text" defaultValue={modalPlano.plano?.nome} name="nome" required className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="Ex: Plano Básico" />
                       </div>
                       <div>
-                        <label className="block text-sm font-semibold text-gray-900 mb-2">Descrição</label>
-                        <textarea rows={3} defaultValue={modalPlano.plano?.descricao} name="descricao" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="Opcional"></textarea>
+                        <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Descrição</label>
+                        <textarea rows={3} defaultValue={modalPlano.plano?.descricao} name="descricao" className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="Opcional"></textarea>
                       </div>
                       <div>
-                        <label className="block text-sm font-semibold text-gray-900 mb-2">Preço *</label>
-                        <input type="number" step="0.01" defaultValue={modalPlano.plano?.preco} name="preco" required className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="0.00" />
+                        <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Preço *</label>
+                        <input type="number" step="0.01" defaultValue={modalPlano.plano?.preco} name="preco" required className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="0.00" />
                       </div>
                       <div className="flex items-center space-x-2">
                         <input type="checkbox" defaultChecked={modalPlano.plano?.ativo ? true : false} name="ativo" className="w-4 h-4" />
-                        <span className="text-sm text-gray-700">Plano ativo</span>
+                        <span className="text-sm text-gray-700 dark:text-finoradark-textmuted">Plano ativo</span>
                       </div>
                       <div className="flex gap-3 pt-4">
-                        <button type="button" onClick={() => setModalPlano({ aberto: false, plano: null })} className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition">Cancelar</button>
-                        <button type="submit" className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">{modalPlano.plano ? 'Salvar' : 'Criar'}</button>
+                        <button type="button" onClick={() => setModalPlano({ aberto: false, plano: null })} className="flex-1 px-6 py-3 border-2 border-gray-300 dark:border-finoradark-border text-gray-700 dark:text-finoradark-textmuted rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-finoradark-card2 transition">Cancelar</button>
+                        <button type="submit" className="flex-1 px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition">{modalPlano.plano ? 'Salvar' : 'Criar'}</button>
                       </div>
                     </form>
                   </div>
@@ -924,89 +924,89 @@ return (
 
               {modalConfig.aberto && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto" onClick={() => setModalConfig({ aberto: false, planoId: null, tipo: 'NORMAL' })}>
-                  <div className="bg-white rounded-2xl p-8 max-w-4xl w-full my-8" onClick={(e) => e.stopPropagation()}>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-6">{modalConfig.tipo === 'NORMAL' ? '⚙️ Configurar Checkout Normal' : '💳 Configurar Checkout PAD'}</h3>
+                  <div className="bg-white dark:bg-finoradark-card rounded-2xl p-8 max-w-4xl w-full my-8" onClick={(e) => e.stopPropagation()}>
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text mb-6">{modalConfig.tipo === 'NORMAL' ? '⚙️ Configurar Checkout Normal' : '💳 Configurar Checkout PAD'}</h3>
                     <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-4">
                       {modalConfig.tipo === 'NORMAL' && (
-                        <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
-                          <h4 className="font-bold text-gray-900 mb-3">🖥️ Versão do Checkout</h4>
+                        <div className="p-4 bg-gray-50 dark:bg-finoradark-card2 rounded-xl border border-gray-200 dark:border-finoradark-border">
+                          <h4 className="font-bold text-gray-900 dark:text-finoradark-text mb-3">🖥️ Versão do Checkout</h4>
                           <div className="grid grid-cols-2 gap-3">
-                            <button type="button" onClick={() => setConfigPlano({...configPlano, checkoutVersao: 'v1'})} className={`p-4 rounded-xl border-2 text-left transition ${!configPlano.checkoutVersao || configPlano.checkoutVersao === 'v1' ? 'border-purple-600 bg-purple-50' : 'border-gray-200 hover:border-purple-300'}`}>
-                              <div className="text-2xl mb-2">🟣</div><div className="font-bold text-gray-900">Versão 1</div><div className="text-xs text-gray-500 mt-1">Layout clássico com card central e gradiente</div>
+                            <button type="button" onClick={() => setConfigPlano({...configPlano, checkoutVersao: 'v1'})} className={`p-4 rounded-xl border-2 text-left transition ${!configPlano.checkoutVersao || configPlano.checkoutVersao === 'v1' ? 'border-purple-600 dark:border-finoradark-glow bg-purple-50 dark:bg-finoradark-border' : 'border-gray-200 dark:border-finoradark-border hover:border-purple-300'}`}>
+                              <div className="text-2xl mb-2">🟣</div><div className="font-bold text-gray-900 dark:text-finoradark-text">Versão 1</div><div className="text-xs text-gray-500 dark:text-finoradark-textmuted mt-1">Layout clássico com card central e gradiente</div>
                             </button>
-                            <button type="button" onClick={() => setConfigPlano({...configPlano, checkoutVersao: 'v2'})} className={`p-4 rounded-xl border-2 text-left transition ${configPlano.checkoutVersao === 'v2' ? 'border-green-600 bg-green-50' : 'border-gray-200 hover:border-green-300'}`}>
-                              <div className="text-2xl mb-2">🟢</div><div className="font-bold text-gray-900">Versão 2</div><div className="text-xs text-gray-500 mt-1">Layout moderno com steps numerados e fundo cinza</div>
+                            <button type="button" onClick={() => setConfigPlano({...configPlano, checkoutVersao: 'v2'})} className={`p-4 rounded-xl border-2 text-left transition ${configPlano.checkoutVersao === 'v2' ? 'border-green-600 bg-green-50 dark:bg-green-900/20' : 'border-gray-200 dark:border-finoradark-border hover:border-green-300'}`}>
+                              <div className="text-2xl mb-2">🟢</div><div className="font-bold text-gray-900 dark:text-finoradark-text">Versão 2</div><div className="text-xs text-gray-500 dark:text-finoradark-textmuted mt-1">Layout moderno com steps numerados e fundo cinza</div>
                             </button>
-                            <button type="button" onClick={() => setConfigPlano({...configPlano, checkoutVersao: 'v3'})} className={`p-4 rounded-xl border-2 text-left transition ${configPlano.checkoutVersao === 'v3' ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-blue-300'}`}>
-                              <div className="text-2xl mb-2">🔵</div><div className="font-bold text-gray-900">Versão 3</div><div className="text-xs text-gray-500 mt-1">One-page clean e profissional</div>
+                            <button type="button" onClick={() => setConfigPlano({...configPlano, checkoutVersao: 'v3'})} className={`p-4 rounded-xl border-2 text-left transition ${configPlano.checkoutVersao === 'v3' ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-finoradark-border hover:border-blue-300'}`}>
+                              <div className="text-2xl mb-2">🔵</div><div className="font-bold text-gray-900 dark:text-finoradark-text">Versão 3</div><div className="text-xs text-gray-500 dark:text-finoradark-textmuted mt-1">One-page clean e profissional</div>
                             </button>
-                            <button type="button" onClick={() => setConfigPlano({...configPlano, checkoutVersao: 'v4'})} className={`p-4 rounded-xl border-2 text-left transition ${configPlano.checkoutVersao === 'v4' ? 'border-yellow-600 bg-yellow-50' : 'border-gray-200 hover:border-yellow-300'}`}>
-                              <div className="text-2xl mb-2">⚡</div><div className="font-bold text-gray-900">Versão 4 — Digital</div><div className="text-xs text-gray-500 mt-1">One-page sem endereço, ideal para ebooks e cursos</div>
+                            <button type="button" onClick={() => setConfigPlano({...configPlano, checkoutVersao: 'v4'})} className={`p-4 rounded-xl border-2 text-left transition ${configPlano.checkoutVersao === 'v4' ? 'border-yellow-600 bg-yellow-50 dark:bg-yellow-900/20' : 'border-gray-200 dark:border-finoradark-border hover:border-yellow-300'}`}>
+                              <div className="text-2xl mb-2">⚡</div><div className="font-bold text-gray-900 dark:text-finoradark-text">Versão 4 — Digital</div><div className="text-xs text-gray-500 dark:text-finoradark-textmuted mt-1">One-page sem endereço, ideal para ebooks e cursos</div>
                             </button>
                           </div>
                         </div>
                       )}
                       <div className="space-y-4">
-                        <h4 className="font-bold text-gray-900">🎨 Imagens</h4>
+                        <h4 className="font-bold text-gray-900 dark:text-finoradark-text">🎨 Imagens</h4>
                         <div>
-                          <label className="block text-sm font-semibold text-gray-900 mb-2">Banner</label>
-                          <input type="file" accept="image/*" onChange={(e) => handleUploadCheckout(e, 'banner')} className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer" />
+                          <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Banner</label>
+                          <input type="file" accept="image/*" onChange={(e) => handleUploadCheckout(e, 'banner')} className="w-full px-4 py-3 border-2 border-dashed border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 rounded-lg cursor-pointer" />
                         </div>
                         <div className="grid md:grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-sm font-semibold text-gray-900 mb-2">Logo Superior</label>
-                            <input type="file" accept="image/*" onChange={(e) => handleUploadCheckout(e, 'logoSuperior')} className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer" />
+                            <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Logo Superior</label>
+                            <input type="file" accept="image/*" onChange={(e) => handleUploadCheckout(e, 'logoSuperior')} className="w-full px-4 py-3 border-2 border-dashed border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 rounded-lg cursor-pointer" />
                           </div>
                           <div>
-                            <label className="block text-sm font-semibold text-gray-900 mb-2">Logo Inferior</label>
-                            <input type="file" accept="image/*" onChange={(e) => handleUploadCheckout(e, 'logoInferior')} className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer" />
+                            <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Logo Inferior</label>
+                            <input type="file" accept="image/*" onChange={(e) => handleUploadCheckout(e, 'logoInferior')} className="w-full px-4 py-3 border-2 border-dashed border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 rounded-lg cursor-pointer" />
                           </div>
                         </div>
                       </div>
-                      <div className="grid md:grid-cols-2 gap-4 pt-4 border-t">
+                      <div className="grid md:grid-cols-2 gap-4 pt-4 border-t dark:border-finoradark-border">
                         <div>
-                          <label className="block text-sm font-semibold text-gray-900 mb-2">Cor Primária</label>
+                          <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Cor Primária</label>
                           <input type="color" value={configPlano.checkoutCorPrimaria} onChange={(e) => setConfigPlano({...configPlano, checkoutCorPrimaria: e.target.value})} className="w-full h-12 rounded-lg cursor-pointer" />
                         </div>
                         <div>
-                          <label className="block text-sm font-semibold text-gray-900 mb-2">Cor Secundária</label>
+                          <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Cor Secundária</label>
                           <input type="color" value={configPlano.checkoutCorSecundaria} onChange={(e) => setConfigPlano({...configPlano, checkoutCorSecundaria: e.target.value})} className="w-full h-12 rounded-lg cursor-pointer" />
                         </div>
                       </div>
-                      <div className="pt-4 border-t">
-                        <h4 className="font-bold text-gray-900 mb-4">⏰ Cronômetro de Urgência</h4>
-                        <label className="flex items-center justify-between p-4 bg-gray-50 rounded-lg cursor-pointer">
-                          <div><div className="font-semibold text-gray-900">Ativar Cronômetro</div><div className="text-sm text-gray-600">Cria senso de urgência no checkout</div></div>
+                      <div className="pt-4 border-t dark:border-finoradark-border">
+                        <h4 className="font-bold text-gray-900 dark:text-finoradark-text mb-4">⏰ Cronômetro de Urgência</h4>
+                        <label className="flex items-center justify-between p-4 bg-gray-50 dark:bg-finoradark-card2 rounded-lg cursor-pointer">
+                          <div><div className="font-semibold text-gray-900 dark:text-finoradark-text">Ativar Cronômetro</div><div className="text-sm text-gray-600 dark:text-finoradark-textmuted">Cria senso de urgência no checkout</div></div>
                           <input type="checkbox" checked={configPlano.checkoutCronometro} onChange={(e) => setConfigPlano({...configPlano, checkoutCronometro: e.target.checked})} className="w-5 h-5" />
                         </label>
                         {configPlano.checkoutCronometro && (
                           <div className="grid md:grid-cols-2 gap-4 mt-4">
                             <div>
-                              <label className="block text-sm font-semibold text-gray-900 mb-2">Tempo (minutos)</label>
-                              <input type="number" min="1" value={configPlano.checkoutTempoMinutos} onChange={(e) => setConfigPlano({...configPlano, checkoutTempoMinutos: parseInt(e.target.value)})} className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900" />
+                              <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Tempo (minutos)</label>
+                              <input type="number" min="1" value={configPlano.checkoutTempoMinutos} onChange={(e) => setConfigPlano({...configPlano, checkoutTempoMinutos: parseInt(e.target.value)})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 rounded-lg text-gray-900 dark:text-finoradark-text" />
                             </div>
                             <div>
-                              <label className="block text-sm font-semibold text-gray-900 mb-2">Mensagem</label>
-                              <input type="text" value={configPlano.checkoutMensagemUrgencia} onChange={(e) => setConfigPlano({...configPlano, checkoutMensagemUrgencia: e.target.value})} placeholder="Oferta expira em..." className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900" />
+                              <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Mensagem</label>
+                              <input type="text" value={configPlano.checkoutMensagemUrgencia} onChange={(e) => setConfigPlano({...configPlano, checkoutMensagemUrgencia: e.target.value})} placeholder="Oferta expira em..." className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 rounded-lg text-gray-900 dark:text-finoradark-text" />
                             </div>
                           </div>
                         )}
                       </div>
-                      <div className="pt-4 border-t">
-                        <h4 className="font-bold text-gray-900 mb-4">👥 Prova Social (Pop-ups)</h4>
-                        <label className="flex items-center justify-between p-4 bg-gray-50 rounded-lg cursor-pointer">
-                          <div><div className="font-semibold text-gray-900">Ativar Pop-ups de Compra</div><div className="text-sm text-gray-600">Ex: "João acabou de comprar..."</div></div>
+                      <div className="pt-4 border-t dark:border-finoradark-border">
+                        <h4 className="font-bold text-gray-900 dark:text-finoradark-text mb-4">👥 Prova Social (Pop-ups)</h4>
+                        <label className="flex items-center justify-between p-4 bg-gray-50 dark:bg-finoradark-card2 rounded-lg cursor-pointer">
+                          <div><div className="font-semibold text-gray-900 dark:text-finoradark-text">Ativar Pop-ups de Compra</div><div className="text-sm text-gray-600 dark:text-finoradark-textmuted">Ex: "João acabou de comprar..."</div></div>
                           <input type="checkbox" checked={configPlano.checkoutProvaSocial} onChange={(e) => setConfigPlano({...configPlano, checkoutProvaSocial: e.target.checked})} className="w-5 h-5" />
                         </label>
                         {configPlano.checkoutProvaSocial && (
                           <div className="mt-4 space-y-4">
                             <div>
-                              <label className="block text-sm font-semibold text-gray-900 mb-2">Intervalo (segundos)</label>
-                              <input type="number" min="3" value={configPlano.checkoutIntervaloPop} onChange={(e) => setConfigPlano({...configPlano, checkoutIntervaloPop: parseInt(e.target.value)})} className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900" />
+                              <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Intervalo (segundos)</label>
+                              <input type="number" min="3" value={configPlano.checkoutIntervaloPop} onChange={(e) => setConfigPlano({...configPlano, checkoutIntervaloPop: parseInt(e.target.value)})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 rounded-lg text-gray-900 dark:text-finoradark-text" />
                             </div>
                             <div>
-                              <label className="block text-sm font-semibold text-gray-900 mb-2">Gênero dos Compradores</label>
-                              <select value={configPlano.checkoutProvaSocialGenero} onChange={(e) => setConfigPlano({...configPlano, checkoutProvaSocialGenero: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900">
+                              <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Gênero dos Compradores</label>
+                              <select value={configPlano.checkoutProvaSocialGenero} onChange={(e) => setConfigPlano({...configPlano, checkoutProvaSocialGenero: e.target.value})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 rounded-lg text-gray-900 dark:text-finoradark-text">
                                 <option value="AMBOS">👨👩 Ambos</option>
                                 <option value="HOMENS">👨 Apenas Homens</option>
                                 <option value="MULHERES">👩 Apenas Mulheres</option>
@@ -1015,32 +1015,32 @@ return (
                           </div>
                         )}
                       </div>
-                      <div className="pt-4 border-t">
-                        <h4 className="font-bold text-gray-900 mb-4">💳 Métodos de Pagamento</h4>
+                      <div className="pt-4 border-t dark:border-finoradark-border">
+                        <h4 className="font-bold text-gray-900 dark:text-finoradark-text mb-4">💳 Métodos de Pagamento</h4>
                         <div className="grid grid-cols-3 gap-4">
-                          <label className="flex items-center space-x-2 p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-                            <input type="checkbox" checked={configPlano.checkoutAceitaPix} onChange={(e) => setConfigPlano({...configPlano, checkoutAceitaPix: e.target.checked})} className="w-5 h-5" /><span>PIX</span>
+                          <label className="flex items-center space-x-2 p-4 border dark:border-finoradark-border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-finoradark-card2">
+                            <input type="checkbox" checked={configPlano.checkoutAceitaPix} onChange={(e) => setConfigPlano({...configPlano, checkoutAceitaPix: e.target.checked})} className="w-5 h-5" /><span className="text-gray-900 dark:text-finoradark-text">PIX</span>
                           </label>
-                          <label className="flex items-center space-x-2 p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-                            <input type="checkbox" checked={configPlano.checkoutAceitaCartao} onChange={(e) => setConfigPlano({...configPlano, checkoutAceitaCartao: e.target.checked})} className="w-5 h-5" /><span>Cartão</span>
+                          <label className="flex items-center space-x-2 p-4 border dark:border-finoradark-border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-finoradark-card2">
+                            <input type="checkbox" checked={configPlano.checkoutAceitaCartao} onChange={(e) => setConfigPlano({...configPlano, checkoutAceitaCartao: e.target.checked})} className="w-5 h-5" /><span className="text-gray-900 dark:text-finoradark-text">Cartão</span>
                           </label>
-                          <label className="flex items-center space-x-2 p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-                            <input type="checkbox" checked={configPlano.checkoutAceitaBoleto} onChange={(e) => setConfigPlano({...configPlano, checkoutAceitaBoleto: e.target.checked})} className="w-5 h-5" /><span>Boleto</span>
+                          <label className="flex items-center space-x-2 p-4 border dark:border-finoradark-border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-finoradark-card2">
+                            <input type="checkbox" checked={configPlano.checkoutAceitaBoleto} onChange={(e) => setConfigPlano({...configPlano, checkoutAceitaBoleto: e.target.checked})} className="w-5 h-5" /><span className="text-gray-900 dark:text-finoradark-text">Boleto</span>
                           </label>
                         </div>
                       </div>
                       {modalConfig.tipo === 'NORMAL' && (
-                        <div className="pt-4 border-t">
-                          <h4 className="font-bold text-gray-900 mb-4">⚡ Order Bumps</h4>
+                        <div className="pt-4 border-t dark:border-finoradark-border">
+                          <h4 className="font-bold text-gray-900 dark:text-finoradark-text mb-4">⚡ Order Bumps</h4>
                           {orderBumps.length === 0 ? (
-                            <div className="p-4 bg-gray-50 rounded-lg text-center text-gray-600 text-sm">Nenhum order bump cadastrado. Crie na aba ⚡ Order Bumps.</div>
+                            <div className="p-4 bg-gray-50 dark:bg-finoradark-card2 rounded-lg text-center text-gray-600 dark:text-finoradark-textmuted text-sm">Nenhum order bump cadastrado. Crie na aba ⚡ Order Bumps.</div>
                           ) : (
                             <div className="space-y-2">
                               {orderBumps.map((ob) => (
-                                <label key={ob.id} className="flex items-center space-x-3 p-4 border-2 rounded-xl cursor-pointer hover:border-purple-300 transition">
+                                <label key={ob.id} className="flex items-center space-x-3 p-4 border-2 dark:border-finoradark-border rounded-xl cursor-pointer hover:border-purple-300 transition">
                                   <input type="checkbox" checked={orderBumpsSelecionados.includes(ob.id)} onChange={(e) => { if (e.target.checked) { setOrderBumpsSelecionados([...orderBumpsSelecionados, ob.id]); } else { setOrderBumpsSelecionados(orderBumpsSelecionados.filter(id => id !== ob.id)); }}} className="w-5 h-5" />
-                                  <div className="flex-1"><div className="font-semibold text-gray-900">{ob.titulo}</div>{ob.descricao && <div className="text-sm text-gray-600">{ob.descricao}</div>}</div>
-                                  <div className="text-purple-600 font-bold">+ R$ {ob.preco.toFixed(2).replace('.', ',')}</div>
+                                  <div className="flex-1"><div className="font-semibold text-gray-900 dark:text-finoradark-text">{ob.titulo}</div>{ob.descricao && <div className="text-sm text-gray-600 dark:text-finoradark-textmuted">{ob.descricao}</div>}</div>
+                                  <div className="text-purple-600 dark:text-finoradark-glow font-bold">+ R$ {ob.preco.toFixed(2).replace('.', ',')}</div>
                                 </label>
                               ))}
                             </div>
@@ -1048,9 +1048,9 @@ return (
                         </div>
                       )}
                     </div>
-                    <div className="flex gap-3 pt-6 border-t mt-6">
-                      <button type="button" onClick={() => setModalConfig({ aberto: false, planoId: null, tipo: 'NORMAL' })} className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition">Cancelar</button>
-                      <button onClick={handleSalvarConfigPlano} className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">💾 Salvar Configurações</button>
+                    <div className="flex gap-3 pt-6 border-t dark:border-finoradark-border mt-6">
+                      <button type="button" onClick={() => setModalConfig({ aberto: false, planoId: null, tipo: 'NORMAL' })} className="flex-1 px-6 py-3 border-2 border-gray-300 dark:border-finoradark-border text-gray-700 dark:text-finoradark-textmuted rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-finoradark-card2 transition">Cancelar</button>
+                      <button onClick={handleSalvarConfigPlano} className="flex-1 px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition">💾 Salvar Configurações</button>
                     </div>
                   </div>
                 </div>
@@ -1059,47 +1059,47 @@ return (
           )}
 {abaSelecionada === 'pixels' && (
             <div className="max-w-6xl mx-auto">
-              <div className="bg-white rounded-xl border border-gray-200 p-8">
+              <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-8">
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900">📊 Pixels de Conversão</h2>
-                    <p className="text-gray-600">Configure os pixels para rastrear conversões</p>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">📊 Pixels de Conversão</h2>
+                    <p className="text-gray-600 dark:text-finoradark-textmuted">Configure os pixels para rastrear conversões</p>
                   </div>
                   <button onClick={() => setModalPixel({ aberto: true, pixel: null })} className="px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold hover:bg-yellow-600 transition flex items-center space-x-2">
                     <Plus size={20} /><span>Novo Pixel</span>
                   </button>
                 </div>
                 {pixels.length === 0 ? (
-                  <div className="text-center py-16 bg-gray-50 rounded-xl">
-                    <BarChart3 size={64} className="mx-auto text-gray-300 mb-4" />
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Nenhum pixel configurado</h3>
-                    <p className="text-gray-600 mb-6">Adicione pixels para rastrear conversões do Facebook, Google, TikTok e Kwai</p>
+                  <div className="text-center py-16 bg-gray-50 dark:bg-finoradark-card2 rounded-xl">
+                    <BarChart3 size={64} className="mx-auto text-gray-300 dark:text-finoradark-border mb-4" />
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-finoradark-text mb-2">Nenhum pixel configurado</h3>
+                    <p className="text-gray-600 dark:text-finoradark-textmuted mb-6">Adicione pixels para rastrear conversões do Facebook, Google, TikTok e Kwai</p>
                     <button onClick={() => setModalPixel({ aberto: true, pixel: null })} className="px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold hover:bg-yellow-600 transition">Adicionar Primeiro Pixel</button>
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {pixels.map((pixel: any) => (
-                      <div key={pixel.id} className="border-2 border-gray-200 rounded-xl p-6 hover:border-yellow-400 transition">
+                      <div key={pixel.id} className="border-2 border-gray-200 dark:border-finoradark-border rounded-xl p-6 hover:border-yellow-400 transition">
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex-1">
                             <div className="flex items-center space-x-3 mb-2">
-                              <h3 className="text-lg font-bold text-gray-900">{pixel.titulo}</h3>
-                              <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">{pixel.plataforma}</span>
-                              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${pixel.status === 'ATIVO' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>{pixel.status}</span>
+                              <h3 className="text-lg font-bold text-gray-900 dark:text-finoradark-text">{pixel.titulo}</h3>
+                              <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full text-xs font-semibold">{pixel.plataforma}</span>
+                              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${pixel.status === 'ATIVO' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-gray-100 dark:bg-finoradark-card2 text-gray-700 dark:text-finoradark-textmuted'}`}>{pixel.status}</span>
                             </div>
-                            <p className="text-sm text-gray-600">Pixel ID: {pixel.pixelId}</p>
+                            <p className="text-sm text-gray-600 dark:text-finoradark-textmuted">Pixel ID: {pixel.pixelId}</p>
                           </div>
                           <div className="flex gap-2">
-                            <button onClick={() => { setFormPixel({ titulo: pixel.titulo, plataforma: pixel.plataforma, pixelId: pixel.pixelId, tokenAPI: pixel.tokenAPI || '', eventoCheckout: pixel.eventoCheckout, eventoAddPagamento: pixel.eventoAddPagamento, eventoCompra: pixel.eventoCompra, eventoPAD: pixel.eventoPAD, condicaoPix: pixel.condicaoPix, condicaoBoleto: pixel.condicaoBoleto, condicaoPAD: pixel.condicaoPAD, condicaoPagamentoAprovado: pixel.condicaoPagamentoAprovado }); setModalPixel({ aberto: true, pixel }); }} className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"><Edit size={16} /></button>
-                            <button onClick={async () => { if (!confirm('Excluir este pixel?')) return; try { const token = localStorage.getItem('token'); await fetch(`/api/pixels/${pixel.id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } }); alert('Pixel excluído!'); carregarPixels(); } catch (error) { alert('Erro ao excluir pixel'); }}} className="px-4 py-2 border-2 border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition"><Trash2 size={16} /></button>
+                            <button onClick={() => { setFormPixel({ titulo: pixel.titulo, plataforma: pixel.plataforma, pixelId: pixel.pixelId, tokenAPI: pixel.tokenAPI || '', eventoCheckout: pixel.eventoCheckout, eventoAddPagamento: pixel.eventoAddPagamento, eventoCompra: pixel.eventoCompra, eventoPAD: pixel.eventoPAD, condicaoPix: pixel.condicaoPix, condicaoBoleto: pixel.condicaoBoleto, condicaoPAD: pixel.condicaoPAD, condicaoPagamentoAprovado: pixel.condicaoPagamentoAprovado }); setModalPixel({ aberto: true, pixel }); }} className="px-4 py-2 border-2 border-gray-300 dark:border-finoradark-border text-gray-700 dark:text-finoradark-textmuted rounded-lg hover:bg-gray-50 dark:hover:bg-finoradark-card2 transition"><Edit size={16} /></button>
+                            <button onClick={async () => { if (!confirm('Excluir este pixel?')) return; try { const token = localStorage.getItem('token'); await fetch(`/api/pixels/${pixel.id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } }); alert('Pixel excluído!'); carregarPixels(); } catch (error) { alert('Erro ao excluir pixel'); }}} className="px-4 py-2 border-2 border-red-300 dark:border-red-900/50 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition"><Trash2 size={16} /></button>
                           </div>
                         </div>
                         <div className="text-sm">
-                          <h4 className="font-semibold text-gray-900 mb-2">🎯 Dispara em</h4>
+                          <h4 className="font-semibold text-gray-900 dark:text-finoradark-text mb-2">🎯 Dispara em</h4>
                           <div className="flex flex-wrap gap-2">
-                            {pixel.eventoCheckout && <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium">Início do checkout</span>}
-                            {pixel.eventoCompra && <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">Compra aprovada</span>}
-                            {pixel.eventoPAD && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">Pedido recorrente (PAD)</span>}
+                            {pixel.eventoCheckout && <span className="px-2 py-1 bg-gray-100 dark:bg-finoradark-card2 text-gray-700 dark:text-finoradark-textmuted rounded text-xs font-medium">Início do checkout</span>}
+                            {pixel.eventoCompra && <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded text-xs font-medium">Compra aprovada</span>}
+                            {pixel.eventoPAD && <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded text-xs font-medium">Pedido recorrente (PAD)</span>}
                           </div>
                         </div>
                       </div>
@@ -1112,36 +1112,36 @@ return (
 
           {abaSelecionada === 'orderbumps' && (
             <div className="max-w-4xl mx-auto">
-              <div className="bg-white rounded-xl border border-gray-200 p-8">
+              <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-8">
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900">⚡ Order Bumps</h2>
-                    <p className="text-gray-600">Crie adicionais para aumentar o ticket médio</p>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">⚡ Order Bumps</h2>
+                    <p className="text-gray-600 dark:text-finoradark-textmuted">Crie adicionais para aumentar o ticket médio</p>
                   </div>
-                  <button onClick={() => { setFormOrderBump({ titulo: '', descricao: '', preco: '', imagem: '' }); setModalOrderBump({ aberto: true, ob: null }); }} className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition flex items-center space-x-2">
+                  <button onClick={() => { setFormOrderBump({ titulo: '', descricao: '', preco: '', imagem: '' }); setModalOrderBump({ aberto: true, ob: null }); }} className="px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition flex items-center space-x-2">
                     <Plus size={20} /><span>Novo Order Bump</span>
                   </button>
                 </div>
                 {orderBumps.length === 0 ? (
-                  <div className="text-center py-16 bg-gray-50 rounded-xl">
+                  <div className="text-center py-16 bg-gray-50 dark:bg-finoradark-card2 rounded-xl">
                     <div className="text-6xl mb-4">⚡</div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Nenhum order bump cadastrado</h3>
-                    <p className="text-gray-600 mb-6">Crie adicionais como frete rápido, garantia estendida, produtos complementares</p>
-                    <button onClick={() => setModalOrderBump({ aberto: true, ob: null })} className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">Criar Primeiro Order Bump</button>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-finoradark-text mb-2">Nenhum order bump cadastrado</h3>
+                    <p className="text-gray-600 dark:text-finoradark-textmuted mb-6">Crie adicionais como frete rápido, garantia estendida, produtos complementares</p>
+                    <button onClick={() => setModalOrderBump({ aberto: true, ob: null })} className="px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition">Criar Primeiro Order Bump</button>
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {orderBumps.map((ob) => (
-                      <div key={ob.id} className="border-2 border-gray-200 rounded-xl p-6 hover:border-purple-400 transition">
+                      <div key={ob.id} className="border-2 border-gray-200 dark:border-finoradark-border rounded-xl p-6 hover:border-purple-400 transition">
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
-                            <h3 className="text-lg font-bold text-gray-900">{ob.titulo}</h3>
-                            {ob.descricao && <p className="text-gray-600 text-sm mt-1">{ob.descricao}</p>}
-                            <div className="text-xl font-bold text-purple-600 mt-2">+ R$ {ob.preco.toFixed(2).replace('.', ',')}</div>
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-finoradark-text">{ob.titulo}</h3>
+                            {ob.descricao && <p className="text-gray-600 dark:text-finoradark-textmuted text-sm mt-1">{ob.descricao}</p>}
+                            <div className="text-xl font-bold text-purple-600 dark:text-finoradark-glow mt-2">+ R$ {ob.preco.toFixed(2).replace('.', ',')}</div>
                           </div>
                           <div className="flex gap-2">
-                            <button onClick={() => { setFormOrderBump({ titulo: ob.titulo, descricao: ob.descricao || '', preco: ob.preco.toString(), imagem: ob.imagem || '' }); setModalOrderBump({ aberto: true, ob }); }} className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"><Edit size={16} /></button>
-                            <button onClick={async () => { if (!confirm('Excluir este order bump?')) return; const token = localStorage.getItem('token'); await fetch(`/api/order-bumps/${ob.id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } }); carregarOrderBumps(); }} className="px-4 py-2 border-2 border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition"><Trash2 size={16} /></button>
+                            <button onClick={() => { setFormOrderBump({ titulo: ob.titulo, descricao: ob.descricao || '', preco: ob.preco.toString(), imagem: ob.imagem || '' }); setModalOrderBump({ aberto: true, ob }); }} className="px-4 py-2 border-2 border-gray-300 dark:border-finoradark-border text-gray-700 dark:text-finoradark-textmuted rounded-lg hover:bg-gray-50 dark:hover:bg-finoradark-card2 transition"><Edit size={16} /></button>
+                            <button onClick={async () => { if (!confirm('Excluir este order bump?')) return; const token = localStorage.getItem('token'); await fetch(`/api/order-bumps/${ob.id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } }); carregarOrderBumps(); }} className="px-4 py-2 border-2 border-red-300 dark:border-red-900/50 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition"><Trash2 size={16} /></button>
                           </div>
                         </div>
                       </div>
@@ -1151,14 +1151,14 @@ return (
               </div>
               {modalOrderBump.aberto && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setModalOrderBump({ aberto: false, ob: null })}>
-                  <div className="bg-white rounded-2xl p-8 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-6">{modalOrderBump.ob ? 'Editar Order Bump' : 'Novo Order Bump'}</h3>
+                  <div className="bg-white dark:bg-finoradark-card rounded-2xl p-8 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text mb-6">{modalOrderBump.ob ? 'Editar Order Bump' : 'Novo Order Bump'}</h3>
                     <div className="space-y-4">
-                      <div><label className="block text-sm font-semibold text-gray-900 mb-2">Título *</label><input type="text" value={formOrderBump.titulo} onChange={(e) => setFormOrderBump({...formOrderBump, titulo: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="Ex: Frete Rápido..." /></div>
-                      <div><label className="block text-sm font-semibold text-gray-900 mb-2">Descrição</label><textarea rows={3} value={formOrderBump.descricao} onChange={(e) => setFormOrderBump({...formOrderBump, descricao: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="Descreva o adicional..." /></div>
-                      <div><label className="block text-sm font-semibold text-gray-900 mb-2">Preço (R$) *</label><input type="number" step="0.01" value={formOrderBump.preco} onChange={(e) => setFormOrderBump({...formOrderBump, preco: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="0.00" /></div>
+                      <div><label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Título *</label><input type="text" value={formOrderBump.titulo} onChange={(e) => setFormOrderBump({...formOrderBump, titulo: e.target.value})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="Ex: Frete Rápido..." /></div>
+                      <div><label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Descrição</label><textarea rows={3} value={formOrderBump.descricao} onChange={(e) => setFormOrderBump({...formOrderBump, descricao: e.target.value})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="Descreva o adicional..." /></div>
+                      <div><label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Preço (R$) *</label><input type="number" step="0.01" value={formOrderBump.preco} onChange={(e) => setFormOrderBump({...formOrderBump, preco: e.target.value})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="0.00" /></div>
                       <div className="flex gap-3 pt-4">
-                        <button onClick={() => setModalOrderBump({ aberto: false, ob: null })} className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold">Cancelar</button>
+                        <button onClick={() => setModalOrderBump({ aberto: false, ob: null })} className="flex-1 px-6 py-3 border-2 border-gray-300 dark:border-finoradark-border text-gray-700 dark:text-finoradark-textmuted rounded-lg font-semibold">Cancelar</button>
                         <button onClick={async () => {
                           if (!formOrderBump.titulo || !formOrderBump.preco) { alert('Preencha título e preço'); return; }
                           const userData = localStorage.getItem('user');
@@ -1169,7 +1169,7 @@ return (
                           alert(modalOrderBump.ob ? 'Atualizado!' : 'Criado!');
                           setModalOrderBump({ aberto: false, ob: null });
                           carregarOrderBumps();
-                        }} className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">{modalOrderBump.ob ? 'Salvar' : 'Criar'}</button>
+                        }} className="flex-1 px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition">{modalOrderBump.ob ? 'Salvar' : 'Criar'}</button>
                       </div>
                     </div>
                   </div>
@@ -1180,70 +1180,70 @@ return (
 
           {abaSelecionada === 'links' && (
             <div className="max-w-4xl mx-auto">
-              <div className="bg-white rounded-xl border border-gray-200 p-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">🔗 Links UTM</h2>
-                <p className="text-gray-600 mb-6">Gere links rastreados para suas campanhas.</p>
-                <a href="/dashboard/links" className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition">🔗 Abrir Gerador de Links UTM</a>
+              <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-8">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text mb-4">🔗 Links UTM</h2>
+                <p className="text-gray-600 dark:text-finoradark-textmuted mb-6">Gere links rastreados para suas campanhas.</p>
+                <a href="/dashboard/links" className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition">🔗 Abrir Gerador de Links UTM</a>
               </div>
             </div>
           )}
 
           {abaSelecionada === 'coproducao' && (
             <div className="max-w-4xl mx-auto">
-              <div className="bg-white rounded-xl border border-gray-200 p-8">
+              <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-8">
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900">🤝 Co-produção</h2>
-                    <p className="text-gray-600">Divida receitas com outros produtores da Finora</p>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">🤝 Co-produção</h2>
+                    <p className="text-gray-600 dark:text-finoradark-textmuted">Divida receitas com outros produtores da Finora</p>
                   </div>
                 </div>
-                <div className="bg-gray-50 rounded-xl border border-gray-200 p-6 mb-8">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4">➕ Adicionar Co-produtor</h3>
+                <div className="bg-gray-50 dark:bg-finoradark-card2 rounded-xl border border-gray-200 dark:border-finoradark-border p-6 mb-8">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-finoradark-text mb-4">➕ Adicionar Co-produtor</h3>
                   <div className="grid md:grid-cols-3 gap-4 mb-4">
                     <div className="md:col-span-1">
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Email da conta Finora *</label>
-                      <input type="email" value={formCoProdutor.email} onChange={(e) => setFormCoProdutor({...formCoProdutor, email: e.target.value})} placeholder="email@exemplo.com" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900" />
+                      <label className="block text-sm font-semibold text-gray-700 dark:text-finoradark-textmuted mb-2">Email da conta Finora *</label>
+                      <input type="email" value={formCoProdutor.email} onChange={(e) => setFormCoProdutor({...formCoProdutor, email: e.target.value})} placeholder="email@exemplo.com" className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900" />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Tipo *</label>
-                      <select value={formCoProdutor.tipo} onChange={(e) => setFormCoProdutor({...formCoProdutor, tipo: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900">
+                      <label className="block text-sm font-semibold text-gray-700 dark:text-finoradark-textmuted mb-2">Tipo *</label>
+                      <select value={formCoProdutor.tipo} onChange={(e) => setFormCoProdutor({...formCoProdutor, tipo: e.target.value})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900">
                         <option value="PERCENTUAL">Percentual (%)</option>
                         <option value="FIXO">Valor Fixo (R$)</option>
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">{formCoProdutor.tipo === 'PERCENTUAL' ? 'Percentual (%)' : 'Valor (R$)'} *</label>
-                      <input type="number" step={formCoProdutor.tipo === 'PERCENTUAL' ? '1' : '0.01'} min="0" max={formCoProdutor.tipo === 'PERCENTUAL' ? '90' : undefined} value={formCoProdutor.valor} onChange={(e) => setFormCoProdutor({...formCoProdutor, valor: e.target.value})} placeholder={formCoProdutor.tipo === 'PERCENTUAL' ? 'Ex: 30' : 'Ex: 50.00'} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900" />
+                      <label className="block text-sm font-semibold text-gray-700 dark:text-finoradark-textmuted mb-2">{formCoProdutor.tipo === 'PERCENTUAL' ? 'Percentual (%)' : 'Valor (R$)'} *</label>
+                      <input type="number" step={formCoProdutor.tipo === 'PERCENTUAL' ? '1' : '0.01'} min="0" max={formCoProdutor.tipo === 'PERCENTUAL' ? '90' : undefined} value={formCoProdutor.valor} onChange={(e) => setFormCoProdutor({...formCoProdutor, valor: e.target.value})} placeholder={formCoProdutor.tipo === 'PERCENTUAL' ? 'Ex: 30' : 'Ex: 50.00'} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900" />
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-500">{formCoProdutor.tipo === 'PERCENTUAL' ? '⚠️ O valor será descontado do seu lucro líquido após as taxas da plataforma.' : '⚠️ Valor fixo descontado do lucro líquido a cada venda.'}</p>
-                    <button onClick={handleAdicionarCoProdutor} disabled={salvandoCoProdutor} className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition disabled:opacity-50 flex items-center space-x-2">
+                    <p className="text-sm text-gray-500 dark:text-finoradark-textmuted">{formCoProdutor.tipo === 'PERCENTUAL' ? '⚠️ O valor será descontado do seu lucro líquido após as taxas da plataforma.' : '⚠️ Valor fixo descontado do lucro líquido a cada venda.'}</p>
+                    <button onClick={handleAdicionarCoProdutor} disabled={salvandoCoProdutor} className="px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition disabled:opacity-50 flex items-center space-x-2">
                       {salvandoCoProdutor ? <span>Salvando...</span> : <><Plus size={18} /><span>Adicionar</span></>}
                     </button>
                   </div>
                 </div>
                 {coProdutores.length === 0 ? (
-                  <div className="text-center py-16 bg-gray-50 rounded-xl">
+                  <div className="text-center py-16 bg-gray-50 dark:bg-finoradark-card2 rounded-xl">
                     <div className="text-6xl mb-4">🤝</div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Nenhum co-produtor cadastrado</h3>
-                    <p className="text-gray-600">Adicione outros produtores da Finora para dividir as receitas automaticamente.</p>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-finoradark-text mb-2">Nenhum co-produtor cadastrado</h3>
+                    <p className="text-gray-600 dark:text-finoradark-textmuted">Adicione outros produtores da Finora para dividir as receitas automaticamente.</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    <h3 className="text-lg font-bold text-gray-900">Co-produtores ativos</h3>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-finoradark-text">Co-produtores ativos</h3>
                     {coProdutores.map((cp) => (
-                      <div key={cp.id} className={`border-2 rounded-xl p-6 transition ${cp.ativo ? 'border-purple-200 bg-purple-50' : 'border-gray-200 bg-gray-50 opacity-60'}`}>
+                      <div key={cp.id} className={`border-2 rounded-xl p-6 transition ${cp.ativo ? 'border-purple-200 dark:border-finoradark-glow bg-purple-50 dark:bg-finoradark-card2' : 'border-gray-200 dark:border-finoradark-border bg-gray-50 dark:bg-finoradark-card2 opacity-60'}`}>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-4">
-                            <div className="w-12 h-12 bg-purple-200 rounded-full flex items-center justify-center">
-                              <span className="text-purple-700 font-bold text-lg">{cp.usuario.nome.charAt(0).toUpperCase()}</span>
+                            <div className="w-12 h-12 bg-purple-200 dark:bg-finoradark-border rounded-full flex items-center justify-center">
+                              <span className="text-purple-700 dark:text-finoradark-glow font-bold text-lg">{cp.usuario.nome.charAt(0).toUpperCase()}</span>
                             </div>
                             <div>
-                              <div className="font-bold text-gray-900">{cp.usuario.nome}</div>
-                              <div className="text-sm text-gray-600">{cp.usuario.email}</div>
+                              <div className="font-bold text-gray-900 dark:text-finoradark-text">{cp.usuario.nome}</div>
+                              <div className="text-sm text-gray-600 dark:text-finoradark-textmuted">{cp.usuario.email}</div>
                               <div className="mt-1">
-                                <span className={`px-3 py-1 rounded-full text-sm font-bold ${cp.tipo === 'PERCENTUAL' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
+                                <span className={`px-3 py-1 rounded-full text-sm font-bold ${cp.tipo === 'PERCENTUAL' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'}`}>
                                   {cp.tipo === 'PERCENTUAL' ? `${cp.valor}% por venda` : `R$ ${cp.valor.toFixed(2).replace('.', ',')} por venda`}
                                 </span>
                               </div>
@@ -1252,15 +1252,15 @@ return (
                           <div className="flex items-center space-x-3">
                             <label className="relative inline-flex items-center cursor-pointer">
                               <input type="checkbox" checked={cp.ativo} onChange={(e) => handleToggleCoProdutor(cp.id, e.target.checked)} className="sr-only peer" />
-                              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                              <div className="w-11 h-6 bg-gray-200 dark:bg-finoradark-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600 dark:peer-checked:bg-finoradark-glow"></div>
                             </label>
-                            <button onClick={() => handleRemoverCoProdutor(cp.id)} className="px-4 py-2 border-2 border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition"><Trash2 size={16} /></button>
+                            <button onClick={() => handleRemoverCoProdutor(cp.id)} className="px-4 py-2 border-2 border-red-300 dark:border-red-900/50 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition"><Trash2 size={16} /></button>
                           </div>
                         </div>
                       </div>
                     ))}
-                    <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                      <p className="text-sm text-yellow-800">💡 <strong>Como funciona:</strong> A cada venda confirmada, o valor de cada co-produtor é creditado automaticamente na carteira deles.</p>
+                    <div className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-900/40 rounded-lg">
+                      <p className="text-sm text-yellow-800 dark:text-yellow-400">💡 <strong>Como funciona:</strong> A cada venda confirmada, o valor de cada co-produtor é creditado automaticamente na carteira deles.</p>
                     </div>
                   </div>
                 )}
@@ -1270,8 +1270,8 @@ return (
 
           {modalPixel.aberto && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto" onClick={() => setModalPixel({ aberto: false, pixel: null })}>
-              <div className="bg-white rounded-2xl p-8 max-w-2xl w-full my-8" onClick={(e) => e.stopPropagation()}>
-                <h3 className="text-2xl font-bold text-gray-900 mb-6">{modalPixel.pixel ? 'Editar Pixel' : 'Adicionar Novo Pixel'}</h3>
+              <div className="bg-white dark:bg-finoradark-card rounded-2xl p-8 max-w-2xl w-full my-8" onClick={(e) => e.stopPropagation()}>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text mb-6">{modalPixel.pixel ? 'Editar Pixel' : 'Adicionar Novo Pixel'}</h3>
                 <form onSubmit={async (e) => {
                   e.preventDefault();
                   try {
@@ -1287,12 +1287,12 @@ return (
                 }} className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-semibold text-gray-900 mb-2">Título do Pixel *</label>
-                      <input type="text" value={formPixel.titulo} onChange={(e) => setFormPixel({...formPixel, titulo: e.target.value})} required className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none" placeholder="Ex: Pixel Facebook Principal" />
+                      <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Título do Pixel *</label>
+                      <input type="text" value={formPixel.titulo} onChange={(e) => setFormPixel({...formPixel, titulo: e.target.value})} required className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none" placeholder="Ex: Pixel Facebook Principal" />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-gray-900 mb-2">Plataforma *</label>
-                      <select value={formPixel.plataforma} onChange={(e) => setFormPixel({...formPixel, plataforma: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none">
+                      <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Plataforma *</label>
+                      <select value={formPixel.plataforma} onChange={(e) => setFormPixel({...formPixel, plataforma: e.target.value})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none">
                         <option value="FACEBOOK">Facebook Ads</option>
                         <option value="GOOGLE">Google Ads</option>
                         <option value="TIKTOK">TikTok Ads</option>
@@ -1302,50 +1302,50 @@ return (
                   </div>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-semibold text-gray-900 mb-2">ID do Pixel *</label>
-                      <input type="text" value={formPixel.pixelId} onChange={(e) => setFormPixel({...formPixel, pixelId: e.target.value})} required className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none" placeholder="Ex: 123456789" />
+                      <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">ID do Pixel *</label>
+                      <input type="text" value={formPixel.pixelId} onChange={(e) => setFormPixel({...formPixel, pixelId: e.target.value})} required className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none" placeholder="Ex: 123456789" />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-gray-900 mb-2">Token da API de Conversão</label>
-                      <input type="text" value={formPixel.tokenAPI} onChange={(e) => setFormPixel({...formPixel, tokenAPI: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none" placeholder="Opcional" />
+                      <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Token da API de Conversão</label>
+                      <input type="text" value={formPixel.tokenAPI} onChange={(e) => setFormPixel({...formPixel, tokenAPI: e.target.value})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none" placeholder="Opcional" />
                     </div>
                   </div>
-                  <div className="border-t pt-4">
-                    <h4 className="font-bold text-gray-900 mb-1">🎯 Quando disparar</h4>
-                    <p className="text-xs text-gray-500 mb-3">Cada evento já vem com a regra correta de disparo — não é possível configurar errado.</p>
+                  <div className="border-t dark:border-finoradark-border pt-4">
+                    <h4 className="font-bold text-gray-900 dark:text-finoradark-text mb-1">🎯 Quando disparar</h4>
+                    <p className="text-xs text-gray-500 dark:text-finoradark-textmuted mb-3">Cada evento já vem com a regra correta de disparo — não é possível configurar errado.</p>
                     <div className="space-y-2">
-                      <label className="flex items-start space-x-3 p-4 bg-gray-50 rounded-xl border-2 border-transparent cursor-pointer hover:bg-gray-100 transition">
+                      <label className="flex items-start space-x-3 p-4 bg-gray-50 dark:bg-finoradark-card2 rounded-xl border-2 border-transparent cursor-pointer hover:bg-gray-100 dark:hover:bg-finoradark-border transition">
                         <input type="checkbox" checked={formPixel.eventoCheckout} onChange={(e) => setFormPixel({...formPixel, eventoCheckout: e.target.checked})} className="w-5 h-5 mt-0.5" />
                         <div>
-                          <div className="font-semibold text-gray-900">Início do checkout</div>
-                          <div className="text-xs text-gray-600 mt-0.5">Dispara quando o cliente acessa a página de pagamento</div>
+                          <div className="font-semibold text-gray-900 dark:text-finoradark-text">Início do checkout</div>
+                          <div className="text-xs text-gray-600 dark:text-finoradark-textmuted mt-0.5">Dispara quando o cliente acessa a página de pagamento</div>
                         </div>
                       </label>
-                      <label className="flex items-start space-x-3 p-4 bg-gray-50 rounded-xl border-2 border-transparent cursor-pointer hover:bg-gray-100 transition">
+                      <label className="flex items-start space-x-3 p-4 bg-gray-50 dark:bg-finoradark-card2 rounded-xl border-2 border-transparent cursor-pointer hover:bg-gray-100 dark:hover:bg-finoradark-border transition">
                         <input type="checkbox" checked={formPixel.eventoAddPagamento} onChange={(e) => setFormPixel({...formPixel, eventoAddPagamento: e.target.checked})} className="w-5 h-5 mt-0.5" />
                         <div>
-                          <div className="font-semibold text-gray-900">Adicionar informação de pagamento</div>
-                          <div className="text-xs text-gray-600 mt-0.5">Dispara quando o PIX é gerado, antes da confirmação</div>
+                          <div className="font-semibold text-gray-900 dark:text-finoradark-text">Adicionar informação de pagamento</div>
+                          <div className="text-xs text-gray-600 dark:text-finoradark-textmuted mt-0.5">Dispara quando o PIX é gerado, antes da confirmação</div>
                         </div>
                       </label>
-                      <label className={`flex items-start space-x-3 p-4 rounded-xl border-2 cursor-pointer transition ${formPixel.eventoCompra ? 'bg-green-50 border-green-400' : 'bg-gray-50 border-transparent hover:bg-gray-100'}`}>
+                      <label className={`flex items-start space-x-3 p-4 rounded-xl border-2 cursor-pointer transition ${formPixel.eventoCompra ? 'bg-green-50 dark:bg-green-900/20 border-green-400 dark:border-green-700' : 'bg-gray-50 dark:bg-finoradark-card2 border-transparent hover:bg-gray-100 dark:hover:bg-finoradark-border'}`}>
                         <input type="checkbox" checked={formPixel.eventoCompra} onChange={(e) => setFormPixel({...formPixel, eventoCompra: e.target.checked, condicaoPagamentoAprovado: e.target.checked, condicaoPix: false, condicaoBoleto: false})} className="w-5 h-5 mt-0.5" />
                         <div>
-                          <div className={`font-semibold ${formPixel.eventoCompra ? 'text-green-900' : 'text-gray-900'}`}>Compra aprovada</div>
-                          <div className={`text-xs mt-0.5 ${formPixel.eventoCompra ? 'text-green-700' : 'text-gray-600'}`}>Dispara somente quando o pagamento for confirmado. Nunca ao gerar PIX ou boleto</div>
+                          <div className={`font-semibold ${formPixel.eventoCompra ? 'text-green-900 dark:text-green-400' : 'text-gray-900 dark:text-finoradark-text'}`}>Compra aprovada</div>
+                          <div className={`text-xs mt-0.5 ${formPixel.eventoCompra ? 'text-green-700 dark:text-green-500' : 'text-gray-600 dark:text-finoradark-textmuted'}`}>Dispara somente quando o pagamento for confirmado. Nunca ao gerar PIX ou boleto</div>
                         </div>
                       </label>
-                      <label className="flex items-start space-x-3 p-4 bg-gray-50 rounded-xl border-2 border-transparent cursor-pointer hover:bg-gray-100 transition">
+                      <label className="flex items-start space-x-3 p-4 bg-gray-50 dark:bg-finoradark-card2 rounded-xl border-2 border-transparent cursor-pointer hover:bg-gray-100 dark:hover:bg-finoradark-border transition">
                         <input type="checkbox" checked={formPixel.eventoPAD} onChange={(e) => setFormPixel({...formPixel, eventoPAD: e.target.checked, condicaoPAD: e.target.checked})} className="w-5 h-5 mt-0.5" />
                         <div>
-                          <div className="font-semibold text-gray-900">Pedido recorrente gerado (PAD)</div>
-                          <div className="text-xs text-gray-600 mt-0.5">Dispara quando uma cobrança recorrente é criada</div>
+                          <div className="font-semibold text-gray-900 dark:text-finoradark-text">Pedido recorrente gerado (PAD)</div>
+                          <div className="text-xs text-gray-600 dark:text-finoradark-textmuted mt-0.5">Dispara quando uma cobrança recorrente é criada</div>
                         </div>
                       </label>
                     </div>
                   </div>
                   <div className="flex gap-3 pt-4">
-                    <button type="button" onClick={() => setModalPixel({ aberto: false, pixel: null })} className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition">Cancelar</button>
+                    <button type="button" onClick={() => setModalPixel({ aberto: false, pixel: null })} className="flex-1 px-6 py-3 border-2 border-gray-300 dark:border-finoradark-border text-gray-700 dark:text-finoradark-textmuted rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-finoradark-card2 transition">Cancelar</button>
                     <button type="submit" className="flex-1 px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold hover:bg-yellow-600 transition">{modalPixel.pixel ? 'Salvar Alterações' : 'Adicionar Pixel'}</button>
                   </div>
                 </form>
