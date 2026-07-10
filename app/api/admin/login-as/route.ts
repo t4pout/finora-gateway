@@ -51,7 +51,10 @@ export async function POST(request: NextRequest) {
         id: user.id,
         nome: user.nome,
         email: user.email,
-        role: user.role
+        role: user.role,
+        verificado: user.verificado,
+        statusVerificacao: user.statusVerificacao,
+        finoraUtmAtivo: user.finoraUtmAtivo
       }
     });
 
