@@ -330,6 +330,11 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
                       <LayoutDashboard size={16} /><span>Painel</span>
                     </div>
                   </Link>
+                  <Link href="/dashboard/admin/documentos">
+                    <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/admin/documentos') ? 'bg-purple-50 dark:bg-finoradark-card2 text-purple-600 dark:text-finoradark-glow' : 'text-gray-600 dark:text-finoradark-textmuted hover:bg-gray-50 dark:hover:bg-finoradark-card2'}`}>
+                      <FileText size={16} /><span>Documentos</span>
+                    </div>
+                  </Link>
                   <Link href="/dashboard/admin/receita">
                     <div className={`flex items-center space-x-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition ${isActive('/dashboard/admin/receita') ? 'bg-purple-50 dark:bg-finoradark-card2 text-purple-600 dark:text-finoradark-glow' : 'text-gray-600 dark:text-finoradark-textmuted hover:bg-gray-50 dark:hover:bg-finoradark-card2'}`}>
                       <DollarSign size={16} /><span>Receita</span>

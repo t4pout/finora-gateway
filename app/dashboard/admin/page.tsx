@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Sidebar from '@/app/components/Sidebar';import { Shield, Users, UserCog, Trash2, FileText, Percent, Banknote, CreditCard } from 'lucide-react';
+import Sidebar from '@/app/components/Sidebar';import { Shield, Users, UserCog, Trash2, FileText, Percent, Banknote, CreditCard, TrendingUp, ArrowDownToLine, Wallet } from 'lucide-react';
 import LoadingScreen from '@/app/components/LoadingScreen';
 
 interface PlanoTaxa {
@@ -136,6 +136,11 @@ export default function AdminPage() {
     u.email.toLowerCase().includes(filtro.toLowerCase())
   );
 
+  // Resumo financeiro calculado a partir dos usuários já carregados
+  const totalARepassar = users.reduce((acc, u) => acc + (u.saldo || 0), 0);
+  const totalJaSacado = users.reduce((acc, u) => acc + (u.totalSaques || 0), 0);
+  const vendedoresComSaldo = users.filter(u => (u.saldo || 0) > 0).length;
+
   if (loading) {
     return (
       <div className="flex h-screen bg-gray-50 dark:bg-finoradark-bg">
@@ -152,7 +157,7 @@ export default function AdminPage() {
       <Sidebar user={currentUser} onLogout={handleLogout} />
 
       <main className="flex-1 overflow-y-auto">
-        <header className="bg-white dark:bg-finoradark-card border-b border-gray-200 dark:border-finoradark-border px-8 py-6">
+        <header className="bg-white dark:bg-finoradark-card border-b border-gray-200 dark:border-finoradark-border px-8 py-6 pl-16 lg:pl-8">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-purple-100 dark:bg-finoradark-card2 rounded-xl flex items-center justify-center">
               <Shield size={22} className="text-purple-600 dark:text-finoradark-glow" />
@@ -167,7 +172,7 @@ export default function AdminPage() {
         <div className="p-8">
 
           {/* Cards resumo */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-5">
               <div className="text-sm text-gray-500 dark:text-finoradark-textmuted mb-1">Total Usuários</div>
               <div className="text-3xl font-bold text-purple-600 dark:text-finoradark-glow">{users.length}</div>
@@ -183,6 +188,39 @@ export default function AdminPage() {
             <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-5">
               <div className="text-sm text-gray-500 dark:text-finoradark-textmuted mb-1">Planos de Taxa</div>
               <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{planos.length}</div>
+            </div>
+          </div>
+
+          {/* Resumo Financeiro */}
+          <div className="mb-8">
+            <h2 className="text-sm font-bold text-gray-500 dark:text-finoradark-textmuted uppercase tracking-wide mb-3">💰 Resumo Financeiro</h2>
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="bg-gradient-to-br from-purple-600 to-purple-500 dark:from-finoradark-glow dark:to-[#5b4dc9] rounded-xl p-6 text-white">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-sm font-medium opacity-90">Total a Repassar</div>
+                  <Wallet size={22} />
+                </div>
+                <div className="text-3xl font-bold mb-1">R$ {totalARepassar.toFixed(2).replace('.', ',')}</div>
+                <div className="text-xs opacity-75">Saldo disponível de todos os vendedores</div>
+              </div>
+
+              <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-6">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-sm text-gray-600 dark:text-finoradark-textmuted">Total Já Sacado</div>
+                  <ArrowDownToLine size={20} className="text-gray-600 dark:text-finoradark-textmuted" />
+                </div>
+                <div className="text-3xl font-bold text-gray-900 dark:text-finoradark-text mb-1">R$ {totalJaSacado.toFixed(2).replace('.', ',')}</div>
+                <div className="text-xs text-gray-500 dark:text-finoradark-textmuted">Histórico de saques de todos os usuários</div>
+              </div>
+
+              <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-6">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-sm text-gray-600 dark:text-finoradark-textmuted">Vendedores com Saldo</div>
+                  <TrendingUp size={20} className="text-green-600 dark:text-green-400" />
+                </div>
+                <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-1">{vendedoresComSaldo}</div>
+                <div className="text-xs text-gray-500 dark:text-finoradark-textmuted">de {users.length} usuários com saldo disponível</div>
+              </div>
             </div>
           </div>
 
