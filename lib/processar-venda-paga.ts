@@ -4,6 +4,7 @@ import { enviarEmailEbook } from '@/lib/email';
 import { emitirNFeBling } from '@/lib/bling';
 import { dispararWebhooks, dispararPostbacks } from '@/lib/ferramentas';
 import { enviarNotificacaoPush } from '@/lib/expo-push';
+import { enviarPushParaUsuario } from '@/lib/web-push';
 
 // Processa uma venda como PAGA de forma completa e idempotente.
 // Deve ser o ÚNICO lugar que marca uma venda normal como PAGO,
@@ -192,6 +193,16 @@ export async function processarVendaPaga(vendaId: string) {
     { tipo: 'VENDA_PAGA', vendaId: venda.id }
   );
 
+  try {
+    await enviarPushParaUsuario(venda.produto.userId, {
+      titulo: 'Venda aprovada! 🎉',
+      corpo: 'Valor total: R$ ' + venda.valor.toFixed(2) + ' - ' + (produtoCompleto?.nome || venda.produto.nome),
+      url: '/dashboard/vendas'
+    });
+  } catch (e) {
+    console.error('Erro ao enviar web push notification:', e);
+  }
+
   const valorTotal = venda.valor;
   const taxaPercentual = vendedor.planoTaxa.pixPercentual;
   const taxaFixa = vendedor.planoTaxa.pixFixo;
@@ -246,20 +257,20 @@ export async function processarVendaPaga(vendaId: string) {
     }
   } catch (e) { console.error('❌ Erro ao enviar ebook:', e); }
 
-  try {
+ try {
     await emitirNFeBling({
       userId: venda.produto.userId,
       compradorNome: venda.compradorNome,
       compradorEmail: venda.compradorEmail,
-      compradorCpf: venda.compradorCpf,
-      compradorTel: venda.compradorTel,
-      cep: venda.cep,
-      rua: venda.rua,
-      numero: venda.numero,
-      complemento: venda.complemento,
-      bairro: venda.bairro,
-      cidade: venda.cidade,
-      estado: venda.estado,
+      compradorCpf: venda.compradorCpf ?? undefined,
+      compradorTel: venda.compradorTel ?? undefined,
+      cep: venda.cep ?? undefined,
+      rua: venda.rua ?? undefined,
+      numero: venda.numero ?? undefined,
+      complemento: venda.complemento ?? undefined,
+      bairro: venda.bairro ?? undefined,
+      cidade: venda.cidade ?? undefined,
+      estado: venda.estado ?? undefined,
       produtoNome: produtoCompleto?.nome || venda.produto.nome,
       valor: venda.valor,
       vendaId: venda.id
@@ -288,11 +299,11 @@ export async function processarVendaPaga(vendaId: string) {
       utmSource: venda.utmSource,
       utmMedium: venda.utmMedium,
       utmCampaign: venda.utmCampaign,
-      afiliadoId: venda.afiliadoId || null,
+      afiliadoId: (venda as any).afiliadoId || null,
       afiliadoEmail: null,
       comissaoAfiliado: null
     };
-    await dispararWebhooks(venda.produto.userId, dadosEvento);
+    await dispararWebhooks(venda.produto.userId, dadosEvento as any);
 
     try {
       const aidaUrl = process.env.AIDA_WEBHOOK_URL;
@@ -331,7 +342,7 @@ export async function processarVendaPaga(vendaId: string) {
       console.error('❌ Erro ao disparar AidaTraffic webhook:', e);
     }
 
-    await dispararPostbacks(venda.produto.userId, dadosEvento);
+    await dispararPostbacks(venda.produto.userId, dadosEvento as any);
   } catch (e) { console.error('❌ Erro ao disparar webhooks/postbacks:', e); }
 
   return {

@@ -38,6 +38,7 @@ model User {
   contasBancarias       ContaBancaria[]
   documentos            Documento[]
   produtos              Produto[]
+  pushSubscriptions PushSubscription[]
   despesas          Despesa[]
   linksUTM          LinkUTM[]
   integracoesAnuncio IntegracaoAnuncio[]
@@ -53,6 +54,18 @@ model User {
   coProdutorEm        CoProdutorProduto[]
   finoraUtmAtivo    Boolean  @default(false)
   @@map("User")
+}
+
+ model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model Documento {

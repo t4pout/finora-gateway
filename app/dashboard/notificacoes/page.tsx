@@ -3,8 +3,19 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/app/components/Sidebar';
-import { Bell, Save, TestTube, ExternalLink } from 'lucide-react';
+import { Bell, Save, TestTube, ExternalLink, Smartphone } from 'lucide-react';
 import LoadingScreen from '@/app/components/LoadingScreen';
+
+function urlBase64ToUint8Array(base64String: string) {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
 
 export default function NotificacoesPage() {
   const router = useRouter();
@@ -15,6 +26,11 @@ export default function NotificacoesPage() {
   const [telegramBotToken, setTelegramBotToken] = useState('');
   const [telegramChatId, setTelegramChatId] = useState('');
   const [mensagem, setMensagem] = useState<{tipo: 'sucesso' | 'erro', texto: string} | null>(null);
+
+  const [pushSuportado, setPushSuportado] = useState(false);
+  const [pushAtivo, setPushAtivo] = useState(false);
+  const [pushCarregando, setPushCarregando] = useState(false);
+  const [pushTestando, setPushTestando] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -28,7 +44,107 @@ export default function NotificacoesPage() {
     const parsedUser = JSON.parse(userData);
     setUser(parsedUser);
     carregarConfiguracoes();
+    verificarSuportePush();
   }, []);
+
+  const verificarSuportePush = async () => {
+    const suportado = 'serviceWorker' in navigator && 'PushManager' in window;
+    setPushSuportado(suportado);
+    if (!suportado) return;
+
+    try {
+      const registration = await navigator.serviceWorker.register('/sw.js');
+      const subscription = await registration.pushManager.getSubscription();
+      setPushAtivo(!!subscription);
+    } catch (e) {
+      console.error('Erro ao verificar service worker:', e);
+    }
+  };
+
+  const ativarPush = async () => {
+    setPushCarregando(true);
+    setMensagem(null);
+    try {
+      const permissao = await Notification.requestPermission();
+      if (permissao !== 'granted') {
+        setMensagem({ tipo: 'erro', texto: '⚠️ Permissão de notificação negada. Ative nas configurações do navegador.' });
+        setPushCarregando(false);
+        return;
+      }
+
+      const registration = await navigator.serviceWorker.register('/sw.js');
+      await navigator.serviceWorker.ready;
+
+      const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '';
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
+      });
+
+      const token = localStorage.getItem('token');
+      const subJson = subscription.toJSON();
+      const res = await fetch('/api/push/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ endpoint: subJson.endpoint, keys: subJson.keys })
+      });
+
+      if (res.ok) {
+        setPushAtivo(true);
+        setMensagem({ tipo: 'sucesso', texto: '✅ Notificações push ativadas com sucesso!' });
+      } else {
+        setMensagem({ tipo: 'erro', texto: '❌ Erro ao salvar inscrição no servidor' });
+      }
+    } catch (e) {
+      console.error('Erro ao ativar push:', e);
+      setMensagem({ tipo: 'erro', texto: '❌ Erro ao ativar notificações push' });
+    } finally {
+      setPushCarregando(false);
+    }
+  };
+
+  const desativarPush = async () => {
+    setPushCarregando(true);
+    try {
+      const registration = await navigator.serviceWorker.getRegistration();
+      const subscription = await registration?.pushManager.getSubscription();
+      if (subscription) {
+        const token = localStorage.getItem('token');
+        await fetch(`/api/push/subscribe?endpoint=${encodeURIComponent(subscription.endpoint)}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        await subscription.unsubscribe();
+      }
+      setPushAtivo(false);
+      setMensagem({ tipo: 'sucesso', texto: '🔕 Notificações push desativadas' });
+    } catch (e) {
+      setMensagem({ tipo: 'erro', texto: '❌ Erro ao desativar' });
+    } finally {
+      setPushCarregando(false);
+    }
+  };
+
+  const testarPush = async () => {
+    setPushTestando(true);
+    setMensagem(null);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/push/testar', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setMensagem({ tipo: 'sucesso', texto: '✅ Notificação de teste enviada! Verifique seu celular.' });
+      } else {
+        setMensagem({ tipo: 'erro', texto: '❌ Erro ao enviar notificação de teste' });
+      }
+    } catch (e) {
+      setMensagem({ tipo: 'erro', texto: '❌ Erro ao enviar teste' });
+    } finally {
+      setPushTestando(false);
+    }
+  };
 
   const carregarConfiguracoes = async () => {
     try {
@@ -137,7 +253,7 @@ export default function NotificacoesPage() {
               <Bell className="text-purple-600 dark:text-finoradark-glow" size={32} />
               <h1 className="text-3xl font-bold text-gray-900 dark:text-finoradark-text">Notificações</h1>
             </div>
-            <p className="text-gray-600 dark:text-finoradark-textmuted">Configure suas notificações do Telegram para receber alertas de novos pedidos PAD</p>
+            <p className="text-gray-600 dark:text-finoradark-textmuted">Configure como você quer ser avisado de novas vendas</p>
           </div>
 
           {/* Mensagem de feedback */}
@@ -149,7 +265,57 @@ export default function NotificacoesPage() {
             </div>
           )}
 
-          {/* Card de Configuração */}
+          {/* Card de Notificações Push */}
+          <div className="bg-white dark:bg-finoradark-card rounded-xl shadow-sm dark:shadow-none border border-gray-200 dark:border-finoradark-border p-6 mb-6">
+            <div className="flex items-center gap-2 mb-1">
+              <Smartphone className="text-purple-600 dark:text-finoradark-glow" size={22} />
+              <h2 className="text-xl font-bold text-gray-900 dark:text-finoradark-text">Notificações Push da Finora</h2>
+              <span className="text-xs font-semibold px-2 py-0.5 bg-purple-100 dark:bg-finoradark-card2 text-purple-700 dark:text-finoradark-glow rounded-full">Novo</span>
+            </div>
+            <p className="text-sm text-gray-600 dark:text-finoradark-textmuted mb-5">Receba notificações de vendas diretamente no seu celular, com a marca da Finora — sem precisar de Telegram.</p>
+
+            {!pushSuportado ? (
+              <div className="p-4 bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-900/40 rounded-lg text-sm text-yellow-800 dark:text-yellow-400">
+                ⚠️ Seu navegador não suporta notificações push, ou você está em uma aba anônima/privada. No iPhone, adicione o site à tela inicial primeiro (Safari → Compartilhar → Adicionar à Tela de Início).
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-3">
+                {!pushAtivo ? (
+                  <button
+                    onClick={ativarPush}
+                    disabled={pushCarregando}
+                    className="px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition disabled:opacity-50 flex items-center space-x-2"
+                  >
+                    <Bell size={20} />
+                    <span>{pushCarregando ? 'Ativando...' : 'Ativar Notificações'}</span>
+                  </button>
+                ) : (
+                  <>
+                    <span className="px-4 py-3 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-lg font-semibold flex items-center gap-2">
+                      ✅ Ativado neste dispositivo
+                    </span>
+                    <button
+                      onClick={testarPush}
+                      disabled={pushTestando}
+                      className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition disabled:opacity-50 flex items-center space-x-2"
+                    >
+                      <TestTube size={20} />
+                      <span>{pushTestando ? 'Enviando...' : 'Testar'}</span>
+                    </button>
+                    <button
+                      onClick={desativarPush}
+                      disabled={pushCarregando}
+                      className="px-6 py-3 border-2 border-gray-300 dark:border-finoradark-border text-gray-700 dark:text-finoradark-textmuted rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-finoradark-card2 transition disabled:opacity-50"
+                    >
+                      Desativar
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Card de Configuração Telegram */}
           <div className="bg-white dark:bg-finoradark-card rounded-xl shadow-sm dark:shadow-none border border-gray-200 dark:border-finoradark-border p-6 mb-6">
             <h2 className="text-xl font-bold text-gray-900 dark:text-finoradark-text mb-4">🤖 Configurar Bot do Telegram</h2>
 
@@ -204,7 +370,7 @@ export default function NotificacoesPage() {
 
           {/* Card de Instruções */}
           <div className="bg-blue-50 dark:bg-blue-900/10 rounded-xl border border-blue-200 dark:border-blue-900/40 p-6">
-            <h3 className="text-lg font-bold text-blue-900 dark:text-blue-400 mb-4">📚 Como configurar:</h3>
+            <h3 className="text-lg font-bold text-blue-900 dark:text-blue-400 mb-4">📚 Como configurar o Telegram:</h3>
             
             <div className="space-y-4 text-sm text-blue-800 dark:text-blue-300">
               <div>
@@ -236,7 +402,7 @@ export default function NotificacoesPage() {
 
               <div className="pt-4 border-t border-blue-200 dark:border-blue-900/40">
                 <p className="font-semibold mb-2">💡 Dica:</p>
-                <p>Você pode criar um grupo no Telegram e adicionar o bot para receber notificações em equipe!</p>
+                <p>Você pode ativar o Telegram e as Notificações Push ao mesmo tempo — ambos funcionam juntos, sem conflito.</p>
               </div>
             </div>
           </div>

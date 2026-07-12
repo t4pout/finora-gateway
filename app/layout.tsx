@@ -21,6 +21,8 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#7C3AED" />
         <script dangerouslySetInnerHTML={{ __html: `
           try {
             const tema = localStorage.getItem('finora-tema');
