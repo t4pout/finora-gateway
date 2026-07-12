@@ -5,6 +5,7 @@ import { enviarEmailPedidoCriado } from '@/lib/email';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import { enviarParaPagah } from '@/lib/pagah';
 import { dispararWebhooks, dispararPostbacks } from '@/lib/ferramentas';
+import { enviarPushParaUsuario } from '@/lib/web-push';
 import { enviarNotificacaoPush } from '@/lib/expo-push';
 
 const PAGGPIX_TOKEN = process.env.PAGGPIX_TOKEN;
@@ -571,6 +572,18 @@ export async function POST(request: NextRequest) {
       try {
         await fetch(`${request.nextUrl.origin}/api/telegram/notificar`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ botToken: process.env.TELEGRAM_BOT_TOKEN, chatId: process.env.TELEGRAM_CHAT_ID, mensagem: mensagemVendaGerada + `\n\n🧑‍💼 Vendedor: ${produto?.user?.nome || 'N/A'}` }) });
       } catch (e) { console.error('Erro notificação geral:', e); }
+    }
+
+    try {
+      if (produto?.userId) {
+        await enviarPushParaUsuario(produto.userId, {
+          titulo: '🛒 Nova venda gerada',
+          corpo: `Valor total: R$ ${venda.valor.toFixed(2).replace('.', ',')} - ${plano.nome}`,
+          url: '/dashboard/vendas'
+        });
+      }
+    } catch (e) {
+      console.error('Erro ao enviar push VENDA GERADA:', e);
     }
 
     // Marcar carrinho como convertido
