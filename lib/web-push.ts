@@ -25,7 +25,10 @@ export async function enviarPushParaUsuario(userId: string, dados: DadosNotifica
 
   try {
     const inscricoes = await prisma.pushSubscription.findMany({ where: { userId } });
-    if (inscricoes.length === 0) return;
+    if (inscricoes.length === 0) {
+      console.log('ℹ️ Nenhuma inscrição push encontrada para userId:', userId);
+      return;
+    }
 
     const payload = JSON.stringify({
       title: dados.titulo,
