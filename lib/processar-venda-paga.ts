@@ -301,7 +301,10 @@ export async function processarVendaPaga(vendaId: string) {
       utmCampaign: venda.utmCampaign,
       afiliadoId: (venda as any).afiliadoId || null,
       afiliadoEmail: null,
-      comissaoAfiliado: null
+      comissaoAfiliado: null,
+      linkPagamento: `https://www.finorapayments.com/pedido/${venda.id}`,
+      pixCopiaECola: venda.pixCopiaECola || null,
+      boletoUrl: venda.boletoUrl || null
     };
     await dispararWebhooks(venda.produto.userId, dadosEvento as any);
 

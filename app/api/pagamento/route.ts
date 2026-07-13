@@ -612,10 +612,13 @@ export async function POST(request: NextRequest) {
         createdAt: new Date().toISOString(),
         utmSource: body.utmSource || '',
         utmMedium: body.utmMedium || '',
-        utmCampaign: body.utmCampaign || ''
+        utmCampaign: body.utmCampaign || '',
+        linkPagamento: `${request.nextUrl.origin}/pedido/${venda.id}`,
+        pixCopiaECola: metodoPagamento === 'PIX' ? copiaECola : null,
+        boletoUrl: metodoPagamento === 'BOLETO' ? null : null
       };
-      await dispararWebhooks(plano.produto.userId, dadosEvento);
-      await dispararPostbacks(plano.produto.userId, dadosEvento);
+      await dispararWebhooks(plano.produto.userId, dadosEvento as any);
+      await dispararPostbacks(plano.produto.userId, dadosEvento as any);
     } catch (e) { console.error('❌ Erro ao disparar webhooks PENDENTE:', e); }
 
     return NextResponse.json({ vendaId: venda.id, pixId, qrCode, copiaECola, valor: plano.preco, metodoPagamento: venda.metodoPagamento });

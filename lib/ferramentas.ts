@@ -25,6 +25,9 @@ interface DadosEvento {
   afiliadoEmail?: string | null;
   comissaoAfiliado?: number | null;
   nomePlano?: string | null;
+  linkPagamento?: string | null;
+  pixCopiaECola?: string | null;
+  boletoUrl?: string | null;
 }
 
 export async function dispararWebhooks(userId: string, dados: DadosEvento) {
@@ -61,7 +64,10 @@ export async function dispararWebhooks(userId: string, dados: DadosEvento) {
           utmCampaign: dados.utmCampaign,
           afiliadoId: dados.afiliadoId || null,
           afiliadoEmail: dados.afiliadoEmail || null,
-          comissaoAfiliado: dados.comissaoAfiliado || null
+          comissaoAfiliado: dados.comissaoAfiliado || null,
+          linkPagamento: dados.linkPagamento || null,
+          pixCopiaECola: dados.pixCopiaECola || null,
+          boletoUrl: dados.boletoUrl || null
         }
       });
 
@@ -138,6 +144,9 @@ export async function dispararPostbacks(userId: string, dados: DadosEvento) {
       '{afiliadoId}': dados.afiliadoId || '',
       '{afiliadoEmail}': encodeURIComponent(dados.afiliadoEmail || ''),
       '{comissaoAfiliado}': (dados.comissaoAfiliado || 0).toFixed(2),
+      '{linkPagamento}': encodeURIComponent(dados.linkPagamento || ''),
+      '{pixCopiaECola}': encodeURIComponent(dados.pixCopiaECola || ''),
+      '{boletoUrl}': encodeURIComponent(dados.boletoUrl || ''),
       '{timestamp}': new Date().toISOString()
     };
 
