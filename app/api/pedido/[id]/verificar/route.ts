@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { processarVendaPaga } from '@/lib/processar-venda-paga';
 
 const PAGGPIX_TOKEN = process.env.PAGGPIX_TOKEN;
 const PAGGPIX_API = 'https://public-api.paggpix.com';
@@ -54,22 +55,19 @@ export async function GET(
           const paggpixData = await verifyRes.json();
           console.log('📦 Dados PaggPix:', JSON.stringify(paggpixData));
           
-          // Se foi pago no PaggPix, processar tudo
+          // Se foi pago no PaggPix, processar tudo (split, carteira, Telegram, push, NF-e)
           if (paggpixData.paid || paggpixData.status === 'PAID' || paggpixData.status === 'paid') {
-            console.log('💰 PAGAMENTO CONFIRMADO! Processando webhook...');
-            
-            // Delegar processamento para o webhook existente que já tem toda a lógica
-            // Este endpoint é apenas para verificação, não deve duplicar lógica
-            
-            await prisma.venda.update({
-              where: { id },
-              data: { 
-                status: 'PAGO'
-              }
-            });
-            
-            console.log('✅ Status atualizado para PAGO');
-            
+            console.log('💰 PAGAMENTO CONFIRMADO! Processando venda...');
+
+            const resultado = await processarVendaPaga(id);
+
+            if ('error' in resultado) {
+              console.error('❌ Erro ao processar venda paga:', resultado.error);
+              return NextResponse.json({ error: resultado.error }, { status: resultado.status });
+            }
+
+            console.log('✅ Venda processada completamente:', id);
+
             return NextResponse.json({ status: 'PAGO' });
           } else {
             console.log('⏳ Ainda não foi pago no PaggPix');
