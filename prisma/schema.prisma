@@ -206,9 +206,26 @@ model Produto {
   vendas                     Venda[]
   pedidosPAD                 PedidoPAD[]
   pixels                     PixelConversao[]
+  opcoesFrete                OpcaoFrete[]
   carrinhosAbandonados CarrinhoAbandonado[]
   coProdutores        CoProdutorProduto[]
   @@map("Produto")
+}
+
+model OpcaoFrete {
+  id          String   @id @default(cuid())
+  produtoId   String
+  nome        String
+  descricao   String?
+  prazoDias   Int
+  preco       Float    @default(0)
+  ativo       Boolean  @default(true)
+  ordem       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  produto     Produto  @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+
+  @@map("OpcaoFrete")
 }
 
 model PlanoOferta {

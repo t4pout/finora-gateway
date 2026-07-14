@@ -9,6 +9,7 @@ datasource db {
 }
 
 model User {
+  expoPushToken         String?
   id                    String                 @id @default(cuid())
   nome                  String
   email                 String                 @unique
@@ -24,22 +25,47 @@ model User {
   planoTaxaId           String?
   telegramBotToken      String?
   telegramChatId        String?
+  resetPasswordToken    String?   @unique
+  resetPasswordExpires  DateTime?
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
+  integracaoBling       IntegracaoBling?
+  webhooks              Webhook[]
+  postbacks             Postback[]
   afiliacoes            Afiliacao[]
   campanhas             Campanha[]
   comissoes             Comissao[]
   contasBancarias       ContaBancaria[]
   documentos            Documento[]
   produtos              Produto[]
+  pushSubscriptions PushSubscription[]
+  despesas          Despesa[]
+  linksUTM          LinkUTM[]
+  integracoesAnuncio IntegracaoAnuncio[]
   saques                Saque[]
   solicitacoesAfiliacao SolicitacaoAfiliacao[] @relation("AfiliadoSolicitacoes")
   transacoes            Transacao[]
   planoTaxa             PlanoTaxa?             @relation(fields: [planoTaxaId], references: [id])
   vendas                Venda[]                @relation("VendedorVendas")
-  carteiras   Carteira[]  @relation("CarteiraUsuario")
+  carteiras             Carteira[]             @relation("CarteiraUsuario")
+  orderBumps            OrderBump[]
   pedidosPAD            PedidoPAD[]
+  carrinhosAbandonados CarrinhoAbandonado[]
+  coProdutorEm        CoProdutorProduto[]
+  finoraUtmAtivo    Boolean  @default(false)
   @@map("User")
+}
+
+ model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model Documento {
@@ -180,6 +206,8 @@ model Produto {
   vendas                     Venda[]
   pedidosPAD                 PedidoPAD[]
   pixels                     PixelConversao[]
+  carrinhosAbandonados CarrinhoAbandonado[]
+  coProdutores        CoProdutorProduto[]
   @@map("Produto")
 }
 
@@ -219,6 +247,8 @@ model PlanoOferta {
   checkoutPadIntervaloPop       Int?     @default(8)
   checkoutPadProvaSocialGenero  String?  @default("AMBOS")
   checkoutProvaSocialGenero  String?  @default("AMBOS")
+  checkoutVersao             String?  @default("v1")
+  orderBumps                 PlanoOrderBump[]
   produtoId                  String
   createdAt                  DateTime @default(now())
   updatedAt                  DateTime @updatedAt
@@ -251,6 +281,8 @@ model Venda {
   pixQrCode       String?
   pixCopiaECola   String?
   pixId           String?
+  pixTxid         String?
+  efiChargeId     String?
   boletoUrl       String?
   boletoBarcode   String?
   compradorNome   String
@@ -264,7 +296,14 @@ model Venda {
   bairro          String?
   cidade          String?
   estado          String?
-  produtoId       String
+  nomePlano          String?
+  orderBumpsIds      String[]
+  orderBumpsNomes    String[]
+  orderBumpsValor    Float?   @default(0)
+  utmSource          String?
+  utmMedium          String?
+  utmCampaign        String?
+  produtoId          String
   vendedorId      String
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
@@ -303,7 +342,7 @@ model Afiliacao {
   afiliadoId String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  afiliado   User     @relation(fields: [afiliadoId], references: [id])
+  afiliado   User     @relation(fields: [afiliadoId], references: [id], onDelete: Cascade)
 
   @@map("Afiliacao")
 }
@@ -317,7 +356,7 @@ model SolicitacaoAfiliacao {
   afiliadoId     String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  afiliado       User     @relation("AfiliadoSolicitacoes", fields: [afiliadoId], references: [id], onDelete: Cascade)
+   afiliado   User     @relation("AfiliadoSolicitacoes", fields: [afiliadoId], references: [id], onDelete: Cascade)
   produto        Produto  @relation("ProdutoSolicitacoes", fields: [produtoId], references: [id], onDelete: Cascade)
 
   @@unique([produtoId, afiliadoId])
@@ -436,6 +475,7 @@ model PixelConversao {
   eventoCheckout    Boolean  @default(false)
   eventoCompra      Boolean  @default(false)
   eventoPAD         Boolean  @default(false)
+  eventoAddPagamento         Boolean  @default(false)
   
   condicaoPix       Boolean  @default(false)
   condicaoBoleto    Boolean  @default(false)
@@ -450,4 +490,206 @@ model PixelConversao {
   produto           Produto  @relation(fields: [produtoId], references: [id])
   
   @@map("PixelConversao")
+}
+ model OrderBump {
+  id          String   @id @default(cuid())
+  userId      String
+  titulo      String
+  descricao   String?
+  preco       Float
+  imagem      String?
+  ativo       Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planos      PlanoOrderBump[]
+
+  @@map("OrderBump")
+}
+
+model PlanoOrderBump {
+  planoId     String
+  orderBumpId String
+  plano       PlanoOferta @relation(fields: [planoId], references: [id], onDelete: Cascade)
+  orderBump   OrderBump   @relation(fields: [orderBumpId], references: [id], onDelete: Cascade)
+
+  @@id([planoId, orderBumpId])
+  @@map("PlanoOrderBump")
+}
+
+
+model ConfiguracaoGateway {
+  id        String   @id @default(cuid())
+  metodo    String   @unique // PIX | BOLETO | CARTAO
+  gateway   String   // PAGGPIX | MERCADOPAGO | ASAAS
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("ConfiguracaoGateway")
+}
+
+model CarrinhoAbandonado {
+  id              String   @id @default(cuid())
+  compradorNome   String
+  compradorEmail  String
+  compradorTel    String?
+  compradorCpf    String?
+  produtoId       String
+  produtoNome     String
+  planoId         String?
+  planoNome       String?
+  valor           Float
+  utmSource       String?
+  utmMedium       String?
+  utmCampaign     String?
+  vendedorId      String
+  status          String   @default("ABANDONADO")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  produto         Produto  @relation(fields: [produtoId], references: [id])
+  vendedor        User     @relation(fields: [vendedorId], references: [id])
+
+  @@map("CarrinhoAbandonado")
+}
+
+model CoProdutorProduto {
+  id          String   @id @default(cuid())
+  produtoId   String
+  usuarioId   String
+  tipo        String   @default("PERCENTUAL") // PERCENTUAL | FIXO
+  valor       Float
+  ativo       Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  produto     Produto  @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  usuario     User     @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@unique([produtoId, usuarioId])
+  @@map("CoProdutorProduto")
+}
+
+model LinkUTM {
+  id          String   @id @default(cuid())
+  userId      String
+  produtoId   String?
+  nome        String
+  urlDestino  String
+  utmSource   String
+  utmMedium   String?
+  utmCampaign String?
+  urlFinal    String
+  cliques     Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("LinkUTM")
+}
+
+model IntegracaoAnuncio {
+  id           String   @id @default(cuid())
+  userId       String
+  plataforma   String
+  accessToken  String
+  accountId    String?
+  accountNome  String?
+  ativo        Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, plataforma])
+  @@map("IntegracaoAnuncio")
+}
+
+model Despesa {
+  id          String   @id @default(cuid())
+  userId      String
+  descricao   String
+  categoria   String   @default("OUTROS")
+  valor       Float
+  data        DateTime @default(now())
+  recorrente  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("Despesa")
+}
+
+model IntegracaoBling {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  clientId        String
+  clientSecret    String
+  accessToken     String?
+  refreshToken    String?
+  tokenExpiresAt  DateTime?
+  ativo           Boolean  @default(false)
+  emiteNFAutomatico Boolean @default(true)
+  serieNF         String   @default("1")
+  naturezaOperacao String  @default("Venda de mercadoria")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Webhook {
+  id          String   @id @default(cuid())
+  userId      String
+  nome        String
+  url         String
+  ativo       Boolean  @default(true)
+  eventos     String[] @default(["VENDA_PAGA"])
+  secret      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  logs        WebhookLog[]
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("Webhook")
+}
+
+model WebhookLog {
+  id          String   @id @default(cuid())
+  webhookId   String
+  evento      String
+  statusCode  Int?
+  sucesso     Boolean
+  payload     String
+  resposta    String?
+  createdAt   DateTime @default(now())
+  webhook     Webhook  @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+  @@map("WebhookLog")
+}
+
+model Postback {
+  id          String   @id @default(cuid())
+  userId      String
+  nome        String
+  url         String
+  metodo      String   @default("GET")
+  ativo       Boolean  @default(true)
+  eventos     String[] @default(["VENDA_PAGA"])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  logs        PostbackLog[]
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("Postback")
+}
+
+model PostbackLog {
+  id          String   @id @default(cuid())
+  postbackId  String
+  evento      String
+  urlDisparada String
+  statusCode  Int?
+  sucesso     Boolean
+  createdAt   DateTime @default(now())
+  postback    Postback @relation(fields: [postbackId], references: [id], onDelete: Cascade)
+
+  @@map("PostbackLog")
 }
