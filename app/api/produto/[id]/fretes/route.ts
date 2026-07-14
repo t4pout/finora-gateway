@@ -1,19 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const opcoes = await prisma.opcaoFrete.findMany({
-    where: { produtoId: params.id },
+    where: { produtoId: id },
     orderBy: { ordem: 'asc' }
   });
   return NextResponse.json(opcoes);
 }
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const body = await req.json();
   const opcao = await prisma.opcaoFrete.create({
     data: {
-      produtoId: params.id,
+      produtoId: id,
       nome: body.nome,
       descricao: body.descricao || null,
       prazoDias: Number(body.prazoDias),
