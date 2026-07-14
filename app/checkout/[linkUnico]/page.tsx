@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import CheckoutV2Component from './checkout-v2-component';
 import CheckoutV3Component from './checkout-v3-component';
 import CheckoutV4DigitalComponent from './checkout-v4-digital-component';
+import CheckoutV5Component from './checkout-v5-component';
 
 interface PlanoOferta {
   id: string;
@@ -496,7 +497,25 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
       />
     );
   }
-
+   if (plano.checkoutVersao === 'v5') {
+    return (
+      <CheckoutV5Component
+        plano={plano}
+        formData={formData}
+        setFormData={setFormData}
+        etapa={etapa}
+        setEtapa={setEtapa}
+        processando={processando}
+        buscandoCep={buscandoCep}
+        tempoRestante={tempoRestante}
+        finalizarPedido={finalizarPedido}
+        validarCPF={validarCPF}
+        formatarTempo={formatarTempo}
+        orderBumpsSelecionados={orderBumpsSelecionados}
+        setOrderBumpsSelecionados={setOrderBumpsSelecionados}
+      />
+    );
+  }
   if (plano.checkoutVersao === 'v2') {
     return (
       <CheckoutV2Component

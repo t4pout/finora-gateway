@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -169,9 +169,9 @@ const carregarCoProdutores = async () => {
         body: JSON.stringify({ produtoId, email: formCoProdutor.email, tipo: formCoProdutor.tipo, valor: parseFloat(formCoProdutor.valor) })
       });
       const data = await res.json();
-      if (res.ok) { alert('âœ… Co-produtor adicionado!'); setFormCoProdutor({ email: '', tipo: 'PERCENTUAL', valor: '' }); carregarCoProdutores(); }
-      else { alert('âŒ ' + (data.error || 'Erro ao adicionar')); }
-    } catch (e) { alert('âŒ Erro ao adicionar'); }
+      if (res.ok) { alert('✅ Co-produtor adicionado!'); setFormCoProdutor({ email: '', tipo: 'PERCENTUAL', valor: '' }); carregarCoProdutores(); }
+      else { alert('❌ ' + (data.error || 'Erro ao adicionar')); }
+    } catch (e) { alert('❌ Erro ao adicionar'); }
     setSalvandoCoProdutor(false);
   };
 
@@ -276,7 +276,7 @@ const carregarCoProdutores = async () => {
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
         body: JSON.stringify(configAfiliacao)
       });
-      if (response.ok) { alert('ConfiguraÃ§Ãµes salvas!'); carregarConfigAfiliacao(); }
+      if (response.ok) { alert('Configurações salvas!'); carregarConfigAfiliacao(); }
     } catch (error) { alert('Erro ao salvar'); }
   };
 
@@ -312,7 +312,7 @@ const carregarCoProdutores = async () => {
     try {
       const token = localStorage.getItem('token');
       const res = await fetch(`/api/produtos/${produtoId}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } });
-      if (res.ok) { alert('ExcluÃ­do!'); router.push('/dashboard/produtos'); }
+      if (res.ok) { alert('Excluído!'); router.push('/dashboard/produtos'); }
     } catch (e) { alert('Erro'); }
   };
 
@@ -334,7 +334,7 @@ const carregarCoProdutores = async () => {
     try {
       const token = localStorage.getItem('token');
       await fetch(`/api/paginas-ofertas/${id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } });
-      alert('ExcluÃ­da!'); carregarDados();
+      alert('Excluída!'); carregarDados();
     } catch (e) { alert('Erro'); }
   };
 
@@ -370,7 +370,7 @@ const carregarCoProdutores = async () => {
     try {
       const token = localStorage.getItem('token');
       await fetch(`/api/campanhas/${id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } });
-      alert('ExcluÃ­da!'); carregarDados();
+      alert('Excluída!'); carregarDados();
     } catch (e) { alert('Erro'); }
   };
 
@@ -399,7 +399,7 @@ const carregarCoProdutores = async () => {
     try {
       const token = localStorage.getItem('token');
       await fetch(`/api/planos/${id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } });
-      alert('Plano excluÃ­do!'); carregarPlanos();
+      alert('Plano excluído!'); carregarPlanos();
     } catch (error) { alert('Erro ao excluir plano'); }
   };
 
@@ -423,10 +423,10 @@ const carregarCoProdutores = async () => {
           if (modalConfig.tipo === 'NORMAL') { dados.checkoutBanner = novoConfig.checkoutBanner; dados.checkoutLogoSuperior = novoConfig.checkoutLogoSuperior; dados.checkoutLogoInferior = novoConfig.checkoutLogoInferior; }
           else { dados.checkoutPadBanner = novoConfig.checkoutBanner; dados.checkoutPadLogoSuperior = novoConfig.checkoutLogoSuperior; dados.checkoutPadLogoInferior = novoConfig.checkoutLogoInferior; }
           await fetch(`/api/planos/${modalConfig.planoId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify(dados) });
-          alert(`âœ… ${tipo === 'banner' ? 'Banner' : tipo === 'logoSuperior' ? 'Logo Superior' : 'Logo Inferior'} salvo!`);
+          alert(`✅ ${tipo === 'banner' ? 'Banner' : tipo === 'logoSuperior' ? 'Logo Superior' : 'Logo Inferior'} salvo!`);
         }
       }
-    } catch (error) { alert('âŒ Erro ao fazer upload'); }
+    } catch (error) { alert('❌ Erro ao fazer upload'); }
   };
 
   const carregarOrderBumps = async () => {
@@ -549,10 +549,10 @@ const carregarCoProdutores = async () => {
       if (modalConfig.tipo === 'NORMAL') {
         await fetch(`/api/planos/${modalConfig.planoId}/order-bumps`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify({ orderBumpIds: orderBumpsSelecionados }) });
       }
-      alert(`âœ… ConfiguraÃ§Ãµes salvas!`);
+      alert(`✅ Configurações salvas!`);
       setModalConfig({ aberto: false, planoId: null, tipo: 'NORMAL' });
       carregarPlanos();
-    } catch (error) { alert('âŒ Erro ao salvar'); }
+    } catch (error) { alert('❌ Erro ao salvar'); }
   };
 
   const handleLogout = () => {
@@ -562,7 +562,7 @@ const carregarCoProdutores = async () => {
   };
 
   if (loading) return <div className="min-h-screen bg-gray-50 dark:bg-finoradark-bg flex items-center justify-center"><LoadingScreen /></div>;
-  if (!produto) return <div className="min-h-screen bg-gray-50 dark:bg-finoradark-bg flex items-center justify-center"><div className="text-gray-900 dark:text-finoradark-text">NÃ£o encontrado</div></div>;
+  if (!produto) return <div className="min-h-screen bg-gray-50 dark:bg-finoradark-bg flex items-center justify-center"><div className="text-gray-900 dark:text-finoradark-text">Não encontrado</div></div>;
 return (
     <div className="flex h-screen bg-gray-50 dark:bg-finoradark-bg">
       <aside className="w-64 bg-white dark:bg-finoradark-card border-r border-gray-200 dark:border-finoradark-border flex flex-col">
@@ -586,13 +586,13 @@ return (
           </div>
         </div>
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-          <Link href="/dashboard"><div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-finoradark-card2 text-gray-700 dark:text-finoradark-textmuted font-medium transition"><Home size={20} /><span>PÃ¡gina Inicial</span></div></Link>
+          <Link href="/dashboard"><div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-finoradark-card2 text-gray-700 dark:text-finoradark-textmuted font-medium transition"><Home size={20} /><span>Página Inicial</span></div></Link>
           <Link href="/dashboard/produtos"><div className="flex items-center space-x-3 px-4 py-3 rounded-lg bg-purple-50 dark:bg-finoradark-card2 text-purple-600 dark:text-finoradark-glow font-semibold"><Package size={20} /><span>Produtos</span></div></Link>
           <Link href="/dashboard/vendas"><div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-finoradark-card2 text-gray-700 dark:text-finoradark-textmuted font-medium transition"><DollarSign size={20} /><span>Vendas</span></div></Link>
           <Link href="/dashboard/carteira"><div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-finoradark-card2 text-gray-700 dark:text-finoradark-textmuted font-medium transition"><Wallet size={20} /><span>Carteira</span></div></Link>
           <Link href="/dashboard/afiliados"><div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-finoradark-card2 text-gray-700 dark:text-finoradark-textmuted font-medium transition"><Users size={20} /><span>Afiliados</span></div></Link>
           <Link href="/dashboard/mercado"><div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-finoradark-card2 text-gray-700 dark:text-finoradark-textmuted font-medium transition"><ShoppingBag size={20} /><span>Mercado</span></div></Link>
-          <Link href="/dashboard/relatorios"><div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-finoradark-card2 text-gray-700 dark:text-finoradark-textmuted font-medium transition"><BarChart3 size={20} /><span>RelatÃ³rios</span></div></Link>
+          <Link href="/dashboard/relatorios"><div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-finoradark-card2 text-gray-700 dark:text-finoradark-textmuted font-medium transition"><BarChart3 size={20} /><span>Relatórios</span></div></Link>
           <Link href="/dashboard/testes-ab"><div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-finoradark-card2 text-gray-700 dark:text-finoradark-textmuted font-medium transition"><Zap size={20} /><span>Testes A/B</span></div></Link>
           <div className="border-t border-gray-200 dark:border-finoradark-border my-4"></div>
           <button onClick={handleLogout} className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-red-50 dark:hover:bg-finoradark-card2 text-red-600 font-medium transition"><LogOut size={20} /><span>Sair</span></button>
@@ -602,7 +602,7 @@ return (
             <Link href="/dashboard/admin"><div className="flex items-center justify-center space-x-2 px-4 py-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition"><Shield size={20} /><span>Administrativo</span></div></Link>
           </div>
         )}
-        <div className="p-4 border-t border-gray-200 dark:border-finoradark-border"><div className="text-xs text-gray-500 dark:text-finoradark-textmuted text-center">Â© 2026 Finora</div></div>
+        <div className="p-4 border-t border-gray-200 dark:border-finoradark-border"><div className="text-xs text-gray-500 dark:text-finoradark-textmuted text-center">© 2026 Finora</div></div>
       </aside>
 
       <main className="flex-1 overflow-y-auto">
@@ -617,15 +617,15 @@ return (
           <div className="px-8">
             <div className="flex space-x-8 overflow-x-auto">
               <button onClick={() => setAbaSelecionada('detalhes')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'detalhes' ? 'border-purple-600 dark:border-finoradark-glow text-purple-600 dark:text-finoradark-glow' : 'border-transparent text-gray-600 dark:text-finoradark-textmuted hover:text-gray-900 dark:hover:text-finoradark-text'}`}><Package size={16} />Detalhes</button>
-              <button onClick={() => setAbaSelecionada('afiliacao')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'afiliacao' ? 'border-purple-600 dark:border-finoradark-glow text-purple-600 dark:text-finoradark-glow' : 'border-transparent text-gray-600 dark:text-finoradark-textmuted hover:text-gray-900 dark:hover:text-finoradark-text'}`}><Users size={16} />AfiliaÃ§Ã£o</button>
-              <button onClick={() => setAbaSelecionada('paginas')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'paginas' ? 'border-purple-600 dark:border-finoradark-glow text-purple-600 dark:text-finoradark-glow' : 'border-transparent text-gray-600 dark:text-finoradark-textmuted hover:text-gray-900 dark:hover:text-finoradark-text'}`}><ShoppingBag size={16} />PÃ¡ginas</button>
+              <button onClick={() => setAbaSelecionada('afiliacao')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'afiliacao' ? 'border-purple-600 dark:border-finoradark-glow text-purple-600 dark:text-finoradark-glow' : 'border-transparent text-gray-600 dark:text-finoradark-textmuted hover:text-gray-900 dark:hover:text-finoradark-text'}`}><Users size={16} />Afiliação</button>
+              <button onClick={() => setAbaSelecionada('paginas')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'paginas' ? 'border-purple-600 dark:border-finoradark-glow text-purple-600 dark:text-finoradark-glow' : 'border-transparent text-gray-600 dark:text-finoradark-textmuted hover:text-gray-900 dark:hover:text-finoradark-text'}`}><ShoppingBag size={16} />Páginas</button>
               <button onClick={() => setAbaSelecionada('campanhas')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'campanhas' ? 'border-purple-600 dark:border-finoradark-glow text-purple-600 dark:text-finoradark-glow' : 'border-transparent text-gray-600 dark:text-finoradark-textmuted hover:text-gray-900 dark:hover:text-finoradark-text'}`}><Megaphone size={16} />Campanhas</button>
               <button onClick={() => setAbaSelecionada('checkout')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'checkout' ? 'border-purple-600 dark:border-finoradark-glow text-purple-600 dark:text-finoradark-glow' : 'border-transparent text-gray-600 dark:text-finoradark-textmuted hover:text-gray-900 dark:hover:text-finoradark-text'}`}><Shield size={16} />Checkout</button>
               <button onClick={() => setAbaSelecionada('pixels')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'pixels' ? 'border-purple-600 dark:border-finoradark-glow text-purple-600 dark:text-finoradark-glow' : 'border-transparent text-gray-600 dark:text-finoradark-textmuted hover:text-gray-900 dark:hover:text-finoradark-text'}`}><BarChart3 size={16} />Pixels</button>
               <button onClick={() => setAbaSelecionada('orderbumps')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'orderbumps' ? 'border-purple-600 dark:border-finoradark-glow text-purple-600 dark:text-finoradark-glow' : 'border-transparent text-gray-600 dark:text-finoradark-textmuted hover:text-gray-900 dark:hover:text-finoradark-text'}`}><Zap size={16} />Order Bumps</button>
               <button onClick={() => setAbaSelecionada('fretes')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'fretes' ? 'border-purple-600 dark:border-finoradark-glow text-purple-600 dark:text-finoradark-glow' : 'border-transparent text-gray-600 dark:text-finoradark-textmuted hover:text-gray-900 dark:hover:text-finoradark-text'}`}><Package size={16} />Fretes</button>
               <button onClick={() => setAbaSelecionada('links')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'links' ? 'border-purple-600 dark:border-finoradark-glow text-purple-600 dark:text-finoradark-glow' : 'border-transparent text-gray-600 dark:text-finoradark-textmuted hover:text-gray-900 dark:hover:text-finoradark-text'}`}><DollarSign size={16} />Links UTM</button>
-              <button onClick={() => setAbaSelecionada('coproducao')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'coproducao' ? 'border-purple-600 dark:border-finoradark-glow text-purple-600 dark:text-finoradark-glow' : 'border-transparent text-gray-600 dark:text-finoradark-textmuted hover:text-gray-900 dark:hover:text-finoradark-text'}`}><Users size={16} />Co-produÃ§Ã£o</button>
+              <button onClick={() => setAbaSelecionada('coproducao')} className={`flex items-center gap-2 py-4 px-2 border-b-2 font-semibold transition whitespace-nowrap ${abaSelecionada === 'coproducao' ? 'border-purple-600 dark:border-finoradark-glow text-purple-600 dark:text-finoradark-glow' : 'border-transparent text-gray-600 dark:text-finoradark-textmuted hover:text-gray-900 dark:hover:text-finoradark-text'}`}><Users size={16} />Co-produção</button>
             </div>
           </div>
         </div>
@@ -645,14 +645,14 @@ return (
                   </div>
                   <p className="text-gray-600 dark:text-finoradark-textmuted mb-6">{produto.descricao}</p>
                   <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div><div className="text-sm text-gray-500 dark:text-finoradark-textmuted">PreÃ§o</div><div className="text-2xl font-bold text-purple-600 dark:text-finoradark-glow">R$ {produto.preco.toFixed(2).replace('.', ',')}</div></div>
-                    <div><div className="text-sm text-gray-500 dark:text-finoradark-textmuted">ComissÃ£o</div><div className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">{produto.comissao}%</div></div>
+                    <div><div className="text-sm text-gray-500 dark:text-finoradark-textmuted">Preço</div><div className="text-2xl font-bold text-purple-600 dark:text-finoradark-glow">R$ {produto.preco.toFixed(2).replace('.', ',')}</div></div>
+                    <div><div className="text-sm text-gray-500 dark:text-finoradark-textmuted">Comissão</div><div className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">{produto.comissao}%</div></div>
                     <div><div className="text-sm text-gray-500 dark:text-finoradark-textmuted">Tipo</div><div className="text-lg font-semibold text-gray-900 dark:text-finoradark-text">{produto.tipo}</div></div>
                     {produto.tipo === 'FISICO' && <div><div className="text-sm text-gray-500 dark:text-finoradark-textmuted">Estoque</div><div className="text-lg font-semibold text-gray-900 dark:text-finoradark-text">{produto.estoque || 0}</div></div>}
                   </div>
                   <div className="flex items-center space-x-2 mb-6">
                     <input type="checkbox" checked={produto.publicoParaAfiliados} onChange={togglePublico} className="w-4 h-4 cursor-pointer" />
-                    <span className="text-sm text-gray-600 dark:text-finoradark-textmuted cursor-pointer" onClick={togglePublico}>PÃºblico para afiliados</span>
+                    <span className="text-sm text-gray-600 dark:text-finoradark-textmuted cursor-pointer" onClick={togglePublico}>Público para afiliados</span>
                   </div>
                   <div className="flex gap-3">
                     <Link href={`/dashboard/produtos/${produto.id}`} className="flex-1"><button className="w-full px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition flex items-center justify-center space-x-2"><Edit size={20} /><span>Editar</span></button></Link>
@@ -666,7 +666,7 @@ return (
           {abaSelecionada === 'afiliacao' && (
             <div className="max-w-4xl mx-auto">
               <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-8 mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text mb-6">âš™ï¸ ConfiguraÃ§Ãµes de AfiliaÃ§Ã£o</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text mb-6">⚙️ Configurações de Afiliação</h2>
                 <div className="space-y-6">
                   <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-finoradark-card2 rounded-lg">
                     <div><div className="font-semibold text-gray-900 dark:text-finoradark-text">Aceitar Afiliados</div><div className="text-sm text-gray-600 dark:text-finoradark-textmuted">Permitir que outros promovam seu produto</div></div>
@@ -678,28 +678,28 @@ return (
                   {configAfiliacao.aceitaAfiliados && (
                     <>
                       <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-finoradark-card2 rounded-lg">
-                        <div><div className="font-semibold text-gray-900 dark:text-finoradark-text">AprovaÃ§Ã£o AutomÃ¡tica</div><div className="text-sm text-gray-600 dark:text-finoradark-textmuted">Aceitar afiliados automaticamente sem revisÃ£o</div></div>
+                        <div><div className="font-semibold text-gray-900 dark:text-finoradark-text">Aprovação Automática</div><div className="text-sm text-gray-600 dark:text-finoradark-textmuted">Aceitar afiliados automaticamente sem revisão</div></div>
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input type="checkbox" checked={configAfiliacao.aprovacaoAutomatica} onChange={(e) => setConfigAfiliacao({...configAfiliacao, aprovacaoAutomatica: e.target.checked})} className="sr-only peer" />
                           <div className="w-11 h-6 bg-gray-200 dark:bg-finoradark-border peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600 dark:peer-checked:bg-finoradark-glow"></div>
                         </label>
                       </div>
                       <div>
-                        <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">ComissÃ£o PadrÃ£o (%)</label>
+                        <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Comissão Padrão (%)</label>
                         <input type="number" min="0" max="100" value={configAfiliacao.comissaoPadrao} onChange={(e) => setConfigAfiliacao({...configAfiliacao, comissaoPadrao: parseFloat(e.target.value)})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" />
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Detalhes do Programa</label>
-                        <textarea rows={4} value={configAfiliacao.detalhesAfiliacao} onChange={(e) => setConfigAfiliacao({...configAfiliacao, detalhesAfiliacao: e.target.value})} placeholder="Descreva os benefÃ­cios..." className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none"></textarea>
+                        <textarea rows={4} value={configAfiliacao.detalhesAfiliacao} onChange={(e) => setConfigAfiliacao({...configAfiliacao, detalhesAfiliacao: e.target.value})} placeholder="Descreva os benefícios..." className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none"></textarea>
                       </div>
                       <div>
-                        <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Regras e ObservaÃ§Ãµes</label>
+                        <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Regras e Observações</label>
                         <textarea rows={4} value={configAfiliacao.regrasAfiliacao} onChange={(e) => setConfigAfiliacao({...configAfiliacao, regrasAfiliacao: e.target.value})} placeholder="Ex: Proibido spam..." className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none"></textarea>
                       </div>
                       {configAfiliacao.linkConvite && (
                         <div className="p-6 bg-purple-50 dark:bg-finoradark-card2 border border-purple-200 dark:border-finoradark-border rounded-lg">
                           <div className="flex items-center justify-between mb-2">
-                            <div className="font-semibold text-purple-900 dark:text-finoradark-text">ðŸ”— Link de Convite</div>
+                            <div className="font-semibold text-purple-900 dark:text-finoradark-text">🔗 Link de Convite</div>
                             <button onClick={copiarLinkAfiliacao} className="flex items-center space-x-2 px-4 py-2 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg hover:bg-purple-700 dark:hover:opacity-90 transition">
                               {copiado ? <Check size={16} /> : <Copy size={16} />}
                               <span>{copiado ? 'Copiado!' : 'Copiar'}</span>
@@ -708,7 +708,7 @@ return (
                           <div className="text-sm text-purple-700 dark:text-finoradark-textmuted break-all font-mono">{`${typeof window !== 'undefined' ? window.location.origin : ''}/afiliacao/${configAfiliacao.linkConvite}`}</div>
                         </div>
                       )}
-                      <button onClick={salvarConfigAfiliacao} className="w-full px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition">Salvar ConfiguraÃ§Ãµes</button>
+                      <button onClick={salvarConfigAfiliacao} className="w-full px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition">Salvar Configurações</button>
                     </>
                   )}
                 </div>
@@ -720,7 +720,7 @@ return (
             <div>
               <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-8">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">ðŸ“„ PÃ¡ginas de Ofertas</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">📄 Páginas de Ofertas</h3>
                   <button onClick={() => setCriandoPagina(!criandoPagina)} className="px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition flex items-center space-x-2"><Plus size={20} /><span>Nova</span></button>
                 </div>
                 {criandoPagina && (
@@ -732,15 +732,15 @@ return (
                     <button type="submit" className="px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition">Adicionar</button>
                   </form>
                 )}
-                {paginasOfertas.length === 0 ? <div className="text-center py-12"><Package size={64} className="mx-auto text-gray-300 dark:text-finoradark-border mb-4" /><p className="text-gray-600 dark:text-finoradark-textmuted">Nenhuma pÃ¡gina</p></div> : (
+                {paginasOfertas.length === 0 ? <div className="text-center py-12"><Package size={64} className="mx-auto text-gray-300 dark:text-finoradark-border mb-4" /><p className="text-gray-600 dark:text-finoradark-textmuted">Nenhuma página</p></div> : (
                   <div className="space-y-3">
                     {paginasOfertas.map((pag) => (
                       <div key={pag.id} className="p-4 border border-gray-200 dark:border-finoradark-border rounded-xl">
                         <div className="flex items-center justify-between">
                           <div className="flex-1"><h4 className="text-lg font-bold text-gray-900 dark:text-finoradark-text">{pag.nome}</h4><a href={pag.link} target="_blank" rel="noopener noreferrer" className="text-sm text-purple-600 dark:text-finoradark-glow hover:underline">{pag.link}</a></div>
                           <div className="flex gap-2">
-                            {!pag.testeAB && paginasOfertas.length > 1 && <button onClick={() => { const outra = paginasOfertas.find(p => p.id !== pag.id); if (outra) { const d = prompt('DistribuiÃ§Ã£o (0-100):', '50'); if (d) ativarTesteAB(pag.id, outra.id, parseInt(d)); }}} className="px-3 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg text-sm font-semibold">Testar A/B</button>}
-                            {pag.testeAB && <div className="px-3 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg text-sm font-semibold">ðŸ§ª {pag.distribuicao}% â€¢ {pag.visualizacoes}v â€¢ {pag.conversoes}c</div>}
+                            {!pag.testeAB && paginasOfertas.length > 1 && <button onClick={() => { const outra = paginasOfertas.find(p => p.id !== pag.id); if (outra) { const d = prompt('Distribuição (0-100):', '50'); if (d) ativarTesteAB(pag.id, outra.id, parseInt(d)); }}} className="px-3 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg text-sm font-semibold">Testar A/B</button>}
+                            {pag.testeAB && <div className="px-3 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg text-sm font-semibold">🧪 {pag.distribuicao}% • {pag.visualizacoes}v • {pag.conversoes}c</div>}
                             <button onClick={() => handleExcluirPagina(pag.id)} className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"><Trash2 size={18} /></button>
                           </div>
                         </div>
@@ -763,7 +763,7 @@ return (
                   <form onSubmit={handleCriarCampanha} className="mb-8 p-6 bg-gray-50 dark:bg-finoradark-card2 rounded-xl border border-gray-200 dark:border-finoradark-border">
                     <div className="mb-4">
                       <select value={formCampanha.paginaOfertaId} onChange={(e) => setFormCampanha({...formCampanha, paginaOfertaId: e.target.value})} required className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none text-gray-900">
-                        <option value="">Selecione pÃ¡gina</option>
+                        <option value="">Selecione página</option>
                         {paginasOfertas.map((p) => <option key={p.id} value={p.id}>{p.nome}</option>)}
                       </select>
                     </div>
@@ -795,7 +795,7 @@ return (
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-6 text-sm text-gray-600 dark:text-finoradark-textmuted">
                             <div>Cliques: <span className="font-semibold text-gray-900 dark:text-finoradark-text">{c.cliques}</span></div>
-                            <div>ConversÃµes: <span className="font-semibold text-green-600 dark:text-green-400">{c.conversoes}</span></div>
+                            <div>Conversões: <span className="font-semibold text-green-600 dark:text-green-400">{c.conversoes}</span></div>
                           </div>
                           <button onClick={() => handleExcluirCampanha(c.id)} className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"><Trash2 size={18} /></button>
                         </div>
@@ -811,7 +811,7 @@ return (
               <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-8">
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">ðŸŽ¨ Checkout & Planos</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">🎨 Checkout & Planos</h2>
                     <p className="text-gray-600 dark:text-finoradark-textmuted">Crie planos com checkouts personalizados</p>
                   </div>
                   <button onClick={() => setModalPlano({ aberto: true, plano: null })} className="px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition flex items-center space-x-2">
@@ -842,21 +842,21 @@ return (
                                     const token = localStorage.getItem('token');
                                     await fetch(`/api/planos/${plano.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify({ nome: e.target.value }) });
                                     carregarPlanos();
-                                  } catch (error) { alert('âŒ Erro ao atualizar'); }
+                                  } catch (error) { alert('❌ Erro ao atualizar'); }
                                 }}
                                 className="text-base font-bold text-gray-900 dark:text-finoradark-text w-full border-0 outline-none bg-transparent hover:bg-gray-50 dark:hover:bg-finoradark-border rounded px-1 py-0.5 transition truncate"
                               />
                               <input
                                 type="text"
                                 defaultValue={plano.descricao || ''}
-                                placeholder="Adicionar descriÃ§Ã£o..."
+                                placeholder="Adicionar descrição..."
                                 onBlur={async (e) => {
                                   if (e.target.value === plano.descricao) return;
                                   try {
                                     const token = localStorage.getItem('token');
                                     await fetch(`/api/planos/${plano.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify({ descricao: e.target.value }) });
                                     carregarPlanos();
-                                  } catch (error) { alert('âŒ Erro ao atualizar'); }
+                                  } catch (error) { alert('❌ Erro ao atualizar'); }
                                 }}
                                 className="text-xs text-gray-500 dark:text-finoradark-textmuted w-full border-0 outline-none bg-transparent hover:bg-gray-50 dark:hover:bg-finoradark-border rounded px-1 py-0.5 transition mt-0.5"
                               />
@@ -880,10 +880,10 @@ return (
                         <div className="p-4 space-y-2">
                           <div className="grid grid-cols-2 gap-2">
                             <button onClick={() => setModalConfig({ aberto: true, planoId: plano.id, tipo: 'NORMAL' })} className="px-3 py-2 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg hover:bg-purple-700 dark:hover:opacity-90 transition text-xs font-semibold flex items-center justify-center gap-1">
-                              âš™ï¸ Checkout Normal
+                              ⚙️ Checkout Normal
                             </button>
                             <button onClick={() => setModalConfig({ aberto: true, planoId: plano.id, tipo: 'PAD' })} className="px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition text-xs font-semibold flex items-center justify-center gap-1">
-                              ðŸ’³ Checkout PAD
+                              💳 Checkout PAD
                             </button>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
@@ -911,14 +911,14 @@ return (
                     <form onSubmit={handleSalvarPlano} className="space-y-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Nome do Plano *</label>
-                        <input type="text" defaultValue={modalPlano.plano?.nome} name="nome" required className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="Ex: Plano BÃ¡sico" />
+                        <input type="text" defaultValue={modalPlano.plano?.nome} name="nome" required className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="Ex: Plano Básico" />
                       </div>
                       <div>
-                        <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">DescriÃ§Ã£o</label>
+                        <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Descrição</label>
                         <textarea rows={3} defaultValue={modalPlano.plano?.descricao} name="descricao" className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="Opcional"></textarea>
                       </div>
                       <div>
-                        <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">PreÃ§o *</label>
+                        <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Preço *</label>
                         <input type="number" step="0.01" defaultValue={modalPlano.plano?.preco} name="preco" required className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="0.00" />
                       </div>
                       <div className="flex items-center space-x-2">
@@ -937,29 +937,26 @@ return (
               {modalConfig.aberto && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto" onClick={() => setModalConfig({ aberto: false, planoId: null, tipo: 'NORMAL' })}>
                   <div className="bg-white dark:bg-finoradark-card rounded-2xl p-8 max-w-4xl w-full my-8" onClick={(e) => e.stopPropagation()}>
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text mb-6">{modalConfig.tipo === 'NORMAL' ? 'âš™ï¸ Configurar Checkout Normal' : 'ðŸ’³ Configurar Checkout PAD'}</h3>
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text mb-6">{modalConfig.tipo === 'NORMAL' ? '⚙️ Configurar Checkout Normal' : '💳 Configurar Checkout PAD'}</h3>
                     <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-4">
                       {modalConfig.tipo === 'NORMAL' && (
                         <div className="p-4 bg-gray-50 dark:bg-finoradark-card2 rounded-xl border border-gray-200 dark:border-finoradark-border">
-                          <h4 className="font-bold text-gray-900 dark:text-finoradark-text mb-3">ðŸ–¥ï¸ VersÃ£o do Checkout</h4>
-                          <div className="grid grid-cols-2 gap-3">
-                            <button type="button" onClick={() => setConfigPlano({...configPlano, checkoutVersao: 'v1'})} className={`p-4 rounded-xl border-2 text-left transition ${!configPlano.checkoutVersao || configPlano.checkoutVersao === 'v1' ? 'border-purple-600 dark:border-finoradark-glow bg-purple-50 dark:bg-finoradark-border' : 'border-gray-200 dark:border-finoradark-border hover:border-purple-300'}`}>
-                              <div className="text-2xl mb-2">ðŸŸ£</div><div className="font-bold text-gray-900 dark:text-finoradark-text">VersÃ£o 1</div><div className="text-xs text-gray-500 dark:text-finoradark-textmuted mt-1">Layout clÃ¡ssico com card central e gradiente</div>
-                            </button>
-                            <button type="button" onClick={() => setConfigPlano({...configPlano, checkoutVersao: 'v2'})} className={`p-4 rounded-xl border-2 text-left transition ${configPlano.checkoutVersao === 'v2' ? 'border-green-600 bg-green-50 dark:bg-green-900/20' : 'border-gray-200 dark:border-finoradark-border hover:border-green-300'}`}>
-                              <div className="text-2xl mb-2">ðŸŸ¢</div><div className="font-bold text-gray-900 dark:text-finoradark-text">VersÃ£o 2</div><div className="text-xs text-gray-500 dark:text-finoradark-textmuted mt-1">Layout moderno com steps numerados e fundo cinza</div>
-                            </button>
-                            <button type="button" onClick={() => setConfigPlano({...configPlano, checkoutVersao: 'v3'})} className={`p-4 rounded-xl border-2 text-left transition ${configPlano.checkoutVersao === 'v3' ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-finoradark-border hover:border-blue-300'}`}>
-                              <div className="text-2xl mb-2">ðŸ”µ</div><div className="font-bold text-gray-900 dark:text-finoradark-text">VersÃ£o 3</div><div className="text-xs text-gray-500 dark:text-finoradark-textmuted mt-1">One-page clean e profissional</div>
-                            </button>
-                            <button type="button" onClick={() => setConfigPlano({...configPlano, checkoutVersao: 'v4'})} className={`p-4 rounded-xl border-2 text-left transition ${configPlano.checkoutVersao === 'v4' ? 'border-yellow-600 bg-yellow-50 dark:bg-yellow-900/20' : 'border-gray-200 dark:border-finoradark-border hover:border-yellow-300'}`}>
-                              <div className="text-2xl mb-2">âš¡</div><div className="font-bold text-gray-900 dark:text-finoradark-text">VersÃ£o 4 â€” Digital</div><div className="text-xs text-gray-500 dark:text-finoradark-textmuted mt-1">One-page sem endereÃ§o, ideal para ebooks e cursos</div>
-                            </button>
-                          </div>
+                          <h4 className="font-bold text-gray-900 dark:text-finoradark-text mb-3">🖥️ Versão do Checkout</h4>
+                          <select
+                            value={configPlano.checkoutVersao || 'v1'}
+                            onChange={(e) => setConfigPlano({...configPlano, checkoutVersao: e.target.value})}
+                            className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none"
+                          >
+                            <option value="v1">Versão 1 — Clássico com card central e gradiente</option>
+                            <option value="v2">Versão 2 — Steps numerados, fundo cinza</option>
+                            <option value="v3">Versão 3 — One-page clean e profissional</option>
+                            <option value="v4">Versão 4 — Digital (sem endereço, ebooks/cursos)</option>
+                            <option value="v5">Versão 5 — 3 colunas com frete e depoimentos</option>
+                          </select>
                         </div>
                       )}
                       <div className="space-y-4">
-                        <h4 className="font-bold text-gray-900 dark:text-finoradark-text">ðŸŽ¨ Imagens</h4>
+                        <h4 className="font-bold text-gray-900 dark:text-finoradark-text">🎨 Imagens</h4>
                         <div>
                           <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Banner</label>
                           <input type="file" accept="image/*" onChange={(e) => handleUploadCheckout(e, 'banner')} className="w-full px-4 py-3 border-2 border-dashed border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 rounded-lg cursor-pointer" />
@@ -977,18 +974,18 @@ return (
                       </div>
                       <div className="grid md:grid-cols-2 gap-4 pt-4 border-t dark:border-finoradark-border">
                         <div>
-                          <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Cor PrimÃ¡ria</label>
+                          <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Cor Primária</label>
                           <input type="color" value={configPlano.checkoutCorPrimaria} onChange={(e) => setConfigPlano({...configPlano, checkoutCorPrimaria: e.target.value})} className="w-full h-12 rounded-lg cursor-pointer" />
                         </div>
                         <div>
-                          <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Cor SecundÃ¡ria</label>
+                          <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Cor Secundária</label>
                           <input type="color" value={configPlano.checkoutCorSecundaria} onChange={(e) => setConfigPlano({...configPlano, checkoutCorSecundaria: e.target.value})} className="w-full h-12 rounded-lg cursor-pointer" />
                         </div>
                       </div>
                       <div className="pt-4 border-t dark:border-finoradark-border">
-                        <h4 className="font-bold text-gray-900 dark:text-finoradark-text mb-4">â° CronÃ´metro de UrgÃªncia</h4>
+                        <h4 className="font-bold text-gray-900 dark:text-finoradark-text mb-4">⏰ Cronômetro de Urgência</h4>
                         <label className="flex items-center justify-between p-4 bg-gray-50 dark:bg-finoradark-card2 rounded-lg cursor-pointer">
-                          <div><div className="font-semibold text-gray-900 dark:text-finoradark-text">Ativar CronÃ´metro</div><div className="text-sm text-gray-600 dark:text-finoradark-textmuted">Cria senso de urgÃªncia no checkout</div></div>
+                          <div><div className="font-semibold text-gray-900 dark:text-finoradark-text">Ativar Cronômetro</div><div className="text-sm text-gray-600 dark:text-finoradark-textmuted">Cria senso de urgência no checkout</div></div>
                           <input type="checkbox" checked={configPlano.checkoutCronometro} onChange={(e) => setConfigPlano({...configPlano, checkoutCronometro: e.target.checked})} className="w-5 h-5" />
                         </label>
                         {configPlano.checkoutCronometro && (
@@ -1005,9 +1002,9 @@ return (
                         )}
                       </div>
                       <div className="pt-4 border-t dark:border-finoradark-border">
-                        <h4 className="font-bold text-gray-900 dark:text-finoradark-text mb-4">ðŸ‘¥ Prova Social (Pop-ups)</h4>
+                        <h4 className="font-bold text-gray-900 dark:text-finoradark-text mb-4">👥 Prova Social (Pop-ups)</h4>
                         <label className="flex items-center justify-between p-4 bg-gray-50 dark:bg-finoradark-card2 rounded-lg cursor-pointer">
-                          <div><div className="font-semibold text-gray-900 dark:text-finoradark-text">Ativar Pop-ups de Compra</div><div className="text-sm text-gray-600 dark:text-finoradark-textmuted">Ex: "JoÃ£o acabou de comprar..."</div></div>
+                          <div><div className="font-semibold text-gray-900 dark:text-finoradark-text">Ativar Pop-ups de Compra</div><div className="text-sm text-gray-600 dark:text-finoradark-textmuted">Ex: "João acabou de comprar..."</div></div>
                           <input type="checkbox" checked={configPlano.checkoutProvaSocial} onChange={(e) => setConfigPlano({...configPlano, checkoutProvaSocial: e.target.checked})} className="w-5 h-5" />
                         </label>
                         {configPlano.checkoutProvaSocial && (
@@ -1017,24 +1014,24 @@ return (
                               <input type="number" min="3" value={configPlano.checkoutIntervaloPop} onChange={(e) => setConfigPlano({...configPlano, checkoutIntervaloPop: parseInt(e.target.value)})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 rounded-lg text-gray-900 dark:text-finoradark-text" />
                             </div>
                             <div>
-                              <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">GÃªnero dos Compradores</label>
+                              <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Gênero dos Compradores</label>
                               <select value={configPlano.checkoutProvaSocialGenero} onChange={(e) => setConfigPlano({...configPlano, checkoutProvaSocialGenero: e.target.value})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 rounded-lg text-gray-900 dark:text-finoradark-text">
-                                <option value="AMBOS">ðŸ‘¨ðŸ‘© Ambos</option>
-                                <option value="HOMENS">ðŸ‘¨ Apenas Homens</option>
-                                <option value="MULHERES">ðŸ‘© Apenas Mulheres</option>
+                                <option value="AMBOS">👨👩 Ambos</option>
+                                <option value="HOMENS">👨 Apenas Homens</option>
+                                <option value="MULHERES">👩 Apenas Mulheres</option>
                               </select>
                             </div>
                           </div>
                         )}
                       </div>
                       <div className="pt-4 border-t dark:border-finoradark-border">
-                        <h4 className="font-bold text-gray-900 dark:text-finoradark-text mb-4">ðŸ’³ MÃ©todos de Pagamento</h4>
+                        <h4 className="font-bold text-gray-900 dark:text-finoradark-text mb-4">💳 Métodos de Pagamento</h4>
                         <div className="grid grid-cols-3 gap-4">
                           <label className="flex items-center space-x-2 p-4 border dark:border-finoradark-border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-finoradark-card2">
                             <input type="checkbox" checked={configPlano.checkoutAceitaPix} onChange={(e) => setConfigPlano({...configPlano, checkoutAceitaPix: e.target.checked})} className="w-5 h-5" /><span className="text-gray-900 dark:text-finoradark-text">PIX</span>
                           </label>
                           <label className="flex items-center space-x-2 p-4 border dark:border-finoradark-border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-finoradark-card2">
-                            <input type="checkbox" checked={configPlano.checkoutAceitaCartao} onChange={(e) => setConfigPlano({...configPlano, checkoutAceitaCartao: e.target.checked})} className="w-5 h-5" /><span className="text-gray-900 dark:text-finoradark-text">CartÃ£o</span>
+                            <input type="checkbox" checked={configPlano.checkoutAceitaCartao} onChange={(e) => setConfigPlano({...configPlano, checkoutAceitaCartao: e.target.checked})} className="w-5 h-5" /><span className="text-gray-900 dark:text-finoradark-text">Cartão</span>
                           </label>
                           <label className="flex items-center space-x-2 p-4 border dark:border-finoradark-border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-finoradark-card2">
                             <input type="checkbox" checked={configPlano.checkoutAceitaBoleto} onChange={(e) => setConfigPlano({...configPlano, checkoutAceitaBoleto: e.target.checked})} className="w-5 h-5" /><span className="text-gray-900 dark:text-finoradark-text">Boleto</span>
@@ -1043,9 +1040,9 @@ return (
                       </div>
                       {modalConfig.tipo === 'NORMAL' && (
                         <div className="pt-4 border-t dark:border-finoradark-border">
-                          <h4 className="font-bold text-gray-900 dark:text-finoradark-text mb-4">âš¡ Order Bumps</h4>
+                          <h4 className="font-bold text-gray-900 dark:text-finoradark-text mb-4">⚡ Order Bumps</h4>
                           {orderBumps.length === 0 ? (
-                            <div className="p-4 bg-gray-50 dark:bg-finoradark-card2 rounded-lg text-center text-gray-600 dark:text-finoradark-textmuted text-sm">Nenhum order bump cadastrado. Crie na aba âš¡ Order Bumps.</div>
+                            <div className="p-4 bg-gray-50 dark:bg-finoradark-card2 rounded-lg text-center text-gray-600 dark:text-finoradark-textmuted text-sm">Nenhum order bump cadastrado. Crie na aba ⚡ Order Bumps.</div>
                           ) : (
                             <div className="space-y-2">
                               {orderBumps.map((ob) => (
@@ -1062,7 +1059,7 @@ return (
                     </div>
                     <div className="flex gap-3 pt-6 border-t dark:border-finoradark-border mt-6">
                       <button type="button" onClick={() => setModalConfig({ aberto: false, planoId: null, tipo: 'NORMAL' })} className="flex-1 px-6 py-3 border-2 border-gray-300 dark:border-finoradark-border text-gray-700 dark:text-finoradark-textmuted rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-finoradark-card2 transition">Cancelar</button>
-                      <button onClick={handleSalvarConfigPlano} className="flex-1 px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition">ðŸ’¾ Salvar ConfiguraÃ§Ãµes</button>
+                      <button onClick={handleSalvarConfigPlano} className="flex-1 px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition">💾 Salvar Configurações</button>
                     </div>
                   </div>
                 </div>
@@ -1074,8 +1071,8 @@ return (
               <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-8">
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">ðŸ“Š Pixels de ConversÃ£o</h2>
-                    <p className="text-gray-600 dark:text-finoradark-textmuted">Configure os pixels para rastrear conversÃµes</p>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">📊 Pixels de Conversão</h2>
+                    <p className="text-gray-600 dark:text-finoradark-textmuted">Configure os pixels para rastrear conversões</p>
                   </div>
                   <button onClick={() => setModalPixel({ aberto: true, pixel: null })} className="px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold hover:bg-yellow-600 transition flex items-center space-x-2">
                     <Plus size={20} /><span>Novo Pixel</span>
@@ -1085,7 +1082,7 @@ return (
                   <div className="text-center py-16 bg-gray-50 dark:bg-finoradark-card2 rounded-xl">
                     <BarChart3 size={64} className="mx-auto text-gray-300 dark:text-finoradark-border mb-4" />
                     <h3 className="text-xl font-bold text-gray-900 dark:text-finoradark-text mb-2">Nenhum pixel configurado</h3>
-                    <p className="text-gray-600 dark:text-finoradark-textmuted mb-6">Adicione pixels para rastrear conversÃµes do Facebook, Google, TikTok e Kwai</p>
+                    <p className="text-gray-600 dark:text-finoradark-textmuted mb-6">Adicione pixels para rastrear conversões do Facebook, Google, TikTok e Kwai</p>
                     <button onClick={() => setModalPixel({ aberto: true, pixel: null })} className="px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold hover:bg-yellow-600 transition">Adicionar Primeiro Pixel</button>
                   </div>
                 ) : (
@@ -1103,13 +1100,13 @@ return (
                           </div>
                           <div className="flex gap-2">
                             <button onClick={() => { setFormPixel({ titulo: pixel.titulo, plataforma: pixel.plataforma, pixelId: pixel.pixelId, tokenAPI: pixel.tokenAPI || '', eventoCheckout: pixel.eventoCheckout, eventoAddPagamento: pixel.eventoAddPagamento, eventoCompra: pixel.eventoCompra, eventoPAD: pixel.eventoPAD, condicaoPix: pixel.condicaoPix, condicaoBoleto: pixel.condicaoBoleto, condicaoPAD: pixel.condicaoPAD, condicaoPagamentoAprovado: pixel.condicaoPagamentoAprovado }); setModalPixel({ aberto: true, pixel }); }} className="px-4 py-2 border-2 border-gray-300 dark:border-finoradark-border text-gray-700 dark:text-finoradark-textmuted rounded-lg hover:bg-gray-50 dark:hover:bg-finoradark-card2 transition"><Edit size={16} /></button>
-                            <button onClick={async () => { if (!confirm('Excluir este pixel?')) return; try { const token = localStorage.getItem('token'); await fetch(`/api/pixels/${pixel.id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } }); alert('Pixel excluÃ­do!'); carregarPixels(); } catch (error) { alert('Erro ao excluir pixel'); }}} className="px-4 py-2 border-2 border-red-300 dark:border-red-900/50 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition"><Trash2 size={16} /></button>
+                            <button onClick={async () => { if (!confirm('Excluir este pixel?')) return; try { const token = localStorage.getItem('token'); await fetch(`/api/pixels/${pixel.id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } }); alert('Pixel excluído!'); carregarPixels(); } catch (error) { alert('Erro ao excluir pixel'); }}} className="px-4 py-2 border-2 border-red-300 dark:border-red-900/50 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition"><Trash2 size={16} /></button>
                           </div>
                         </div>
                         <div className="text-sm">
-                          <h4 className="font-semibold text-gray-900 dark:text-finoradark-text mb-2">ðŸŽ¯ Dispara em</h4>
+                          <h4 className="font-semibold text-gray-900 dark:text-finoradark-text mb-2">🎯 Dispara em</h4>
                           <div className="flex flex-wrap gap-2">
-                            {pixel.eventoCheckout && <span className="px-2 py-1 bg-gray-100 dark:bg-finoradark-card2 text-gray-700 dark:text-finoradark-textmuted rounded text-xs font-medium">InÃ­cio do checkout</span>}
+                            {pixel.eventoCheckout && <span className="px-2 py-1 bg-gray-100 dark:bg-finoradark-card2 text-gray-700 dark:text-finoradark-textmuted rounded text-xs font-medium">Início do checkout</span>}
                             {pixel.eventoCompra && <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded text-xs font-medium">Compra aprovada</span>}
                             {pixel.eventoPAD && <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded text-xs font-medium">Pedido recorrente (PAD)</span>}
                           </div>
@@ -1127,8 +1124,8 @@ return (
               <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-8">
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">âš¡ Order Bumps</h2>
-                    <p className="text-gray-600 dark:text-finoradark-textmuted">Crie adicionais para aumentar o ticket mÃ©dio</p>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">⚡ Order Bumps</h2>
+                    <p className="text-gray-600 dark:text-finoradark-textmuted">Crie adicionais para aumentar o ticket médio</p>
                   </div>
                   <button onClick={() => { setFormOrderBump({ titulo: '', descricao: '', preco: '', imagem: '' }); setModalOrderBump({ aberto: true, ob: null }); }} className="px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition flex items-center space-x-2">
                     <Plus size={20} /><span>Novo Order Bump</span>
@@ -1136,9 +1133,9 @@ return (
                 </div>
                 {orderBumps.length === 0 ? (
                   <div className="text-center py-16 bg-gray-50 dark:bg-finoradark-card2 rounded-xl">
-                    <div className="text-6xl mb-4">âš¡</div>
+                    <div className="text-6xl mb-4">⚡</div>
                     <h3 className="text-xl font-bold text-gray-900 dark:text-finoradark-text mb-2">Nenhum order bump cadastrado</h3>
-                    <p className="text-gray-600 dark:text-finoradark-textmuted mb-6">Crie adicionais como frete rÃ¡pido, garantia estendida, produtos complementares</p>
+                    <p className="text-gray-600 dark:text-finoradark-textmuted mb-6">Crie adicionais como frete rápido, garantia estendida, produtos complementares</p>
                     <button onClick={() => setModalOrderBump({ aberto: true, ob: null })} className="px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition">Criar Primeiro Order Bump</button>
                   </div>
                 ) : (
@@ -1166,13 +1163,13 @@ return (
                   <div className="bg-white dark:bg-finoradark-card rounded-2xl p-8 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text mb-6">{modalOrderBump.ob ? 'Editar Order Bump' : 'Novo Order Bump'}</h3>
                     <div className="space-y-4">
-                      <div><label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">TÃ­tulo *</label><input type="text" value={formOrderBump.titulo} onChange={(e) => setFormOrderBump({...formOrderBump, titulo: e.target.value})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="Ex: Frete RÃ¡pido..." /></div>
-                      <div><label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">DescriÃ§Ã£o</label><textarea rows={3} value={formOrderBump.descricao} onChange={(e) => setFormOrderBump({...formOrderBump, descricao: e.target.value})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="Descreva o adicional..." /></div>
-                      <div><label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">PreÃ§o (R$) *</label><input type="number" step="0.01" value={formOrderBump.preco} onChange={(e) => setFormOrderBump({...formOrderBump, preco: e.target.value})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="0.00" /></div>
+                      <div><label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Título *</label><input type="text" value={formOrderBump.titulo} onChange={(e) => setFormOrderBump({...formOrderBump, titulo: e.target.value})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="Ex: Frete Rápido..." /></div>
+                      <div><label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Descrição</label><textarea rows={3} value={formOrderBump.descricao} onChange={(e) => setFormOrderBump({...formOrderBump, descricao: e.target.value})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="Descreva o adicional..." /></div>
+                      <div><label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Preço (R$) *</label><input type="number" step="0.01" value={formOrderBump.preco} onChange={(e) => setFormOrderBump({...formOrderBump, preco: e.target.value})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="0.00" /></div>
                       <div className="flex gap-3 pt-4">
                         <button onClick={() => setModalOrderBump({ aberto: false, ob: null })} className="flex-1 px-6 py-3 border-2 border-gray-300 dark:border-finoradark-border text-gray-700 dark:text-finoradark-textmuted rounded-lg font-semibold">Cancelar</button>
                         <button onClick={async () => {
-                          if (!formOrderBump.titulo || !formOrderBump.preco) { alert('Preencha tÃ­tulo e preÃ§o'); return; }
+                          if (!formOrderBump.titulo || !formOrderBump.preco) { alert('Preencha título e preço'); return; }
                           const userData = localStorage.getItem('user');
                           const userObj = userData ? JSON.parse(userData) : {};
                           const url = modalOrderBump.ob ? `/api/order-bumps/${modalOrderBump.ob.id}` : '/api/order-bumps';
@@ -1264,9 +1261,9 @@ return (
           {abaSelecionada === 'links' && (
             <div className="max-w-4xl mx-auto">
               <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-8">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text mb-4">ðŸ”— Links UTM</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text mb-4">🔗 Links UTM</h2>
                 <p className="text-gray-600 dark:text-finoradark-textmuted mb-6">Gere links rastreados para suas campanhas.</p>
-                <a href="/dashboard/links" className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition">ðŸ”— Abrir Gerador de Links UTM</a>
+                <a href="/dashboard/links" className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition">🔗 Abrir Gerador de Links UTM</a>
               </div>
             </div>
           )}
@@ -1276,12 +1273,12 @@ return (
               <div className="bg-white dark:bg-finoradark-card rounded-xl border border-gray-200 dark:border-finoradark-border p-8">
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">ðŸ¤ Co-produÃ§Ã£o</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">🤝 Co-produção</h2>
                     <p className="text-gray-600 dark:text-finoradark-textmuted">Divida receitas com outros produtores da Finora</p>
                   </div>
                 </div>
                 <div className="bg-gray-50 dark:bg-finoradark-card2 rounded-xl border border-gray-200 dark:border-finoradark-border p-6 mb-8">
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-finoradark-text mb-4">âž• Adicionar Co-produtor</h3>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-finoradark-text mb-4">➕ Adicionar Co-produtor</h3>
                   <div className="grid md:grid-cols-3 gap-4 mb-4">
                     <div className="md:col-span-1">
                       <label className="block text-sm font-semibold text-gray-700 dark:text-finoradark-textmuted mb-2">Email da conta Finora *</label>
@@ -1300,7 +1297,7 @@ return (
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-500 dark:text-finoradark-textmuted">{formCoProdutor.tipo === 'PERCENTUAL' ? 'âš ï¸ O valor serÃ¡ descontado do seu lucro lÃ­quido apÃ³s as taxas da plataforma.' : 'âš ï¸ Valor fixo descontado do lucro lÃ­quido a cada venda.'}</p>
+                    <p className="text-sm text-gray-500 dark:text-finoradark-textmuted">{formCoProdutor.tipo === 'PERCENTUAL' ? '⚠️ O valor será descontado do seu lucro líquido após as taxas da plataforma.' : '⚠️ Valor fixo descontado do lucro líquido a cada venda.'}</p>
                     <button onClick={handleAdicionarCoProdutor} disabled={salvandoCoProdutor} className="px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition disabled:opacity-50 flex items-center space-x-2">
                       {salvandoCoProdutor ? <span>Salvando...</span> : <><Plus size={18} /><span>Adicionar</span></>}
                     </button>
@@ -1308,7 +1305,7 @@ return (
                 </div>
                 {coProdutores.length === 0 ? (
                   <div className="text-center py-16 bg-gray-50 dark:bg-finoradark-card2 rounded-xl">
-                    <div className="text-6xl mb-4">ðŸ¤</div>
+                    <div className="text-6xl mb-4">🤝</div>
                     <h3 className="text-xl font-bold text-gray-900 dark:text-finoradark-text mb-2">Nenhum co-produtor cadastrado</h3>
                     <p className="text-gray-600 dark:text-finoradark-textmuted">Adicione outros produtores da Finora para dividir as receitas automaticamente.</p>
                   </div>
@@ -1343,7 +1340,7 @@ return (
                       </div>
                     ))}
                     <div className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-900/40 rounded-lg">
-                      <p className="text-sm text-yellow-800 dark:text-yellow-400">ðŸ’¡ <strong>Como funciona:</strong> A cada venda confirmada, o valor de cada co-produtor Ã© creditado automaticamente na carteira deles.</p>
+                      <p className="text-sm text-yellow-800 dark:text-yellow-400">💡 <strong>Como funciona:</strong> A cada venda confirmada, o valor de cada co-produtor é creditado automaticamente na carteira deles.</p>
                     </div>
                   </div>
                 )}
@@ -1370,7 +1367,7 @@ return (
                 }} className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">TÃ­tulo do Pixel *</label>
+                      <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Título do Pixel *</label>
                       <input type="text" value={formPixel.titulo} onChange={(e) => setFormPixel({...formPixel, titulo: e.target.value})} required className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none" placeholder="Ex: Pixel Facebook Principal" />
                     </div>
                     <div>
@@ -1389,26 +1386,26 @@ return (
                       <input type="text" value={formPixel.pixelId} onChange={(e) => setFormPixel({...formPixel, pixelId: e.target.value})} required className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none" placeholder="Ex: 123456789" />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Token da API de ConversÃ£o</label>
+                      <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Token da API de Conversão</label>
                       <input type="text" value={formPixel.tokenAPI} onChange={(e) => setFormPixel({...formPixel, tokenAPI: e.target.value})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none" placeholder="Opcional" />
                     </div>
                   </div>
                   <div className="border-t dark:border-finoradark-border pt-4">
-                    <h4 className="font-bold text-gray-900 dark:text-finoradark-text mb-1">ðŸŽ¯ Quando disparar</h4>
-                    <p className="text-xs text-gray-500 dark:text-finoradark-textmuted mb-3">Cada evento jÃ¡ vem com a regra correta de disparo â€” nÃ£o Ã© possÃ­vel configurar errado.</p>
+                    <h4 className="font-bold text-gray-900 dark:text-finoradark-text mb-1">🎯 Quando disparar</h4>
+                    <p className="text-xs text-gray-500 dark:text-finoradark-textmuted mb-3">Cada evento já vem com a regra correta de disparo — não é possível configurar errado.</p>
                     <div className="space-y-2">
                       <label className="flex items-start space-x-3 p-4 bg-gray-50 dark:bg-finoradark-card2 rounded-xl border-2 border-transparent cursor-pointer hover:bg-gray-100 dark:hover:bg-finoradark-border transition">
                         <input type="checkbox" checked={formPixel.eventoCheckout} onChange={(e) => setFormPixel({...formPixel, eventoCheckout: e.target.checked})} className="w-5 h-5 mt-0.5" />
                         <div>
-                          <div className="font-semibold text-gray-900 dark:text-finoradark-text">InÃ­cio do checkout</div>
-                          <div className="text-xs text-gray-600 dark:text-finoradark-textmuted mt-0.5">Dispara quando o cliente acessa a pÃ¡gina de pagamento</div>
+                          <div className="font-semibold text-gray-900 dark:text-finoradark-text">Início do checkout</div>
+                          <div className="text-xs text-gray-600 dark:text-finoradark-textmuted mt-0.5">Dispara quando o cliente acessa a página de pagamento</div>
                         </div>
                       </label>
                       <label className="flex items-start space-x-3 p-4 bg-gray-50 dark:bg-finoradark-card2 rounded-xl border-2 border-transparent cursor-pointer hover:bg-gray-100 dark:hover:bg-finoradark-border transition">
                         <input type="checkbox" checked={formPixel.eventoAddPagamento} onChange={(e) => setFormPixel({...formPixel, eventoAddPagamento: e.target.checked})} className="w-5 h-5 mt-0.5" />
                         <div>
-                          <div className="font-semibold text-gray-900 dark:text-finoradark-text">Adicionar informaÃ§Ã£o de pagamento</div>
-                          <div className="text-xs text-gray-600 dark:text-finoradark-textmuted mt-0.5">Dispara quando o PIX Ã© gerado, antes da confirmaÃ§Ã£o</div>
+                          <div className="font-semibold text-gray-900 dark:text-finoradark-text">Adicionar informação de pagamento</div>
+                          <div className="text-xs text-gray-600 dark:text-finoradark-textmuted mt-0.5">Dispara quando o PIX é gerado, antes da confirmação</div>
                         </div>
                       </label>
                       <label className={`flex items-start space-x-3 p-4 rounded-xl border-2 cursor-pointer transition ${formPixel.eventoCompra ? 'bg-green-50 dark:bg-green-900/20 border-green-400 dark:border-green-700' : 'bg-gray-50 dark:bg-finoradark-card2 border-transparent hover:bg-gray-100 dark:hover:bg-finoradark-border'}`}>
@@ -1422,14 +1419,14 @@ return (
                         <input type="checkbox" checked={formPixel.eventoPAD} onChange={(e) => setFormPixel({...formPixel, eventoPAD: e.target.checked, condicaoPAD: e.target.checked})} className="w-5 h-5 mt-0.5" />
                         <div>
                           <div className="font-semibold text-gray-900 dark:text-finoradark-text">Pedido recorrente gerado (PAD)</div>
-                          <div className="text-xs text-gray-600 dark:text-finoradark-textmuted mt-0.5">Dispara quando uma cobranÃ§a recorrente Ã© criada</div>
+                          <div className="text-xs text-gray-600 dark:text-finoradark-textmuted mt-0.5">Dispara quando uma cobrança recorrente é criada</div>
                         </div>
                       </label>
                     </div>
                   </div>
                   <div className="flex gap-3 pt-4">
                     <button type="button" onClick={() => setModalPixel({ aberto: false, pixel: null })} className="flex-1 px-6 py-3 border-2 border-gray-300 dark:border-finoradark-border text-gray-700 dark:text-finoradark-textmuted rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-finoradark-card2 transition">Cancelar</button>
-                    <button type="submit" className="flex-1 px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold hover:bg-yellow-600 transition">{modalPixel.pixel ? 'Salvar AlteraÃ§Ãµes' : 'Adicionar Pixel'}</button>
+                    <button type="submit" className="flex-1 px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold hover:bg-yellow-600 transition">{modalPixel.pixel ? 'Salvar Alterações' : 'Adicionar Pixel'}</button>
                   </div>
                 </form>
               </div>
