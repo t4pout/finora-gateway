@@ -317,6 +317,8 @@ model Venda {
   orderBumpsIds      String[]
   orderBumpsNomes    String[]
   orderBumpsValor    Float?   @default(0)
+  freteNome          String?
+  freteValor         Float?   @default(0)
   utmSource          String?
   utmMedium          String?
   utmCampaign        String?

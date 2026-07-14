@@ -44,12 +44,17 @@ export async function POST(request: NextRequest) {
     let orderBumpsNomes: string[] = [];
     let orderBumpsValor = 0;
 
+    const freteValor = Number(body.freteValor) || 0;
+    const freteNome = body.freteNome || null;
+
     if (orderBumpIds && orderBumpIds.length > 0) {
       const obs = await prisma.orderBump.findMany({ where: { id: { in: orderBumpIds } } });
       orderBumpsValor = obs.reduce((acc: number, ob: any) => acc + ob.preco, 0);
       orderBumpsNomes = obs.map((ob: any) => `${ob.titulo} (R$ ${ob.preco.toFixed(2).replace('.', ',')})`);
       valorTotal += orderBumpsValor;
     }
+
+   valorTotal += freteValor;
 
     const configPix = await prisma.configuracaoGateway.findUnique({ where: { metodo: 'PIX' } });
     const configBoleto = await prisma.configuracaoGateway.findUnique({ where: { metodo: 'BOLETO' } });
@@ -70,6 +75,7 @@ export async function POST(request: NextRequest) {
         nomePlano: plano.nome,
         orderBumpsIds: orderBumpIds || [],
         orderBumpsNomes, orderBumpsValor,
+        freteNome, freteValor,
         produtoId: plano.produtoId,
         vendedorId: plano.produto.userId,
         utmSource: body.utmSource || null,
