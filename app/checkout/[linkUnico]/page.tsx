@@ -60,6 +60,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
   const [buscandoCep, setBuscandoCep] = useState(false);
   const [processando, setProcessando] = useState(false);
   const [orderBumpsSelecionados, setOrderBumpsSelecionados] = useState<string[]>([]);
+  const [quantidade, setQuantidade] = useState(1);
 
   const [formData, setFormData] = useState({
     nome: '',
@@ -73,7 +74,9 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
     bairro: '',
     cidade: '',
     estado: '',
-    metodoPagamento: 'PIX'
+    metodoPagamento: 'PIX',
+    freteValor: 0,
+    freteNome: ''
   });
 
   const [cartaoData, setCartaoData] = useState({
@@ -317,8 +320,14 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
   const tokenizarCartaoEfi = async (): Promise<string | null> => {
     try {
       const EfiPay = (await import('payment-token-efi')).default;
+      const numeroCartao = (formData as any).cartaoNumero || cartaoData.numero.replace(/\D/g, '');
+      const nomeCartao = (formData as any).cartaoNome || cartaoData.nome;
+      const mesCartao = (formData as any).cartaoMes || cartaoData.mes;
+      const anoCartao = (formData as any).cartaoAno || cartaoData.ano;
+      const cvvCartao = (formData as any).cartaoCvv || cartaoData.cvv;
+
       const brand = await EfiPay.CreditCard
-        .setCardNumber(cartaoData.numero.replace(/\D/g, ''))
+        .setCardNumber(numeroCartao)
         .verifyCardBrand();
 
       const result = await EfiPay.CreditCard
@@ -326,11 +335,11 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
         .setEnvironment('production')
         .setCreditCardData({
           brand,
-          number: cartaoData.numero.replace(/\D/g, ''),
-          cvv: cartaoData.cvv,
-          expirationMonth: cartaoData.mes,
-          expirationYear: cartaoData.ano.length === 2 ? '20' + cartaoData.ano : cartaoData.ano,
-          holderName: cartaoData.nome,
+          number: numeroCartao,
+          cvv: cvvCartao,
+          expirationMonth: mesCartao,
+          expirationYear: anoCartao.length === 2 ? '20' + anoCartao : anoCartao,
+          holderName: nomeCartao,
           holderDocument: formData.cpf.replace(/\D/g, ''),
           reuse: false,
         })
@@ -347,12 +356,17 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
   const tokenizarCartaoMP = async (): Promise<string | null> => {
     try {
       const mp = new (window as any).MercadoPago('APP_USR-f4a20f19-bebf-4369-95af-171915a3a4cc');
+      const numeroCartaoMP = (formData as any).cartaoNumero || cartaoData.numero.replace(/\D/g, '');
+      const nomeCartaoMP = (formData as any).cartaoNome || cartaoData.nome;
+      const mesCartaoMP = (formData as any).cartaoMes || cartaoData.mes;
+      const anoCartaoMP = (formData as any).cartaoAno || cartaoData.ano;
+      const cvvCartaoMP = (formData as any).cartaoCvv || cartaoData.cvv;
       const token = await mp.createCardToken({
-        cardNumber: cartaoData.numero.replace(/\D/g, ''),
-        cardholderName: cartaoData.nome,
-        cardExpirationMonth: cartaoData.mes,
-        cardExpirationYear: cartaoData.ano.length === 2 ? '20' + cartaoData.ano : cartaoData.ano,
-        securityCode: cartaoData.cvv,
+        cardNumber: numeroCartaoMP,
+        cardholderName: nomeCartaoMP,
+        cardExpirationMonth: mesCartaoMP,
+        cardExpirationYear: anoCartaoMP.length === 2 ? '20' + anoCartaoMP : anoCartaoMP,
+        securityCode: cvvCartaoMP,
         identificationType: 'CPF',
         identificationNumber: formData.cpf.replace(/\D/g, '')
       });
@@ -378,6 +392,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
       const base = {
         planoId: plano?.id,
         orderBumpIds: orderBumpsSelecionados,
+        quantidade,
         compradorNome: formData.nome,
         compradorEmail: formData.email,
         compradorCpf: formData.cpf,
@@ -390,6 +405,8 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
         cidade: formData.cidade,
         estado: formData.estado,
         metodoPagamento: formData.metodoPagamento,
+        freteValor: formData.freteValor || 0,
+        freteNome: formData.freteNome || null,
         utmSource,
         utmMedium,
         utmCampaign,
@@ -500,6 +517,8 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
    if (plano.checkoutVersao === 'v5') {
     return (
       <CheckoutV5Component
+        quantidade={quantidade}
+        setQuantidade={setQuantidade}
         plano={plano}
         formData={formData}
         setFormData={setFormData}

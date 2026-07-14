@@ -319,6 +319,7 @@ model Venda {
   orderBumpsValor    Float?   @default(0)
   freteNome          String?
   freteValor         Float?   @default(0)
+  quantidade         Int?     @default(1)
   utmSource          String?
   utmMedium          String?
   utmCampaign        String?

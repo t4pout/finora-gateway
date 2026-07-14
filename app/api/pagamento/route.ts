@@ -40,7 +40,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Plano não encontrado ou inativo' }, { status: 404 });
     }
 
-    let valorTotal = plano.preco;
+    const quantidade = Math.max(1, Number(body.quantidade) || 1);
+    let valorTotal = plano.preco * quantidade;
     let orderBumpsNomes: string[] = [];
     let orderBumpsValor = 0;
 
@@ -76,6 +77,7 @@ export async function POST(request: NextRequest) {
         orderBumpsIds: orderBumpIds || [],
         orderBumpsNomes, orderBumpsValor,
         freteNome, freteValor,
+        quantidade,
         produtoId: plano.produtoId,
         vendedorId: plano.produto.userId,
         utmSource: body.utmSource || null,
