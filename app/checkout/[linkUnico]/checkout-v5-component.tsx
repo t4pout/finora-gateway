@@ -48,6 +48,8 @@ interface Props {
   setQuantidade: (n: number) => void;
 }
 
+const BANDEIRAS = ['AMEX', 'VISA', 'DINERS', 'MASTER', 'DISCOVER', 'ELO', 'HIPER'];
+
 export default function CheckoutV5({ plano, formData, setFormData, etapa, setEtapa, processando, buscandoCep, tempoRestante, finalizarPedido, validarCPF, formatarTempo, orderBumpsSelecionados, setOrderBumpsSelecionados, quantidade, setQuantidade }: Props) {
   const cor = plano.checkoutCorPrimaria || '#2e7d32';
   const [metodoPag, setMetodoPag] = useState(formData.metodoPagamento || 'CARTAO');
@@ -56,6 +58,8 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
 
   const isProdutoDigital = plano?.produto?.tipo === 'DIGITAL';
   const precisaEndereco = !isProdutoDigital && plano?.checkoutPedirEndereco;
+  const etapaPagamento = precisaEndereco ? 3 : 2;
+  const totalEtapas = precisaEndereco ? 3 : 2;
 
   const [fretes, setFretes] = useState<OpcaoFrete[]>([]);
   const [freteSelecionadoId, setFreteSelecionadoId] = useState<string>('');
@@ -161,21 +165,35 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
     finalizarPedido();
   };
 
-  const getBandeira = (num: string) => {
-    const n = num.replace(/\D/g, '');
-    if (/^4/.test(n)) return 'VISA';
-    if (/^5[1-5]/.test(n)) return 'MASTER';
-    if (/^3[47]/.test(n)) return 'AMEX';
-    return '';
-  };
-  const bandeira = getBandeira(cartaoData.numero);
+  const orderBumpBlock = plano.orderBumps && plano.orderBumps.length > 0 && (
+    <div className="v5-ob-embutido">
+      <div className="v5-ob-selo">🎉 VOCÊ TEM {plano.orderBumps.length} OFERTA{plano.orderBumps.length > 1 ? 'S' : ''}!</div>
+      {plano.orderBumps.map((ob) => (
+        <div key={ob.orderBump.id} className="v5-ob-card">
+          {ob.orderBump.imagem && <img src={ob.orderBump.imagem} alt={ob.orderBump.titulo} className="v5-ob-imagem" />}
+          <div className="v5-ob-info">
+            <div className="v5-ob-nome">{ob.orderBump.titulo}</div>
+            {ob.orderBump.descricao && <div className="v5-ob-desc">{ob.orderBump.descricao}</div>}
+          </div>
+          <label className="v5-ob-btn">
+            <input type="checkbox" checked={orderBumpsSelecionados.includes(ob.orderBump.id)} onChange={(e) => {
+              if (e.target.checked) setOrderBumpsSelecionados([...orderBumpsSelecionados, ob.orderBump.id]);
+              else setOrderBumpsSelecionados(orderBumpsSelecionados.filter(id => id !== ob.orderBump.id));
+            }} />
+            + Adicionar oferta
+          </label>
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <>
       <div className="v5-page">
-        {plano.checkoutLogoSuperior && (
-          <div className="v5-logo-top"><img src={plano.checkoutLogoSuperior} alt="Logo" /></div>
-        )}
+        <div className="v5-header">
+          {plano.checkoutLogoSuperior ? <img src={plano.checkoutLogoSuperior} alt="Logo" className="v5-header-logo" /> : <div />}
+          <div className="v5-header-selo">🔒 <span>PAGAMENTO<br/>100% SEGURO</span></div>
+        </div>
 
         {plano.checkoutCronometro && tempoRestante > 0 && (
           <div className="v5-faixa">
@@ -186,14 +204,12 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
         )}
 
         <div className="v5-grid">
-          {/* COLUNA ESQUERDA — STEPS */}
-          <div className="v5-col-esquerda">
-
-            {/* STEP 1 — IDENTIFICAÇÃO */}
+          {/* COLUNA 1 — IDENTIFICAÇÃO + ENTREGA */}
+          <div className="v5-col">
             <div className={`v5-box ${etapa > 1 ? 'v5-box-completo' : ''}`}>
               <div className="v5-box-header">
                 <h3>Identificação</h3>
-                {etapa === 1 ? <span className="v5-box-etapa">1 de {precisaEndereco ? 3 : 2}</span> : (
+                {etapa === 1 ? <span className="v5-box-etapa">1 de {totalEtapas}</span> : (
                   <button className="v5-box-editar" onClick={() => setEtapa(1)}>✎</button>
                 )}
               </div>
@@ -215,14 +231,11 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
               )}
             </div>
 
-            {/* STEP 2 — ENTREGA */}
             {precisaEndereco && (
               <div className={`v5-box ${etapa === 1 ? 'v5-box-desativado' : ''} ${etapa > 2 ? 'v5-box-completo' : ''}`}>
                 <div className="v5-box-header">
                   <h3>Entrega</h3>
-                  {etapa === 2 ? <span className="v5-box-etapa">2 de 3</span> : etapa > 2 ? (
-                    <button className="v5-box-editar" onClick={() => setEtapa(2)}>✎</button>
-                  ) : <span className="v5-box-etapa">2 de 3</span>}
+                  <span className="v5-box-etapa">2 de 3</span>
                 </div>
                 {etapa === 1 && <p className="v5-aviso-etapa">Preencha suas informações de entrega para continuar</p>}
                 {etapa === 2 && (
@@ -263,17 +276,28 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
                     )}
                   </div>
                 )}
+                {etapa > 2 && (
+                  <div className="v5-resumo-identificacao">
+                    <div><strong>Endereço para entrega:</strong></div>
+                    <div>{formData.rua}, {formData.numero} - {formData.bairro}</div>
+                    <div>{formData.cidade}-{formData.estado} | CEP {formData.cep}</div>
+                    <div style={{marginTop:'8px'}}><strong>Forma de entrega:</strong></div>
+                    <div>{formData.freteNome || 'Padrão'} {freteValorAtual === 0 ? 'Grátis' : `- R$ ${freteValorAtual.toFixed(2).replace('.', ',')}`}</div>
+                  </div>
+                )}
               </div>
             )}
+          </div>
 
-            {/* STEP 3 — PAGAMENTO */}
-            <div className={`v5-box ${etapa < (precisaEndereco ? 3 : 2) ? 'v5-box-desativado' : ''}`}>
+          {/* COLUNA 2 — PAGAMENTO */}
+          <div className="v5-col">
+            <div className={`v5-box ${etapa < etapaPagamento ? 'v5-box-desativado' : ''}`}>
               <div className="v5-box-header">
                 <h3>Pagamento</h3>
-                <span className="v5-box-etapa">{precisaEndereco ? '3 de 3' : '2 de 2'}</span>
+                <span className="v5-box-etapa">{totalEtapas} de {totalEtapas}</span>
               </div>
-              {etapa < (precisaEndereco ? 3 : 2) && <p className="v5-aviso-etapa">Preencha as informações anteriores para continuar</p>}
-              {etapa === (precisaEndereco ? 3 : 2) && (
+              {etapa < etapaPagamento && <p className="v5-aviso-etapa">Preencha suas informações {precisaEndereco ? 'de entrega' : 'anteriores'} para continuar</p>}
+              {etapa === etapaPagamento && (
                 <div className="v5-form">
                   {plano.checkoutAceitaCartao && (
                     <label className={`v5-metodo-opcao ${metodoPag === 'CARTAO' ? 'v5-metodo-ativo' : ''}`} style={metodoPag === 'CARTAO' ? { borderColor: cor } : {}}>
@@ -308,28 +332,7 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
                           <option key={n} value={n}>{n}x de R$ {(totalGeral / n).toFixed(2).replace('.', ',')}{n === 1 ? ' sem juros' : ''}</option>
                         ))}
                       </select>
-
-                      {plano.orderBumps && plano.orderBumps.length > 0 && (
-                        <div className="v5-ob-embutido">
-                          <div className="v5-ob-selo">🎉 VOCÊ TEM {plano.orderBumps.length} OFERTA{plano.orderBumps.length > 1 ? 'S' : ''}!</div>
-                          {plano.orderBumps.map((ob) => (
-                            <div key={ob.orderBump.id} className="v5-ob-card">
-                              {ob.orderBump.imagem && <img src={ob.orderBump.imagem} alt={ob.orderBump.titulo} className="v5-ob-imagem" />}
-                              <div className="v5-ob-info">
-                                <div className="v5-ob-nome">{ob.orderBump.titulo}</div>
-                                {ob.orderBump.descricao && <div className="v5-ob-desc">{ob.orderBump.descricao}</div>}
-                              </div>
-                              <label className="v5-ob-btn">
-                                <input type="checkbox" checked={orderBumpsSelecionados.includes(ob.orderBump.id)} onChange={(e) => {
-                                  if (e.target.checked) setOrderBumpsSelecionados([...orderBumpsSelecionados, ob.orderBump.id]);
-                                  else setOrderBumpsSelecionados(orderBumpsSelecionados.filter(id => id !== ob.orderBump.id));
-                                }} />
-                                + Adicionar oferta
-                              </label>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                      {orderBumpBlock}
                     </div>
                   )}
 
@@ -343,41 +346,20 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
                     <div className="v5-pix-box">
                       <p className="v5-pix-texto">A confirmação de pagamento é realizada em poucos minutos. Utilize o aplicativo do seu banco para pagar.</p>
                       <div className="v5-pix-valor" style={{ color: cor }}>Valor no Pix: R$ {totalGeral.toFixed(2).replace('.', ',')}</div>
-
-                      {plano.orderBumps && plano.orderBumps.length > 0 && (
-                        <div className="v5-ob-embutido">
-                          <div className="v5-ob-selo">🎉 VOCÊ TEM {plano.orderBumps.length} OFERTA{plano.orderBumps.length > 1 ? 'S' : ''}!</div>
-                          {plano.orderBumps.map((ob) => (
-                            <div key={ob.orderBump.id} className="v5-ob-card">
-                              {ob.orderBump.imagem && <img src={ob.orderBump.imagem} alt={ob.orderBump.titulo} className="v5-ob-imagem" />}
-                              <div className="v5-ob-info">
-                                <div className="v5-ob-nome">{ob.orderBump.titulo}</div>
-                                {ob.orderBump.descricao && <div className="v5-ob-desc">{ob.orderBump.descricao}</div>}
-                              </div>
-                              <label className="v5-ob-btn">
-                                <input type="checkbox" checked={orderBumpsSelecionados.includes(ob.orderBump.id)} onChange={(e) => {
-                                  if (e.target.checked) setOrderBumpsSelecionados([...orderBumpsSelecionados, ob.orderBump.id]);
-                                  else setOrderBumpsSelecionados(orderBumpsSelecionados.filter(id => id !== ob.orderBump.id));
-                                }} />
-                                + Adicionar oferta
-                              </label>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                      {orderBumpBlock}
                     </div>
                   )}
 
                   <button onClick={handleFinalizar} disabled={processando} className="v5-btn-finalizar" style={{ background: processando ? '#9ca3af' : '#16a34a' }}>
-                    {processando ? 'Processando...' : metodoPag === 'PIX' ? 'Finalizar compra' : 'Finalizar compra'}
+                    {processando ? 'Processando...' : 'Finalizar compra'}
                   </button>
                 </div>
               )}
             </div>
           </div>
 
-          {/* COLUNA DIREITA — RESUMO */}
-          <div className="v5-col-direita">
+          {/* COLUNA 3 — RESUMO */}
+          <div className="v5-col v5-col-resumo">
             <div className="v5-resumo-box">
               <h3 className="v5-resumo-titulo">Resumo da compra</h3>
               <div className="v5-resumo-linha"><span>Produtos ({quantidade})</span><span>R$ {(plano.preco * quantidade).toFixed(2).replace('.', ',')}</span></div>
@@ -406,22 +388,31 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
         {plano.checkoutLogoInferior && (
           <div className="v5-logo-bottom"><img src={plano.checkoutLogoInferior} alt="Logo" /></div>
         )}
+
+        <div className="v5-footer">
+          <p className="v5-footer-titulo">Formas de pagamento</p>
+          <div className="v5-footer-bandeiras">
+            {BANDEIRAS.map((b) => <span key={b} className="v5-bandeira-chip">{b}</span>)}
+            <span className="v5-bandeira-chip v5-bandeira-pix">PIX</span>
+          </div>
+        </div>
       </div>
 
       <style jsx global>{`
         * { margin: 0; padding: 0; box-sizing: border-box; }
         .v5-page { min-height: 100vh; background: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        .v5-logo-top { text-align: center; padding: 20px 0; background: white; }
-        .v5-logo-top img { height: 48px; }
+        .v5-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 32px; background: white; border-bottom: 1px solid #f0f0f0; }
+        .v5-header-logo { height: 36px; }
+        .v5-header-selo { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 800; color: #111827; line-height: 1.3; text-align: right; }
         .v5-faixa { background: #0c1b3a; color: white; text-align: center; padding: 16px; }
         .v5-faixa-topo { font-weight: 800; font-size: 14px; letter-spacing: 0.3px; }
         .v5-faixa-meio { font-size: 13px; margin-top: 8px; color: #d1fae5; }
         .v5-faixa-baixo { font-size: 13px; margin-top: 6px; }
         .v5-faixa-baixo strong { color: #facc15; font-size: 15px; }
 
-        .v5-grid { max-width: 1100px; margin: 24px auto; padding: 0 16px; display: grid; grid-template-columns: 1fr 340px; gap: 20px; align-items: start; }
-        .v5-col-esquerda { display: flex; flex-direction: column; gap: 16px; }
-        .v5-col-direita { position: sticky; top: 20px; }
+        .v5-grid { max-width: 1180px; margin: 24px auto; padding: 0 16px; display: grid; grid-template-columns: 1fr 1fr 300px; gap: 20px; align-items: start; }
+        .v5-col { display: flex; flex-direction: column; gap: 16px; }
+        .v5-col-resumo { position: sticky; top: 20px; }
 
         .v5-box { background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; transition: opacity 0.2s; }
         .v5-box-desativado { opacity: 0.55; pointer-events: none; }
@@ -500,12 +491,22 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
         .v5-qtd-btn { width: 32px; height: 32px; border-radius: 8px; border: 1.5px solid #e5e7eb; background: white; font-size: 16px; font-weight: 700; cursor: pointer; }
         .v5-qtd-valor { font-weight: 700; font-size: 14px; }
 
-        .v5-logo-bottom { text-align: center; padding: 20px 0; opacity: 0.6; }
+        .v5-logo-bottom { text-align: center; padding: 10px 0; opacity: 0.6; }
         .v5-logo-bottom img { height: 36px; }
 
-        @media (max-width: 900px) {
+        .v5-footer { background: #0c1b3a; padding: 24px 16px; text-align: center; margin-top: 20px; }
+        .v5-footer-titulo { color: white; font-size: 13px; font-weight: 700; margin-bottom: 12px; }
+        .v5-footer-bandeiras { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+        .v5-bandeira-chip { background: white; color: #111827; font-size: 10px; font-weight: 800; padding: 6px 10px; border-radius: 4px; letter-spacing: 0.3px; }
+        .v5-bandeira-pix { background: #16a34a; color: white; }
+
+        @media (max-width: 1000px) {
+          .v5-grid { grid-template-columns: 1fr 1fr; }
+          .v5-col-resumo { grid-column: 1 / -1; position: static; }
+        }
+        @media (max-width: 640px) {
           .v5-grid { grid-template-columns: 1fr; }
-          .v5-col-direita { position: static; }
+          .v5-header { padding: 12px 16px; }
         }
       `}</style>
     </>
