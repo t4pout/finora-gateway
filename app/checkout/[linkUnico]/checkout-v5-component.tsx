@@ -48,8 +48,6 @@ interface Props {
   setQuantidade: (n: number) => void;
 }
 
-const BANDEIRAS = ['AMEX', 'VISA', 'DINERS', 'MASTER', 'DISCOVER', 'ELO', 'HIPER'];
-
 export default function CheckoutV5({ plano, formData, setFormData, etapa, setEtapa, processando, buscandoCep, tempoRestante, finalizarPedido, validarCPF, formatarTempo, orderBumpsSelecionados, setOrderBumpsSelecionados, quantidade, setQuantidade }: Props) {
   const cor = plano.checkoutCorPrimaria || '#2e7d32';
   const [metodoPag, setMetodoPag] = useState(formData.metodoPagamento || 'CARTAO');
@@ -190,10 +188,13 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
   return (
     <>
       <div className="v5-page">
-        <div className="v5-header">
-          {plano.checkoutLogoSuperior ? <img src={plano.checkoutLogoSuperior} alt="Logo" className="v5-header-logo" /> : <div />}
-          <div className="v5-header-selo">🔒 <span>PAGAMENTO<br/>100% SEGURO</span></div>
-        </div>
+        {plano.checkoutLogoSuperior && (
+          <div className="v5-logo-top"><img src={plano.checkoutLogoSuperior} alt="Logo" /></div>
+        )}
+
+        {plano.checkoutBanner && (
+          <div className="v5-banner"><img src={plano.checkoutBanner} alt="Banner" /></div>
+        )}
 
         {plano.checkoutCronometro && tempoRestante > 0 && (
           <div className="v5-faixa">
@@ -388,22 +389,15 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
         {plano.checkoutLogoInferior && (
           <div className="v5-logo-bottom"><img src={plano.checkoutLogoInferior} alt="Logo" /></div>
         )}
-
-        <div className="v5-footer">
-          <p className="v5-footer-titulo">Formas de pagamento</p>
-          <div className="v5-footer-bandeiras">
-            {BANDEIRAS.map((b) => <span key={b} className="v5-bandeira-chip">{b}</span>)}
-            <span className="v5-bandeira-chip v5-bandeira-pix">PIX</span>
-          </div>
-        </div>
       </div>
 
       <style jsx global>{`
         * { margin: 0; padding: 0; box-sizing: border-box; }
         .v5-page { min-height: 100vh; background: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        .v5-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 32px; background: white; border-bottom: 1px solid #f0f0f0; }
-        .v5-header-logo { height: 36px; }
-        .v5-header-selo { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 800; color: #111827; line-height: 1.3; text-align: right; }
+        .v5-logo-top { text-align: center; padding: 20px 0; background: white; }
+        .v5-logo-top img { height: 44px; }
+        .v5-banner { max-width: 1180px; margin: 0 auto; padding: 0 16px 16px; }
+        .v5-banner img { width: 100%; border-radius: 10px; display: block; }
         .v5-faixa { background: #0c1b3a; color: white; text-align: center; padding: 16px; }
         .v5-faixa-topo { font-weight: 800; font-size: 14px; letter-spacing: 0.3px; }
         .v5-faixa-meio { font-size: 13px; margin-top: 8px; color: #d1fae5; }
@@ -494,19 +488,12 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
         .v5-logo-bottom { text-align: center; padding: 10px 0; opacity: 0.6; }
         .v5-logo-bottom img { height: 36px; }
 
-        .v5-footer { background: #0c1b3a; padding: 24px 16px; text-align: center; margin-top: 20px; }
-        .v5-footer-titulo { color: white; font-size: 13px; font-weight: 700; margin-bottom: 12px; }
-        .v5-footer-bandeiras { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
-        .v5-bandeira-chip { background: white; color: #111827; font-size: 10px; font-weight: 800; padding: 6px 10px; border-radius: 4px; letter-spacing: 0.3px; }
-        .v5-bandeira-pix { background: #16a34a; color: white; }
-
         @media (max-width: 1000px) {
           .v5-grid { grid-template-columns: 1fr 1fr; }
           .v5-col-resumo { grid-column: 1 / -1; position: static; }
         }
         @media (max-width: 640px) {
           .v5-grid { grid-template-columns: 1fr; }
-          .v5-header { padding: 12px 16px; }
         }
       `}</style>
     </>
