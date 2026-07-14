@@ -10,6 +10,25 @@ import { enviarPushParaUsuario } from '@/lib/web-push';
 // Deve ser o ÚNICO lugar que marca uma venda normal como PAGO,
 // seja chamado pelo webhook oficial do gateway ou pela verificação manual.
 export async function processarVendaPaga(vendaId: string) {
+  // Atualização atômica: só marca como PAGO se ainda NÃO estiver paga.
+  // Isso evita que duas chamadas concorrentes (webhook oficial + verificação manual)
+  // processem a mesma venda duas vezes (double-processing / Purchase duplicado).
+  const atualizacao = await prisma.venda.updateMany({
+    where: { id: vendaId, status: { not: 'PAGO' } },
+    data: { status: 'PAGO' }
+  });
+
+  if (atualizacao.count === 0) {
+    // Ou a venda não existe, ou outra chamada concorrente já processou ela agora mesmo.
+    const vendaExistente = await prisma.venda.findUnique({ where: { id: vendaId } });
+    if (!vendaExistente) {
+      console.error('❌ Venda não encontrada:', vendaId);
+      return { error: 'Venda não encontrada', status: 404 as const };
+    }
+    console.log('⚠️ Venda já estava paga (bloqueado por concorrência):', vendaId);
+    return { jaProcessado: true, vendaId };
+  }
+
   const venda = await prisma.venda.findUnique({
     where: { id: vendaId },
     include: {
@@ -20,20 +39,9 @@ export async function processarVendaPaga(vendaId: string) {
   });
 
   if (!venda) {
-    console.error('❌ Venda não encontrada:', vendaId);
+    console.error('❌ Venda não encontrada após atualização:', vendaId);
     return { error: 'Venda não encontrada', status: 404 as const };
   }
-
-  if (venda.status === 'PAGO') {
-    console.log('⚠️ Venda já estava paga:', venda.id);
-    return { jaProcessado: true, vendaId: venda.id };
-  }
-
-  // Atualizar status da venda
-  await prisma.venda.update({
-    where: { id: venda.id },
-    data: { status: 'PAGO' }
-  });
 
   // Buscar produto completo (com pixels)
   const produtoCompleto = await prisma.produto.findUnique({
