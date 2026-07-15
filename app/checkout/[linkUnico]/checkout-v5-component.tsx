@@ -198,9 +198,9 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
 
         {plano.checkoutCronometro && tempoRestante > 0 && (
           <div className="v5-faixa">
-            <div className="v5-faixa-topo">{plano.checkoutMensagemUrgencia || 'ENVIO IMEDIATO, COM RASTREIO E NOTA FISCAL!'}</div>
+            <div className="v5-faixa-topo">ENVIO IMEDIATO, COM RASTREIO E NOTA FISCAL!</div>
             <div className="v5-faixa-meio">✅ Compra segura + garantia de 30 dias. Finalize agora sem risco!</div>
-            <div className="v5-faixa-baixo">⏱️ Oferta termina em <strong>{formatarTempo(tempoRestante)}</strong></div>
+            <div className="v5-faixa-baixo">⏱️ {plano.checkoutMensagemUrgencia || 'Oferta termina em'} <strong>{formatarTempo(tempoRestante)}</strong></div>
           </div>
         )}
 
