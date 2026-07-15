@@ -81,6 +81,7 @@ export async function processarVendaPaga(vendaId: string) {
           data: [{
             event_name: 'Purchase',
             event_time: Math.floor(Date.now() / 1000),
+            event_id: venda.id,
             action_source: 'website',
             event_source_url: `https://www.finorapayments.com/checkout/${venda.id}`,
             user_data: {

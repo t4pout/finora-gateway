@@ -45,13 +45,16 @@ export default function PagamentoSucessoContent() {
                       const tentarDisparar = (tentativas: number) => {
                         if ((window as any).fbq) {
                           try {
+                            const vendaIdAtual = data.venda?.id || data.id;
                             (window as any).fbq('track', 'Purchase', {
                               value: data.venda?.valor || data.valor,
                               currency: 'BRL',
                               content_name: data.venda?.nomePlano || data.produto?.nome || '',
                               content_ids: [produtoId],
                               content_type: 'product',
-                              transaction_id: data.venda?.id || data.id
+                              transaction_id: vendaIdAtual
+                            }, {
+                              eventID: vendaIdAtual
                             });
                             purchaseDisparado.current = true;
                             console.log('✅ Purchase disparado pixel:', pixel.pixelId);
