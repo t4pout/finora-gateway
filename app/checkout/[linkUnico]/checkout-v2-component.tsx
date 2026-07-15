@@ -30,7 +30,7 @@ interface Props {
   processando: boolean;
   buscandoCep: boolean;
   tempoRestante: number;
-  finalizarPedido: () => void;
+  finalizarPedido: (override?: any) => void;
   validarCPF: (cpf: string) => boolean;
   formatarTempo: (s: number) => string;
   orderBumpsSelecionados: string[];
@@ -92,8 +92,7 @@ export default function CheckoutV2({ plano, formData, setFormData, etapa, setEta
       parcelas: cartaoData.parcelas
     };
     setFormData(novoFormData);
-    await new Promise(resolve => setTimeout(resolve, 50));
-    finalizarPedido();
+    finalizarPedido(novoFormData);
   };
 
   // Detectar bandeira do cartão

@@ -317,14 +317,15 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
     setEtapa((!isProdutoDigital && plano?.checkoutPedirEndereco) ? 2 : 3);
   };
 
-  const tokenizarCartaoEfi = async (): Promise<string | null> => {
+  const tokenizarCartaoEfi = async (override?: any): Promise<string | null> => {
     try {
+      const dadosCartao = override ? { ...formData, ...override } : formData;
       const EfiPay = (await import('payment-token-efi')).default;
-      const numeroCartao = (formData as any).cartaoNumero || cartaoData.numero.replace(/\D/g, '');
-      const nomeCartao = (formData as any).cartaoNome || cartaoData.nome;
-      const mesCartao = (formData as any).cartaoMes || cartaoData.mes;
-      const anoCartao = (formData as any).cartaoAno || cartaoData.ano;
-      const cvvCartao = (formData as any).cartaoCvv || cartaoData.cvv;
+      const numeroCartao = (dadosCartao as any).cartaoNumero || cartaoData.numero.replace(/\D/g, '');
+      const nomeCartao = (dadosCartao as any).cartaoNome || cartaoData.nome;
+      const mesCartao = (dadosCartao as any).cartaoMes || cartaoData.mes;
+      const anoCartao = (dadosCartao as any).cartaoAno || cartaoData.ano;
+      const cvvCartao = (dadosCartao as any).cartaoCvv || cartaoData.cvv;
 
       const brand = await EfiPay.CreditCard
         .setCardNumber(numeroCartao)
@@ -378,12 +379,14 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
     }
   };
 
-  const finalizarPedido = async () => {
-    if (!formData.nome || !formData.email || !formData.telefone) {
+  const finalizarPedido = async (override?: any) => {
+    const dados = override ? { ...formData, ...override } : formData;
+
+    if (!dados.nome || !dados.email || !dados.telefone) {
       alert('Preencha todos os campos obrigatorios');
       return;
     }
-    if (!formData.cpf || !validarCPF(formData.cpf)) {
+    if (!dados.cpf || !validarCPF(dados.cpf)) {
       alert('CPF invalido! Por favor, verifique o numero digitado.');
       return;
     }
@@ -393,20 +396,20 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
         planoId: plano?.id,
         orderBumpIds: orderBumpsSelecionados,
         quantidade,
-        compradorNome: formData.nome,
-        compradorEmail: formData.email,
-        compradorCpf: formData.cpf,
-        compradorTel: formData.telefone,
-        cep: formData.cep,
-        rua: formData.rua,
-        numero: formData.numero,
-        complemento: formData.complemento,
-        bairro: formData.bairro,
-        cidade: formData.cidade,
-        estado: formData.estado,
-        metodoPagamento: formData.metodoPagamento,
-        freteValor: formData.freteValor || 0,
-        freteNome: formData.freteNome || null,
+        compradorNome: dados.nome,
+        compradorEmail: dados.email,
+        compradorCpf: dados.cpf,
+        compradorTel: dados.telefone,
+        cep: dados.cep,
+        rua: dados.rua,
+        numero: dados.numero,
+        complemento: dados.complemento,
+        bairro: dados.bairro,
+        cidade: dados.cidade,
+        estado: dados.estado,
+        metodoPagamento: dados.metodoPagamento,
+        freteValor: dados.freteValor || 0,
+        freteNome: dados.freteNome || null,
         utmSource,
         utmMedium,
         utmCampaign,
@@ -414,28 +417,28 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
 
       let payload: any = base;
 
-      if (formData.metodoPagamento === 'CARTAO') {
+      if (dados.metodoPagamento === 'CARTAO') {
         if (gatewayCartao === 'APPMAX' || gatewayCartao === 'CIELO') {
           payload = {
             ...base,
-            cartaoNumero: cartaoData.numero.replace(/\D/g, ''),
-            cartaoNome: cartaoData.nome,
-            cartaoMes: cartaoData.mes,
-            cartaoAno: cartaoData.ano,
-            cartaoCvv: cartaoData.cvv,
-            parcelas: parseInt(cartaoData.parcelas)
+            cartaoNumero: (dados.cartaoNumero || cartaoData.numero).replace(/\D/g, ''),
+            cartaoNome: dados.cartaoNome || cartaoData.nome,
+            cartaoMes: dados.cartaoMes || cartaoData.mes,
+            cartaoAno: dados.cartaoAno || cartaoData.ano,
+            cartaoCvv: dados.cartaoCvv || cartaoData.cvv,
+            parcelas: parseInt(dados.parcelas || cartaoData.parcelas)
           };
         } else {
           if (gatewayCartao === 'EFI') {
-              const efiToken = await tokenizarCartaoEfi();
+              const efiToken = await tokenizarCartaoEfi(dados);
               if (!efiToken) { setProcessando(false); return; }
               payload = {
                 ...base,
                 efiToken,
-                cartaoNome: formData.cartaoNome || cartaoData.nome,
-                cartaoMes: formData.cartaoMes || cartaoData.mes,
-                cartaoAno: formData.cartaoAno || cartaoData.ano,
-                parcelas: parseInt(formData.parcelas || cartaoData.parcelas)
+                cartaoNome: dados.cartaoNome || cartaoData.nome,
+                cartaoMes: dados.cartaoMes || cartaoData.mes,
+                cartaoAno: dados.cartaoAno || cartaoData.ano,
+                parcelas: parseInt(dados.parcelas || cartaoData.parcelas)
               };
           } else {
             const token = await tokenizarCartaoMP();
@@ -443,7 +446,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
             payload = {
               ...base,
               mpToken: token,
-              parcelas: parseInt(cartaoData.parcelas)
+              parcelas: parseInt(dados.parcelas || cartaoData.parcelas)
             };
           }
         }
