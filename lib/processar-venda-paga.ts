@@ -195,12 +195,17 @@ export async function processarVendaPaga(vendaId: string) {
     return { error: 'Plano de taxa não encontrado', status: 400 as const };
   }
 
- await enviarNotificacaoPush(
-    vendedor.expoPushToken,
-    'Venda aprovada! 🎉',
-    'Valor total: R$ ' + venda.valor.toFixed(2) + ' - ' + (produtoCompleto?.nome || venda.produto.nome),
-    { tipo: 'VENDA_PAGA', vendaId: venda.id }
-  );
+ try {
+    await enviarNotificacaoPush(
+      vendedor.expoPushToken,
+      'Venda aprovada! 🎉',
+      'Valor total: R$ ' + venda.valor.toFixed(2) + ' - ' + (produtoCompleto?.nome || venda.produto.nome),
+      { tipo: 'VENDA_PAGA', vendaId: venda.id }
+    );
+    console.log('✅ Expo push OK (ou sem token, sem erro)');
+  } catch (e) {
+    console.error('❌ ERRO NO EXPO PUSH (nao bloqueou o resto):', e);
+  }
 
   console.log('🔔🔔🔔 INICIANDO BLOCO WEB PUSH para userId:', venda.produto.userId);
   try {
