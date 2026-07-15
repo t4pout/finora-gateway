@@ -195,21 +195,23 @@ export async function processarVendaPaga(vendaId: string) {
     return { error: 'Plano de taxa não encontrado', status: 400 as const };
   }
 
-  await enviarNotificacaoPush(
+ await enviarNotificacaoPush(
     vendedor.expoPushToken,
     'Venda aprovada! 🎉',
     'Valor total: R$ ' + venda.valor.toFixed(2) + ' - ' + (produtoCompleto?.nome || venda.produto.nome),
     { tipo: 'VENDA_PAGA', vendaId: venda.id }
   );
 
+  console.log('🔔🔔🔔 INICIANDO BLOCO WEB PUSH para userId:', venda.produto.userId);
   try {
     await enviarPushParaUsuario(venda.produto.userId, {
       titulo: 'Venda aprovada! 🎉',
       corpo: 'Valor total: R$ ' + venda.valor.toFixed(2) + ' - ' + (produtoCompleto?.nome || venda.produto.nome),
       url: '/dashboard/vendas'
     });
+    console.log('🔔🔔🔔 BLOCO WEB PUSH FINALIZADO SEM EXCEÇÃO');
   } catch (e) {
-    console.error('Erro ao enviar web push notification:', e);
+    console.error('🔔🔔🔔 ERRO NO BLOCO WEB PUSH:', e);
   }
 
   const valorTotal = venda.valor;
