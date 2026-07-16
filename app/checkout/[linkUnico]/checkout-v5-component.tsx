@@ -39,7 +39,7 @@ interface Props {
   processando: boolean;
   buscandoCep: boolean;
   tempoRestante: number;
-  finalizarPedido: () => void;
+  finalizarPedido: (override?: any) => void;
   validarCPF: (cpf: string) => boolean;
   formatarTempo: (s: number) => string;
   orderBumpsSelecionados: string[];
@@ -159,8 +159,7 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
       parcelas: cartaoData.parcelas
     };
     setFormData(novoFormData);
-    await new Promise(resolve => setTimeout(resolve, 50));
-    finalizarPedido();
+    finalizarPedido(novoFormData);
   };
 
   const orderBumpBlock = plano.orderBumps && plano.orderBumps.length > 0 && (
