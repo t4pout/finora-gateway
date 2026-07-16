@@ -7,7 +7,7 @@ interface CheckoutV4Props {
   formData: any;
   setFormData: (data: any) => void;
   processando: boolean;
-  finalizarPedido: () => void;
+  finalizarPedido: (override?: any) => void;
   validarCPF: (cpf: string) => boolean;
   orderBumpsSelecionados: string[];
   setOrderBumpsSelecionados: (ids: string[]) => void;
@@ -42,9 +42,10 @@ export default function CheckoutV4DigitalComponent({
 
   const handleFinalizar = () => {
     if (!validar()) return;
-    setFormData({ ...formData, metodoPagamento: metodoPag });
-    finalizarPedido();
-  };
+    const novoFormData = { ...formData, metodoPagamento: metodoPag };
+    setFormData(novoFormData);
+    finalizarPedido(novoFormData);
+  };;
 
   useEffect(() => {
     setFormData({ ...formData, metodoPagamento: metodoPag });

@@ -8,7 +8,7 @@ interface CheckoutV3Props {
   setFormData: (data: any) => void;
   processando: boolean;
   buscandoCep: boolean;
-  finalizarPedido: () => void;
+  finalizarPedido: (override?: any) => void;
   validarCPF: (cpf: string) => boolean;
   orderBumpsSelecionados: string[];
   setOrderBumpsSelecionados: (ids: string[]) => void;
@@ -53,8 +53,9 @@ export default function CheckoutV3Component({
 
   const handleFinalizar = () => {
     if (!validar()) return;
-    setFormData({ ...formData, metodoPagamento: metodoPag });
-    finalizarPedido();
+    const novoFormData = { ...formData, metodoPagamento: metodoPag };
+    setFormData(novoFormData);
+    finalizarPedido(novoFormData);
   };
 
   useEffect(() => {
