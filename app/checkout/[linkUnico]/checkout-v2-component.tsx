@@ -476,6 +476,16 @@ export default function CheckoutV2({ plano, formData, setFormData, etapa, setEta
         .v2-seguro { display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: #f0fdf4; border-top: 1px solid #e5e7eb; }
         .v2-seguro-titulo { font-size: 11px; font-weight: 700; color: #166534; }
         .v2-seguro-sub { font-size: 11px; color: #15803d; }
+        .popup-prova-social { position: fixed; bottom: 20px; left: 20px; background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); padding: 16px; max-width: 300px; z-index: 1000; animation: slideInV2 0.4s ease-out; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        @keyframes slideInV2 { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .popup-saindo { animation: slideOutV2 0.3s ease-out forwards !important; }
+        @keyframes slideOutV2 { to { transform: translateX(-100%); opacity: 0; } }
+        .popup-conteudo { display: flex; align-items: flex-start; gap: 12px; }
+        .popup-avatar { width: 40px; height: 40px; background: #16a34a; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 16px; flex-shrink: 0; }
+        .popup-texto { flex: 1; }
+        .popup-linha { font-size: 13px; color: #111827; line-height: 1.4; margin: 0; }
+        .popup-linha strong { font-weight: 700; }
+        .popup-tempo { font-size: 12px; color: #9ca3af; margin: 4px 0 0; }
         .v2-logo-bottom { text-align: center; margin-top: 20px; opacity: 0.6; }
         .v2-logo-bottom img { height: 40px; }
 
