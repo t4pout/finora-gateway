@@ -348,6 +348,11 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
         })
         .getPaymentToken();
 
+      if (!result || !('payment_token' in result) || !result.payment_token) {
+        const erroMsg = (result as any)?.error_description || (result as any)?.message || 'Não foi possível validar o cartão';
+        throw new Error(erroMsg);
+      }
+
       return result.payment_token;
     } catch (e: any) {
       console.error('Erro tokenizar cartao Efi:', e);
