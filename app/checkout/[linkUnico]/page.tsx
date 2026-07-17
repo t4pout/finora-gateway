@@ -244,9 +244,11 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
       else { const todos = [...nomesMasculinos, ...nomesFemininos]; nome = todos[Math.floor(Math.random() * todos.length)]; }
       const cidade = cidades[Math.floor(Math.random() * cidades.length)];
       const minutosAtras = Math.floor(Math.random() * 30) + 1;
+      const qtdComprada = Math.floor(Math.random() * 15) + 1;
+      const inicial = nome.charAt(0).toUpperCase();
       const popup = document.createElement('div');
       popup.className = 'popup-prova-social';
-      popup.innerHTML = '<div class="popup-conteudo"><div class="popup-icone">&#10003;</div><div class="popup-texto"><p class="popup-nome">' + nome + ' de ' + cidade + '</p><p class="popup-acao">Acabou de comprar</p><p class="popup-tempo">ha ' + minutosAtras + ' minutos</p></div></div>';
+      popup.innerHTML = '<div class="popup-conteudo"><div class="popup-avatar">' + inicial + '</div><div class="popup-texto"><p class="popup-linha"><strong>' + nome + '</strong> acaba de comprar ' + qtdComprada + ' unidade' + (qtdComprada > 1 ? 's' : '') + ' de <strong>' + (plano.produto?.nome || 'produto') + '</strong>.</p><p class="popup-tempo">ha ' + minutosAtras + ' minutos</p></div></div>';
       document.body.appendChild(popup);
       setTimeout(() => { popup.classList.add('popup-saindo'); setTimeout(() => popup.remove(), 300); }, 5000);
     };
@@ -954,10 +956,10 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
         .popup-saindo { animation: slideOut 0.3s ease-out forwards !important; }
         @keyframes slideOut { to { transform: translateX(-100%); opacity: 0; } }
         .popup-conteudo { display: flex; align-items: flex-start; gap: 12px; }
-        .popup-icone { width: 40px; height: 40px; background: #d1fae5; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #059669; font-size: 20px; flex-shrink: 0; }
+        .popup-avatar { width: 40px; height: 40px; background: #16a34a; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 16px; flex-shrink: 0; }
         .popup-texto { flex: 1; }
-        .popup-nome { font-weight: 600; color: #111827; margin-bottom: 4px; }
-        .popup-acao { font-size: 14px; color: #6b7280; margin-bottom: 2px; }
+        .popup-linha { font-size: 13px; color: #111827; line-height: 1.4; }
+        .popup-linha strong { font-weight: 700; }
         .popup-tempo { font-size: 12px; color: #9ca3af; }
         .ob-container { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
         .ob-titulo { font-size: 16px; font-weight: 700; color: #111827; margin-bottom: 4px; }

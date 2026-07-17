@@ -374,7 +374,7 @@ export default function CheckoutV2({ plano, formData, setFormData, etapa, setEta
 
               {/* BOTÃO CONFIRMAR */}
               <button onClick={handleFinalizar} disabled={processando} className="v2-btn-confirmar" style={{ background: processando ? '#ccc' : '#16a34a' }}>
-                {processando ? 'Processando...' : metodoPag === 'PIX' ? '🟢 Gerar Pix copia e cola' : metodoPag === 'BOLETO' ? '📄 Gerar Boleto' : '🔒 Confirmar Pagamento'}
+                {processando ? 'Processando...' : metodoPag === 'PIX' ? '🟢 Gerar Pix' : metodoPag === 'BOLETO' ? '📄 Gerar Boleto' : '🔒 Confirmar Pagamento'}
               </button>
 
               <div className="v2-seguro">
