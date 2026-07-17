@@ -10,11 +10,12 @@ interface EventoPixel {
   contentIds?: string[];
   email?: string;
   phone?: string;
+  eventId?: string;
 }
 
 export async function dispararEventoCAPI(evento: EventoPixel) {
   try {
-    const eventId = crypto.randomUUID();
+    const eventId = evento.eventId || crypto.randomUUID();
     const timestamp = Math.floor(Date.now() / 1000);
 
     const userData: any = {};

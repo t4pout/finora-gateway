@@ -33,9 +33,12 @@ export async function POST(req: NextRequest) {
       });
 
       if (!venda) { console.log('Venda não encontrada:', vendaId); return; }
-      if (venda.status === 'PAGO') { console.log('Venda já paga:', vendaId); return; }
 
-      await prisma.venda.update({ where: { id: vendaId }, data: { status: 'PAGO' } });
+      const atualizacao = await prisma.venda.updateMany({
+        where: { id: vendaId, status: { not: 'PAGO' } },
+        data: { status: 'PAGO' }
+      });
+      if (atualizacao.count === 0) { console.log('Venda já paga (bloqueado por concorrência):', vendaId); return; }
 
       // Carteira
       try {
@@ -50,7 +53,7 @@ export async function POST(req: NextRequest) {
       try {
         if (venda.produtoId) {
           const pixels = await prisma.pixelConversao.findMany({
-            where: { produtoId: venda.produtoId, plataforma: 'FACEBOOK', status: 'ATIVO' }
+            where: { produtoId: venda.produtoId, plataforma: 'FACEBOOK', status: 'ATIVO', eventoCompra: true, condicaoPagamentoAprovado: true }
           }).catch(() => []);
           for (const px of pixels) {
             if (px.pixelId && px.tokenAPI) {
@@ -59,6 +62,7 @@ export async function POST(req: NextRequest) {
                 pixelId: px.pixelId,
                 accessToken: px.tokenAPI,
                 eventName: 'Purchase',
+                eventId: venda.id,
                 value: venda.valor,
                 contentName: venda.nomePlano || '',
                 contentIds: [venda.produtoId],
