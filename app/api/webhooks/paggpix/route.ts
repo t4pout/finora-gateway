@@ -123,19 +123,17 @@ export async function POST(request: NextRequest) {
 }
 
 // Processar venda normal (checkout)
-async function processarVendaNormal(venda: any) {
-  if (venda.status === 'PAGO') {
-    console.log('⚠️ Venda já estava paga:', venda.id);
+async function processarVendaNormal(venda: any) {// Atualização atômica: só marca como PAGO se ainda não estiver.
+  // Evita processar duas vezes se a PagPix reenviar o mesmo webhook (comportamento normal de qualquer provedor).
+  const atualizacao = await prisma.venda.updateMany({
+    where: { id: venda.id, status: { not: 'PAGO' } },
+    data: { status: 'PAGO' }
+  });
+
+  if (atualizacao.count === 0) {
+    console.log('⚠️ Venda já estava paga (bloqueado por concorrência):', venda.id);
     return NextResponse.json({ message: 'Já processado' }, { status: 200 });
   }
-
-  // Atualizar status da venda
-  await prisma.venda.update({
-    where: { id: venda.id },
-    data: { 
-      status: 'PAGO',
-    }
-  });
   // Buscar produto ANTES de tudo
   const produtoCompleto = await prisma.produto.findUnique({
     where: { id: venda.produtoId },
@@ -174,6 +172,7 @@ async function processarVendaNormal(venda: any) {
           data: [{
             event_name: 'Purchase',
             event_time: Math.floor(Date.now() / 1000),
+            event_id: venda.id,
             action_source: 'website',
             event_source_url: `https://www.finorapayments.com/checkout/${venda.id}`,
             user_data: {
@@ -465,6 +464,7 @@ async function processarPedidoPAD(pedido: any) {
       status: 'PAGO'
     }
   });
+  const valorTotal = pedido.valor;
   // Disparar evento Facebook Pixel Purchase
 try {
   const produto = await prisma.produto.findUnique({
@@ -503,7 +503,6 @@ try {
     }
   });
 
-  const valorTotal = pedido.valor;
   const mensagemPedidoPago = `✅ <b>PEDIDO PAD PAGO</b>\n\n` +
     `💰 Valor: R$ ${valorTotal.toFixed(2)}\n` +
     `👤 Cliente: ${pedido.clienteNome}\n` +
@@ -552,7 +551,6 @@ try {
     return NextResponse.json({ error: 'Plano de taxa não encontrado' }, { status: 400 });
   }
 
-  const valorTotal = pedido.valor;
   const taxaPercentual = planoTaxa.pixPercentual;
   const taxaFixa = planoTaxa.pixFixo;
   const prazoLiberacaoDias = planoTaxa.prazoPixDias;
