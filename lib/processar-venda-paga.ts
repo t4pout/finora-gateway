@@ -195,29 +195,7 @@ export async function processarVendaPaga(vendaId: string) {
     return { error: 'Plano de taxa não encontrado', status: 400 as const };
   }
 
- try {
-    await enviarNotificacaoPush(
-      vendedor.expoPushToken,
-      'Venda aprovada! 🎉',
-      'Valor total: R$ ' + venda.valor.toFixed(2) + ' - ' + (produtoCompleto?.nome || venda.produto.nome),
-      { tipo: 'VENDA_PAGA', vendaId: venda.id }
-    );
-    console.log('✅ Expo push OK (ou sem token, sem erro)');
-  } catch (e) {
-    console.error('❌ ERRO NO EXPO PUSH (nao bloqueou o resto):', e);
-  }
-
-  console.log('🔔🔔🔔 INICIANDO BLOCO WEB PUSH para userId:', venda.produto.userId);
-  try {
-    await enviarPushParaUsuario(venda.produto.userId, {
-      titulo: 'Venda aprovada! 🎉',
-      corpo: 'Valor total: R$ ' + venda.valor.toFixed(2) + ' - ' + (produtoCompleto?.nome || venda.produto.nome),
-      url: '/dashboard/vendas'
-    });
-    console.log('🔔🔔🔔 BLOCO WEB PUSH FINALIZADO SEM EXCEÇÃO');
-  } catch (e) {
-    console.error('🔔🔔🔔 ERRO NO BLOCO WEB PUSH:', e);
-  }
+ 
 
   const valorTotal = venda.valor;
   const taxaPercentual = vendedor.planoTaxa.pixPercentual;
@@ -256,6 +234,28 @@ export async function processarVendaPaga(vendaId: string) {
   });
 
   console.log(`✅ Saldo PENDENTE adicionado. Liberação: ${dataLiberacao.toLocaleDateString()}`);
+  const metodoTexto = venda.metodoPagamento === 'CARTAO' ? 'cartão' : venda.metodoPagamento === 'BOLETO' ? 'boleto' : 'pix';
+
+  try {
+    await enviarNotificacaoPush(
+      vendedor.expoPushToken,
+      'Nova venda aprovada!',
+      'Nova venda de ' + metodoTexto + ' aprovada! Sua comissão: R$ ' + valorLiquido.toFixed(2) + '!',
+      { tipo: 'VENDA_PAGA', vendaId: venda.id }
+    );
+  } catch (e) {
+    console.error('❌ ERRO NO EXPO PUSH (nao bloqueou o resto):', e);
+  }
+
+  try {
+    await enviarPushParaUsuario(venda.produto.userId, {
+      titulo: 'Nova venda aprovada!',
+      corpo: 'Nova venda de ' + metodoTexto + ' aprovada! Sua comissão: R$ ' + valorLiquido.toFixed(2) + '!',
+      url: '/dashboard/vendas'
+    });
+  } catch (e) {
+    console.error('❌ ERRO NO WEB PUSH (nao bloqueou o resto):', e);
+  }
 
   try {
     if (produtoCompleto?.tipo === 'DIGITAL' && produtoCompleto?.arquivoUrl) {

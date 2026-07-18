@@ -90,10 +90,11 @@ export async function POST(request: NextRequest) {
 
     try {
       const vendedorUser = await prisma.user.findUnique({ where: { id: plano.produto.userId }, select: { expoPushToken: true } });
+      const metodoTextoGerada = metodoPagamento === 'CARTAO' ? 'cartão' : metodoPagamento === 'BOLETO' ? 'boleto' : 'pix';
       await enviarNotificacaoPush(
         vendedorUser?.expoPushToken,
-        'Nova venda gerada 🛒',
-        'Valor total: R$ ' + valorTotal.toFixed(2) + ' - ' + plano.produto.nome,
+        'Nova venda gerada!',
+        'Novo pedido de ' + metodoTextoGerada + ' gerado! Valor: R$ ' + valorTotal.toFixed(2) + '!',
         { tipo: 'VENDA_GERADA', vendaId: venda.id }
       );
     } catch (e) { console.error('Erro ao notificar venda gerada:', e); }
@@ -584,9 +585,10 @@ export async function POST(request: NextRequest) {
 
     try {
       if (produto?.userId) {
+        const metodoTextoGeradaWeb = metodoPagamento === 'CARTAO' ? 'cartão' : metodoPagamento === 'BOLETO' ? 'boleto' : 'pix';
         await enviarPushParaUsuario(produto.userId, {
-          titulo: '🛒 Nova venda gerada',
-          corpo: `Valor total: R$ ${venda.valor.toFixed(2).replace('.', ',')} - ${plano.nome}`,
+          titulo: 'Nova venda gerada!',
+          corpo: `Novo pedido de ${metodoTextoGeradaWeb} gerado! Valor: R$ ${venda.valor.toFixed(2).replace('.', ',')}!`,
           url: '/dashboard/vendas'
         });
       }
