@@ -160,14 +160,15 @@ async function processarVendaNormal(venda: any) {// Atualização atômica: só 
   // Disparar evento Facebook Pixel Purchase via Conversions API
   try {
     if (produtoCompleto?.pixels && produtoCompleto.pixels.length > 0) {
-      const pixelFacebook = produtoCompleto.pixels.find(p => 
+      const pixelsFacebook = produtoCompleto.pixels.filter(p => 
         p.plataforma === 'FACEBOOK' && 
         p.status === 'ATIVO' &&
         p.eventoCompra &&
-        p.condicaoPagamentoAprovado
+        p.condicaoPagamentoAprovado &&
+        p.tokenAPI
       );
-      
-      if (pixelFacebook && pixelFacebook.tokenAPI) {
+
+      for (const pixelFacebook of pixelsFacebook) {
         const eventData = {
           data: [{
             event_name: 'Purchase',
@@ -205,7 +206,7 @@ async function processarVendaNormal(venda: any) {// Atualização atômica: só 
         );
 
         const result = await response.json();
-        console.log('📊 Purchase event enviado:', result);
+        console.log('📊 Purchase event enviado para pixel ' + pixelFacebook.pixelId + ':', result);
       }
     }
   } catch (e) {
