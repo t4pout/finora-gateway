@@ -164,23 +164,28 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
 
   const orderBumpBlock = plano.orderBumps && plano.orderBumps.length > 0 && (
     <div className="v5-ob-embutido">
-      <div className="v5-ob-selo">🎉 VOCÊ TEM {plano.orderBumps.length} OFERTA{plano.orderBumps.length > 1 ? 'S' : ''}!</div>
-      {plano.orderBumps.map((ob) => (
-        <div key={ob.orderBump.id} className="v5-ob-card">
-          {ob.orderBump.imagem && <img src={ob.orderBump.imagem} alt={ob.orderBump.titulo} className="v5-ob-imagem" />}
-          <div className="v5-ob-info">
-            <div className="v5-ob-nome">{ob.orderBump.titulo}</div>
-            {ob.orderBump.descricao && <div className="v5-ob-desc">{ob.orderBump.descricao}</div>}
-          </div>
-          <label className="v5-ob-btn">
-            <input type="checkbox" checked={orderBumpsSelecionados.includes(ob.orderBump.id)} onChange={(e) => {
+      <div className="v5-ob-selo">Oferta{plano.orderBumps.length > 1 ? 's' : ''} especial{plano.orderBumps.length > 1 ? 'is' : ''} pra você</div>
+      {plano.orderBumps.map((ob) => {
+        const selecionado = orderBumpsSelecionados.includes(ob.orderBump.id);
+        return (
+          <label key={ob.orderBump.id} className={`v5-ob-card ${selecionado ? 'v5-ob-card-ativo' : ''}`} style={selecionado ? { borderColor: cor } : {}}>
+            <input type="checkbox" checked={selecionado} className="v5-ob-checkbox" onChange={(e) => {
               if (e.target.checked) setOrderBumpsSelecionados([...orderBumpsSelecionados, ob.orderBump.id]);
               else setOrderBumpsSelecionados(orderBumpsSelecionados.filter(id => id !== ob.orderBump.id));
             }} />
-            + Adicionar oferta
+            {ob.orderBump.imagem ? (
+              <img src={ob.orderBump.imagem} alt={ob.orderBump.titulo} className="v5-ob-imagem" />
+            ) : (
+              <div className="v5-ob-imagem-placeholder">📦</div>
+            )}
+            <div className="v5-ob-info">
+              <div className="v5-ob-nome">{ob.orderBump.titulo}</div>
+              {ob.orderBump.descricao && <div className="v5-ob-desc">{ob.orderBump.descricao}</div>}
+            </div>
+            <div className="v5-ob-preco" style={{ color: cor }}>+ R$ {ob.orderBump.preco.toFixed(2).replace('.', ',')}</div>
           </label>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 
@@ -454,14 +459,18 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
         .v5-card-tarja { height: 40px; background: #000; margin: -18px -18px 20px; }
         .v5-card-cvv-box { background: white; color: #333; padding: 6px 14px; border-radius: 4px; font-weight: 700; float: right; letter-spacing: 2px; }
 
-        .v5-ob-embutido { background: #fef9c3; border: 1.5px dashed #facc15; border-radius: 10px; padding: 14px; margin-top: 4px; display: flex; flex-direction: column; gap: 10px; }
-        .v5-ob-selo { background: #fde68a; color: #78350f; font-size: 11px; font-weight: 800; padding: 5px 10px; border-radius: 20px; align-self: center; }
-        .v5-ob-card { display: flex; gap: 10px; align-items: center; }
-        .v5-ob-imagem { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; }
+        .v5-ob-embutido { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px; margin-top: 4px; display: flex; flex-direction: column; gap: 10px; }
+        .v5-ob-selo { font-size: 12px; font-weight: 700; color: #374151; }
+        .v5-ob-card { display: flex; gap: 12px; align-items: center; padding: 10px; background: white; border: 1.5px solid #e5e7eb; border-radius: 8px; cursor: pointer; transition: border-color 0.15s; }
+        .v5-ob-card:hover { border-color: #9ca3af; }
+        .v5-ob-card-ativo { background: #fafaff; }
+        .v5-ob-checkbox { width: 18px; height: 18px; flex-shrink: 0; cursor: pointer; }
+        .v5-ob-imagem { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+        .v5-ob-imagem-placeholder { width: 44px; height: 44px; border-radius: 8px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
         .v5-ob-info { flex: 1; }
         .v5-ob-nome { font-size: 12px; font-weight: 700; color: #111827; }
         .v5-ob-desc { font-size: 11px; color: #6b7280; margin-top: 1px; }
-        .v5-ob-btn { display: flex; align-items: center; gap: 4px; background: #ec4899; color: white; font-size: 11px; font-weight: 700; padding: 8px 12px; border-radius: 6px; cursor: pointer; white-space: nowrap; }
+        .v5-ob-preco { font-size: 13px; font-weight: 700; white-space: nowrap; }
 
         .v5-pix-box { border: 1.5px dashed #e5e7eb; border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
         .v5-pix-texto { font-size: 13px; color: #374151; line-height: 1.5; }
