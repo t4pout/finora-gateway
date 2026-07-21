@@ -233,6 +233,23 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
   }, [plano, tempoRestante]);
 
   useEffect(() => {
+    if (typeof document !== 'undefined' && !document.getElementById('popup-prova-social-css')) {
+      const styleTag = document.createElement('style');
+      styleTag.id = 'popup-prova-social-css';
+      styleTag.innerHTML = `
+        .popup-prova-social { position: fixed; bottom: 20px; left: 20px; background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); padding: 16px; max-width: 300px; z-index: 1000; animation: slideInPopup 0.4s ease-out; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        @keyframes slideInPopup { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .popup-saindo { animation: slideOutPopup 0.3s ease-out forwards !important; }
+        @keyframes slideOutPopup { to { transform: translateX(-100%); opacity: 0; } }
+        .popup-conteudo { display: flex; align-items: flex-start; gap: 12px; }
+        .popup-avatar { width: 40px; height: 40px; background: #16a34a; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 16px; flex-shrink: 0; }
+        .popup-texto { flex: 1; }
+        .popup-linha { font-size: 13px; color: #111827; line-height: 1.4; margin: 0; }
+        .popup-linha strong { font-weight: 700; }
+        .popup-tempo { font-size: 12px; color: #9ca3af; margin: 4px 0 0; }
+      `;
+      document.head.appendChild(styleTag);
+    }
     if (!plano?.checkoutProvaSocial || !plano.checkoutIntervaloPop) return;
     const nomesMasculinos = ['Joao', 'Pedro', 'Carlos', 'Rafael', 'Lucas', 'Felipe', 'Bruno', 'Marcelo'];
     const nomesFemininos = ['Maria', 'Ana', 'Julia', 'Beatriz', 'Camila', 'Larissa', 'Fernanda', 'Paula'];
@@ -481,7 +498,13 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
   };
 
   if (loading) {
-    return <div className="loading-container"><div className="spinner"></div></div>;
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#f3f4f6', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+        <div style={{ width: '48px', height: '48px', border: '4px solid #e5e7eb', borderTopColor: '#8b5cf6', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}></div>
+        <p style={{ marginTop: '16px', color: '#6b7280', fontSize: '14px' }}>Carregando checkout...</p>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
   }
 
   if (!plano) {

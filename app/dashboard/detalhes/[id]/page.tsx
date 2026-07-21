@@ -1166,6 +1166,23 @@ return (
                       <div><label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Título *</label><input type="text" value={formOrderBump.titulo} onChange={(e) => setFormOrderBump({...formOrderBump, titulo: e.target.value})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="Ex: Frete Rápido..." /></div>
                       <div><label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Descrição</label><textarea rows={3} value={formOrderBump.descricao} onChange={(e) => setFormOrderBump({...formOrderBump, descricao: e.target.value})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="Descreva o adicional..." /></div>
                       <div><label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Preço (R$) *</label><input type="number" step="0.01" value={formOrderBump.preco} onChange={(e) => setFormOrderBump({...formOrderBump, preco: e.target.value})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="0.00" /></div>
+
+
+<div>
+                        <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Imagem (opcional)</label>
+                        {formOrderBump.imagem && <img src={formOrderBump.imagem} alt="Preview" className="w-20 h-20 object-cover rounded-lg mb-2 border border-gray-200 dark:border-finoradark-border" />}
+                        <input type="file" accept="image/*" onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const fd = new FormData();
+                          fd.append('file', file);
+                          try {
+                            const res = await fetch('/api/upload', { method: 'POST', body: fd });
+                            const data = await res.json();
+                            if (data.url) setFormOrderBump({...formOrderBump, imagem: data.url});
+                          } catch (err) { alert('Erro ao enviar imagem'); }
+                        }} className="w-full px-4 py-3 border-2 border-dashed border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 rounded-lg cursor-pointer" />
+                      </div>
                       <div className="flex gap-3 pt-4">
                         <button onClick={() => setModalOrderBump({ aberto: false, ob: null })} className="flex-1 px-6 py-3 border-2 border-gray-300 dark:border-finoradark-border text-gray-700 dark:text-finoradark-textmuted rounded-lg font-semibold">Cancelar</button>
                         <button onClick={async () => {
