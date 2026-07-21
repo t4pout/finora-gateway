@@ -76,7 +76,6 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
           setFretes(ativos);
           if (ativos.length > 0) {
             setFreteSelecionadoId(ativos[0].id);
-            setFormData((prev: any) => ({ ...prev, freteValor: ativos[0].preco, freteNome: ativos[0].nome }));
           }
         }
       } catch (e) { console.error('Erro ao carregar fretes:', e); }
@@ -91,6 +90,14 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
       setEnderecoExpandido(true);
     }
   }, [formData.rua, formData.cep]);
+  
+  useEffect(() => {
+    if (!enderecoExpandido || fretes.length === 0) return;
+    const freteAtual = fretes.find(f => f.id === freteSelecionadoId) || fretes[0];
+    if (freteAtual) {
+      setFormData((prev: any) => ({ ...prev, freteValor: freteAtual.preco, freteNome: freteAtual.nome }));
+    }
+  }, [enderecoExpandido, fretes]);
 
   const selecionarFrete = (f: OpcaoFrete) => {
     setFreteSelecionadoId(f.id);
