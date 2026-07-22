@@ -33,6 +33,8 @@ interface PlanoOferta {
   checkoutCpfObrigatorio?: boolean;
   checkoutTelObrigatorio?: boolean;
   checkoutPedirEndereco?: boolean;
+  checkoutBackRedirect?: boolean;
+  checkoutBackRedirectUrl?: string;
   orderBumps?: { orderBump: { id: string; titulo: string; descricao: string | null; preco: number; imagem: string | null } }[];
   produto: {
     id: string;
@@ -231,6 +233,17 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
     }, 1000);
     return () => clearInterval(interval);
   }, [plano, tempoRestante]);
+  
+   useEffect(() => {
+    if (!plano?.checkoutBackRedirect || !plano.checkoutBackRedirectUrl) return;
+    const url = plano.checkoutBackRedirectUrl;
+    window.history.pushState(null, '', window.location.href);
+    const handlePopState = () => {
+      window.location.href = url;
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [plano]);
 
   useEffect(() => {
     if (typeof document !== 'undefined' && !document.getElementById('popup-prova-social-css')) {

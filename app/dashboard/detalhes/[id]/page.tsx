@@ -146,7 +146,9 @@ const [formFrete, setFormFrete] = useState({ nome: '', descricao: '', prazoDias:
     checkoutCpfObrigatorio: true,
     checkoutTelObrigatorio: true,
     checkoutPedirEndereco: true,
-    checkoutVersao: 'v1'
+    checkoutVersao: 'v1',
+    checkoutBackRedirect: false,
+    checkoutBackRedirectUrl: ''
   });
 const carregarCoProdutores = async () => {
     try {
@@ -482,7 +484,9 @@ const carregarCoProdutores = async () => {
               checkoutCpfObrigatorio: data.plano.checkoutCpfObrigatorio ? true : false,
               checkoutTelObrigatorio: data.plano.checkoutTelObrigatorio ? true : false,
               checkoutPedirEndereco: data.plano.checkoutPedirEndereco ? true : false,
-              checkoutVersao: data.plano.checkoutVersao || 'v1'
+              checkoutVersao: data.plano.checkoutVersao || 'v1',
+              checkoutBackRedirect: data.plano.checkoutBackRedirect || false,
+              checkoutBackRedirectUrl: data.plano.checkoutBackRedirectUrl || ''
             });
           } else {
             setConfigPlano({
@@ -499,7 +503,8 @@ const carregarCoProdutores = async () => {
               checkoutProvaSocialGenero: data.plano.checkoutPadProvaSocialGenero || 'AMBOS',
               checkoutAceitaPix: true, checkoutAceitaCartao: true, checkoutAceitaBoleto: true,
               checkoutMetodoPreferencial: 'PIX', checkoutCpfObrigatorio: true,
-              checkoutTelObrigatorio: true, checkoutPedirEndereco: true, checkoutVersao: 'v1'
+              checkoutTelObrigatorio: true, checkoutPedirEndereco: true, checkoutVersao: 'v1',
+              checkoutBackRedirect: false, checkoutBackRedirectUrl: ''
             });
           }
         }
@@ -532,6 +537,8 @@ const carregarCoProdutores = async () => {
         dados.checkoutTelObrigatorio = configPlano.checkoutTelObrigatorio;
         dados.checkoutPedirEndereco = configPlano.checkoutPedirEndereco;
         dados.checkoutVersao = configPlano.checkoutVersao || 'v1';
+        dados.checkoutBackRedirect = configPlano.checkoutBackRedirect;
+        dados.checkoutBackRedirectUrl = configPlano.checkoutBackRedirectUrl || null;
       } else {
         dados.checkoutPadBanner = configPlano.checkoutBanner;
         dados.checkoutPadLogoSuperior = configPlano.checkoutLogoSuperior;
@@ -953,6 +960,23 @@ return (
                             <option value="v4">Versão 4 — Digital (sem endereço, ebooks/cursos)</option>
                             <option value="v5">Versão 5 — 3 colunas com frete e depoimentos</option>
                           </select>
+                        </div>
+                      )}
+               {modalConfig.tipo === 'NORMAL' && (
+                        <div className="p-4 bg-gray-50 dark:bg-finoradark-card2 rounded-xl border border-gray-200 dark:border-finoradark-border">
+                          <label className="flex items-center justify-between cursor-pointer">
+                            <div>
+                              <div className="font-bold text-gray-900 dark:text-finoradark-text">↩️ Back Redirect</div>
+                              <div className="text-xs text-gray-500 dark:text-finoradark-textmuted mt-1">Redireciona o cliente quando ele aperta o botão Voltar do navegador</div>
+                            </div>
+                            <input type="checkbox" checked={configPlano.checkoutBackRedirect} onChange={(e) => setConfigPlano({...configPlano, checkoutBackRedirect: e.target.checked})} className="w-5 h-5 flex-shrink-0" />
+                          </label>
+                          {configPlano.checkoutBackRedirect && (
+                            <div className="mt-4">
+                              <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Link de destino</label>
+                              <input type="url" value={configPlano.checkoutBackRedirectUrl} onChange={(e) => setConfigPlano({...configPlano, checkoutBackRedirectUrl: e.target.value})} placeholder="https://..." className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" />
+                            </div>
+                          )}
                         </div>
                       )}
                       <div className="space-y-4">

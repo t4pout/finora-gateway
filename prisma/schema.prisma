@@ -265,6 +265,8 @@ model PlanoOferta {
   checkoutPadProvaSocialGenero  String?  @default("AMBOS")
   checkoutProvaSocialGenero  String?  @default("AMBOS")
   checkoutVersao             String?  @default("v1")
+  checkoutBackRedirect       Boolean  @default(false)
+  checkoutBackRedirectUrl    String?
   orderBumps                 PlanoOrderBump[]
   produtoId                  String
   createdAt                  DateTime @default(now())
