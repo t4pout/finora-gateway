@@ -28,6 +28,9 @@ interface Venda {
   boletoUrl?: string;
   orderBumpsNomes?: string[];
   orderBumpsValor?: number;
+  freteNome?: string;
+  freteValor?: number;
+  quantidade?: number;
   createdAt: string;
   nomePlano?: string;
   produto: { nome: string };
@@ -236,6 +239,9 @@ export default function VendasPage() {
         'Plano': venda.nomePlano || '-',
         'Order Bumps': venda.orderBumpsNomes && venda.orderBumpsNomes.length > 0 ? venda.orderBumpsNomes.join(' | ') : '-',
         'Valor Order Bumps': venda.orderBumpsValor && venda.orderBumpsValor > 0 ? venda.orderBumpsValor.toFixed(2) : '-',
+         'Frete': venda.freteNome || '-',
+        'Valor Frete': venda.freteValor && venda.freteValor > 0 ? venda.freteValor.toFixed(2) : '-',
+        'Quantidade Produto': venda.quantidade || 1,
         'CEP': venda.cep || '-',
         'Endereco': venda.rua ? venda.rua + ', ' + venda.numero : '-',
         'Bairro': venda.bairro || '-',
@@ -791,6 +797,30 @@ export default function VendasPage() {
                   <div className="mt-3 pt-3 border-t border-purple-200 dark:border-finoradark-border flex justify-between">
                     <span className="font-semibold text-purple-900 dark:text-finoradark-text text-sm">Total Order Bumps:</span>
                     <span className="font-bold text-purple-700 dark:text-finoradark-glow">R$ {(vendaSelecionada.orderBumpsValor ?? 0).toFixed(2).replace('.', ',')}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Quantidade */}
+              {vendaSelecionada.quantidade && vendaSelecionada.quantidade > 1 && (
+                <div className="bg-gray-50 dark:bg-finoradark-card2 rounded-xl p-4 border border-gray-200 dark:border-finoradark-border">
+                  <p className="text-xs font-semibold text-gray-500 dark:text-finoradark-textmuted uppercase tracking-wide mb-3">Quantidade</p>
+                  <div className="flex items-center justify-between bg-white dark:bg-finoradark-card rounded-lg px-3 py-2 border border-gray-200 dark:border-finoradark-border">
+                    <span className="text-gray-900 dark:text-finoradark-text text-sm font-medium">🔢 Unidades do produto</span>
+                    <span className="text-gray-900 dark:text-finoradark-text text-sm font-bold">{vendaSelecionada.quantidade}x</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Frete */}
+              {vendaSelecionada.freteNome && (
+                <div className="bg-blue-50 dark:bg-finoradark-card2 rounded-xl p-4 border border-blue-200 dark:border-finoradark-border">
+                  <p className="text-xs font-semibold text-blue-500 dark:text-finoradark-glow uppercase tracking-wide mb-3">Frete Selecionado</p>
+                  <div className="flex items-center justify-between bg-white dark:bg-finoradark-card rounded-lg px-3 py-2 border border-blue-200 dark:border-finoradark-border">
+                    <span className="text-gray-900 dark:text-finoradark-text text-sm font-medium">📦 {vendaSelecionada.freteNome}</span>
+                    <span className="text-gray-900 dark:text-finoradark-text text-sm font-bold">
+                      {vendaSelecionada.freteValor && vendaSelecionada.freteValor > 0 ? `R$ ${vendaSelecionada.freteValor.toFixed(2).replace('.', ',')}` : 'Grátis'}
+                    </span>
                   </div>
                 </div>
               )}
