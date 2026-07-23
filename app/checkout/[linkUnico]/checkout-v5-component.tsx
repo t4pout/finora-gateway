@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { calcularValorComCondicao } from '@/lib/condicao-desconto';
 
 interface OpcaoFrete {
   id: string;
@@ -26,6 +27,7 @@ interface PlanoOferta {
   checkoutAceitaCartao?: boolean;
   checkoutAceitaBoleto?: boolean;
   checkoutPedirEndereco?: boolean;
+  checkoutCondicaoDesconto?: any;
   produto: { id: string; nome: string; descricao: string; imagem: string; tipo?: string; };
   orderBumps?: { orderBump: { id: string; titulo: string; descricao: string | null; preco: number; imagem: string | null } }[];
 }
@@ -108,7 +110,8 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
     ? plano.orderBumps.filter(ob => orderBumpsSelecionados.includes(ob.orderBump.id)).reduce((acc, ob) => acc + ob.orderBump.preco, 0)
     : 0;
   const freteValorAtual = precisaEndereco ? (Number(formData.freteValor) || 0) : 0;
-  const totalGeral = (plano.preco * quantidade) + orderBumpsValor + freteValorAtual;
+  const valorProdutos = calcularValorComCondicao(plano.preco, quantidade, plano.checkoutCondicaoDesconto);
+  const totalGeral = valorProdutos + orderBumpsValor + freteValorAtual;
 
   const formatarNumeroCartao = (num: string) => {
     const limpo = num.replace(/\D/g, '').slice(0, 16);
@@ -374,7 +377,7 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
           <div className="v5-col v5-col-resumo">
             <div className="v5-resumo-box">
               <h3 className="v5-resumo-titulo">Resumo da compra</h3>
-              <div className="v5-resumo-linha"><span>Produtos ({quantidade})</span><span>R$ {(plano.preco * quantidade).toFixed(2).replace('.', ',')}</span></div>
+              <div className="v5-resumo-linha"><span>Produtos ({quantidade})</span><span>R$ {valorProdutos.toFixed(2).replace('.', ',')}</span></div>
               {orderBumpsValor > 0 && <div className="v5-resumo-linha"><span>Adicionais</span><span>R$ {orderBumpsValor.toFixed(2).replace('.', ',')}</span></div>}
               {precisaEndereco && <div className="v5-resumo-linha"><span>Frete</span><span>{freteValorAtual > 0 ? `R$ ${freteValorAtual.toFixed(2).replace('.', ',')}` : 'Grátis'}</span></div>}
               <div className="v5-resumo-total"><span>Total</span><span>R$ {totalGeral.toFixed(2).replace('.', ',')}</span></div>
@@ -383,8 +386,8 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
                 <div className="v5-resumo-produto">
                   {plano.produto.imagem ? <img src={plano.produto.imagem} alt={plano.produto.nome} className="v5-resumo-produto-img" /> : <div className="v5-resumo-produto-img-placeholder">📦</div>}
                   <div className="v5-resumo-produto-info">
-                    <div className="v5-resumo-produto-nome">{quantidade}x {plano.produto.nome} por R$ {plano.preco.toFixed(2).replace('.', ',')}</div>
-                    <div className="v5-resumo-produto-valor">R$ {(plano.preco * quantidade).toFixed(2).replace('.', ',')}</div>
+                    <div className="v5-resumo-produto-nome">{quantidade}x {plano.produto.nome}</div>
+                    <div className="v5-resumo-produto-valor">R$ {valorProdutos.toFixed(2).replace('.', ',')}</div>
                   </div>
                 </div>
               )}

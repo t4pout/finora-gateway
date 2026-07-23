@@ -6,6 +6,7 @@ import { HttpsProxyAgent } from 'https-proxy-agent';
 import { enviarParaPagah } from '@/lib/pagah';
 import { dispararWebhooks, dispararPostbacks } from '@/lib/ferramentas';
 import { enviarPushParaUsuario } from '@/lib/web-push';
+import { calcularValorComCondicao } from '@/lib/condicao-desconto';
 import { enviarNotificacaoPush } from '@/lib/expo-push';
 
 const PAGGPIX_TOKEN = process.env.PAGGPIX_TOKEN;
@@ -41,7 +42,7 @@ export async function POST(request: NextRequest) {
     }
 
     const quantidade = Math.max(1, Number(body.quantidade) || 1);
-    let valorTotal = plano.preco * quantidade;
+    let valorTotal = calcularValorComCondicao(plano.preco, quantidade, plano.checkoutCondicaoDesconto);
     let orderBumpsNomes: string[] = [];
     let orderBumpsValor = 0;
 

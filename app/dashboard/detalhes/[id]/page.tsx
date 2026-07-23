@@ -148,7 +148,8 @@ const [formFrete, setFormFrete] = useState({ nome: '', descricao: '', prazoDias:
     checkoutPedirEndereco: true,
     checkoutVersao: 'v1',
     checkoutBackRedirect: false,
-    checkoutBackRedirectUrl: ''
+    checkoutBackRedirectUrl: '',
+    checkoutCondicaoDesconto: null as any
   });
 const carregarCoProdutores = async () => {
     try {
@@ -486,7 +487,8 @@ const carregarCoProdutores = async () => {
               checkoutPedirEndereco: data.plano.checkoutPedirEndereco ? true : false,
               checkoutVersao: data.plano.checkoutVersao || 'v1',
               checkoutBackRedirect: data.plano.checkoutBackRedirect || false,
-              checkoutBackRedirectUrl: data.plano.checkoutBackRedirectUrl || ''
+              checkoutBackRedirectUrl: data.plano.checkoutBackRedirectUrl || '',
+              checkoutCondicaoDesconto: data.plano.checkoutCondicaoDesconto || null
             });
           } else {
             setConfigPlano({
@@ -504,7 +506,8 @@ const carregarCoProdutores = async () => {
               checkoutAceitaPix: true, checkoutAceitaCartao: true, checkoutAceitaBoleto: true,
               checkoutMetodoPreferencial: 'PIX', checkoutCpfObrigatorio: true,
               checkoutTelObrigatorio: true, checkoutPedirEndereco: true, checkoutVersao: 'v1',
-              checkoutBackRedirect: false, checkoutBackRedirectUrl: ''
+              checkoutBackRedirect: false, checkoutBackRedirectUrl: '',
+              checkoutCondicaoDesconto: null
             });
           }
         }
@@ -512,6 +515,7 @@ const carregarCoProdutores = async () => {
     } catch (error) { console.error('Erro:', error); }
   };
 
+  const getCondicaoAtual = () => configPlano.checkoutCondicaoDesconto || { ativo: false, tipo: 'PERCENTUAL_UNIDADE', percentualUnidade: 10, valorFixoUnidade: 9.9, faixas: [{ quantidadeMinima: 5, percentual: 5 }] }; 
   const handleSalvarConfigPlano = async () => {
     if (!modalConfig.planoId) return;
     try {
@@ -539,6 +543,7 @@ const carregarCoProdutores = async () => {
         dados.checkoutVersao = configPlano.checkoutVersao || 'v1';
         dados.checkoutBackRedirect = configPlano.checkoutBackRedirect;
         dados.checkoutBackRedirectUrl = configPlano.checkoutBackRedirectUrl || null;
+        dados.checkoutCondicaoDesconto = configPlano.checkoutCondicaoDesconto || null;
       } else {
         dados.checkoutPadBanner = configPlano.checkoutBanner;
         dados.checkoutPadLogoSuperior = configPlano.checkoutLogoSuperior;
@@ -975,6 +980,78 @@ return (
                             <div className="mt-4">
                               <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Link de destino</label>
                               <input type="url" value={configPlano.checkoutBackRedirectUrl} onChange={(e) => setConfigPlano({...configPlano, checkoutBackRedirectUrl: e.target.value})} placeholder="https://..." className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" />
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      {modalConfig.tipo === 'NORMAL' && configPlano.checkoutVersao === 'v5' && (
+                        <div className="p-4 bg-gray-50 dark:bg-finoradark-card2 rounded-xl border border-gray-200 dark:border-finoradark-border">
+                          <label className="flex items-center justify-between cursor-pointer">
+                            <div>
+                              <div className="font-bold text-gray-900 dark:text-finoradark-text">🏷️ Condições de Desconto por Quantidade</div>
+                              <div className="text-xs text-gray-500 dark:text-finoradark-textmuted mt-1">Oferece desconto conforme o cliente aumenta a quantidade no checkout</div>
+                            </div>
+                            <input type="checkbox" checked={getCondicaoAtual().ativo} onChange={(e) => setConfigPlano({...configPlano, checkoutCondicaoDesconto: { ...getCondicaoAtual(), ativo: e.target.checked }})} className="w-5 h-5 flex-shrink-0" />
+                          </label>
+                          {getCondicaoAtual().ativo && (
+                            <div className="mt-4 space-y-4">
+                              <div>
+                                <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Tipo de condição</label>
+                                <select value={getCondicaoAtual().tipo} onChange={(e) => setConfigPlano({...configPlano, checkoutCondicaoDesconto: { ...getCondicaoAtual(), tipo: e.target.value }})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none">
+                                  <option value="PERCENTUAL_UNIDADE">% de desconto por unidade adicional</option>
+                                  <option value="VALOR_FIXO_UNIDADE">Valor fixo por unidade adicional</option>
+                                  <option value="LOTE_FAIXAS">Desconto em lote (faixas por quantidade)</option>
+                                </select>
+                              </div>
+
+                              {getCondicaoAtual().tipo === 'PERCENTUAL_UNIDADE' && (
+                                <div>
+                                  <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Desconto (%) a partir da 2ª unidade</label>
+                                  <input type="number" min="0" max="100" value={getCondicaoAtual().percentualUnidade} onChange={(e) => setConfigPlano({...configPlano, checkoutCondicaoDesconto: { ...getCondicaoAtual(), percentualUnidade: parseFloat(e.target.value) || 0 }})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="Ex: 10" />
+                                  <p className="text-xs text-gray-500 dark:text-finoradark-textmuted mt-1">Ex: produto R$20 com 10% → 3 unidades = R$20 + R$18 + R$18</p>
+                                </div>
+                              )}
+
+                              {getCondicaoAtual().tipo === 'VALOR_FIXO_UNIDADE' && (
+                                <div>
+                                  <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Valor (R$) de cada unidade a partir da 2ª</label>
+                                  <input type="number" min="0" step="0.01" value={getCondicaoAtual().valorFixoUnidade} onChange={(e) => setConfigPlano({...configPlano, checkoutCondicaoDesconto: { ...getCondicaoAtual(), valorFixoUnidade: parseFloat(e.target.value) || 0 }})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="Ex: 9.90" />
+                                  <p className="text-xs text-gray-500 dark:text-finoradark-textmuted mt-1">Ex: 1ª unidade R$14,90, demais a R$9,90 cada</p>
+                                </div>
+                              )}
+
+                              {getCondicaoAtual().tipo === 'LOTE_FAIXAS' && (
+                                <div>
+                                  <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Faixas de quantidade</label>
+                                  <div className="space-y-2">
+                                    {(getCondicaoAtual().faixas || []).map((faixa: any, i: number) => (
+                                      <div key={i} className="flex items-center gap-2">
+                                        <input type="number" min="2" value={faixa.quantidadeMinima} onChange={(e) => {
+                                          const novasFaixas = [...getCondicaoAtual().faixas];
+                                          novasFaixas[i] = { ...novasFaixas[i], quantidadeMinima: parseInt(e.target.value) || 0 };
+                                          setConfigPlano({...configPlano, checkoutCondicaoDesconto: { ...getCondicaoAtual(), faixas: novasFaixas }});
+                                        }} className="w-24 px-3 py-2 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg text-sm" placeholder="Qtd" />
+                                        <span className="text-sm text-gray-500 dark:text-finoradark-textmuted">unidades →</span>
+                                        <input type="number" min="0" max="100" value={faixa.percentual} onChange={(e) => {
+                                          const novasFaixas = [...getCondicaoAtual().faixas];
+                                          novasFaixas[i] = { ...novasFaixas[i], percentual: parseFloat(e.target.value) || 0 };
+                                          setConfigPlano({...configPlano, checkoutCondicaoDesconto: { ...getCondicaoAtual(), faixas: novasFaixas }});
+                                        }} className="w-20 px-3 py-2 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg text-sm" placeholder="%" />
+                                        <span className="text-sm text-gray-500 dark:text-finoradark-textmuted">% off</span>
+                                        <button type="button" onClick={() => {
+                                          const novasFaixas = getCondicaoAtual().faixas.filter((_: any, idx: number) => idx !== i);
+                                          setConfigPlano({...configPlano, checkoutCondicaoDesconto: { ...getCondicaoAtual(), faixas: novasFaixas }});
+                                        }} className="px-2 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"><Trash2 size={16} /></button>
+                                      </div>
+                                    ))}
+                                    <button type="button" onClick={() => {
+                                      const novasFaixas = [...(getCondicaoAtual().faixas || []), { quantidadeMinima: 2, percentual: 5 }];
+                                      setConfigPlano({...configPlano, checkoutCondicaoDesconto: { ...getCondicaoAtual(), faixas: novasFaixas }});
+                                    }} className="text-sm text-purple-600 dark:text-finoradark-glow font-semibold">+ Adicionar faixa</button>
+                                  </div>
+                                  <p className="text-xs text-gray-500 dark:text-finoradark-textmuted mt-2">Ex: "a partir de 5 unidades, 5% off" no total</p>
+                                </div>
+                              )}
                             </div>
                           )}
                         </div>

@@ -267,6 +267,7 @@ model PlanoOferta {
   checkoutVersao             String?  @default("v1")
   checkoutBackRedirect       Boolean  @default(false)
   checkoutBackRedirectUrl    String?
+  checkoutCondicaoDesconto   Json?
   orderBumps                 PlanoOrderBump[]
   produtoId                  String
   createdAt                  DateTime @default(now())
