@@ -124,6 +124,34 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
     if (!linkUnico) return;
     carregarPlano();
   }, [linkUnico]);
+   
+  useEffect(() => {
+    try {
+      const salvo = sessionStorage.getItem('finora_dados_recuperados');
+      if (!salvo) return;
+      const dados = JSON.parse(salvo);
+      // Só usa dados salvos nos últimos 30 minutos (evita reaproveitar dados muito antigos)
+      if (!dados.salvoEm || Date.now() - dados.salvoEm > 30 * 60 * 1000) {
+        sessionStorage.removeItem('finora_dados_recuperados');
+        return;
+      }
+      setFormData(prev => ({
+        ...prev,
+        nome: dados.nome || prev.nome,
+        email: dados.email || prev.email,
+        telefone: dados.telefone || prev.telefone,
+        cpf: dados.cpf || prev.cpf,
+        cep: dados.cep || prev.cep,
+        rua: dados.rua || prev.rua,
+        numero: dados.numero || prev.numero,
+        complemento: dados.complemento || prev.complemento,
+        bairro: dados.bairro || prev.bairro,
+        cidade: dados.cidade || prev.cidade,
+        estado: dados.estado || prev.estado
+      }));
+      sessionStorage.removeItem('finora_dados_recuperados');
+    } catch (e) { console.error('Erro ao recuperar dados salvos:', e); }
+  }, []);
 
   const dispararInitiateCheckout = (planoData: PlanoOferta) => {
     if (initiateCheckoutDisparado.current) return;
@@ -239,6 +267,22 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
     const url = plano.checkoutBackRedirectUrl;
     window.history.pushState(null, '', window.location.href);
     const handlePopState = () => {
+      try {
+        sessionStorage.setItem('finora_dados_recuperados', JSON.stringify({
+          nome: formData.nome,
+          email: formData.email,
+          telefone: formData.telefone,
+          cpf: formData.cpf,
+          cep: formData.cep,
+          rua: formData.rua,
+          numero: formData.numero,
+          complemento: formData.complemento,
+          bairro: formData.bairro,
+          cidade: formData.cidade,
+          estado: formData.estado,
+          salvoEm: Date.now()
+        }));
+      } catch (e) { console.error('Erro ao salvar dados para recuperacao:', e); }
       window.location.href = url;
     };
     window.addEventListener('popstate', handlePopState);
