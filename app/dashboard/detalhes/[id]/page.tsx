@@ -121,7 +121,8 @@ export default function DetalhesProdutoPage({ params }: { params: Promise<{ id: 
   const [modalOrderBump, setModalOrderBump] = useState<{ aberto: boolean; ob: any }>({ aberto: false, ob: null });
   const [fretes, setFretes] = useState<any[]>([]);
 const [modalFrete, setModalFrete] = useState<{aberto: boolean, frete: any}>({ aberto: false, frete: null });
-const [formFrete, setFormFrete] = useState({ nome: '', descricao: '', prazoDias: '', preco: '', ativo: true });
+const [formFrete, setFormFrete] = useState({ nome: '', descricao: '', prazoDias: '', preco: '', ativo: true, tipoEnvioId: '' });
+  const [tiposEnvio, setTiposEnvio] = useState<any[]>([]);
   const [formOrderBump, setFormOrderBump] = useState({ titulo: '', descricao: '', preco: '', imagem: '' });
   const [orderBumpsSelecionados, setOrderBumpsSelecionados] = useState<string[]>([]);
   const [fretesSelecionados, setFretesSelecionados] = useState<string[]>([]);
@@ -236,6 +237,7 @@ const carregarCoProdutores = async () => {
     carregarPixels();
     carregarOrderBumps();
     carregarFretes();
+    carregarTiposEnvio();
     carregarCoProdutores();
   }, [produtoId, router]);
 
@@ -449,6 +451,14 @@ const carregarCoProdutores = async () => {
     if (res.ok) { const data = await res.json(); setFretes(data); }
   } catch (e) { console.error(e); }
 };
+
+  const carregarTiposEnvio = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/tipos-envio', { headers: { 'Authorization': 'Bearer ' + token } });
+      if (res.ok) { const data = await res.json(); setTiposEnvio(data); }
+    } catch (e) { console.error(e); }
+  };
 
   const carregarOrderBumpsDePlano = async (planoId: string) => {
     try {
@@ -1345,7 +1355,7 @@ return (
           <h2 className="text-2xl font-bold text-gray-900 dark:text-finoradark-text">📦 Opções de Frete</h2>
           <p className="text-gray-600 dark:text-finoradark-textmuted">Cadastre as formas de envio que aparecerão no checkout</p>
         </div>
-        <button onClick={() => { setFormFrete({ nome: '', descricao: '', prazoDias: '', preco: '', ativo: true }); setModalFrete({ aberto: true, frete: null }); }} className="px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition flex items-center space-x-2">
+        <button onClick={() => { setFormFrete({ nome: '', descricao: '', prazoDias: '', preco: '', ativo: true, tipoEnvioId: '' }); setModalFrete({ aberto: true, frete: null }); }} className="px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition flex items-center space-x-2">
           <Plus size={20} /><span>Nova Opção de Frete</span>
         </button>
       </div>
@@ -1368,7 +1378,7 @@ return (
                   <div className="text-xl font-bold text-purple-600 dark:text-finoradark-glow mt-2">{f.preco > 0 ? `R$ ${f.preco.toFixed(2).replace('.', ',')}` : 'Grátis'}</div>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => { setFormFrete({ nome: f.nome, descricao: f.descricao || '', prazoDias: f.prazoDias.toString(), preco: f.preco.toString(), ativo: f.ativo }); setModalFrete({ aberto: true, frete: f }); }} className="px-4 py-2 border-2 border-gray-300 dark:border-finoradark-border text-gray-700 dark:text-finoradark-textmuted rounded-lg hover:bg-gray-50 dark:hover:bg-finoradark-card2 transition"><Edit size={16} /></button>
+                  <button onClick={() => { setFormFrete({ nome: f.nome, descricao: f.descricao || '', prazoDias: f.prazoDias.toString(), preco: f.preco.toString(), ativo: f.ativo, tipoEnvioId: f.tipoEnvioId || '' }); setModalFrete({ aberto: true, frete: f }); }} className="px-4 py-2 border-2 border-gray-300 dark:border-finoradark-border text-gray-700 dark:text-finoradark-textmuted rounded-lg hover:bg-gray-50 dark:hover:bg-finoradark-card2 transition"><Edit size={16} /></button>
                   <button onClick={async () => { if (!confirm('Excluir esta opção de frete?')) return; await fetch(`/api/produto/${produtoId}/fretes/${f.id}`, { method: 'DELETE' }); carregarFretes(); }} className="px-4 py-2 border-2 border-red-300 dark:border-red-900/50 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition"><Trash2 size={16} /></button>
                 </div>
               </div>
@@ -1387,6 +1397,13 @@ return (
             <div className="grid grid-cols-2 gap-4">
               <div><label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Prazo (dias) *</label><input type="number" value={formFrete.prazoDias} onChange={(e) => setFormFrete({...formFrete, prazoDias: e.target.value})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="10" /></div>
               <div><label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Preço (R$)</label><input type="number" step="0.01" value={formFrete.preco} onChange={(e) => setFormFrete({...formFrete, preco: e.target.value})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="0.00 (deixe 0 pra grátis)" /></div>
+<div>
+              <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Tipo de Envio (para rastreamento)</label>
+              <select value={formFrete.tipoEnvioId} onChange={(e) => setFormFrete({...formFrete, tipoEnvioId: e.target.value})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none">
+                <option value="">Nenhum (sem rastreamento próprio)</option>
+                {tiposEnvio.filter(t => t.ativo).map((t) => <option key={t.id} value={t.id}>{t.nome} ({t.prazoDias} dias)</option>)}
+              </select>
+            </div>
             </div>
             <div className="flex items-center space-x-2"><input type="checkbox" checked={formFrete.ativo} onChange={(e) => setFormFrete({...formFrete, ativo: e.target.checked})} className="w-4 h-4 cursor-pointer" /><span className="text-sm text-gray-600 dark:text-finoradark-textmuted">Ativo (aparece no checkout)</span></div>
             <div className="flex gap-3 pt-4">

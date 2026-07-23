@@ -38,7 +38,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       prazoDias: Number(body.prazoDias),
       preco: Number(body.preco) || 0,
       ativo: body.ativo ?? true,
-      ordem: Number(body.ordem) || 0
+      ordem: Number(body.ordem) || 0,
+      tipoEnvioId: body.tipoEnvioId || null
     }
   });
   return NextResponse.json(opcao);
