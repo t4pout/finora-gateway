@@ -56,6 +56,16 @@ export default function CheckoutV6({ plano, formData, setFormData, etapa, setEta
   const [cartaoData, setCartaoData] = useState({ numero: '', nome: '', validade: '', cvv: '', parcelas: '1' });
   const [flipCard, setFlipCard] = useState(false);
   const [resumoAberto, setResumoAberto] = useState(false);
+  const [semEmail, setSemEmail] = useState(false);
+  const handleSemEmail = (checked: boolean) => {
+    setSemEmail(checked);
+    if (checked) {
+      const telLimpo = (formData.telefone || '').replace(/\D/g, '') || Date.now().toString();
+      setFormData({ ...formData, email: `${telLimpo}@sememail.finora.com` });
+    } else {
+      setFormData({ ...formData, email: '' });
+    }
+  };
 
   const isProdutoDigital = plano?.produto?.tipo === 'DIGITAL';
   const precisaEndereco = !isProdutoDigital && plano?.checkoutPedirEndereco;
@@ -311,8 +321,12 @@ export default function CheckoutV6({ plano, formData, setFormData, etapa, setEta
                 </div>
                 <div className="v6-campo">
                   <label className="v6-label">Seu e-mail</label>
-                  <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} placeholder="Escreva seu e-mail" className="v6-input" />
+                  <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} placeholder="Escreva seu e-mail" className="v6-input" disabled={semEmail} />
                   <span className="v6-dica">Enviaremos a confirmação do seu pedido nesse e-mail</span>
+                  <label className="v6-checkbox-linha">
+                    <input type="checkbox" checked={semEmail} onChange={(e) => handleSemEmail(e.target.checked)} />
+                    <span>Não tenho e-mail</span>
+                  </label>
                 </div>
                 <div className="v6-campo">
                   <label className="v6-label">Seu CPF</label>
@@ -539,6 +553,8 @@ export default function CheckoutV6({ plano, formData, setFormData, etapa, setEta
         .v6-campo { display: flex; flex-direction: column; gap: 5px; flex: 1; }
         .v6-label { font-size: 12px; font-weight: 700; color: #374151; }
         .v6-dica { font-size: 11px; color: #9ca3af; }
+        .v6-checkbox-linha { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #6b7280; font-weight: 500; cursor: pointer; margin-top: 2px; }
+        .v6-checkbox-linha input { width: 16px; height: 16px; cursor: pointer; }
         .v6-row { display: flex; gap: 10px; align-items: flex-start; }
         .v6-input { padding: 13px 15px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 15px; outline: none; width: 100%; }
         .v6-input:focus { border-color: #9ca3af; }
