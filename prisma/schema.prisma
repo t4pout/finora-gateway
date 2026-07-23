@@ -38,6 +38,7 @@ model User {
   contasBancarias       ContaBancaria[]
   documentos            Documento[]
   produtos              Produto[]
+  tiposEnvio            TipoEnvio[]
   pushSubscriptions PushSubscription[]
   despesas          Despesa[]
   linksUTM          LinkUTM[]
@@ -225,6 +226,8 @@ model OpcaoFrete {
   updatedAt   DateTime @updatedAt
   produto     Produto  @relation(fields: [produtoId], references: [id], onDelete: Cascade)
   planos      PlanoFrete[]
+  tipoEnvioId String?
+  tipoEnvio   TipoEnvio? @relation(fields: [tipoEnvioId], references: [id], onDelete: SetNull)
   @@map("OpcaoFrete")
 }
 
@@ -324,6 +327,8 @@ model Venda {
   freteNome          String?
   freteValor         Float?   @default(0)
   quantidade         Int?     @default(1)
+  codigoRastreio     String?  @unique
+  dataInicioRastreio DateTime?
   utmSource          String?
   utmMedium          String?
   utmCampaign        String?
@@ -530,7 +535,19 @@ model PixelConversao {
 
   @@map("OrderBump")
 }
+model TipoEnvio {
+  id         String       @id @default(cuid())
+  userId     String
+  nome       String
+  prazoDias  Int
+  ativo      Boolean      @default(true)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  opcoesFrete OpcaoFrete[]
 
+  @@map("TipoEnvio")
+}
 model PlanoOrderBump {
   planoId     String
   orderBumpId String
