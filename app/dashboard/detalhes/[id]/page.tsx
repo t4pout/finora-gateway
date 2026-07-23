@@ -964,6 +964,7 @@ return (
                             <option value="v3">Versão 3 — One-page clean e profissional</option>
                             <option value="v4">Versão 4 — Digital (sem endereço, ebooks/cursos)</option>
                             <option value="v5">Versão 5 — 3 colunas com frete e depoimentos</option>
+                            <option value="v6">Versão 6 — Etapas em tela cheia (estilo V1) + recursos do V5</option>
                           </select>
                         </div>
                       )}
