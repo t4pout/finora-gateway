@@ -71,7 +71,7 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
     const carregarFretes = async () => {
       setCarregandoFretes(true);
       try {
-        const res = await fetch(`/api/produto/${plano.produto.id}/fretes`);
+        const res = await fetch(`/api/produto/${plano.produto.id}/fretes?planoId=${plano.id}`);
         if (res.ok) {
           const data = await res.json();
           const ativos = (data || []).filter((f: OpcaoFrete) => f.ativo);
