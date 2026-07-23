@@ -985,7 +985,7 @@ return (
                           )}
                         </div>
                       )}
-                      {modalConfig.tipo === 'NORMAL' && configPlano.checkoutVersao === 'v5' && (
+                      {modalConfig.tipo === 'NORMAL' && (configPlano.checkoutVersao === 'v5' || configPlano.checkoutVersao === 'v6') && (
                         <div className="p-4 bg-gray-50 dark:bg-finoradark-card2 rounded-xl border border-gray-200 dark:border-finoradark-border">
                           <label className="flex items-center justify-between cursor-pointer">
                             <div>

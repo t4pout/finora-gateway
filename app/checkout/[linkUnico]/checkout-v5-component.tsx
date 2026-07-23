@@ -92,7 +92,7 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
       setEnderecoExpandido(true);
     }
   }, [formData.rua, formData.cep]);
-  
+
   useEffect(() => {
     if (!enderecoExpandido || fretes.length === 0) return;
     const freteAtual = fretes.find(f => f.id === freteSelecionadoId) || fretes[0];
@@ -408,33 +408,6 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
                     </div>
                   )}
 
-                  {plano.checkoutAceitaPix && (
-                    <label className={`v5-metodo-opcao ${metodoPag === 'PIX' ? 'v5-metodo-ativo' : ''}`} style={metodoPag === 'PIX' ? { borderColor: cor } : {}}>
-                      <input type="radio" checked={metodoPag === 'PIX'} onChange={() => setMetodoPag('PIX')} />
-                      <span>◈ Pix</span>
-                    </label>
-                  )}
-                  {metodoPag === 'PIX' && plano.checkoutAceitaPix && (
-                    <div className="v5-pix-box">
-                      <p className="v5-pix-texto">A confirmação de pagamento é realizada em poucos minutos. Utilize o aplicativo do seu banco para pagar.</p>
-                      <div className="v5-pix-valor" style={{ color: cor }}>Valor no Pix: R$ {totalGeral.toFixed(2).replace('.', ',')}</div>
-                      {orderBumpBlock}
-                    </div>
-                  )}
-                  {plano.checkoutAceitaBoleto && (
-                    <label className={`v5-metodo-opcao ${metodoPag === 'BOLETO' ? 'v5-metodo-ativo' : ''}`} style={metodoPag === 'BOLETO' ? { borderColor: cor } : {}}>
-                      <input type="radio" checked={metodoPag === 'BOLETO'} onChange={() => setMetodoPag('BOLETO')} />
-                      <span>📄 Boleto bancário</span>
-                    </label>
-                  )}
-                  {metodoPag === 'BOLETO' && plano.checkoutAceitaBoleto && (
-                    <div className="v5-pix-box">
-                      <p className="v5-pix-texto">O boleto vence em <strong>3 dias úteis</strong>. A confirmação do pagamento pode levar até 3 dias úteis após o pagamento. O boleto será enviado para o seu e-mail.</p>
-                      <div className="v5-pix-valor" style={{ color: cor }}>Valor no Boleto: R$ {totalGeral.toFixed(2).replace('.', ',')}</div>
-                      {orderBumpBlock}
-                    </div>
-                  )}
-
                   <button onClick={handleFinalizar} disabled={processando} className="v5-btn-finalizar" style={{ background: processando ? '#9ca3af' : '#16a34a' }}>
                     {processando ? 'Processando...' : 'Finalizar compra'}
                   </button>
@@ -578,9 +551,9 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
         .v5-resumo-titulo { font-size: 15px; font-weight: 800; color: #111827; padding-bottom: 12px; border-bottom: 1px solid #f3f4f6; margin-bottom: 12px; }
         .v5-resumo-linha { display: flex; justify-content: space-between; font-size: 13px; color: #374151; margin-bottom: 8px; }
         .v5-resumo-total { display: flex; justify-content: space-between; font-size: 15px; font-weight: 800; color: #111827; padding-top: 10px; border-top: 1px solid #f3f4f6; margin-bottom: 16px; }
-         .v5-condicao-selo { padding: 10px 12px; border: 1.5px solid; border-radius: 10px; font-size: 12px; font-weight: 700; text-align: center; margin-bottom: 12px; animation: pulseCondicao 1.5s ease-in-out; }
+        .v5-condicao-selo { padding: 10px 12px; border: 1.5px solid; border-radius: 10px; font-size: 12px; font-weight: 700; text-align: center; margin-bottom: 12px; animation: pulseCondicao 1.5s ease-in-out; }
         @keyframes pulseCondicao { 0% { transform: scale(1); } 30% { transform: scale(1.03); } 100% { transform: scale(1); } }
-         .v5-faixas-lista { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+        .v5-faixas-lista { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
         .v5-faixa-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; border-radius: 8px; font-size: 11px; font-weight: 600; background: #f9fafb; color: #9ca3af; border: 1px solid #e5e7eb; }
         .v5-faixa-atingida { background: #f0fdf4; color: #166534; border-color: #86efac; }
         .v5-faixa-percentual { font-weight: 800; }
