@@ -392,6 +392,19 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
                       {orderBumpBlock}
                     </div>
                   )}
+                  {plano.checkoutAceitaBoleto && (
+                    <label className={`v5-metodo-opcao ${metodoPag === 'BOLETO' ? 'v5-metodo-ativo' : ''}`} style={metodoPag === 'BOLETO' ? { borderColor: cor } : {}}>
+                      <input type="radio" checked={metodoPag === 'BOLETO'} onChange={() => setMetodoPag('BOLETO')} />
+                      <span>📄 Boleto bancário</span>
+                    </label>
+                  )}
+                  {metodoPag === 'BOLETO' && plano.checkoutAceitaBoleto && (
+                    <div className="v5-pix-box">
+                      <p className="v5-pix-texto">O boleto vence em <strong>3 dias úteis</strong>. A confirmação do pagamento pode levar até 3 dias úteis após o pagamento. O boleto será enviado para o seu e-mail.</p>
+                      <div className="v5-pix-valor" style={{ color: cor }}>Valor no Boleto: R$ {totalGeral.toFixed(2).replace('.', ',')}</div>
+                      {orderBumpBlock}
+                    </div>
+                  )}
 
                   <button onClick={handleFinalizar} disabled={processando} className="v5-btn-finalizar" style={{ background: processando ? '#9ca3af' : '#16a34a' }}>
                     {processando ? 'Processando...' : 'Finalizar compra'}
