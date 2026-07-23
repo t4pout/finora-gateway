@@ -492,11 +492,17 @@ export default function CheckoutV6({ plano, formData, setFormData, etapa, setEta
                     <div className="v6-resumo-produto">
                       {plano.produto.imagem ? <img src={plano.produto.imagem} alt={plano.produto.nome} className="v6-resumo-produto-img" /> : <div className="v6-resumo-produto-img-placeholder">📦</div>}
                       <div className="v6-resumo-produto-info">
-                        <div className="v6-resumo-produto-nome">{quantidade}x {plano.produto.nome}</div>
+                        <div className="v6-resumo-produto-nome">{plano.produto.nome}</div>
                         <div className="v6-resumo-produto-valor">R$ {valorProdutos.toFixed(2).replace('.', ',')}</div>
+                      </div>
+                      <div className="v6-resumo-qtd">
+                        <button type="button" onClick={() => setQuantidade(Math.max(1, quantidade - 1))} className="v6-qtd-btn">−</button>
+                        <span className="v6-qtd-valor">{quantidade}</span>
+                        <button type="button" onClick={() => setQuantidade(quantidade + 1)} className="v6-qtd-btn">+</button>
                       </div>
                     </div>
                   )}
+                  <p className="v6-dica-qtd">Toque em − ou + para ajustar quantas unidades você deseja levar</p>
                   {mensagemCondicao && (
                     <div className="v6-condicao-selo" style={economiaAtual > 0 ? { background: '#f0fdf4', borderColor: '#86efac', color: '#166534' } : { background: '#fffbeb', borderColor: '#fde68a', color: '#92400e' }}>
                       {mensagemCondicao}
