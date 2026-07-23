@@ -348,6 +348,19 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
                       <span>💳 Cartão de crédito</span>
                     </label>
                   )}
+                  {plano.checkoutAceitaPix && (
+                    <label className={`v5-metodo-opcao ${metodoPag === 'PIX' ? 'v5-metodo-ativo' : ''}`} style={metodoPag === 'PIX' ? { borderColor: cor } : {}}>
+                      <input type="radio" checked={metodoPag === 'PIX'} onChange={() => setMetodoPag('PIX')} />
+                      <span>◈ Pix</span>
+                    </label>
+                  )}
+                  {plano.checkoutAceitaBoleto && (
+                    <label className={`v5-metodo-opcao ${metodoPag === 'BOLETO' ? 'v5-metodo-ativo' : ''}`} style={metodoPag === 'BOLETO' ? { borderColor: cor } : {}}>
+                      <input type="radio" checked={metodoPag === 'BOLETO'} onChange={() => setMetodoPag('BOLETO')} />
+                      <span>📄 Boleto bancário</span>
+                    </label>
+                  )}
+
                   {metodoPag === 'CARTAO' && plano.checkoutAceitaCartao && (
                     <div className="v5-cartao-box">
                       <div className={`v5-card-visual ${flipCard ? 'flipped' : ''}`}>
@@ -375,6 +388,22 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
                           <option key={n} value={n}>{n}x de R$ {(totalGeral / n).toFixed(2).replace('.', ',')}{n === 1 ? ' sem juros' : ''}</option>
                         ))}
                       </select>
+                      {orderBumpBlock}
+                    </div>
+                  )}
+
+                  {metodoPag === 'PIX' && plano.checkoutAceitaPix && (
+                    <div className="v5-pix-box">
+                      <p className="v5-pix-texto">A confirmação de pagamento é realizada em poucos minutos. Utilize o aplicativo do seu banco para pagar.</p>
+                      <div className="v5-pix-valor" style={{ color: cor }}>Valor no Pix: R$ {totalGeral.toFixed(2).replace('.', ',')}</div>
+                      {orderBumpBlock}
+                    </div>
+                  )}
+
+                  {metodoPag === 'BOLETO' && plano.checkoutAceitaBoleto && (
+                    <div className="v5-pix-box">
+                      <p className="v5-pix-texto">O boleto vence em <strong>3 dias úteis</strong>. A confirmação do pagamento pode levar até 3 dias úteis após o pagamento. O boleto será enviado para o seu e-mail.</p>
+                      <div className="v5-pix-valor" style={{ color: cor }}>Valor no Boleto: R$ {totalGeral.toFixed(2).replace('.', ',')}</div>
                       {orderBumpBlock}
                     </div>
                   )}
