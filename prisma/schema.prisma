@@ -224,7 +224,7 @@ model OpcaoFrete {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   produto     Produto  @relation(fields: [produtoId], references: [id], onDelete: Cascade)
-
+  planos      PlanoFrete[]
   @@map("OpcaoFrete")
 }
 
@@ -269,6 +269,7 @@ model PlanoOferta {
   checkoutBackRedirectUrl    String?
   checkoutCondicaoDesconto   Json?
   orderBumps                 PlanoOrderBump[]
+  fretes                     PlanoFrete[]
   produtoId                  String
   createdAt                  DateTime @default(now())
   updatedAt                  DateTime @updatedAt
@@ -538,6 +539,16 @@ model PlanoOrderBump {
 
   @@id([planoId, orderBumpId])
   @@map("PlanoOrderBump")
+}
+
+model PlanoFrete {
+  planoId      String
+  opcaoFreteId String
+  plano        PlanoOferta @relation(fields: [planoId], references: [id], onDelete: Cascade)
+  opcaoFrete   OpcaoFrete  @relation(fields: [opcaoFreteId], references: [id], onDelete: Cascade)
+
+  @@id([planoId, opcaoFreteId])
+  @@map("PlanoFrete")
 }
 
 

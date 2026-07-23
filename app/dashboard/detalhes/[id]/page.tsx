@@ -124,6 +124,7 @@ const [modalFrete, setModalFrete] = useState<{aberto: boolean, frete: any}>({ ab
 const [formFrete, setFormFrete] = useState({ nome: '', descricao: '', prazoDias: '', preco: '', ativo: true });
   const [formOrderBump, setFormOrderBump] = useState({ titulo: '', descricao: '', preco: '', imagem: '' });
   const [orderBumpsSelecionados, setOrderBumpsSelecionados] = useState<string[]>([]);
+  const [fretesSelecionados, setFretesSelecionados] = useState<string[]>([]);
   const [coProdutores, setCoProdutores] = useState<any[]>([]);
   const [formCoProdutor, setFormCoProdutor] = useState({ email: '', tipo: 'PERCENTUAL', valor: '' });
   const [salvandoCoProdutor, setSalvandoCoProdutor] = useState(false);
@@ -210,8 +211,8 @@ const carregarCoProdutores = async () => {
   useEffect(() => {
     if (modalConfig.aberto && modalConfig.planoId) {
       carregarConfigPlano(modalConfig.planoId);
-      if (modalConfig.tipo === 'NORMAL') carregarOrderBumpsDePlano(modalConfig.planoId);
-    }
+      if (modalConfig.tipo === 'NORMAL') { carregarOrderBumpsDePlano(modalConfig.planoId); carregarFretesDePlano(modalConfig.planoId); }
+  }
   }, [modalConfig]);
 
   useEffect(() => {
@@ -456,6 +457,13 @@ const carregarCoProdutores = async () => {
       if (res.ok) { const data = await res.json(); setOrderBumpsSelecionados(data.orderBumpIds || []); }
     } catch (e) { console.error(e); }
   };
+  const carregarFretesDePlano = async (planoId: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`/api/planos/${planoId}/fretes`, { headers: { 'Authorization': 'Bearer ' + token } });
+      if (res.ok) { const data = await res.json(); setFretesSelecionados(data.opcaoFreteIds || []); }
+    } catch (e) { console.error(e); }
+  };
 
   const carregarConfigPlano = async (planoId: string) => {
     try {
@@ -560,6 +568,7 @@ const carregarCoProdutores = async () => {
       await fetch(`/api/planos/${modalConfig.planoId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify(dados) });
       if (modalConfig.tipo === 'NORMAL') {
         await fetch(`/api/planos/${modalConfig.planoId}/order-bumps`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify({ orderBumpIds: orderBumpsSelecionados }) });
+        await fetch(`/api/planos/${modalConfig.planoId}/fretes`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify({ opcaoFreteIds: fretesSelecionados }) });
       }
       alert(`✅ Configurações salvas!`);
       setModalConfig({ aberto: false, planoId: null, tipo: 'NORMAL' });
@@ -1152,6 +1161,28 @@ return (
                                   <input type="checkbox" checked={orderBumpsSelecionados.includes(ob.id)} onChange={(e) => { if (e.target.checked) { setOrderBumpsSelecionados([...orderBumpsSelecionados, ob.id]); } else { setOrderBumpsSelecionados(orderBumpsSelecionados.filter(id => id !== ob.id)); }}} className="w-5 h-5" />
                                   <div className="flex-1"><div className="font-semibold text-gray-900 dark:text-finoradark-text">{ob.titulo}</div>{ob.descricao && <div className="text-sm text-gray-600 dark:text-finoradark-textmuted">{ob.descricao}</div>}</div>
                                   <div className="text-purple-600 dark:text-finoradark-glow font-bold">+ R$ {ob.preco.toFixed(2).replace('.', ',')}</div>
+                                </label>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                     {modalConfig.tipo === 'NORMAL' && (configPlano.checkoutVersao === 'v5' || configPlano.checkoutVersao === 'v6') && (
+                        <div className="pt-4 border-t dark:border-finoradark-border">
+                          <h4 className="font-bold text-gray-900 dark:text-finoradark-text mb-4">📦 Opções de Frete</h4>
+                          {fretes.length === 0 ? (
+                            <div className="p-4 bg-gray-50 dark:bg-finoradark-card2 rounded-lg text-center text-gray-600 dark:text-finoradark-textmuted text-sm">Nenhuma opção de frete cadastrada. Crie na aba 📦 Fretes.</div>
+                          ) : (
+                            <div className="space-y-2">
+                              {fretes.map((f) => (
+                                <label key={f.id} className="flex items-center space-x-3 p-4 border-2 dark:border-finoradark-border rounded-xl cursor-pointer hover:border-purple-300 transition">
+                                  <input type="checkbox" checked={fretesSelecionados.includes(f.id)} onChange={(e) => { if (e.target.checked) { setFretesSelecionados([...fretesSelecionados, f.id]); } else { setFretesSelecionados(fretesSelecionados.filter(id => id !== f.id)); }}} className="w-5 h-5" />
+                                  <div className="flex-1">
+                                    <div className="font-semibold text-gray-900 dark:text-finoradark-text">{f.nome} {!f.ativo && <span className="text-sm font-normal text-gray-400">(inativo)</span>}</div>
+                                    <div className="text-sm text-gray-600 dark:text-finoradark-textmuted">{f.prazoDias} dia(s) de prazo</div>
+                                  </div>
+                                  <div className="text-purple-600 dark:text-finoradark-glow font-bold">{f.preco > 0 ? `R$ ${f.preco.toFixed(2).replace('.', ',')}` : 'Grátis'}</div>
                                 </label>
                               ))}
                             </div>
