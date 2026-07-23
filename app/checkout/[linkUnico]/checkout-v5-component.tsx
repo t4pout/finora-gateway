@@ -111,6 +111,31 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
     : 0;
   const freteValorAtual = precisaEndereco ? (Number(formData.freteValor) || 0) : 0;
   const valorProdutos = calcularValorComCondicao(plano.preco, quantidade, plano.checkoutCondicaoDesconto);
+  const condicao = plano.checkoutCondicaoDesconto;
+  const economiaAtual = (plano.preco * quantidade) - valorProdutos;
+
+  let mensagemCondicao: string | null = null;
+  if (condicao?.ativo) {
+    if (condicao.tipo === 'PERCENTUAL_UNIDADE') {
+      mensagemCondicao = quantidade > 1
+        ? `🎉 Você está economizando R$ ${economiaAtual.toFixed(2).replace('.', ',')}!`
+        : `🏷️ A partir da 2ª unidade, ganhe ${condicao.percentualUnidade}% de desconto em cada adicional!`;
+    } else if (condicao.tipo === 'VALOR_FIXO_UNIDADE') {
+      mensagemCondicao = quantidade > 1
+        ? `🎉 Você está economizando R$ ${economiaAtual.toFixed(2).replace('.', ',')}!`
+        : `🏷️ A partir da 2ª unidade, pague só R$ ${Number(condicao.valorFixoUnidade).toFixed(2).replace('.', ',')} em cada adicional!`;
+    } else if (condicao.tipo === 'LOTE_FAIXAS' && Array.isArray(condicao.faixas) && condicao.faixas.length > 0) {
+      const faixasOrdenadas = [...condicao.faixas].sort((a, b) => Number(a.quantidadeMinima) - Number(b.quantidadeMinima));
+      const faixaAtingida = [...faixasOrdenadas].reverse().find(f => quantidade >= Number(f.quantidadeMinima));
+      const proximaFaixa = faixasOrdenadas.find(f => quantidade < Number(f.quantidadeMinima));
+      if (faixaAtingida) {
+        mensagemCondicao = `🎉 Desconto de ${faixaAtingida.percentual}% desbloqueado! Você economiza R$ ${economiaAtual.toFixed(2).replace('.', ',')}!`;
+      } else if (proximaFaixa) {
+        const faltam = Number(proximaFaixa.quantidadeMinima) - quantidade;
+        mensagemCondicao = `🔒 Faltam ${faltam} unidade${faltam > 1 ? 's' : ''} para destravar ${proximaFaixa.percentual}% de desconto!`;
+      }
+    }
+  }
   const totalGeral = valorProdutos + orderBumpsValor + freteValorAtual;
 
   const formatarNumeroCartao = (num: string) => {
@@ -380,6 +405,11 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
               <div className="v5-resumo-linha"><span>Produtos ({quantidade})</span><span>R$ {valorProdutos.toFixed(2).replace('.', ',')}</span></div>
               {orderBumpsValor > 0 && <div className="v5-resumo-linha"><span>Adicionais</span><span>R$ {orderBumpsValor.toFixed(2).replace('.', ',')}</span></div>}
               {precisaEndereco && <div className="v5-resumo-linha"><span>Frete</span><span>{freteValorAtual > 0 ? `R$ ${freteValorAtual.toFixed(2).replace('.', ',')}` : 'Grátis'}</span></div>}
+              {mensagemCondicao && (
+                <div className="v5-condicao-selo" style={economiaAtual > 0 ? { background: '#f0fdf4', borderColor: '#86efac', color: '#166534' } : { background: '#fffbeb', borderColor: '#fde68a', color: '#92400e' }}>
+                  {mensagemCondicao}
+                </div>
+              )}
               <div className="v5-resumo-total"><span>Total</span><span>R$ {totalGeral.toFixed(2).replace('.', ',')}</span></div>
 
               {plano.produto && (
@@ -493,6 +523,8 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
         .v5-resumo-titulo { font-size: 15px; font-weight: 800; color: #111827; padding-bottom: 12px; border-bottom: 1px solid #f3f4f6; margin-bottom: 12px; }
         .v5-resumo-linha { display: flex; justify-content: space-between; font-size: 13px; color: #374151; margin-bottom: 8px; }
         .v5-resumo-total { display: flex; justify-content: space-between; font-size: 15px; font-weight: 800; color: #111827; padding-top: 10px; border-top: 1px solid #f3f4f6; margin-bottom: 16px; }
+         .v5-condicao-selo { padding: 10px 12px; border: 1.5px solid; border-radius: 10px; font-size: 12px; font-weight: 700; text-align: center; margin-bottom: 12px; animation: pulseCondicao 1.5s ease-in-out; }
+        @keyframes pulseCondicao { 0% { transform: scale(1); } 30% { transform: scale(1.03); } 100% { transform: scale(1); } }
         .v5-resumo-produto { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
         .v5-resumo-produto-img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
         .v5-resumo-produto-img-placeholder { width: 40px; height: 40px; border-radius: 8px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; font-size: 18px; }
