@@ -249,6 +249,7 @@ export default function CheckoutV6({ plano, formData, setFormData, etapa, setEta
         )}
 
         {/* BARRA DE RESUMO COMPACTA */}
+        {etapa !== etapaPagamento && (
         <div className="v6-resumo-compacto-wrap">
           <button type="button" className="v6-resumo-compacto" onClick={() => setResumoAberto(!resumoAberto)}>
             <span>🛒 {quantidade}x {plano.produto?.nome} · Total R$ {totalGeral.toFixed(2).replace('.', ',')}</span>
@@ -293,6 +294,7 @@ export default function CheckoutV6({ plano, formData, setFormData, etapa, setEta
             </div>
           )}
         </div>
+        )}
 
         <div className="v6-card">
           <div className="v6-progress">
@@ -484,6 +486,28 @@ export default function CheckoutV6({ plano, formData, setFormData, etapa, setEta
                   </div>
                 )}
 
+                <div className="v6-resumo-final">
+                  <p className="v6-resumo-final-titulo">Resumo da sua compra</p>
+                  {plano.produto && (
+                    <div className="v6-resumo-produto">
+                      {plano.produto.imagem ? <img src={plano.produto.imagem} alt={plano.produto.nome} className="v6-resumo-produto-img" /> : <div className="v6-resumo-produto-img-placeholder">📦</div>}
+                      <div className="v6-resumo-produto-info">
+                        <div className="v6-resumo-produto-nome">{quantidade}x {plano.produto.nome}</div>
+                        <div className="v6-resumo-produto-valor">R$ {valorProdutos.toFixed(2).replace('.', ',')}</div>
+                      </div>
+                    </div>
+                  )}
+                  {mensagemCondicao && (
+                    <div className="v6-condicao-selo" style={economiaAtual > 0 ? { background: '#f0fdf4', borderColor: '#86efac', color: '#166534' } : { background: '#fffbeb', borderColor: '#fde68a', color: '#92400e' }}>
+                      {mensagemCondicao}
+                    </div>
+                  )}
+                  <div className="v6-resumo-linha"><span>Produtos ({quantidade})</span><span>R$ {valorProdutos.toFixed(2).replace('.', ',')}</span></div>
+                  {orderBumpsValor > 0 && <div className="v6-resumo-linha"><span>Adicionais</span><span>R$ {orderBumpsValor.toFixed(2).replace('.', ',')}</span></div>}
+                  {precisaEndereco && <div className="v6-resumo-linha"><span>Frete</span><span>{freteValorAtual > 0 ? `R$ ${freteValorAtual.toFixed(2).replace('.', ',')}` : 'Grátis'}</span></div>}
+                  <div className="v6-resumo-total"><span>Total</span><span>R$ {totalGeral.toFixed(2).replace('.', ',')}</span></div>
+                </div>
+
                 <div className="v6-btn-row">
                   <button onClick={() => setEtapa(precisaEndereco ? 2 : 1)} className="v6-btn-voltar">Voltar</button>
                   <button onClick={handleFinalizar} disabled={processando} className="v6-btn-finalizar" style={{ background: processando ? '#9ca3af' : '#16a34a' }}>
@@ -533,7 +557,8 @@ export default function CheckoutV6({ plano, formData, setFormData, etapa, setEta
         .v6-faixa-percentual { font-weight: 800; }
         .v6-resumo-linha { display: flex; justify-content: space-between; font-size: 12px; color: #374151; margin-bottom: 6px; }
         .v6-resumo-total { display: flex; justify-content: space-between; font-size: 14px; font-weight: 800; color: #111827; padding-top: 8px; border-top: 1px solid #f3f4f6; }
-
+        .v6-resumo-final { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px; margin-top: 4px; }
+        .v6-resumo-final-titulo { font-size: 13px; font-weight: 700; color: #111827; margin-bottom: 10px; }
         .v6-card { max-width: 560px; margin: 16px auto 0; background: white; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); overflow: hidden; }
         .v6-progress { display: flex; align-items: center; justify-content: center; padding: 24px 16px 20px; }
         .v6-step { display: flex; flex-direction: column; align-items: center; gap: 6px; }
