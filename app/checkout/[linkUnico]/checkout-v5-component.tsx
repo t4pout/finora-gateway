@@ -115,6 +115,7 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
   const economiaAtual = (plano.preco * quantidade) - valorProdutos;
 
   let mensagemCondicao: string | null = null;
+  let listaFaixasExibir: any[] = [];
   if (condicao?.ativo) {
     if (condicao.tipo === 'PERCENTUAL_UNIDADE') {
       mensagemCondicao = quantidade > 1
@@ -127,6 +128,8 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
     } else if (condicao.tipo === 'LOTE_FAIXAS' && Array.isArray(condicao.faixas) && condicao.faixas.length > 0) {
       const faixasOrdenadas = [...condicao.faixas].sort((a, b) => Number(a.quantidadeMinima) - Number(b.quantidadeMinima));
       const faixaAtingida = [...faixasOrdenadas].reverse().find(f => quantidade >= Number(f.quantidadeMinima));
+      const listaFaixas = faixasOrdenadas.map(f => ({ ...f, atingida: quantidade >= Number(f.quantidadeMinima) }));
+      listaFaixasExibir = listaFaixas;
       const proximaFaixa = faixasOrdenadas.find(f => quantidade < Number(f.quantidadeMinima));
       if (faixaAtingida) {
         mensagemCondicao = `🎉 Desconto de ${faixaAtingida.percentual}% desbloqueado! Você economiza R$ ${economiaAtual.toFixed(2).replace('.', ',')}!`;
@@ -410,6 +413,16 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
                   {mensagemCondicao}
                 </div>
               )}
+              {listaFaixasExibir.length > 0 && (
+                <div className="v5-faixas-lista">
+                  {listaFaixasExibir.map((f: any, i: number) => (
+                    <div key={i} className={`v5-faixa-item ${f.atingida ? 'v5-faixa-atingida' : ''}`}>
+                      <span>{f.atingida ? '✅' : '🔒'} A partir de {f.quantidadeMinima} unidades</span>
+                      <span className="v5-faixa-percentual">{f.percentual}% OFF</span>
+                    </div>
+                  ))}
+                </div>
+              )}
               <div className="v5-resumo-total"><span>Total</span><span>R$ {totalGeral.toFixed(2).replace('.', ',')}</span></div>
 
               {plano.produto && (
@@ -525,6 +538,10 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
         .v5-resumo-total { display: flex; justify-content: space-between; font-size: 15px; font-weight: 800; color: #111827; padding-top: 10px; border-top: 1px solid #f3f4f6; margin-bottom: 16px; }
          .v5-condicao-selo { padding: 10px 12px; border: 1.5px solid; border-radius: 10px; font-size: 12px; font-weight: 700; text-align: center; margin-bottom: 12px; animation: pulseCondicao 1.5s ease-in-out; }
         @keyframes pulseCondicao { 0% { transform: scale(1); } 30% { transform: scale(1.03); } 100% { transform: scale(1); } }
+         .v5-faixas-lista { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+        .v5-faixa-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; border-radius: 8px; font-size: 11px; font-weight: 600; background: #f9fafb; color: #9ca3af; border: 1px solid #e5e7eb; }
+        .v5-faixa-atingida { background: #f0fdf4; color: #166534; border-color: #86efac; }
+        .v5-faixa-percentual { font-weight: 800; }
         .v5-resumo-produto { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
         .v5-resumo-produto-img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
         .v5-resumo-produto-img-placeholder { width: 40px; height: 40px; border-radius: 8px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; font-size: 18px; }
