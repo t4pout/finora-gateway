@@ -236,6 +236,24 @@ export async function processarVendaPaga(vendaId: string) {
   console.log(`✅ Saldo PENDENTE adicionado. Liberação: ${dataLiberacao.toLocaleDateString()}`);
   const metodoTexto = venda.metodoPagamento === 'CARTAO' ? 'cartão' : venda.metodoPagamento === 'BOLETO' ? 'boleto' : 'pix';
 
+  // Gera código de rastreio próprio, se o frete escolhido tiver um Tipo de Envio configurado
+  try {
+    if (venda.freteNome) {
+      const opcaoFrete = await prisma.opcaoFrete.findFirst({
+        where: { produtoId: venda.produto.id, nome: venda.freteNome },
+        include: { tipoEnvio: true }
+      });
+      if (opcaoFrete?.tipoEnvioId) {
+        const codigo = 'FN' + Math.random().toString(36).substring(2, 6).toUpperCase() + Date.now().toString().slice(-5);
+        await prisma.venda.update({
+          where: { id: venda.id },
+          data: { codigoRastreio: codigo, dataInicioRastreio: new Date() }
+        });
+        console.log('📦 Código de rastreio gerado:', codigo);
+      }
+    }
+  } catch (e) { console.error('Erro ao gerar código de rastreio:', e); }
+
   try {
     await enviarNotificacaoPush(
       vendedor.expoPushToken,
