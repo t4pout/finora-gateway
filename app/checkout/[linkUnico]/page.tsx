@@ -63,7 +63,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
   const [processando, setProcessando] = useState(false);
   const [orderBumpsSelecionados, setOrderBumpsSelecionados] = useState<string[]>([]);
   const [quantidade, setQuantidade] = useState(1);
-
+  const formDataRef = useRef<any>(null);
   const [formData, setFormData] = useState({
     nome: '',
     email: '',
@@ -91,6 +91,9 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
   });
 
   const [gatewayCartao, setGatewayCartao] = useState('MERCADOPAGO');
+  useEffect(() => {
+    formDataRef.current = formData;
+  }, [formData]);
   const [mpReady, setMpReady] = useState(false);
 
   useEffect(() => {
@@ -268,18 +271,19 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
     window.history.pushState(null, '', window.location.href);
     const handlePopState = () => {
       try {
+        const dadosAtuais = formDataRef.current || {};
         sessionStorage.setItem('finora_dados_recuperados', JSON.stringify({
-          nome: formData.nome,
-          email: formData.email,
-          telefone: formData.telefone,
-          cpf: formData.cpf,
-          cep: formData.cep,
-          rua: formData.rua,
-          numero: formData.numero,
-          complemento: formData.complemento,
-          bairro: formData.bairro,
-          cidade: formData.cidade,
-          estado: formData.estado,
+          nome: dadosAtuais.nome,
+          email: dadosAtuais.email,
+          telefone: dadosAtuais.telefone,
+          cpf: dadosAtuais.cpf,
+          cep: dadosAtuais.cep,
+          rua: dadosAtuais.rua,
+          numero: dadosAtuais.numero,
+          complemento: dadosAtuais.complemento,
+          bairro: dadosAtuais.bairro,
+          cidade: dadosAtuais.cidade,
+          estado: dadosAtuais.estado,
           salvoEm: Date.now()
         }));
       } catch (e) { console.error('Erro ao salvar dados para recuperacao:', e); }
