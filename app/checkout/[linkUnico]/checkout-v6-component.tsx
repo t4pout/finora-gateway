@@ -41,7 +41,7 @@ interface Props {
   processando: boolean;
   buscandoCep: boolean;
   tempoRestante: number;
-  finalizarPedido: () => void;
+  finalizarPedido: (override?: any) => void;
   validarCPF: (cpf: string) => boolean;
   formatarTempo: (s: number) => string;
   orderBumpsSelecionados: string[];
@@ -181,8 +181,7 @@ export default function CheckoutV6({ plano, formData, setFormData, etapa, setEta
   };
 
   const handleFinalizar = async () => {
-    const novoFormData = {
-      ...formData,
+    const dadosFinais = {
       metodoPagamento: metodoPag,
       cartaoNumero: cartaoData.numero.replace(/\D/g, ''),
       cartaoNome: cartaoData.nome,
@@ -191,9 +190,8 @@ export default function CheckoutV6({ plano, formData, setFormData, etapa, setEta
       cartaoCvv: cartaoData.cvv,
       parcelas: cartaoData.parcelas
     };
-    setFormData(novoFormData);
-    await new Promise(resolve => setTimeout(resolve, 50));
-    finalizarPedido();
+    setFormData((prev: any) => ({ ...prev, ...dadosFinais }));
+    (finalizarPedido as any)(dadosFinais);
   };
 
   const orderBumpBlock = plano.orderBumps && plano.orderBumps.length > 0 && (
@@ -262,6 +260,7 @@ export default function CheckoutV6({ plano, formData, setFormData, etapa, setEta
                   </div>
                 </div>
               )}
+              <p className="v6-dica-qtd">Toque em − ou + para ajustar quantas unidades você deseja levar</p>
               {mensagemCondicao && (
                 <div className="v6-condicao-selo" style={economiaAtual > 0 ? { background: '#f0fdf4', borderColor: '#86efac', color: '#166534' } : { background: '#fffbeb', borderColor: '#fde68a', color: '#92400e' }}>
                   {mensagemCondicao}
@@ -305,10 +304,24 @@ export default function CheckoutV6({ plano, formData, setFormData, etapa, setEta
           <div className="v6-conteudo">
             {etapa === 1 && (
               <div className="v6-form v6-fade-in">
-                <input type="text" value={formData.nome} onChange={(e) => setFormData({...formData, nome: e.target.value})} placeholder="Nome completo" className="v6-input" />
-                <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} placeholder="E-mail" className="v6-input" />
-                <input type="text" value={formData.cpf} onChange={(e) => setFormData({...formData, cpf: formatarCPF(e.target.value)})} placeholder="CPF" className="v6-input" maxLength={14} />
-                <input type="tel" value={formData.telefone} onChange={(e) => setFormData({...formData, telefone: e.target.value})} placeholder="WhatsApp/Celular" className="v6-input" />
+                <p className="v6-instrucao">Preencha seus dados para continuarmos com o seu pedido:</p>
+                <div className="v6-campo">
+                  <label className="v6-label">Seu nome completo</label>
+                  <input type="text" value={formData.nome} onChange={(e) => setFormData({...formData, nome: e.target.value})} placeholder="Escreva seu nome completo" className="v6-input" />
+                </div>
+                <div className="v6-campo">
+                  <label className="v6-label">Seu e-mail</label>
+                  <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} placeholder="Escreva seu e-mail" className="v6-input" />
+                  <span className="v6-dica">Enviaremos a confirmação do seu pedido nesse e-mail</span>
+                </div>
+                <div className="v6-campo">
+                  <label className="v6-label">Seu CPF</label>
+                  <input type="text" value={formData.cpf} onChange={(e) => setFormData({...formData, cpf: formatarCPF(e.target.value)})} placeholder="Escreva seu CPF" className="v6-input" maxLength={14} />
+                </div>
+                <div className="v6-campo">
+                  <label className="v6-label">Seu telefone</label>
+                  <input type="tel" value={formData.telefone} onChange={(e) => setFormData({...formData, telefone: e.target.value})} placeholder="Escreva seu número de telefone" className="v6-input" />
+                </div>
                 <button onClick={avancarEtapa1} className="v6-btn-continuar" style={{ background: cor }}>Continuar</button>
                 <p className="v6-termos">Ao prosseguir com a compra, você concorda com as <a href="#">Políticas de Privacidade</a></p>
               </div>
@@ -316,24 +329,40 @@ export default function CheckoutV6({ plano, formData, setFormData, etapa, setEta
 
             {etapa === 2 && precisaEndereco && (
               <div className="v6-form v6-fade-in">
-                <div className="v6-row">
-                  <input type="text" value={formData.cep} onChange={(e) => setFormData({...formData, cep: e.target.value})} placeholder="CEP" className="v6-input" maxLength={9} />
-                  {buscandoCep && <span className="v6-loading-cep">Buscando...</span>}
+                <p className="v6-instrucao">Digite o CEP para encontrarmos seu endereço automaticamente:</p>
+                <div className="v6-campo">
+                  <label className="v6-label">Seu CEP</label>
+                  <div className="v6-row">
+                    <input type="text" value={formData.cep} onChange={(e) => setFormData({...formData, cep: e.target.value})} placeholder="Escreva seu CEP" className="v6-input" maxLength={9} />
+                    {buscandoCep && <span className="v6-loading-cep">Buscando...</span>}
+                  </div>
                 </div>
                 {enderecoExpandido && (
                   <>
-                    <input type="text" value={formData.rua} onChange={(e) => setFormData({...formData, rua: e.target.value})} placeholder="Endereço" className="v6-input" />
-                    <div className="v6-row">
-                      <input type="text" value={formData.numero} onChange={(e) => setFormData({...formData, numero: e.target.value})} placeholder="Número" className="v6-input" style={{maxWidth: '110px'}} />
-                      <input type="text" value={formData.bairro} onChange={(e) => setFormData({...formData, bairro: e.target.value})} placeholder="Bairro" className="v6-input" />
+                    <div className="v6-campo">
+                      <label className="v6-label">Seu endereço</label>
+                      <input type="text" value={formData.rua} onChange={(e) => setFormData({...formData, rua: e.target.value})} placeholder="Rua, avenida..." className="v6-input" />
                     </div>
-                    <input type="text" value={formData.complemento} onChange={(e) => setFormData({...formData, complemento: e.target.value})} placeholder="Complemento (opcional)" className="v6-input" />
+                    <div className="v6-row">
+                      <div className="v6-campo" style={{maxWidth: '130px'}}>
+                        <label className="v6-label">Número</label>
+                        <input type="text" value={formData.numero} onChange={(e) => setFormData({...formData, numero: e.target.value})} placeholder="Nº" className="v6-input" />
+                      </div>
+                      <div className="v6-campo">
+                        <label className="v6-label">Bairro</label>
+                        <input type="text" value={formData.bairro} onChange={(e) => setFormData({...formData, bairro: e.target.value})} placeholder="Seu bairro" className="v6-input" />
+                      </div>
+                    </div>
+                    <div className="v6-campo">
+                      <label className="v6-label">Complemento (opcional)</label>
+                      <input type="text" value={formData.complemento} onChange={(e) => setFormData({...formData, complemento: e.target.value})} placeholder="Apto, bloco, casa..." className="v6-input" />
+                    </div>
 
                     {carregandoFretes ? (
                       <p className="v6-aviso">Calculando opções de frete...</p>
                     ) : fretes.length > 0 ? (
                       <div className="v6-fretes">
-                        <p className="v6-fretes-titulo">Escolha uma forma de entrega:</p>
+                        <p className="v6-fretes-titulo">Escolha como prefere receber seu pedido:</p>
                         {fretes.map((f) => (
                           <label key={f.id} className={`v6-frete-opcao ${freteSelecionadoId === f.id ? 'v6-frete-ativo' : ''}`} style={freteSelecionadoId === f.id ? { borderColor: cor } : {}}>
                             <input type="radio" checked={freteSelecionadoId === f.id} onChange={() => selecionarFrete(f)} />
@@ -358,6 +387,7 @@ export default function CheckoutV6({ plano, formData, setFormData, etapa, setEta
 
             {etapa === etapaPagamento && (
               <div className="v6-form v6-fade-in">
+                <p className="v6-instrucao">Selecione uma forma de pagamento:</p>
                 {plano.checkoutAceitaCartao && (
                   <label className={`v6-metodo-opcao ${metodoPag === 'CARTAO' ? 'v6-metodo-ativo' : ''}`} style={metodoPag === 'CARTAO' ? { borderColor: cor } : {}}>
                     <input type="radio" checked={metodoPag === 'CARTAO'} onChange={() => setMetodoPag('CARTAO')} />
@@ -379,6 +409,7 @@ export default function CheckoutV6({ plano, formData, setFormData, etapa, setEta
 
                 {metodoPag === 'CARTAO' && plano.checkoutAceitaCartao && (
                   <div className="v6-cartao-box">
+                    <p className="v6-instrucao-menor">Preencha os dados do seu cartão:</p>
                     <div className={`v6-card-visual ${flipCard ? 'flipped' : ''}`}>
                       <div className="v6-card-front" style={{ background: `linear-gradient(135deg, ${cor}, ${cor}99)` }}>
                         <div className="v6-card-chip"></div>
@@ -393,17 +424,32 @@ export default function CheckoutV6({ plano, formData, setFormData, etapa, setEta
                         <div className="v6-card-cvv-box">{cartaoData.cvv || '•••'}</div>
                       </div>
                     </div>
-                    <input type="text" value={cartaoData.numero} onChange={(e) => setCartaoData({...cartaoData, numero: formatarNumeroCartao(e.target.value)})} placeholder="Número do cartão" className="v6-input" maxLength={19} />
-                    <div className="v6-row">
-                      <input type="text" value={cartaoData.validade} onChange={(e) => setCartaoData({...cartaoData, validade: formatarValidade(e.target.value)})} placeholder="Validade (mês/ano)" className="v6-input" maxLength={5} />
-                      <input type="text" value={cartaoData.cvv} onFocus={() => setFlipCard(true)} onBlur={() => setFlipCard(false)} onChange={(e) => setCartaoData({...cartaoData, cvv: e.target.value.replace(/\D/g,'').slice(0,4)})} placeholder="Cód. de segurança" className="v6-input" maxLength={4} />
+                    <div className="v6-campo">
+                      <label className="v6-label">Número do cartão</label>
+                      <input type="text" value={cartaoData.numero} onChange={(e) => setCartaoData({...cartaoData, numero: formatarNumeroCartao(e.target.value)})} placeholder="Escreva o número do cartão" className="v6-input" maxLength={19} />
                     </div>
-                    <input type="text" value={cartaoData.nome} onChange={(e) => setCartaoData({...cartaoData, nome: e.target.value.toUpperCase()})} placeholder="Nome e sobrenome do titular" className="v6-input" />
-                    <select value={cartaoData.parcelas} onChange={(e) => setCartaoData({...cartaoData, parcelas: e.target.value})} className="v6-input">
-                      {[1,2,3,4,5,6,7,8,9,10,11,12].map(n => (
-                        <option key={n} value={n}>{n}x de R$ {(totalGeral / n).toFixed(2).replace('.', ',')}{n === 1 ? ' sem juros' : ''}</option>
-                      ))}
-                    </select>
+                    <div className="v6-row">
+                      <div className="v6-campo">
+                        <label className="v6-label">Validade</label>
+                        <input type="text" value={cartaoData.validade} onChange={(e) => setCartaoData({...cartaoData, validade: formatarValidade(e.target.value)})} placeholder="MM/AA" className="v6-input" maxLength={5} />
+                      </div>
+                      <div className="v6-campo">
+                        <label className="v6-label">Código de segurança</label>
+                        <input type="text" value={cartaoData.cvv} onFocus={() => setFlipCard(true)} onBlur={() => setFlipCard(false)} onChange={(e) => setCartaoData({...cartaoData, cvv: e.target.value.replace(/\D/g,'').slice(0,4)})} placeholder="CVV" className="v6-input" maxLength={4} />
+                      </div>
+                    </div>
+                    <div className="v6-campo">
+                      <label className="v6-label">Nome no cartão</label>
+                      <input type="text" value={cartaoData.nome} onChange={(e) => setCartaoData({...cartaoData, nome: e.target.value.toUpperCase()})} placeholder="Nome como está no cartão" className="v6-input" />
+                    </div>
+                    <div className="v6-campo">
+                      <label className="v6-label">Parcelas</label>
+                      <select value={cartaoData.parcelas} onChange={(e) => setCartaoData({...cartaoData, parcelas: e.target.value})} className="v6-input">
+                        {[1,2,3,4,5,6,7,8,9,10,11,12].map(n => (
+                          <option key={n} value={n}>{n}x de R$ {(totalGeral / n).toFixed(2).replace('.', ',')}{n === 1 ? ' sem juros' : ''}</option>
+                        ))}
+                      </select>
+                    </div>
                     {orderBumpBlock}
                   </div>
                 )}
@@ -456,7 +502,7 @@ export default function CheckoutV6({ plano, formData, setFormData, etapa, setEta
         .v6-resumo-compacto { width: 100%; display: flex; align-items: center; justify-content: space-between; background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px 16px; font-size: 13px; font-weight: 700; color: #111827; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
         .v6-resumo-seta { font-size: 10px; color: #9ca3af; }
         .v6-resumo-expandido { background: white; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px; padding: 14px 16px; margin-top: -1px; box-shadow: 0 4px 10px rgba(0,0,0,0.06); }
-        .v6-resumo-produto { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .v6-resumo-produto { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
         .v6-resumo-produto-img { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; }
         .v6-resumo-produto-img-placeholder { width: 44px; height: 44px; border-radius: 8px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; font-size: 18px; }
         .v6-resumo-produto-info { flex: 1; }
@@ -465,6 +511,7 @@ export default function CheckoutV6({ plano, formData, setFormData, etapa, setEta
         .v6-resumo-qtd { display: flex; align-items: center; gap: 10px; }
         .v6-qtd-btn { width: 28px; height: 28px; border-radius: 6px; border: 1.5px solid #e5e7eb; background: white; font-size: 14px; font-weight: 700; cursor: pointer; }
         .v6-qtd-valor { font-weight: 700; font-size: 13px; }
+        .v6-dica-qtd { font-size: 11px; color: #9ca3af; margin-bottom: 10px; }
         .v6-condicao-selo { padding: 8px 10px; border: 1.5px solid; border-radius: 8px; font-size: 11px; font-weight: 700; text-align: center; margin-bottom: 10px; }
         .v6-faixas-lista { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
         .v6-faixa-item { display: flex; justify-content: space-between; align-items: center; padding: 7px 10px; border-radius: 8px; font-size: 11px; font-weight: 600; background: #f9fafb; color: #9ca3af; border: 1px solid #e5e7eb; }
@@ -487,10 +534,15 @@ export default function CheckoutV6({ plano, formData, setFormData, etapa, setEta
         .v6-form { display: flex; flex-direction: column; gap: 12px; }
         .v6-fade-in { animation: v6FadeIn 0.3s ease-in; }
         @keyframes v6FadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-        .v6-row { display: flex; gap: 10px; align-items: center; }
+        .v6-instrucao { font-size: 14px; color: #374151; font-weight: 600; margin-bottom: 2px; }
+        .v6-instrucao-menor { font-size: 12px; color: #6b7280; font-weight: 600; margin-bottom: -2px; }
+        .v6-campo { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+        .v6-label { font-size: 12px; font-weight: 700; color: #374151; }
+        .v6-dica { font-size: 11px; color: #9ca3af; }
+        .v6-row { display: flex; gap: 10px; align-items: flex-start; }
         .v6-input { padding: 13px 15px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 15px; outline: none; width: 100%; }
         .v6-input:focus { border-color: #9ca3af; }
-        .v6-loading-cep { font-size: 12px; color: #6b7280; white-space: nowrap; }
+        .v6-loading-cep { font-size: 12px; color: #6b7280; white-space: nowrap; align-self: center; }
         .v6-btn-continuar { padding: 15px; border: none; border-radius: 10px; color: white; font-weight: 700; font-size: 16px; cursor: pointer; margin-top: 4px; }
         .v6-termos { font-size: 11px; color: #9ca3af; text-align: center; }
         .v6-termos a { color: #6b7280; text-decoration: underline; }
