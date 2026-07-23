@@ -66,6 +66,9 @@ export async function PATCH(
     if (body.checkoutTelObrigatorio !== undefined) data.checkoutTelObrigatorio = body.checkoutTelObrigatorio;
     if (body.checkoutPedirEndereco !== undefined) data.checkoutPedirEndereco = body.checkoutPedirEndereco;
     if (body.checkoutVersao !== undefined) data.checkoutVersao = body.checkoutVersao;
+    if (body.checkoutBackRedirect !== undefined) data.checkoutBackRedirect = body.checkoutBackRedirect;
+    if (body.checkoutBackRedirectUrl !== undefined) data.checkoutBackRedirectUrl = body.checkoutBackRedirectUrl;
+    if (body.checkoutCondicaoDesconto !== undefined) data.checkoutCondicaoDesconto = body.checkoutCondicaoDesconto;
     if (body.checkoutPadBanner !== undefined) data.checkoutPadBanner = body.checkoutPadBanner;
     if (body.checkoutPadLogoSuperior !== undefined) data.checkoutPadLogoSuperior = body.checkoutPadLogoSuperior;
     if (body.checkoutPadLogoInferior !== undefined) data.checkoutPadLogoInferior = body.checkoutPadLogoInferior;
