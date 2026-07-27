@@ -173,31 +173,7 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
     }
   };
 
-  useEffect(() => {
-      if (plano && etapa === 3 && !addPaymentDisparado.current) {
-        const dispararAddPayment = () => {
-          if (typeof window !== 'undefined' && (window as any).fbq) {
-            try {
-              (window as any).fbq('track', 'AddPaymentInfo', {
-                content_name: plano.nome,
-                content_ids: [plano.id],
-                content_type: 'product',
-                value: plano.preco,
-                currency: 'BRL'
-              });
-              addPaymentDisparado.current = true;
-              console.log('✅ AddPaymentInfo disparado');
-            } catch (e) { console.error('Erro pixel AddPaymentInfo:', e); }
-          } else {
-            // Pixel ainda não carregou, tenta novamente em 1s
-            setTimeout(dispararAddPayment, 1000);
-          }
-        };
-        dispararAddPayment();
-      }
-    }, [etapa, plano]);
-
-  const carregarPlano = async () => {
+   const carregarPlano = async () => {
     try {
       const res = await fetch('/api/planos/link/' + linkUnico + '?includeOrderBumps=true');
       if (!res.ok) throw new Error('Plano nao encontrado');

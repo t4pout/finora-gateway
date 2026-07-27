@@ -558,7 +558,7 @@ export async function POST(request: NextRequest) {
         for (const px of pixelsProduto) {
           if (px.pixelId && px.tokenAPI) {
             const { dispararEventoCAPI } = await import('@/lib/facebook-capi');
-            await dispararEventoCAPI({ pixelId: px.pixelId, accessToken: px.tokenAPI, eventName: 'AddPaymentInfo', value: valorTotal, contentName: plano.nome, contentIds: [plano.produtoId], email: compradorEmail, phone: compradorTel });
+            await dispararEventoCAPI({ pixelId: px.pixelId, accessToken: px.tokenAPI, eventName: 'AddPaymentInfo', eventId: 'addpayment-' + venda.id, value: valorTotal, contentName: plano.nome, contentIds: [plano.produtoId], email: compradorEmail, phone: compradorTel });
           }
         }
       }
