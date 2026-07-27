@@ -28,6 +28,7 @@ interface PlanoOferta {
   checkoutAceitaBoleto?: boolean;
   checkoutPedirEndereco?: boolean;
   checkoutCondicaoDesconto?: any;
+  checkoutQuantidadeInicial?: number;
   produto: { id: string; nome: string; descricao: string; imagem: string; tipo?: string; };
   orderBumps?: { orderBump: { id: string; titulo: string; descricao: string | null; preco: number; imagem: string | null } }[];
 }
@@ -56,6 +57,11 @@ export default function CheckoutV6({ plano, formData, setFormData, etapa, setEta
   const [cartaoData, setCartaoData] = useState({ numero: '', nome: '', validade: '', cvv: '', parcelas: '1' });
   const [flipCard, setFlipCard] = useState(false);
   const [resumoAberto, setResumoAberto] = useState(false);
+  useEffect(() => {
+    if (plano.checkoutQuantidadeInicial && plano.checkoutQuantidadeInicial > 1 && quantidade < plano.checkoutQuantidadeInicial) {
+      setQuantidade(plano.checkoutQuantidadeInicial);
+    }
+  }, [plano.checkoutQuantidadeInicial]);
   const [semEmail, setSemEmail] = useState(false);
   const handleSemEmail = (checked: boolean) => {
     setSemEmail(checked);
@@ -117,7 +123,8 @@ export default function CheckoutV6({ plano, formData, setFormData, etapa, setEta
     ? plano.orderBumps.filter(ob => orderBumpsSelecionados.includes(ob.orderBump.id)).reduce((acc, ob) => acc + ob.orderBump.preco, 0)
     : 0;
   const freteValorAtual = precisaEndereco ? (Number(formData.freteValor) || 0) : 0;
-  const valorProdutos = calcularValorComCondicao(plano.preco, quantidade, plano.checkoutCondicaoDesconto);
+  const precoUnitario = plano.preco / (plano.checkoutQuantidadeInicial || 1);
+  const valorProdutos = calcularValorComCondicao(precoUnitario, quantidade, plano.checkoutCondicaoDesconto);
   const totalGeral = valorProdutos + orderBumpsValor + freteValorAtual;
 
   const condicao = plano.checkoutCondicaoDesconto;
@@ -265,7 +272,7 @@ export default function CheckoutV6({ plano, formData, setFormData, etapa, setEta
                     <div className="v6-resumo-produto-valor">R$ {valorProdutos.toFixed(2).replace('.', ',')}</div>
                   </div>
                   <div className="v6-resumo-qtd">
-                    <button type="button" onClick={() => setQuantidade(Math.max(1, quantidade - 1))} className="v6-qtd-btn">−</button>
+                    <button type="button" onClick={() => setQuantidade(Math.max(plano.checkoutQuantidadeInicial || 1, quantidade - 1))} className="v6-qtd-btn">−</button>
                     <span className="v6-qtd-valor">{quantidade}</span>
                     <button type="button" onClick={() => setQuantidade(quantidade + 1)} className="v6-qtd-btn">+</button>
                   </div>
@@ -496,7 +503,7 @@ export default function CheckoutV6({ plano, formData, setFormData, etapa, setEta
                         <div className="v6-resumo-produto-valor">R$ {valorProdutos.toFixed(2).replace('.', ',')}</div>
                       </div>
                       <div className="v6-resumo-qtd">
-                        <button type="button" onClick={() => setQuantidade(Math.max(1, quantidade - 1))} className="v6-qtd-btn">−</button>
+                        <button type="button" onClick={() => setQuantidade(Math.max(plano.checkoutQuantidadeInicial || 1, quantidade - 1))} className="v6-qtd-btn">−</button>
                         <span className="v6-qtd-valor">{quantidade}</span>
                         <button type="button" onClick={() => setQuantidade(quantidade + 1)} className="v6-qtd-btn">+</button>
                       </div>
