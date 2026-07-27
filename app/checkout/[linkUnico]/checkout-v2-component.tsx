@@ -42,6 +42,7 @@ export default function CheckoutV2({ plano, formData, setFormData, etapa, setEta
   const [metodoPag, setMetodoPag] = useState(formData.metodoPagamento || 'CARTAO');
   const [cartaoData, setCartaoData] = useState({ numero: '', nome: '', validade: '', cvv: '', parcelas: '1' });
   const [flipCard, setFlipCard] = useState(false);
+  const [semEmail, setSemEmail] = useState(false);
 
   const isProdutoDigital = plano?.produto?.tipo === 'DIGITAL';
 
@@ -140,7 +141,19 @@ export default function CheckoutV2({ plano, formData, setFormData, etapa, setEta
                 </div>
                 <div className="v2-field">
                   <label>E-mail *</label>
-                  <input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} placeholder="seu@email.com" className="v2-input" />
+                  <input type="email" value={formData.email} disabled={semEmail} onChange={e => setFormData({...formData, email: e.target.value})} placeholder="seu@email.com" className="v2-input" style={{ opacity: semEmail ? 0.6 : 1 }} />
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#6b7280', fontWeight: 500, cursor: 'pointer', marginTop: '6px' }}>
+                    <input type="checkbox" checked={semEmail} style={{ width: '16px', height: '16px', cursor: 'pointer' }} onChange={(e) => {
+                      setSemEmail(e.target.checked);
+                      if (e.target.checked) {
+                        const telLimpo = (formData.telefone || '').replace(/\D/g, '') || Date.now().toString();
+                        setFormData({ ...formData, email: `${telLimpo}@sememail.finora.com` });
+                      } else {
+                        setFormData({ ...formData, email: '' });
+                      }
+                    }} />
+                    <span>Não tenho e-mail</span>
+                  </label>
                 </div>
                 <div className="v2-row">
                   <div className="v2-field">
