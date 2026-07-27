@@ -21,6 +21,7 @@ export default function CheckoutV3Component({
   plano, formData, setFormData, processando, buscandoCep,
   finalizarPedido, validarCPF, orderBumpsSelecionados, setOrderBumpsSelecionados
 }: CheckoutV3Props) {
+  const [semEmail, setSemEmail] = useState(false);
   const [metodoPag, setMetodoPag] = useState(formData.metodoPagamento || 'PIX');
   const [erros, setErros] = useState<any>({});
   const [enderecoAberto, setEnderecoAberto] = useState(true);
@@ -134,10 +135,22 @@ export default function CheckoutV3Component({
               {erros.nome && <div style={{ fontSize: '12px', color: '#ef4444', marginTop: '4px' }}>{erros.nome}</div>}
             </div>
             <div>
-              <input type="email" placeholder="E-mail" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                style={{ width: '100%', padding: '13px 16px', border: erros.email ? '2px solid #ef4444' : '2px solid #e5e5e5', borderRadius: '10px', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }}
+              <input type="email" placeholder="E-mail" value={formData.email} disabled={semEmail} onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                style={{ width: '100%', padding: '13px 16px', border: erros.email ? '2px solid #ef4444' : '2px solid #e5e5e5', borderRadius: '10px', fontSize: '15px', outline: 'none', boxSizing: 'border-box', opacity: semEmail ? 0.6 : 1 }}
                 onFocus={(e) => e.target.style.borderColor = corPrimaria} onBlur={(e) => e.target.style.borderColor = erros.email ? '#ef4444' : '#e5e5e5'} />
               {erros.email && <div style={{ fontSize: '12px', color: '#ef4444', marginTop: '4px' }}>{erros.email}</div>}
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#6b7280', fontWeight: 500, cursor: 'pointer', marginTop: '6px' }}>
+                <input type="checkbox" checked={semEmail} style={{ width: '16px', height: '16px', cursor: 'pointer' }} onChange={(e) => {
+                  setSemEmail(e.target.checked);
+                  if (e.target.checked) {
+                    const telLimpo = (formData.telefone || '').replace(/\D/g, '') || Date.now().toString();
+                    setFormData({ ...formData, email: `${telLimpo}@sememail.finora.com` });
+                  } else {
+                    setFormData({ ...formData, email: '' });
+                  }
+                }} />
+                <span>Não tenho e-mail</span>
+              </label>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <div>
