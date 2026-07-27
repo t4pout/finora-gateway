@@ -151,7 +151,8 @@ const [formFrete, setFormFrete] = useState({ nome: '', descricao: '', prazoDias:
     checkoutVersao: 'v1',
     checkoutBackRedirect: false,
     checkoutBackRedirectUrl: '',
-    checkoutCondicaoDesconto: null as any
+    checkoutCondicaoDesconto: null as any,
+    checkoutQuantidadeInicial: 1
   });
 const carregarCoProdutores = async () => {
     try {
@@ -506,7 +507,8 @@ const carregarCoProdutores = async () => {
               checkoutVersao: data.plano.checkoutVersao || 'v1',
               checkoutBackRedirect: data.plano.checkoutBackRedirect || false,
               checkoutBackRedirectUrl: data.plano.checkoutBackRedirectUrl || '',
-              checkoutCondicaoDesconto: data.plano.checkoutCondicaoDesconto || null
+              checkoutCondicaoDesconto: data.plano.checkoutCondicaoDesconto || null,
+              checkoutQuantidadeInicial: data.plano.checkoutQuantidadeInicial || 1
             });
           } else {
             setConfigPlano({
@@ -525,7 +527,8 @@ const carregarCoProdutores = async () => {
               checkoutMetodoPreferencial: 'PIX', checkoutCpfObrigatorio: true,
               checkoutTelObrigatorio: true, checkoutPedirEndereco: true, checkoutVersao: 'v1',
               checkoutBackRedirect: false, checkoutBackRedirectUrl: '',
-              checkoutCondicaoDesconto: null
+              checkoutCondicaoDesconto: null,
+              checkoutQuantidadeInicial: 1
             });
           }
         }
@@ -562,6 +565,7 @@ const carregarCoProdutores = async () => {
         dados.checkoutBackRedirect = configPlano.checkoutBackRedirect;
         dados.checkoutBackRedirectUrl = configPlano.checkoutBackRedirectUrl || null;
         dados.checkoutCondicaoDesconto = configPlano.checkoutCondicaoDesconto || null;
+        dados.checkoutQuantidadeInicial = configPlano.checkoutQuantidadeInicial || 1;
       } else {
         dados.checkoutPadBanner = configPlano.checkoutBanner;
         dados.checkoutPadLogoSuperior = configPlano.checkoutLogoSuperior;
@@ -1178,7 +1182,15 @@ return (
                         </div>
                       )}
 
-                     {modalConfig.tipo === 'NORMAL' && (configPlano.checkoutVersao === 'v5' || configPlano.checkoutVersao === 'v6') && (
+                     
+{modalConfig.tipo === 'NORMAL' && configPlano.checkoutVersao === 'v6' && (
+                        <div className="p-4 bg-gray-50 dark:bg-finoradark-card2 rounded-xl border border-gray-200 dark:border-finoradark-border">
+                          <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Quantidade inicial exibida no checkout</label>
+                          <input type="number" min="1" value={configPlano.checkoutQuantidadeInicial} onChange={(e) => setConfigPlano({...configPlano, checkoutQuantidadeInicial: parseInt(e.target.value) || 1})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none" placeholder="Ex: 10" />
+                          <p className="text-xs text-gray-500 dark:text-finoradark-textmuted mt-1">O checkout mostra essa quantidade já marcada, com o preço proporcional por unidade. O cliente não pode diminuir abaixo desse valor.</p>
+                        </div>
+                      )}
+{modalConfig.tipo === 'NORMAL' && (configPlano.checkoutVersao === 'v5' || configPlano.checkoutVersao === 'v6') && (
                         <div className="pt-4 border-t dark:border-finoradark-border">
                           <h4 className="font-bold text-gray-900 dark:text-finoradark-text mb-4">📦 Opções de Frete</h4>
                           {fretes.length === 0 ? (

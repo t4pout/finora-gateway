@@ -271,6 +271,7 @@ model PlanoOferta {
   checkoutBackRedirect       Boolean  @default(false)
   checkoutBackRedirectUrl    String?
   checkoutCondicaoDesconto   Json?
+  checkoutQuantidadeInicial  Int?     @default(1)
   orderBumps                 PlanoOrderBump[]
   fretes                     PlanoFrete[]
   produtoId                  String
