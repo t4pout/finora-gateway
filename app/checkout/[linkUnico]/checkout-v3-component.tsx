@@ -253,12 +253,12 @@ export default function CheckoutV3Component({
                 onChange={(e) => setCartaoData({ ...cartaoData, nome: e.target.value.toUpperCase() })}
                 style={{ width: '100%', padding: '13px 16px', border: '2px solid #e5e5e5', borderRadius: '10px', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
-                <input type="text" placeholder="CVV" value={cartaoData.cvv} onChange={(e) => setCartaoData({ ...cartaoData, cvv: e.target.value.replace(/\D/g, '').slice(0, 4) })} maxLength={4}
+                <input type="text" placeholder="MM" value={cartaoData.mes} onChange={(e) => setCartaoData({ ...cartaoData, mes: e.target.value.replace(/\D/g, '').slice(0, 2) })} maxLength={2}
                   style={{ width: '100%', boxSizing: 'border-box', padding: '13px 16px', border: '2px solid #e5e5e5', borderRadius: '10px', fontSize: '15px', outline: 'none' }} />
                 <input type="text" placeholder="AA" value={cartaoData.ano} onChange={(e) => setCartaoData({ ...cartaoData, ano: e.target.value.replace(/\D/g, '').slice(0, 2) })} maxLength={2}
-                  style={{ padding: '13px 16px', border: '2px solid #e5e5e5', borderRadius: '10px', fontSize: '15px', outline: 'none' }} />
+                  style={{ width: '100%', boxSizing: 'border-box', padding: '13px 16px', border: '2px solid #e5e5e5', borderRadius: '10px', fontSize: '15px', outline: 'none' }} />
                 <input type="text" placeholder="CVV" value={cartaoData.cvv} onChange={(e) => setCartaoData({ ...cartaoData, cvv: e.target.value.replace(/\D/g, '').slice(0, 4) })} maxLength={4}
-                  style={{ padding: '13px 16px', border: '2px solid #e5e5e5', borderRadius: '10px', fontSize: '15px', outline: 'none' }} />
+                  style={{ width: '100%', boxSizing: 'border-box', padding: '13px 16px', border: '2px solid #e5e5e5', borderRadius: '10px', fontSize: '15px', outline: 'none' }} />
               </div>
             </div>
           )}
