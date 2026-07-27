@@ -42,7 +42,8 @@ export async function POST(request: NextRequest) {
     }
 
     const quantidade = Math.max(1, Number(body.quantidade) || 1);
-    let valorTotal = calcularValorComCondicao(plano.preco, quantidade, plano.checkoutCondicaoDesconto);
+    const precoUnitarioBase = plano.preco / (plano.checkoutQuantidadeInicial || 1);
+    let valorTotal = calcularValorComCondicao(precoUnitarioBase, quantidade, plano.checkoutCondicaoDesconto);
     let orderBumpsNomes: string[] = [];
     let orderBumpsValor = 0;
 
