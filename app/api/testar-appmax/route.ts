@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { HttpsProxyAgent } from 'https-proxy-agent';
+import { ProxyAgent } from 'undici';
 
 const APPMAX_API = 'https://app.appmax.com.br/api/v3';
 const APPMAX_TOKEN = process.env.APPMAX_ACCESS_TOKEN;
 const FIXIE_URL = process.env.FIXIE_URL || '';
-const appmaxAgent = FIXIE_URL ? new HttpsProxyAgent(FIXIE_URL) : undefined;
+const appmaxDispatcher = FIXIE_URL ? new ProxyAgent(FIXIE_URL) : undefined;
 
 export async function GET(request: NextRequest) {
   try {
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
         address_state: 'SP',
         ip: '127.0.0.1'
       }),
-      ...(appmaxAgent && { agent: appmaxAgent } as any)
+      ...(appmaxDispatcher && { dispatcher: appmaxDispatcher } as any)
     });
 
     const texto = await res.text();
