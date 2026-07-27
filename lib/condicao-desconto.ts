@@ -10,7 +10,7 @@ export interface CondicaoDesconto {
 export function calcularValorComCondicao(precoBase: number, quantidade: number, condicao: any): number {
   const qtd = Math.max(1, Number(quantidade) || 1);
 
-  if (!condicao || !condicao.tipo || qtd <= 1) {
+  if (!condicao || !condicao.ativo || !condicao.tipo || qtd <= 1) {
     return precoBase * qtd;
   }
 
