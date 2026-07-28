@@ -28,6 +28,7 @@ interface PlanoOferta {
   checkoutAceitaBoleto?: boolean;
   checkoutPedirEndereco?: boolean;
   checkoutCondicaoDesconto?: any;
+  checkoutFretePadraoId?: string;
   produto: { id: string; nome: string; descricao: string; imagem: string; tipo?: string; };
   orderBumps?: { orderBump: { id: string; titulo: string; descricao: string | null; preco: number; imagem: string | null } }[];
 }
@@ -77,7 +78,8 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
           const ativos = (data || []).filter((f: OpcaoFrete) => f.ativo);
           setFretes(ativos);
           if (ativos.length > 0) {
-            setFreteSelecionadoId(ativos[0].id);
+            const padrao = ativos.find((f: OpcaoFrete) => f.id === plano.checkoutFretePadraoId);
+            setFreteSelecionadoId(padrao ? padrao.id : ativos[0].id);
           }
         }
       } catch (e) { console.error('Erro ao carregar fretes:', e); }
