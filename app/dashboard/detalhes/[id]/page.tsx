@@ -152,7 +152,8 @@ const [formFrete, setFormFrete] = useState({ nome: '', descricao: '', prazoDias:
     checkoutBackRedirect: false,
     checkoutBackRedirectUrl: '',
     checkoutCondicaoDesconto: null as any,
-    checkoutQuantidadeInicial: 1
+    checkoutQuantidadeInicial: 1,
+    checkoutFretePadraoId: ''
   });
 const carregarCoProdutores = async () => {
     try {
@@ -508,7 +509,8 @@ const carregarCoProdutores = async () => {
               checkoutBackRedirect: data.plano.checkoutBackRedirect || false,
               checkoutBackRedirectUrl: data.plano.checkoutBackRedirectUrl || '',
               checkoutCondicaoDesconto: data.plano.checkoutCondicaoDesconto || null,
-              checkoutQuantidadeInicial: data.plano.checkoutQuantidadeInicial || 1
+              checkoutQuantidadeInicial: data.plano.checkoutQuantidadeInicial || 1,
+              checkoutFretePadraoId: data.plano.checkoutFretePadraoId || ''
             });
           } else {
             setConfigPlano({
@@ -528,7 +530,8 @@ const carregarCoProdutores = async () => {
               checkoutTelObrigatorio: true, checkoutPedirEndereco: true, checkoutVersao: 'v1',
               checkoutBackRedirect: false, checkoutBackRedirectUrl: '',
               checkoutCondicaoDesconto: null,
-              checkoutQuantidadeInicial: 1
+              checkoutQuantidadeInicial: 1,
+              checkoutFretePadraoId: ''
             });
           }
         }
@@ -566,6 +569,7 @@ const carregarCoProdutores = async () => {
         dados.checkoutBackRedirectUrl = configPlano.checkoutBackRedirectUrl || null;
         dados.checkoutCondicaoDesconto = configPlano.checkoutCondicaoDesconto || null;
         dados.checkoutQuantidadeInicial = configPlano.checkoutQuantidadeInicial || 1;
+        dados.checkoutFretePadraoId = configPlano.checkoutFretePadraoId || null;
       } else {
         dados.checkoutPadBanner = configPlano.checkoutBanner;
         dados.checkoutPadLogoSuperior = configPlano.checkoutLogoSuperior;
@@ -1211,7 +1215,19 @@ return (
                           )}
                         </div>
                       )}
+                    {modalConfig.tipo === 'NORMAL' && (configPlano.checkoutVersao === 'v5' || configPlano.checkoutVersao === 'v6') && fretesSelecionados.length > 0 && (
+                        <div className="pt-4 border-t dark:border-finoradark-border">
+                          <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Frete selecionado por padrão no checkout</label>
+                          <select value={configPlano.checkoutFretePadraoId} onChange={(e) => setConfigPlano({...configPlano, checkoutFretePadraoId: e.target.value})} className="w-full px-4 py-3 border border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card dark:text-finoradark-text rounded-lg focus:ring-2 focus:ring-purple-600 outline-none">
+                            <option value="">Automático (primeiro da lista)</option>
+                            {fretes.filter(f => fretesSelecionados.includes(f.id)).map((f) => (
+                              <option key={f.id} value={f.id}>{f.nome} ({f.preco > 0 ? `R$ ${f.preco.toFixed(2).replace('.', ',')}` : 'Grátis'})</option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
                     </div>
+                     
                     <div className="flex gap-3 pt-6 border-t dark:border-finoradark-border mt-6">
                       <button type="button" onClick={() => setModalConfig({ aberto: false, planoId: null, tipo: 'NORMAL' })} className="flex-1 px-6 py-3 border-2 border-gray-300 dark:border-finoradark-border text-gray-700 dark:text-finoradark-textmuted rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-finoradark-card2 transition">Cancelar</button>
                       <button onClick={handleSalvarConfigPlano} className="flex-1 px-6 py-3 bg-purple-600 dark:bg-finoradark-glow text-white rounded-lg font-semibold hover:bg-purple-700 dark:hover:opacity-90 transition">💾 Salvar Configurações</button>
