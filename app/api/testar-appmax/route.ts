@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ProxyAgent, fetch as undiciFetch } from 'undici';
 
-const APPMAX_API = 'https://app.appmax.com.br/api/v3';
+const APPMAX_API = 'https://admin.appmax.com.br/api/v3';
 const APPMAX_TOKEN = process.env.APPMAX_ACCESS_TOKEN;
 const FIXIE_URL = process.env.FIXIE_URL || '';
 const appmaxDispatcher = FIXIE_URL ? new ProxyAgent(FIXIE_URL) : undefined;
