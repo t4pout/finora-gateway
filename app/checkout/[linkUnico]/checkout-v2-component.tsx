@@ -8,7 +8,7 @@ interface PlanoOferta {
   preco: number;
   checkoutBanner?: string;
   checkoutLogoSuperior?: string;
-  checkoutLogoInferior?: string;
+  checkoutBannerInferior?: string;
   checkoutCorPrimaria?: string;
   checkoutCronometro?: boolean;
   checkoutMensagemUrgencia?: string;
@@ -401,8 +401,8 @@ export default function CheckoutV2({ plano, formData, setFormData, etapa, setEta
           </div>
         </div>
 
-        {plano.checkoutLogoInferior && (
-          <div className="v2-logo-bottom"><img src={plano.checkoutLogoInferior} alt="Logo" /></div>
+        {plano.checkoutBannerInferior && (
+          <div className="v2-banner-bottom"><img src={plano.checkoutBannerInferior} alt="Banner" /></div>
         )}
       </div>
 
@@ -499,8 +499,8 @@ export default function CheckoutV2({ plano, formData, setFormData, etapa, setEta
         .popup-linha { font-size: 13px; color: #111827; line-height: 1.4; margin: 0; }
         .popup-linha strong { font-weight: 700; }
         .popup-tempo { font-size: 12px; color: #9ca3af; margin: 4px 0 0; }
-        .v2-logo-bottom { text-align: center; margin-top: 20px; opacity: 0.6; }
-        .v2-logo-bottom img { height: 40px; }
+        .v2-banner-bottom { max-width: 600px; margin: 20px auto 0; }
+        .v2-banner-bottom img { width: 100%; border-radius: 10px; display: block; }
 
         @media (max-width: 768px) {
           .v2-main { grid-template-columns: 1fr; }

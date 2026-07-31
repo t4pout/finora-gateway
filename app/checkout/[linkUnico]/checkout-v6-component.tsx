@@ -18,7 +18,7 @@ interface PlanoOferta {
   preco: number;
   checkoutBanner?: string;
   checkoutLogoSuperior?: string;
-  checkoutLogoInferior?: string;
+  checkoutBannerInferior?: string;
   checkoutCorPrimaria?: string;
   checkoutCronometro?: boolean;
   checkoutMensagemUrgencia?: string;
@@ -536,8 +536,8 @@ export default function CheckoutV6({ plano, formData, setFormData, etapa, setEta
           </div>
         </div>
 
-        {plano.checkoutLogoInferior && (
-          <div className="v6-logo-bottom"><img src={plano.checkoutLogoInferior} alt="Logo" /></div>
+        {plano.checkoutBannerInferior && (
+          <div className="v6-banner-bottom"><img src={plano.checkoutBannerInferior} alt="Banner" /></div>
         )}
       </div>
 
@@ -654,8 +654,8 @@ export default function CheckoutV6({ plano, formData, setFormData, etapa, setEta
         .v6-btn-finalizar { flex: 1; padding: 16px; border: none; border-radius: 10px; color: white; font-weight: 800; font-size: 16px; cursor: pointer; }
         .v6-btn-finalizar:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        .v6-logo-bottom { text-align: center; padding: 20px 0 0; opacity: 0.6; }
-        .v6-logo-bottom img { height: 36px; }
+        .v6-banner-bottom { max-width: 560px; margin: 16px auto 0; padding: 0 16px; }
+        .v6-banner-bottom img { width: 100%; border-radius: 10px; display: block; }
 
         @media (max-width: 640px) {
           .v6-card { border-radius: 12px; margin-left: 12px; margin-right: 12px; }

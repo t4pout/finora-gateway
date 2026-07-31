@@ -18,7 +18,7 @@ interface PlanoOferta {
   preco: number;
   checkoutBanner?: string;
   checkoutLogoSuperior?: string;
-  checkoutLogoInferior?: string;
+  checkoutBannerInferior?: string;
   checkoutCorPrimaria?: string;
   checkoutCronometro?: boolean;
   checkoutMensagemUrgencia?: string;
@@ -460,8 +460,8 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
           </div>
         </div>
 
-        {plano.checkoutLogoInferior && (
-          <div className="v5-logo-bottom"><img src={plano.checkoutLogoInferior} alt="Logo" /></div>
+        {plano.checkoutBannerInferior && (
+          <div className="v5-banner-bottom"><img src={plano.checkoutBannerInferior} alt="Banner" /></div>
         )}
       </div>
 
@@ -569,8 +569,8 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
         .v5-qtd-btn { width: 32px; height: 32px; border-radius: 8px; border: 1.5px solid #e5e7eb; background: white; font-size: 16px; font-weight: 700; cursor: pointer; }
         .v5-qtd-valor { font-weight: 700; font-size: 14px; }
 
-        .v5-logo-bottom { text-align: center; padding: 10px 0; opacity: 0.6; }
-        .v5-logo-bottom img { height: 36px; }
+        .v5-banner-bottom { max-width: 1180px; margin: 0 auto; padding: 16px 16px 0; }
+        .v5-banner-bottom img { width: 100%; border-radius: 10px; display: block; }
 
         @media (max-width: 1000px) {
           .v5-grid { grid-template-columns: 1fr 1fr; }

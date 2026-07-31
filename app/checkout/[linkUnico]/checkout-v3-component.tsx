@@ -292,9 +292,9 @@ export default function CheckoutV3Component({
           </div>
         </div>
 
-        {plano.checkoutLogoInferior && (
-          <div style={{ textAlign: 'center', marginTop: '16px' }}>
-            <img src={plano.checkoutLogoInferior} alt="Logo" style={{ height: '40px', opacity: 0.6 }} />
+        {plano.checkoutBannerInferior && (
+          <div style={{ maxWidth: '600px', margin: '16px auto 0', padding: '0 16px' }}>
+            <img src={plano.checkoutBannerInferior} alt="Banner" style={{ width: '100%', borderRadius: '10px', display: 'block' }} />
           </div>
         )}
       </div>

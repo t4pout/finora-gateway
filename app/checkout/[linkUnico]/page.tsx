@@ -18,7 +18,7 @@ interface PlanoOferta {
   checkoutVersao?: string;
   checkoutBanner?: string;
   checkoutLogoSuperior?: string;
-  checkoutLogoInferior?: string;
+  checkoutBannerInferior?: string;
   checkoutCorPrimaria?: string;
   checkoutCorSecundaria?: string;
   checkoutCronometro?: boolean;
@@ -972,9 +972,9 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
               )}
             </div>
           </div>
-          {plano.checkoutLogoInferior && (
-            <div className="logo-inferior">
-              <img src={plano.checkoutLogoInferior} alt="Logo" />
+          {plano.checkoutBannerInferior && (
+            <div className="banner-inferior">
+              <img src={plano.checkoutBannerInferior} alt="Banner" />
             </div>
           )}
         </div>
@@ -1034,8 +1034,8 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
         .btn-secondary:hover { border-color: #d1d5db; background: #f9fafb; }
         .btn-finalizar { font-size: 18px; padding: 18px; }
         .spinner-small { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
-        .logo-inferior { text-align: center; margin-top: 32px; opacity: 0.7; }
-        .logo-inferior img { height: 48px; }
+        .banner-inferior { max-width: 600px; margin: 32px auto 0; }
+        .banner-inferior img { width: 100%; border-radius: 10px; display: block; }
         .loading-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
         .spinner { width: 48px; height: 48px; border: 4px solid #e5e7eb; border-top-color: #8b5cf6; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
