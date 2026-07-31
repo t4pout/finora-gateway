@@ -153,7 +153,8 @@ const [formFrete, setFormFrete] = useState({ nome: '', descricao: '', prazoDias:
     checkoutBackRedirectUrl: '',
     checkoutCondicaoDesconto: null as any,
     checkoutQuantidadeInicial: 1,
-    checkoutFretePadraoId: ''
+    checkoutFretePadraoId: '',
+    checkoutBannerInferior: ''
   });
 const carregarCoProdutores = async () => {
     try {
@@ -411,7 +412,7 @@ const carregarCoProdutores = async () => {
     } catch (error) { alert('Erro ao excluir plano'); }
   };
 
-  const handleUploadCheckout = async (e: React.ChangeEvent<HTMLInputElement>, tipo: 'banner' | 'logoSuperior' | 'logoInferior') => {
+  const handleUploadCheckout = async (e: React.ChangeEvent<HTMLInputElement>, tipo: 'banner' | 'logoSuperior' | 'bannerInferior') => {
     const file = e.target.files?.[0];
     if (!file) return;
     const formData = new FormData();
@@ -423,15 +424,15 @@ const carregarCoProdutores = async () => {
         const novoConfig = {...configPlano};
         if (tipo === 'banner') novoConfig.checkoutBanner = data.url;
         if (tipo === 'logoSuperior') novoConfig.checkoutLogoSuperior = data.url;
-        if (tipo === 'logoInferior') novoConfig.checkoutLogoInferior = data.url;
+        if (tipo === 'bannerInferior') novoConfig.checkoutBannerInferior = data.url;
         setConfigPlano(novoConfig);
         if (modalConfig.planoId) {
           const token = localStorage.getItem('token');
           const dados: any = {};
-          if (modalConfig.tipo === 'NORMAL') { dados.checkoutBanner = novoConfig.checkoutBanner; dados.checkoutLogoSuperior = novoConfig.checkoutLogoSuperior; dados.checkoutLogoInferior = novoConfig.checkoutLogoInferior; }
+          if (modalConfig.tipo === 'NORMAL') { dados.checkoutBanner = novoConfig.checkoutBanner; dados.checkoutLogoSuperior = novoConfig.checkoutLogoSuperior; dados.checkoutBannerInferior = novoConfig.checkoutBannerInferior; }
           else { dados.checkoutPadBanner = novoConfig.checkoutBanner; dados.checkoutPadLogoSuperior = novoConfig.checkoutLogoSuperior; dados.checkoutPadLogoInferior = novoConfig.checkoutLogoInferior; }
           await fetch(`/api/planos/${modalConfig.planoId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify(dados) });
-          alert(`✅ ${tipo === 'banner' ? 'Banner' : tipo === 'logoSuperior' ? 'Logo Superior' : 'Logo Inferior'} salvo!`);
+          alert(`✅ ${tipo === 'banner' ? 'Banner' : tipo === 'logoSuperior' ? 'Logo Superior' : 'Banner Inferior'} salvo!`);
         }
       }
     } catch (error) { alert('❌ Erro ao fazer upload'); }
@@ -510,7 +511,8 @@ const carregarCoProdutores = async () => {
               checkoutBackRedirectUrl: data.plano.checkoutBackRedirectUrl || '',
               checkoutCondicaoDesconto: data.plano.checkoutCondicaoDesconto || null,
               checkoutQuantidadeInicial: data.plano.checkoutQuantidadeInicial || 1,
-              checkoutFretePadraoId: data.plano.checkoutFretePadraoId || ''
+              checkoutFretePadraoId: data.plano.checkoutFretePadraoId || '',
+              checkoutBannerInferior: data.plano.checkoutBannerInferior || ''
             });
           } else {
             setConfigPlano({
@@ -531,7 +533,8 @@ const carregarCoProdutores = async () => {
               checkoutBackRedirect: false, checkoutBackRedirectUrl: '',
               checkoutCondicaoDesconto: null,
               checkoutQuantidadeInicial: 1,
-              checkoutFretePadraoId: ''
+              checkoutFretePadraoId: '',
+              checkoutBannerInferior: ''
             });
           }
         }
@@ -548,7 +551,7 @@ const carregarCoProdutores = async () => {
       if (modalConfig.tipo === 'NORMAL') {
         dados.checkoutBanner = configPlano.checkoutBanner;
         dados.checkoutLogoSuperior = configPlano.checkoutLogoSuperior;
-        dados.checkoutLogoInferior = configPlano.checkoutLogoInferior;
+        dados.checkoutBannerInferior = configPlano.checkoutBannerInferior;
         dados.checkoutCorPrimaria = configPlano.checkoutCorPrimaria;
         dados.checkoutCorSecundaria = configPlano.checkoutCorSecundaria;
         dados.checkoutCronometro = configPlano.checkoutCronometro;
@@ -1096,8 +1099,8 @@ return (
                             <input type="file" accept="image/*" onChange={(e) => handleUploadCheckout(e, 'logoSuperior')} className="w-full px-4 py-3 border-2 border-dashed border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 rounded-lg cursor-pointer" />
                           </div>
                           <div>
-                            <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Logo Inferior</label>
-                            <input type="file" accept="image/*" onChange={(e) => handleUploadCheckout(e, 'logoInferior')} className="w-full px-4 py-3 border-2 border-dashed border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 rounded-lg cursor-pointer" />
+                            <label className="block text-sm font-semibold text-gray-900 dark:text-finoradark-text mb-2">Banner Inferior</label>
+                            <input type="file" accept="image/*" onChange={(e) => handleUploadCheckout(e, 'bannerInferior')} className="w-full px-4 py-3 border-2 border-dashed border-gray-300 dark:border-finoradark-border dark:bg-finoradark-card2 rounded-lg cursor-pointer" />
                           </div>
                         </div>
                       </div>

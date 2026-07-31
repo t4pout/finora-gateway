@@ -273,6 +273,7 @@ model PlanoOferta {
   checkoutCondicaoDesconto   Json?
   checkoutQuantidadeInicial  Int?     @default(1)
   checkoutFretePadraoId      String?
+  checkoutBannerInferior     String?
   orderBumps                 PlanoOrderBump[]
   fretes                     PlanoFrete[]
   produtoId                  String

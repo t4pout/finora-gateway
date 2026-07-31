@@ -71,6 +71,7 @@ export async function PATCH(
     if (body.checkoutCondicaoDesconto !== undefined) data.checkoutCondicaoDesconto = body.checkoutCondicaoDesconto;
     if (body.checkoutQuantidadeInicial !== undefined) data.checkoutQuantidadeInicial = body.checkoutQuantidadeInicial;
     if (body.checkoutFretePadraoId !== undefined) data.checkoutFretePadraoId = body.checkoutFretePadraoId;
+    if (body.checkoutBannerInferior !== undefined) data.checkoutBannerInferior = body.checkoutBannerInferior;
     if (body.checkoutPadBanner !== undefined) data.checkoutPadBanner = body.checkoutPadBanner;
     if (body.checkoutPadLogoSuperior !== undefined) data.checkoutPadLogoSuperior = body.checkoutPadLogoSuperior;
     if (body.checkoutPadLogoInferior !== undefined) data.checkoutPadLogoInferior = body.checkoutPadLogoInferior;
