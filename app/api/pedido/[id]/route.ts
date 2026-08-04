@@ -14,7 +14,9 @@ export async function GET(
         produto: {
           select: {
             nome: true,
-            descricao: true
+            descricao: true,
+            imagem: true,
+            tipo: true
           }
         }
       }
