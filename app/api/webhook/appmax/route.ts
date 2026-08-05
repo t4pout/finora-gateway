@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { enviarParaPagah } from '@/lib/pagah';
 
 export async function POST(request: NextRequest) {
   try {
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
 
     const dispararCAPI = async (produtoId: string, valor: number, nome: string, email: string, tel: string) => {
       try {
-        const pixels = await prisma.pixel.findMany({
+        const pixels = await prisma.pixelConversao.findMany({
           where: { produtoId, plataforma: 'FACEBOOK', status: 'ATIVO' }
         });
         for (const px of pixels) {
@@ -123,41 +124,13 @@ export async function POST(request: NextRequest) {
     console.log('Venda marcada como PAGO:', vendaExistente.id);
 
     // Enviar para Pagah (call center cartao)
-    try {
-      const pagahToken = process.env.PAGAH_TOKEN;
-      if (pagahToken && vendaExistente.metodoPagamento === 'CARTAO') {
-        await fetch('https://app.pagah.com/webhook/call/' + pagahToken, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            integration: true,
-            name: vendaExistente.compradorNome,
-            phone: vendaExistente.compradorTel?.replace(/\D/g, '') || '',
-            email: vendaExistente.compradorEmail,
-            document: vendaExistente.compradorCpf?.replace(/\D/g, '') || '',
-            address: vendaExistente.rua || '',
-            number: vendaExistente.numero || '',
-            district: vendaExistente.bairro || '',
-            zipcode: vendaExistente.cep?.replace(/\D/g, '') || '',
-            city: vendaExistente.cidade || '',
-            state: vendaExistente.estado || '',
-            product_id: vendaExistente.produtoId || '',
-            product_uuid: vendaExistente.produtoId || '',
-            product_name: vendaExistente.nomePlano || vendaExistente.produto?.nome || '',
-            product_description: vendaExistente.produto?.nome || '',
-            payment_method: 'credit_card',
-            status: 'paid',
-            date: new Date().toISOString().replace('T', ' ').substring(0, 19),
-            amount: vendaExistente.valor,
-            quantity: 1,
-            installments: 1,
-            order_code: vendaExistente.id.substring(0, 8).toUpperCase()
-          })
-        });
+    if (vendaExistente.metodoPagamento === 'CARTAO') {
+      try {
+        await enviarParaPagah({ ...vendaExistente, produto: vendaExistente.produto || undefined } as any);
         console.log('Pagah: venda enviada para call center');
+      } catch (e) {
+        console.error('Erro ao enviar para Pagah:', e);
       }
-    } catch (e) {
-      console.error('Erro ao enviar para Pagah:', e);
     }
 
     // Processar carteira do vendedor
