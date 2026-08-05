@@ -17,6 +17,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'order_id nao encontrado' }, { status: 400 });
     }
 
+    const statusRecusado = ['refused', 'declined', 'canceled', 'cancelled', 'chargeback', 'expired'].includes(String(status).toLowerCase());
+
+    if (statusRecusado) {
+      const orderIdStr = String(orderId);
+      const vendaRecusada = await prisma.venda.findFirst({ where: { pixId: orderIdStr } });
+      if (vendaRecusada && vendaRecusada.status !== 'PAGO') {
+        await prisma.venda.update({ where: { id: vendaRecusada.id }, data: { status: 'RECUSADA' } });
+        console.log('Venda marcada como RECUSADA via webhook Appmax:', vendaRecusada.id, 'status:', status);
+      }
+      return NextResponse.json({ received: true, message: 'Recusa processada' });
+    }
+
     if (status !== 'approved' && status !== 'paid') {
       console.log('Pagamento Appmax nao aprovado ainda:', status);
       return NextResponse.json({ received: true });
