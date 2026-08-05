@@ -121,8 +121,10 @@ export default function PedidoPage({ params }: { params: Promise<{ id: string }>
   const progressoTempo = Math.max(0, Math.min(100, (tempoRestante / TEMPO_LIMITE_SEGUNDOS) * 100));
   const enderecoCompleto = venda.rua ? `${venda.rua}, ${venda.numero || 's/n'}${venda.complemento ? ' - ' + venda.complemento : ''}, ${venda.bairro || ''}, ${venda.cidade || ''}/${venda.estado || ''}, ${venda.cep || ''}` : null;
 
+  const nomeItemPrincipal = venda.nomePlano || venda.produto?.nome || 'Produto';
+  const qtdReal = venda.quantidade || 1;
   const itens = [
-    { nome: venda.produto?.nome, imagem: venda.produto?.imagem, qtd: venda.quantidade || 1, tag: venda.produto?.tipo },
+    { nome: nomeItemPrincipal, imagem: venda.produto?.imagem, qtd: qtdReal > 1 ? qtdReal : null, tag: venda.produto?.tipo },
     ...(venda.orderBumpsNomes || []).map((nome: string) => ({ nome, imagem: null, qtd: 1, tag: null }))
   ];
 
@@ -243,7 +245,7 @@ export default function PedidoPage({ params }: { params: Promise<{ id: string }>
                       {item.imagem ? <img src={item.imagem} alt={item.nome} className="w-full h-full object-cover" /> : `${item.qtd}${i === 0 ? 'A' : ''}`}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-semibold text-gray-900 truncate">{item.nome} x{item.qtd}</div>
+                      <div className="text-sm font-semibold text-gray-900 truncate">{item.nome}{item.qtd ? ` x${item.qtd}` : ''}</div>
                     </div>
                     {item.tag && <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold rounded uppercase flex-shrink-0">{item.tag}</span>}
                   </div>
