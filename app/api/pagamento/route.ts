@@ -383,7 +383,10 @@ export async function POST(request: NextRequest) {
 
         const cartaoData: any = await cartaoRes.json();
         console.log('Appmax cartao resposta:', JSON.stringify(cartaoData));
-        if (!cartaoRes.ok) return NextResponse.json({ error: 'Erro ao processar cartao Appmax', details: cartaoData }, { status: 500 });
+        if (!cartaoRes.ok) {
+          await prisma.venda.update({ where: { id: venda.id }, data: { status: 'RECUSADA', pixId: String(orderId) } });
+          return NextResponse.json({ error: cartaoData?.text || cartaoData?.data?.message || 'Cartão recusado. Verifique os dados ou tente outro cartão.', details: cartaoData }, { status: 400 });
+        }
         const statusCartao = cartaoData.data?.status || 'pending';
         await prisma.venda.update({ where: { id: venda.id }, data: { status: statusCartao === 'approved' ? 'PAGO' : 'PENDENTE', pixId: String(orderId) } });
 
