@@ -413,6 +413,10 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
                   <button onClick={handleFinalizar} disabled={processando} className="v5-btn-finalizar" style={{ background: processando ? '#9ca3af' : '#16a34a' }}>
                     {processando ? 'Processando...' : 'Finalizar compra'}
                   </button>
+                  <div className="v5-selos-seguranca">
+                    <span>✅ <strong>COMPRA SEGURA</strong></span>
+                    <span>🔒 <strong>DADOS 100% PROTEGIDOS</strong></span>
+                  </div>
                 </div>
               )}
             </div>
@@ -548,6 +552,10 @@ export default function CheckoutV5({ plano, formData, setFormData, etapa, setEta
 
         .v5-btn-finalizar { padding: 16px; border: none; border-radius: 8px; color: white; font-weight: 800; font-size: 16px; cursor: pointer; margin-top: 6px; }
         .v5-btn-finalizar:disabled { opacity: 0.6; cursor: not-allowed; }
+        .v5-selos-seguranca { display: flex; justify-content: center; gap: 20px; margin-top: 14px; flex-wrap: wrap; }
+        .v5-selos-seguranca span { font-size: 11px; color: #6b7280; display: flex; align-items: center; gap: 4px; }
+        .v5-selos-seguranca span:first-child strong { color: #16a34a; }
+        .v5-selos-seguranca span:last-child strong { color: #2563eb; }
 
         .v5-resumo-box { background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; }
         .v5-resumo-titulo { font-size: 15px; font-weight: 800; color: #111827; padding-bottom: 12px; border-bottom: 1px solid #f3f4f6; margin-bottom: 12px; }

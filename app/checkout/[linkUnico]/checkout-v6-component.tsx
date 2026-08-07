@@ -531,6 +531,10 @@ export default function CheckoutV6({ plano, formData, setFormData, etapa, setEta
                     {processando ? 'Processando...' : 'Finalizar compra'}
                   </button>
                 </div>
+                <div className="v6-selos-seguranca">
+                  <span>✅ <strong>COMPRA SEGURA</strong></span>
+                  <span>🔒 <strong>DADOS 100% PROTEGIDOS</strong></span>
+                </div>
               </div>
             )}
           </div>
@@ -653,6 +657,10 @@ export default function CheckoutV6({ plano, formData, setFormData, etapa, setEta
         .v6-btn-voltar { padding: 15px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 15px; font-weight: 600; color: #6b7280; background: white; cursor: pointer; }
         .v6-btn-finalizar { flex: 1; padding: 16px; border: none; border-radius: 10px; color: white; font-weight: 800; font-size: 16px; cursor: pointer; }
         .v6-btn-finalizar:disabled { opacity: 0.6; cursor: not-allowed; }
+        .v6-selos-seguranca { display: flex; justify-content: center; gap: 20px; margin-top: 14px; flex-wrap: wrap; }
+        .v6-selos-seguranca span { font-size: 11px; color: #6b7280; display: flex; align-items: center; gap: 4px; }
+        .v6-selos-seguranca span:first-child strong { color: #16a34a; }
+        .v6-selos-seguranca span:last-child strong { color: #2563eb; }
 
         .v6-banner-bottom { max-width: 560px; margin: 16px auto 0; padding: 0 16px; }
         .v6-banner-bottom img { width: 100%; border-radius: 10px; display: block; }

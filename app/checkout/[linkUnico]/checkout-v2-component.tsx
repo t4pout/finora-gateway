@@ -389,6 +389,10 @@ export default function CheckoutV2({ plano, formData, setFormData, etapa, setEta
               <button onClick={handleFinalizar} disabled={processando} className="v2-btn-confirmar" style={{ background: processando ? '#ccc' : '#16a34a' }}>
                 {processando ? 'Processando...' : metodoPag === 'PIX' ? '🟢 Gerar Pix' : metodoPag === 'BOLETO' ? '📄 Gerar Boleto' : '🔒 Confirmar Pagamento'}
               </button>
+              <div className="v2-selos-seguranca">
+                <span>✅ <strong>COMPRA SEGURA</strong></span>
+                <span>🔒 <strong>DADOS 100% PROTEGIDOS</strong></span>
+              </div>
 
               <div className="v2-seguro">
                 <img src="https://img.icons8.com/color/48/lock--v1.png" alt="Seguro" style={{width:'24px', height:'24px'}} />
@@ -486,6 +490,10 @@ export default function CheckoutV2({ plano, formData, setFormData, etapa, setEta
         .v2-btn-confirmar { width: calc(100% - 40px); margin: 0 20px 16px; padding: 16px; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; color: white; cursor: pointer; transition: opacity 0.2s; display: block; }
         .v2-btn-confirmar:hover:not(:disabled) { opacity: 0.9; }
         .v2-btn-confirmar:disabled { opacity: 0.6; cursor: not-allowed; }
+         .v2-selos-seguranca { display: flex; justify-content: center; gap: 20px; margin-top: 14px; flex-wrap: wrap; }
+        .v2-selos-seguranca span { font-size: 11px; color: #6b7280; display: flex; align-items: center; gap: 4px; }
+        .v2-selos-seguranca span:first-child strong { color: #16a34a; }
+        .v2-selos-seguranca span:last-child strong { color: #2563eb; }
         .v2-seguro { display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: #f0fdf4; border-top: 1px solid #e5e7eb; }
         .v2-seguro-titulo { font-size: 11px; font-weight: 700; color: #166534; }
         .v2-seguro-sub { font-size: 11px; color: #15803d; }

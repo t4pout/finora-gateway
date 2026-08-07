@@ -968,6 +968,10 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
                       )}
                     </button>
                   </div>
+                  <div className="selos-seguranca">
+                    <span>✅ <strong>COMPRA SEGURA</strong></span>
+                    <span>🔒 <strong>DADOS 100% PROTEGIDOS</strong></span>
+                  </div>
                 </div>
               )}
             </div>
@@ -1033,6 +1037,10 @@ export default function CheckoutPlanoPage({ params }: { params: Promise<{ linkUn
         .btn-secondary { padding: 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 16px; font-weight: 600; color: #6b7280; background: white; cursor: pointer; transition: all 0.3s; }
         .btn-secondary:hover { border-color: #d1d5db; background: #f9fafb; }
         .btn-finalizar { font-size: 18px; padding: 18px; }
+        .selos-seguranca { display: flex; justify-content: center; gap: 20px; margin-top: 14px; flex-wrap: wrap; }
+        .selos-seguranca span { font-size: 11px; color: #6b7280; display: flex; align-items: center; gap: 4px; }
+        .selos-seguranca span:first-child strong { color: #16a34a; }
+        .selos-seguranca span:last-child strong { color: #2563eb; }
         .spinner-small { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
         .banner-inferior { max-width: 600px; margin: 32px auto 0; }
         .banner-inferior img { width: 100%; border-radius: 10px; display: block; }
